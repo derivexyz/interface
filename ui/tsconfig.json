@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    "paths": {
+      "@lyra/ui/*": ["*"]
+    }
+  },
+  "exclude": ["node_modules"],
+  "include": ["index.d.ts", "**/*.ts", "**/*.tsx"]
+}

@@ -1,0 +1,84 @@
+{
+  "name": "Overrides",
+  "logoURI": "",
+  "keywords": ["override"],
+  "timestamp": "2021-03-22T10:01:21.042+00:00",
+  "tokens": [
+    {
+      "chainId": 10,
+      "address": "0xdE48b1B5853cc63B1D05e507414D3E02831722F8",
+      "name": "Staked Lyra",
+      "symbol": "stkLYRA",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/staked-lyra-token.png"
+    },
+    {
+      "chainId": 69,
+      "address": "0xd16d254c42a03ad72d77b4226d086afcc0b2e43e",
+      "name": "Staked Lyra",
+      "symbol": "stkLYRA",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/staked-lyra-token.png"
+    },
+    {
+      "chainId": 10,
+      "address": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+      "name": "Lyra",
+      "symbol": "LYRA",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/lyra-token.png"
+    },
+    {
+      "chainId": 69,
+      "address": "0xE7798f023fC62146e8Aa1b36Da45fb70855a77Ea",
+      "name": "Lyra",
+      "symbol": "LYRA",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/lyra-token.png"
+    },
+    {
+      "chainId": 10,
+      "address": "0x4200000000000000000000000000000000000042",
+      "name": "Optimism",
+      "symbol": "OP",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/optimism.png",
+      "extensions": {
+        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
+      }
+    },
+    {
+      "chainId": 69,
+      "address": "0x4200000000000000000000000000000000000042",
+      "name": "Optimism",
+      "symbol": "OP",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/optimism.png",
+      "extensions": {
+        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
+      }
+    },
+    {
+      "chainId": 1,
+      "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "name": "Tether USD",
+      "symbol": "USDT",
+      "decimals": 6,
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/usdt-logo.png",
+      "extensions": {
+        "optimismBridgeAddress": "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1"
+      }
+    },
+    {
+      "chainId": 10,
+      "address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+      "name": "Tether USD",
+      "symbol": "USDT",
+      "decimals": 6,
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/usdt-logo.png",
+      "extensions": {
+        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
+      }
+    }
+  ]
+}

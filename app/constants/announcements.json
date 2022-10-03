@@ -1,0 +1,42 @@
+[
+  {
+    "id": "btc-market",
+    "header": "New Market",
+    "title": "Trade Bitcoin options on Lyra.",
+    "cta": "Trade Bitcoin",
+    "linkHref": "/trade/btc",
+    "graphic": "images/bitcoin-logo.png",
+    "startTimestamp": 1661990400,
+    "expiryTimestamp": 1664546400
+  },
+  {
+    "id": "hop-bridge-giveaway",
+    "header": "Hop Giveaway",
+    "title": "Bridge via Hop Protocol and trade $100 for a chance to win 2000 OP.",
+    "cta": "View Details",
+    "linkHref": "/competition?pool=2",
+    "graphic": "images/hop_badge.png",
+    "startTimestamp": 1662508800,
+    "expiryTimestamp": 1665126000
+  },
+  {
+    "id": "trade-the-merge",
+    "header": "Trade the Merge",
+    "title": "Win up to 30k OP in Lyra's first mainnet trading competition.",
+    "cta": "View Details",
+    "linkHref": "/competition",
+    "graphic": "images/trade-the-merge.png",
+    "startTimestamp": 1662595200,
+    "expiryTimestamp": 1665126000
+  },
+  {
+    "id": "sol-vault",
+    "header": "Solana Vault",
+    "title": "Deposits to the Solana vault are now open.",
+    "cta": "Deposit Now",
+    "linkHref": "/vaults/sol",
+    "graphic": "images/solana-logo.png",
+    "startTimestamp": 1664323200,
+    "expiryTimestamp": 1666911600
+  }
+]

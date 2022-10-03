@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    "paths": {
+      "@lyra/ui/*": ["../ui/*"],
+      "@lyrafinance/lyra-js": ["../sdk/src/*"],
+      "@/app/*": ["*"]
+    },
+    "incremental": true
+  },
+  "exclude": ["node_modules"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "index.d.ts", "../ui/index.d.ts"]
+}

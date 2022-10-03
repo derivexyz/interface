@@ -1,0 +1,69 @@
+/* @import url('https://rsms.me/inter/inter.css');
+html {
+  font-family: 'Inter', sans-serif;
+}
+@supports (font-variation-settings: normal) {
+  html {
+    font-family: 'Inter var', sans-serif;
+  }
+} */
+@font-face {
+  font-family: 'Sohne';
+  src: url('soehne-web-extraleicht.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sohne';
+  src: url('soehne-web-leicht.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sohne';
+  src: url('soehne-web-buch.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sohne';
+  src: url('soehne-web-kraftig.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+/* semi bold */
+@font-face {
+  font-family: 'Sohne';
+  src: url('soehne-web-halbfett.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+/* bold */
+@font-face {
+  font-family: 'Sohne';
+  src: url('soehne-web-dreiviertelfett.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+/* extra bold */
+@font-face {
+  font-family: 'Sohne';
+  src: url('soehne-web-fett.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+/* black */
+@font-face {
+  font-family: 'Sohne';
+  src: url('soehne-web-extrafett.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
