@@ -29,7 +29,6 @@ const transfersToL2Query = gql`
       deadline
       destinationChainId
       from
-      logIndex
       relayerFee
       recipient
       relayer
