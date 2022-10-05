@@ -16,7 +16,7 @@ export default class MyDocument extends Document {
           <link rel="apple-touch-icon" sizes="180x180" href={getAssetSrc('/favicon/apple-touch-icon.png')} />
           <link rel="icon" type="image/png" sizes="32x32" href={getAssetSrc('/favicon/favicon-32x32.png')} />
           <link rel="icon" type="image/png" sizes="16x16" href={getAssetSrc('/favicon/favicon-16x16.png')} />
-          <link rel="manifest" href={getAssetSrc('/favicon/site.webmanifest')} />
+          <link rel="manifest" href={getAssetSrc('/manifest.json')} />
           <meta name="msapplication-TileColor" content="#da532c" />
           <meta name="theme-color" content="#000000"></meta>
           {/* TODO: Move fonts to @lyra/ui export */}

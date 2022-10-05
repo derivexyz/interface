@@ -25,6 +25,7 @@ export enum WalletType {
   MetaMask = 'MetaMask',
   WalletConnect = 'WalletConnect',
   CoinbaseWallet = 'CoinbaseWallet',
+  GnosisSafe = 'GnosisSafe',
 }
 
 export type NetworkConfig = {
