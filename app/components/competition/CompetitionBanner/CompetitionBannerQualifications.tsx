@@ -30,7 +30,7 @@ const CompetitionBannerQualifications = ({ sx, ...styleProps }: Props) => {
       <Flex ml={isMobile ? 7 : 0} alignItems="center" sx={{ color: isDarkMode ? '#FFFFFFE6' : '#FFF' }}>
         <CompetitionBannerBridgeQualification />
         <Text color="inherit" ml={4} variant="bodyLarge">
-          Bridge via Hop for a chance to win 2k OP
+          Bridge via Hop for a chance to win 2.5k OP
         </Text>
       </Flex>
     </Box>

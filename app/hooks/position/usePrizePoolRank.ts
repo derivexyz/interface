@@ -23,7 +23,7 @@ const fetchPrizePoolRank = async (account: string, poolStr: string): Promise<Lea
   }
   const leaderboard = await fetchLeaderboard(JSON.stringify(pool.leaderboardFilter ?? EMPTY_FILTER))
   const idx = leaderboard.findIndex(leaderboardAccount => leaderboardAccount.account === account)
-  return idx > 0
+  return idx >= 0
     ? {
         ...leaderboard[idx],
         rank: idx + 1,

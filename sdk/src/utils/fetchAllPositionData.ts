@@ -80,7 +80,8 @@ export default async function fetchAllPositionData(lyra: Lyra, filter?: Position
       const transfers = pos.transfers.map(getTransferDataFromSubgraph)
       const settle = pos.settle ? getSettleDataFromSubgraph(pos.settle) : null
       const market = marketsByAddress[getAddress(pos.market.id)]
-      return getPositionDataFromSubgraph(pos, market, trades, collateralUpdates, transfers, settle)
+      // Ignore liquidation price binary search
+      return getPositionDataFromSubgraph(pos, market, trades, collateralUpdates, transfers, settle, true)
     })
 
   return positions

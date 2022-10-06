@@ -26,6 +26,7 @@ export default async function fetchLeaderboard(
 ): Promise<PositionLeaderboard[]> {
   const positions = await lyra.allPositions(options)
   const minTotalPremiums = options?.minTotalPremiums
+  const minTotalLongPremiums = options?.minTotalLongPremiums
 
   const positionByWallet: Record<string, Position[]> = positions.reduce(
     (dict: Record<string, Position[]>, position) => {
@@ -47,6 +48,7 @@ export default async function fetchLeaderboard(
       let totalLongAverageOpenCost = ZERO_BN
       let totalNotionalVolume = ZERO_BN
       let totalPremiums = ZERO_BN
+      let totalLongPremiums = ZERO_BN
 
       positions.forEach(position => {
         const { isLong, isSettled } = position
@@ -65,6 +67,9 @@ export default async function fetchLeaderboard(
             // Ignore avg open cost on settled positions
             totalLongAverageOpenCost = totalLongAverageOpenCost.add(totalAverageOpenCost)
           }
+          totalLongPremiums = totalLongPremiums.add(
+            position.trades().reduce((sum, trade) => sum.add(trade.premium), ZERO_BN)
+          )
         }
         totalNotionalVolume = totalNotionalVolume.add(
           position.trades().reduce((sum, trade) => {
@@ -92,12 +97,16 @@ export default async function fetchLeaderboard(
         unrealizedLongPnl: accountUnrealizedLongPnl,
         unrealizedLongPnlPercentage,
         totalPremiums,
+        totalLongPremiums,
         totalNotionalVolume,
         positions,
       }
     })
     .filter(user => {
       if (minTotalPremiums && user.totalPremiums.lt(minTotalPremiums)) {
+        return false
+      }
+      if (minTotalLongPremiums && user.totalLongPremiums.lt(minTotalLongPremiums)) {
         return false
       }
       return true

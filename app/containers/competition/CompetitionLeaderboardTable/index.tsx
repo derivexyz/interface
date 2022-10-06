@@ -29,6 +29,7 @@ type LeaderboardTableData = TableData<{
   realizedLongPnlPercentage: number
   unrealizedLongPnlPercentage: number
   totalPremiums: number
+  totalLongPremiums: number
   totalNotionalVolume: number
   prize: number
 }>
@@ -137,6 +138,7 @@ const CompetitionLeaderboardTable = withSuspense(
           unrealizedLongPnl: fromBigNumber(user.unrealizedLongPnl),
           unrealizedLongPnlPercentage: fromBigNumber(user.unrealizedLongPnlPercentage),
           totalPremiums: fromBigNumber(user.totalPremiums),
+          totalLongPremiums: fromBigNumber(user.totalLongPremiums),
           totalNotionalVolume: fromBigNumber(user.totalNotionalVolume),
           prize:
             pool.prizes.find(prize => prize.rank === idx + 1 || (Array.isArray(prize.rank) && idx + 1 <= prize.rank[1]))

@@ -19,6 +19,11 @@ type Props = {
 const CompetitionPrizePoolCardsYourRank = withSuspense(
   ({ pool, ...styleProps }: Props) => {
     const userPrizePoolRank = usePrizePoolRank(pool)
+    const value = userPrizePoolRank
+      ? pool.isRankedByPercentage
+        ? fromBigNumber(userPrizePoolRank[pool.rankKey] ?? ZERO_BN)
+        : fromBigNumber(userPrizePoolRank.realizedPnl ?? ZERO_BN)
+      : 0
     return userPrizePoolRank ? (
       <Grid sx={{ gridTemplateColumns: 'repeat(2, 1fr)', columnGap: 4 }} {...styleProps}>
         {!pool.isRandom ? (
@@ -29,11 +34,8 @@ const CompetitionPrizePoolCardsYourRank = withSuspense(
         {!pool.isRandom ? (
           <LabelItem
             label="Profit / Loss"
-            value={
-              pool.isRankedByPercentage
-                ? formatPercentage(fromBigNumber(userPrizePoolRank[pool.rankKey] ?? ZERO_BN))
-                : formatUSD(userPrizePoolRank.realizedPnl ?? 0)
-            }
+            valueColor={value === 0 ? 'text' : value > 0 ? 'primaryText' : 'errorText'}
+            value={pool.isRankedByPercentage ? formatPercentage(value) : formatUSD(value, { showSign: true })}
           />
         ) : null}
       </Grid>

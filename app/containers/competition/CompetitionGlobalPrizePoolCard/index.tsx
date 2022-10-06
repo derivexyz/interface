@@ -101,7 +101,7 @@ const CompetitionGlobalPrizePoolCard = ({ selectedPool, selectedPoolIdx, selecte
                         </Link>
                       </Box>
                     ) : (
-                      <Text mt={2} variant="secondary">
+                      <Text mt={2} variant="secondary" color="secondaryText">
                         No Winner
                       </Text>
                     )}

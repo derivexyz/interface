@@ -89,6 +89,7 @@ export enum PositionLeaderboardSortBy {
 
 export type PositionLeaderboardFilter = {
   minTotalPremiums?: BigNumber
+  minTotalLongPremiums?: BigNumber
   sortBy?: PositionLeaderboardSortBy
   secondarySortBy?: PositionLeaderboardSortBy
 } & PositionFilter
@@ -102,6 +103,7 @@ export type PositionLeaderboard = {
   unrealizedLongPnl: BigNumber
   unrealizedLongPnlPercentage: BigNumber
   totalPremiums: BigNumber
+  totalLongPremiums: BigNumber
   totalNotionalVolume: BigNumber
   positions: Position[]
 }
