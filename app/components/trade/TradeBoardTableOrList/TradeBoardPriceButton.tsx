@@ -9,11 +9,8 @@ import emptyFunction from '@/app/utils/emptyFunction'
 
 type Props = {
   quote: Quote
-  isCall: boolean
-  isBuy: boolean
   isSelected: boolean
   onSelected: (isSelected: boolean) => void
-  disabledReason?: QuoteDisabledReason | null
 } & MarginProps
 
 const getDisabledMessage = (disabledReason: QuoteDisabledReason): string => {
@@ -28,15 +25,15 @@ const getDisabledMessage = (disabledReason: QuoteDisabledReason): string => {
     case QuoteDisabledReason.VolTooHigh:
     case QuoteDisabledReason.VolTooLow:
     case QuoteDisabledReason.IVTooHigh:
-      return 'Buy Only'
+      return 'Sell Only'
     case QuoteDisabledReason.IVTooLow:
     case QuoteDisabledReason.SkewTooHigh:
     case QuoteDisabledReason.SkewTooLow:
-      return 'Sell Only'
+      return 'Buy Only'
   }
 }
 
-const getIsDisabled = (disabledReason: QuoteDisabledReason): boolean => {
+const getIsButtonDisabled = (disabledReason: QuoteDisabledReason): boolean => {
   switch (disabledReason) {
     case QuoteDisabledReason.InsufficientLiquidity:
       return false
@@ -56,19 +53,17 @@ const getButtonWidthForMarket = (marketName: string) => {
 
 export default function TradeBoardPriceButton({
   quote,
-  isCall,
-  isBuy,
   isSelected,
-  disabledReason,
   onSelected = emptyFunction,
   ...styleProps
 }: Props): ButtonElement {
-  const isDisabled = !!disabledReason && getIsDisabled(disabledReason)
+  const { isCall, isBuy, disabledReason } = quote
+  const isDisabled = disabledReason ? getIsButtonDisabled(disabledReason) : false
   return (
     <Button
       variant={(isCall && isBuy) || (!isCall && !isBuy) ? 'primary' : 'error'}
       width={getButtonWidthForMarket(quote.marketName)}
-      showRightIconSeparator
+      showRightIconSeparator={!isDisabled}
       isOutline={!isSelected}
       isDisabled={isDisabled}
       label={isDisabled && disabledReason ? getDisabledMessage(disabledReason) : formatUSD(quote.premium)}

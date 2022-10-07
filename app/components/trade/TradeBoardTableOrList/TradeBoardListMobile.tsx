@@ -64,9 +64,6 @@ const TradeBoardListMobile = ({
                   quote={quote}
                   isSelected={strikeId === quote.strike().id}
                   onSelected={() => onSelectOption(quote.option())}
-                  disabledReason={quote.disabledReason}
-                  isCall={isCall}
-                  isBuy={isBuy}
                 />
               </Flex>
             </CardSection>
