@@ -8,7 +8,7 @@ import getCollateralUpdateDataFromRecentEvent from './getCollateralUpdateDataFro
 import getLyraMarketContract from './getLyraMarketContract'
 import getTradeDataFromRecentEvent from './getTradeDataFromRecentEvent'
 
-const BLOCK_LIMIT = 1000
+const BLOCK_LIMIT = 1_000
 
 type PositionRecentEventData = Omit<PositionEventData, 'settle' | 'transfers'>
 
