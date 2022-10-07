@@ -8,7 +8,7 @@ import getCollateralUpdateDataFromRecentEvent from './getCollateralUpdateDataFro
 import getLyraMarketContract from './getLyraMarketContract'
 import getTradeDataFromRecentEvent from './getTradeDataFromRecentEvent'
 
-const BLOCK_LIMIT = 1_000
+const BLOCK_LIMIT = 1000
 
 type PositionRecentEventData = Omit<PositionEventData, 'settle' | 'transfers'>
 
@@ -30,12 +30,21 @@ export default async function fetchRecentPositionEventsByIDs(
   const fromBlockNumber = market.block.number - BLOCK_LIMIT
 
   const [tradeEvents, updateEvents, transferEvents] = await Promise.all([
-    marketContract.queryFilter(marketContract.filters.Trade(null, null, positionIds), fromBlockNumber),
+    marketContract.queryFilter(
+      marketContract.filters.Trade(null, null, positionIds),
+      fromBlockNumber,
+      market.block.number
+    ),
     tokenContract.queryFilter(
       tokenContract.filters.PositionUpdated(positionIds, null, POSITION_UPDATED_TYPES),
-      fromBlockNumber
+      fromBlockNumber,
+      market.block.number
     ),
-    tokenContract.queryFilter(tokenContract.filters.Transfer(null, null, positionIds), fromBlockNumber),
+    tokenContract.queryFilter(
+      tokenContract.filters.Transfer(null, null, positionIds),
+      fromBlockNumber,
+      market.block.number
+    ),
   ])
 
   const transfersByIdAndHash: Record<string, ContractTransferEvent[]> = transferEvents.reduce((dict, transfer) => {
@@ -61,6 +70,7 @@ export default async function fetchRecentPositionEventsByIDs(
           transfersByIdAndHash[getTransferKey(tradeEvent.transactionHash, tradeEvent.args.positionId.toNumber())]
         return getTradeDataFromRecentEvent(tradeEvent, market, transfers)
       } catch (e) {
+        console.error(e)
         return null
       }
     })
@@ -73,6 +83,7 @@ export default async function fetchRecentPositionEventsByIDs(
           transfersByIdAndHash[getTransferKey(updateEvent.transactionHash, updateEvent.args.positionId.toNumber())]
         return getCollateralUpdateDataFromRecentEvent(updateEvent, market, transfers)
       } catch (e) {
+        console.error(e)
         return null
       }
     })
