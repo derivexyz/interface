@@ -61,7 +61,7 @@ const LayoutPrivacyModal = ({ isOpen, onClose }: Props) => {
               <Text variant="bodyMedium">TRM Labs</Text>
             </Flex>
             <Text variant="secondary" color="secondaryText">
-              The app securely collects your wallet address and transaction hashes and shares them with
+              The app securely collects your wallet address and transaction hashes and shares them with{' '}
               <Link textVariant="secondary" href="https://www.trmlabs.com/" target="_blank">
                 TRM Labs Inc.
               </Link>{' '}

@@ -9,7 +9,7 @@ import React, { useCallback, useState } from 'react'
 import { MAX_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
-import OnboardingModal from '@/app/containers/common/OnboardingModal'
+import OnboardingModal, { OnboardingModalStep } from '@/app/containers/common/OnboardingModal'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccount from '@/app/hooks/market/useAccount'
 import useTransaction from '@/app/hooks/transaction/useTransaction'
@@ -118,7 +118,12 @@ const VaultsDepositFormButton = withSuspense(
     return (
       <Box {...styleProps}>
         {insufficientBalance ? swapButton : insufficientAllowance ? approveButton : depositButton}
-        <OnboardingModal isOpen={isOnboardingModalOpen} onClose={() => setIsOnboardingModalOpen(false)} />
+        <OnboardingModal
+          isOpen={isOnboardingModalOpen}
+          onClose={() => setIsOnboardingModalOpen(false)}
+          defaultDestToken={susd?.address}
+          step={OnboardingModalStep.GetTokens}
+        />
       </Box>
     )
   },
