@@ -10,6 +10,7 @@ import { IconType } from '@lyra/ui/components/Icon'
 import Input from '@lyra/ui/components/Input'
 import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
+import Tooltip from '@lyra/ui/components/Tooltip'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { getAddress } from 'ethers/lib/utils'
 import React, { useRef, useState } from 'react'
@@ -93,15 +94,47 @@ const CompetitionGlobalPrizePoolCard = ({ selectedPool, selectedPoolIdx, selecte
                 label={rankPrize.name}
                 value={
                   <Box>
-                    <TokenAmountText tokenNameOrAddress="op" amount={rankPrize.prize} />
+                    <TokenAmountText mb={2} tokenNameOrAddress="op" amount={rankPrize.prize} />
                     {typeof rankPrize.winner === 'string' ? (
-                      <Box mt={2}>
-                        <Link variant="secondary" href={getOptimismExplorerUrl(rankPrize.winner)} showRightIcon>
+                      <Box>
+                        <Link
+                          textVariant="secondary"
+                          variant="secondary"
+                          href={getOptimismExplorerUrl(rankPrize.winner)}
+                          target="_blank"
+                          showRightIcon
+                        >
                           {formatTruncatedAddress(getAddress(rankPrize.winner))}
                         </Link>
                       </Box>
+                    ) : Array.isArray(rankPrize.winner) ? (
+                      <Tooltip
+                        title={`Winners (${rankPrize.winner.length})`}
+                        tooltip={
+                          <Flex flexDirection="column" maxHeight={600} overflowY="auto">
+                            {rankPrize.winner.map((winner, idx) => (
+                              <Text variant="secondary" color="secondaryText" key={winner} mb={2}>
+                                {(Array.isArray(rankPrize.rank) ? rankPrize.rank[0] : rankPrize.rank) + idx}.{' '}
+                                <Link
+                                  textVariant="secondary"
+                                  variant="secondary"
+                                  href={getOptimismExplorerUrl(winner)}
+                                  target="_blank"
+                                  showRightIcon
+                                >
+                                  {formatTruncatedAddress(getAddress(winner))}
+                                </Link>
+                              </Text>
+                            ))}
+                          </Flex>
+                        }
+                      >
+                        <Text variant="secondary" color="secondaryText">
+                          {formatTruncatedAddress(getAddress(rankPrize.winner[0]))}, 0x...
+                        </Text>
+                      </Tooltip>
                     ) : (
-                      <Text mt={2} variant="secondary" color="secondaryText">
+                      <Text variant="secondary" color="secondaryText">
                         No Winner
                       </Text>
                     )}
