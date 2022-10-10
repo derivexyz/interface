@@ -33,5 +33,6 @@ jobs:
           yarn app:build:static
         env:
           BUILD_INFURA_PROJECT_ID: ${{ secrets.BUILD_INFURA_PROJECT_ID }}
+          BUILD_ALCHEMY_PROJECT_ID: ${{ secrets.BUILD_ALCHEMY_PROJECT_ID }}
           NEXT_PUBLIC_IPFS: true
           NEXT_PUBLIC_RELEASE_TAG: ${{ needs.tag.outputs.new_tag }}

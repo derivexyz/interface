@@ -6,7 +6,7 @@ import getOptimismChainId from './getOptimismChainId'
 
 const optimismChainId = getOptimismChainId()
 const networkConfig = NETWORK_CONFIGS[optimismChainId]
-const optimismProvider = new CachedStaticJsonRpcProvider(networkConfig.readRpcUrl, networkConfig.chainId)
+const optimismProvider = new CachedStaticJsonRpcProvider(networkConfig.readRpcUrls, networkConfig.chainId)
 const lyra = new Lyra({
   provider: optimismProvider,
 })
