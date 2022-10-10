@@ -30,11 +30,11 @@
     "expiryTimestamp": 1665126000
   },
   {
-    "id": "sol-vault",
-    "header": "Solana Vault",
-    "title": "Deposits to the Solana vault are now open.",
-    "cta": "Deposit Now",
-    "linkHref": "/vaults/sol",
+    "id": "sol-market",
+    "header": "New Market",
+    "title": "Trade Solana options on Lyra.",
+    "cta": "Trade Now",
+    "linkHref": "/trade/sol",
     "graphic": "images/solana-logo.png",
     "startTimestamp": 1664323200,
     "expiryTimestamp": 1666911600
