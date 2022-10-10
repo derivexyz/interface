@@ -1,7 +1,5 @@
-import Box from '@lyra/ui/components/Box'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import { IconType } from '@lyra/ui/components/Icon'
-import Text from '@lyra/ui/components/Text'
 import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
 import React from 'react'
 
@@ -103,11 +101,11 @@ const LayoutMoreDropdownListItems = ({ onClose, onClickPrivacy }: Props): JSX.El
         icon={isDarkMode ? IconType.Sun : IconType.Moon}
       />
       {process.env.NEXT_PUBLIC_RELEASE_TAG ? (
-        <Box px={3} py={2}>
-          <Text variant="small" color="secondaryText">
-            {process.env.NEXT_PUBLIC_RELEASE_TAG.substring(0, 16)}
-          </Text>
-        </Box>
+        <DropdownButtonListItem
+          label={process.env.NEXT_PUBLIC_RELEASE_TAG.substring(0, 16)}
+          icon={IconType.GitCommit}
+          href={`https://github.com/lyra-finance/interface/releases/tag/${process.env.NEXT_PUBLIC_RELEASE_TAG}`}
+        />
       ) : null}
     </>
   )

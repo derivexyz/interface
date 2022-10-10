@@ -37,6 +37,7 @@ import {
   FileText,
   Flag,
   Gift,
+  GitCommit,
   GitHub,
   HelpCircle,
   Hexagon,
@@ -169,6 +170,7 @@ export enum IconType {
   Share2 = 'Share2',
   Refresh = 'RefreshCcw',
   Link2 = 'Link2',
+  GitCommit = 'GitCommit',
 }
 
 export type CustomIconProps = {
@@ -354,6 +356,8 @@ const getFeatherIcon = (icon: IconType) => {
       return Share2
     case IconType.Link2:
       return Link2
+    case IconType.GitCommit:
+      return GitCommit
     default:
       return null
   }

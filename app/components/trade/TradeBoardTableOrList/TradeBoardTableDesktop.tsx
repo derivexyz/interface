@@ -122,16 +122,13 @@ const TradeBoardTableDesktop = ({
         Header: !market || size.eq(ONE_BN) ? 'Price' : `Price (${fromBigNumber(size)} ${market.name})`,
         disableSortBy: true,
         Cell: (props: TableCellProps<OptionData>) => {
-          const { quote, strikeId, disabledReason } = props.row.original
+          const { quote, strikeId } = props.row.original
           const isSelected = selectedOption?.strike().id === strikeId
           return (
             <TradeBoardPriceButton
               quote={quote}
               isSelected={isSelected}
               onSelected={() => onSelectOption(quote.option())}
-              isCall={isCall}
-              isBuy={isBuy}
-              disabledReason={disabledReason}
             />
           )
         },
