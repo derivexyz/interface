@@ -16,7 +16,6 @@ export type CompetitionPool = {
   name: string
   description: string
   rankKey: RankKey
-  secondaryRankKey?: RankKey
   leaderboardFilter?: PositionLeaderboardFilter
   isRankedByPercentage?: boolean
   isRandom?: boolean
@@ -39,7 +38,6 @@ export const COMPETITION_SEASONS_CONFIG: CompetitionSeasonConfig[] = [
       {
         name: 'Relative P&L',
         rankKey: 'realizedLongPnlPercentage',
-        secondaryRankKey: 'unrealizedLongPnlPercentage',
         isRankedByPercentage: true,
         description:
           'Prize Pool 1 traders are ranked by relative profit / loss for longs only. This is your total profits on close or settlement for buying calls and puts.',
@@ -48,10 +46,8 @@ export const COMPETITION_SEASONS_CONFIG: CompetitionSeasonConfig[] = [
             eth: 4490,
             btc: 178,
           },
-          minOpenTimestamp: 1662595200,
-          maxCloseTimestamp: 1665126000,
+          maxCloseTimestamp: 1665129600,
           sortBy: PositionLeaderboardSortBy.RealizedLongPnlPercentage,
-          secondarySortBy: PositionLeaderboardSortBy.UnrealizedLongPnlPercentage,
           minTotalPremiums: ONE_BN.mul(100),
           minTotalLongPremiums: ONE_BN,
         },
@@ -93,7 +89,6 @@ export const COMPETITION_SEASONS_CONFIG: CompetitionSeasonConfig[] = [
       {
         name: 'Absolute P&L',
         rankKey: 'realizedPnl',
-        secondaryRankKey: 'unrealizedPnl',
         description:
           'Prize Pool 2 traders are ranked by absolute profit / loss. This is your total profits on close or settlement for longs and shorts.',
         leaderboardFilter: {
@@ -101,10 +96,8 @@ export const COMPETITION_SEASONS_CONFIG: CompetitionSeasonConfig[] = [
             eth: 4490,
             btc: 178,
           },
-          minOpenTimestamp: 1662595200,
-          maxCloseTimestamp: 1665126000,
+          maxCloseTimestamp: 1665129600,
           sortBy: PositionLeaderboardSortBy.RealizedPnl,
-          secondarySortBy: PositionLeaderboardSortBy.UnrealizedPnl,
           minTotalPremiums: ONE_BN.mul(100),
         },
         totalPrizePool: 15000,
@@ -145,7 +138,6 @@ export const COMPETITION_SEASONS_CONFIG: CompetitionSeasonConfig[] = [
       {
         name: 'Bridge Giveaway',
         rankKey: 'realizedLongPnlPercentage',
-        secondaryRankKey: 'unrealizedLongPnlPercentage',
         isRandom: true,
         isRankedByPercentage: true,
         description:
@@ -155,10 +147,8 @@ export const COMPETITION_SEASONS_CONFIG: CompetitionSeasonConfig[] = [
             eth: 4490,
             btc: 178,
           },
-          minOpenTimestamp: 1662595200,
-          maxCloseTimestamp: 1665126000,
+          maxCloseTimestamp: 1665129600,
           sortBy: PositionLeaderboardSortBy.RealizedLongPnlPercentage,
-          secondarySortBy: PositionLeaderboardSortBy.UnrealizedLongPnlPercentage,
           minTotalPremiums: ONE_BN.mul(100),
           minTotalLongPremiums: ONE_BN,
         },

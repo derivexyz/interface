@@ -85,26 +85,6 @@ const CompetitionLeaderboardTable = withSuspense(
             return <Text>{formatTruncatedUSD(props.cell.value)}</Text>
           },
         },
-        pool.secondaryRankKey
-          ? {
-              accessor: pool.secondaryRankKey,
-              sortType: 'basic',
-              Header: `Unrealized Gains (${sortByDollars ? '$' : '%'})`,
-              Cell: (props: TableCellProps<LeaderboardTableData>) => {
-                return (
-                  <Text
-                    color={
-                      props.cell.value === 0 ? 'secondaryText' : props.cell.value > 0 ? 'primaryText' : 'errorText'
-                    }
-                  >
-                    {sortByDollars
-                      ? formatTruncatedUSD(props.cell.value, { showSign: true })
-                      : formatPercentage(props.cell.value)}
-                  </Text>
-                )
-              },
-            }
-          : null,
         {
           accessor: pool.rankKey,
           sortType: 'basic',
