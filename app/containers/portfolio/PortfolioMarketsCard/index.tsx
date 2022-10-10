@@ -36,7 +36,7 @@ const PortfolioMarketsCard = withSuspense(
         <Text mx={6} my={4} variant="heading">
           Markets
         </Text>
-        <Center height={201}>
+        <Center height={200}>
           <Spinner />
         </Center>
       </CardBody>
