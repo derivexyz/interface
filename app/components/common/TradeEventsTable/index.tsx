@@ -18,6 +18,7 @@ type Props = {
   events: { event: TradeEvent | CollateralUpdateEvent | SettleEvent; position: Position }[]
   onClick?: (event: TradeEvent | CollateralUpdateEvent | SettleEvent) => void
   hideOption?: boolean
+  pageSize?: number
 } & MarginProps
 
 export type TradeEventTableData = TableData<{
@@ -36,7 +37,7 @@ export type TradeEventTableData = TableData<{
   isBaseCollateral: boolean
 }>
 
-const TradeEventsTable = ({ events, onClick, hideOption }: Props) => {
+const TradeEventsTable = ({ events, onClick, hideOption, pageSize = 10 }: Props) => {
   const rows: TradeEventTableData[] = useMemo(() => {
     return events.map(({ event, position }) => {
       const marketName = event.marketName
@@ -212,7 +213,7 @@ const TradeEventsTable = ({ events, onClick, hideOption }: Props) => {
     return null
   }
 
-  return <Table width="100%" data={rows} columns={columns} pageSize={10} />
+  return <Table width="100%" data={rows} columns={columns} pageSize={pageSize} />
 }
 
 export default TradeEventsTable

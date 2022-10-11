@@ -15,6 +15,7 @@
     "d3-color": "^3.1.0",
     "dateformat": "^4.5.1",
     "framer-motion": "^5.4.4",
+    "lightweight-charts": "^3.8.0",
     "react-accessible-accordion": "^4.0.0",
     "react-collapsible": "^2.8.4",
     "react-feather": "^2.0.9",

@@ -30,6 +30,7 @@ export enum LogEvent {
   TradeCostCollapse = 'TradeCostCollapse',
   TradeCostWithSwapExpand = 'TradeCostWithSwapExpand',
   TradeCostWithSwapCollapse = 'TradeCostWithSwapCollapse',
+  TradeToggleAdvancedMode = 'TradeToggleAdvancedMode',
 
   // Board
   BoardMarketSelect = 'BoardMarketSelect',
@@ -39,10 +40,14 @@ export enum LogEvent {
   BoardStrikeExpand = 'BoardStrikeExpand',
   BoardStrikeCollapse = 'BoardStrikeCollapse',
   BoardOptionSelect = 'BoardOptionSelect',
-  BoardOptionDeslect = 'BoardOptionDeslect',
+  BoardOptionDeselect = 'BoardOptionDeslect',
   BoardOptionDetailsClick = 'BoardOptionDetailsClick',
   BoardOpenPositionsExpand = 'BoardOpenPositionsExpand',
   BoardOpenPositionsCollapse = 'BoardOpenPositionsCollapse',
+
+  // Chain
+  ChainBoardExpand = 'ChainBoardExpand',
+  ChainBoardCollapse = 'ChainBoardCollapse',
 
   // Portfolio
   PortfolioMarketClick = 'PortfolioMarketClick',

@@ -10,24 +10,43 @@ import { LayoutProps, MarginProps } from 'styled-system'
 import Collapsible from '../Collapsible'
 import Text from '../Text'
 
+const DEFAULT_CELL_PX = 3
+const DEFAULT_EDGE_CELL_PX = 6
+
 export type TableRecordType = Record<string, boolean | BigNumberish | { [key: string]: any } | null>
 
 export type TableData<T extends TableRecordType> = {
   id?: string
   isExpanded?: boolean
+  noExpandedPadding?: boolean
   expanded?: React.ReactNode
   onToggleExpand?: (isExpanded: boolean) => void
   onClick?: () => void
+  isExpandedContentClickable?: boolean
 } & T
+
+type TableRowMarkerOptions = {
+  content: string | React.ReactNode
+  rowIdx: number
+}
 
 export type TableProps<T extends TableRecordType> = {
   data: Array<TableData<T>>
   // Columns must be memoized https://react-table.tanstack.com/docs/api/useTable#table-options
-  columns: Array<TableColumn<TableData<T>>>
+  columns: Array<Column<TableData<T>>>
+  columnOptions?: Array<ColumnOptions>
   pageSize?: number
   isOutline?: boolean
+  hideHeader?: boolean
+  tableMarker?: TableRowMarkerOptions
 } & MarginProps &
   LayoutProps
+
+export type ColumnOptions = {
+  px?: number
+  pl?: number
+  pr?: number
+}
 
 export type TableColumn<D extends Record<string, unknown> = any> = Column<D>
 
@@ -46,6 +65,9 @@ export default function Table<T extends TableRecordType>({
   data,
   pageSize,
   isOutline,
+  hideHeader = false,
+  columnOptions,
+  tableMarker,
   ...styleProps
 }: TableProps<T>): TableElement<T> {
   const isMobile = useIsMobile()
@@ -79,7 +101,6 @@ export default function Table<T extends TableRecordType>({
     }
   }, [rows, page, pageSize])
 
-  const cellPx = isMobile ? 3 : 6
   const cellPy = isMobile ? 2 : 4
 
   return (
@@ -91,53 +112,77 @@ export default function Table<T extends TableRecordType>({
         overflowY="hidden"
       >
         <Box width="100%" height="100%" as="table" {...(getTableProps() as any)} sx={{ borderCollapse: 'collapse' }}>
-          <Flex as="thead" py={4}>
-            {headerGroups.map((headerGroup, idx) => (
-              <Box key={idx} as="tr" {...(headerGroup.getHeaderGroupProps() as any)}>
-                {headerGroup.headers.map(column => {
-                  const header = column.render('Header')
-                  const headerProps = column.getHeaderProps()
-                  const sortByToggleProps = (column as any)?.getSortByToggleProps()
-                  const canSort = !!(column as any).canSort
-                  const isSorted = !!(column as any).isSorted
-                  const isSortedDesc = !!(column as any).isSortedDesc
-                  return (
-                    <Flex alignItems="center" as="th" px={cellPx} {...headerProps} key={column.id}>
-                      <Text
+          {!hideHeader ? (
+            <Flex as="thead" pt={4} pb={2}>
+              {headerGroups.map((headerGroup, idx) => (
+                <Box key={idx} as="tr" {...(headerGroup.getHeaderGroupProps() as any)}>
+                  {headerGroup.headers.map((column, colIdx) => {
+                    const header = column.render('Header')
+                    const headerProps = column.getHeaderProps()
+                    const sortByToggleProps = (column as any)?.getSortByToggleProps()
+                    const canSort = !!(column as any).canSort
+                    const isSorted = !!(column as any).isSorted
+                    const isSortedDesc = !!(column as any).isSortedDesc
+                    const headerAlign = (column as any).headerAlign
+                    const colPx = columnOptions && columnOptions[colIdx] ? columnOptions[colIdx].px : null
+                    const colPl = columnOptions && columnOptions[colIdx] ? columnOptions[colIdx].pl : null
+                    const colPr = columnOptions && columnOptions[colIdx] ? columnOptions[colIdx].pr : null
+                    return (
+                      <Flex
+                        justifyContent={headerAlign ?? 'flex-start'}
+                        alignItems="center"
+                        as="th"
+                        px={colPx ?? DEFAULT_CELL_PX}
+                        pl={colPl ?? colPx ?? (colIdx === 0 ? DEFAULT_EDGE_CELL_PX : DEFAULT_CELL_PX)}
+                        pr={
+                          colPr ??
+                          colPx ??
+                          (colIdx === headerGroup.headers.length - 1 ? DEFAULT_EDGE_CELL_PX : DEFAULT_CELL_PX)
+                        }
+                        {...headerProps}
                         key={column.id}
-                        variant="secondary"
-                        color={isSorted ? 'text' : 'secondaryText'}
-                        textAlign="left"
-                        onClick={sortByToggleProps?.onClick}
-                        sx={{
-                          cursor: canSort ? 'pointer' : undefined,
-                          ':hover': {
-                            color: canSort ? 'text' : undefined,
-                          },
-                        }}
                       >
-                        {header}
-                      </Text>
-                      {isSorted ? (
-                        <Icon
-                          key={column.id}
-                          strokeWidth={3}
-                          ml={2}
-                          color={isSorted ? 'text' : 'secondaryText'}
-                          size={12}
-                          mb="1px"
-                          icon={isSortedDesc ? IconType.ArrowDown : IconType.ArrowUp}
-                        />
-                      ) : null}
-                    </Flex>
-                  )
-                })}
-              </Box>
-            ))}
-          </Flex>
+                        {React.isValidElement(header) ? (
+                          <Box key={column.id}>{header}</Box>
+                        ) : (
+                          <Text
+                            key={column.id}
+                            variant="secondary"
+                            color={isSorted ? 'text' : 'secondaryText'}
+                            textAlign="left"
+                            onClick={sortByToggleProps?.onClick}
+                            sx={{
+                              cursor: canSort ? 'pointer' : undefined,
+                              ':hover': {
+                                color: canSort ? 'text' : undefined,
+                              },
+                            }}
+                          >
+                            {header}
+                          </Text>
+                        )}
+                        {isSorted ? (
+                          <Icon
+                            key={column.id}
+                            strokeWidth={3}
+                            ml={2}
+                            color={isSorted ? 'text' : 'secondaryText'}
+                            size={12}
+                            mb="1px"
+                            icon={isSortedDesc ? IconType.ArrowDown : IconType.ArrowUp}
+                          />
+                        ) : null}
+                      </Flex>
+                    )
+                  })}
+                </Box>
+              ))}
+            </Flex>
+          ) : null}
           {pagedRows.map((row, rowIdx) => {
             prepareRow(row)
             const isExpanded = !!row.original.isExpanded
+            const noExpandedPadding = !!row.original.noExpandedPadding
 
             const prepareRowProps = (row: Row<TableData<T>>) => {
               const rowProps = row.getRowProps()
@@ -164,39 +209,64 @@ export default function Table<T extends TableRecordType>({
             }
             const expandedContent = row.original.expanded
             const isClickable = !!row.original.onClick || !!expandedContent
+            const isExpandedContentClickable = !!row.original.isExpandedContentClickable
             return (
               <Box
                 as="tbody"
                 key={row.id}
                 sx={{
-                  cursor: !isClickable ? 'inherit' : 'pointer',
-                  bg: !isClickable ? 'transparent' : !isExpanded ? 'transparent' : 'hover',
+                  cursor: isClickable && isExpandedContentClickable ? 'pointer' : null,
+                  bg:
+                    isClickable && isExpandedContentClickable ? (!isExpanded ? 'transparent' : 'hover') : 'transparent',
                   '&:hover': {
-                    bg: !isClickable ? 'transparent' : isExpanded ? 'active' : 'hover',
+                    bg: isClickable && isExpandedContentClickable ? (isExpanded ? 'active' : 'hover') : 'transparent',
                   },
                   '&:active': {
-                    bg: !isClickable ? 'transparent' : 'active',
+                    bg: isClickable && isExpandedContentClickable ? 'active' : 'transparent',
                   },
                   borderBottom: isOutline && rowIdx < pagedRows.length - 1 ? '1px solid' : undefined,
-                  borderBottomColor: 'background',
-                }}
-                onClick={() => {
-                  if (row.original.onToggleExpand) {
-                    row.original.onToggleExpand(!isExpanded)
-                  }
-                  if (row.original.onClick) {
-                    row.original.onClick()
-                  }
+                  borderColor: 'background',
                 }}
               >
-                <Box as="tr" {...(prepareRowProps(row) as any)}>
+                <Box
+                  as="tr"
+                  sx={{
+                    cursor: !isClickable && !isExpandedContentClickable ? 'inherit' : 'pointer',
+                    bg: isClickable && !isExpandedContentClickable && isExpanded ? 'hover' : 'transparent',
+                    '&:hover': {
+                      bg:
+                        isClickable && !isExpandedContentClickable ? (isExpanded ? 'active' : 'hover') : 'transparent',
+                    },
+                    '&:active': {
+                      bg: isClickable && !isExpandedContentClickable ? 'active' : 'transparent',
+                    },
+                  }}
+                  {...(prepareRowProps(row) as any)}
+                >
                   {row.cells.map((cell: any, cellIdx) => {
+                    const cellPx = columnOptions && columnOptions[cellIdx] ? columnOptions[cellIdx].px : null
+                    const cellPl = columnOptions && columnOptions[cellIdx] ? columnOptions[cellIdx].pl : null
+                    const cellPr = columnOptions && columnOptions[cellIdx] ? columnOptions[cellIdx].pr : null
                     return (
                       <Flex
+                        onClick={() => {
+                          if (row.original.onToggleExpand) {
+                            row.original.onToggleExpand(!isExpanded)
+                          }
+                          if (row.original.onClick) {
+                            row.original.onClick()
+                          }
+                        }}
                         as="td"
                         key={cellIdx}
                         alignItems="center"
-                        px={cellPx}
+                        px={cellPx ?? DEFAULT_CELL_PX}
+                        pl={cellPl ?? cellPx ?? (cellIdx === 0 ? DEFAULT_EDGE_CELL_PX : DEFAULT_CELL_PX)}
+                        pr={
+                          cellPr ??
+                          cellPx ??
+                          (cellIdx === row.cells.length - 1 ? DEFAULT_EDGE_CELL_PX : DEFAULT_CELL_PX)
+                        }
                         py={cellPy}
                         {...(prepareCellProps(cell) as any)}
                       >
@@ -205,8 +275,42 @@ export default function Table<T extends TableRecordType>({
                     )
                   })}
                 </Box>
+                {tableMarker && rowIdx === tableMarker.rowIdx ? (
+                  <Flex alignItems="center" justifyContent="center" height={1} as="tr" bg="primaryButtonBg">
+                    <Flex
+                      as="td"
+                      alignItems="center"
+                      justifyContent="center"
+                      px={3}
+                      py={1}
+                      bg="elevatedButtonBg"
+                      sx={{
+                        borderRadius: 'card',
+                        boxShadow: '10px 10px 10px elevatedShadowBg',
+                        border: '1px solid',
+                        borderColor: 'primaryButtonBg',
+                      }}
+                    >
+                      {React.isValidElement(tableMarker.content) ? (
+                        tableMarker.content
+                      ) : (
+                        <Text variant="secondary">{tableMarker.content}</Text>
+                      )}
+                    </Flex>
+                  </Flex>
+                ) : null}
                 {expandedContent ? (
                   <Box
+                    onClick={() => {
+                      if (row.original.isExpandedContentClickable) {
+                        if (row.original.onToggleExpand) {
+                          row.original.onToggleExpand(!isExpanded)
+                        }
+                        if (row.original.onClick) {
+                          row.original.onClick()
+                        }
+                      }
+                    }}
                     as="tr"
                     sx={{
                       borderBottom: !isOutline && isExpanded && rowIdx < pagedRows.length - 1 ? '2px solid' : undefined,
@@ -215,7 +319,7 @@ export default function Table<T extends TableRecordType>({
                   >
                     <Box as="td">
                       <Collapsible noPadding isExpanded={isExpanded}>
-                        <Box px={cellPx} py={cellPy}>
+                        <Box px={noExpandedPadding ? 0 : DEFAULT_CELL_PX} py={noExpandedPadding ? 0 : cellPy}>
                           {expandedContent}
                         </Box>
                       </Collapsible>
@@ -228,7 +332,7 @@ export default function Table<T extends TableRecordType>({
         </Box>
       </Box>
       {numPages > 1 ? (
-        <Flex px={cellPx} py={3} justifyContent="center" alignItems="center">
+        <Flex px={DEFAULT_CELL_PX} py={3} justifyContent="center" alignItems="center">
           <IconButton
             variant="light"
             isTransparent

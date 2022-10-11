@@ -11,7 +11,6 @@ import { LogEvent } from '@/app/constants/logEvents'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarkets from '@/app/hooks/market/useMarkets'
-import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 import isMarketEqual from '@/app/utils/isMarketEqual'
 import logEvent from '@/app/utils/logEvent'
@@ -39,7 +38,7 @@ const TradeMarketDropdown = withSuspense(
         textVariant="title"
         ml={-3} // Hack to offset button border radius
         isTransparent
-        label={getMarketDisplayName(selectedMarket.baseToken.symbol)}
+        label={selectedMarket.name}
         leftIcon={<MarketImage size={32} name={selectedMarket.name} />}
       >
         {filteredMarkets.map(market => (
@@ -50,7 +49,7 @@ const TradeMarketDropdown = withSuspense(
             }}
             key={market.address}
             isSelected={isMarketEqual(market, selectedMarket.address)}
-            label={getMarketDisplayName(market.baseToken.symbol)}
+            label={market.name}
             href={getPagePath({ page: PageId.Trade, marketAddressOrName: market.name })}
             icon={<MarketImage size={32} name={market.name} />}
             rightContent={<TradeMarketDropdownSpotPrice market={market} />}
@@ -67,7 +66,7 @@ const TradeMarketDropdown = withSuspense(
       ml={-3} // Hack to offset button border radius
       isTransparent
       rightIcon={<Spinner size="sm" />}
-      label={getMarketDisplayName(selectedMarket.baseToken.symbol)}
+      label={selectedMarket.name}
       leftIcon={<MarketImage size={32} name={selectedMarket.name} />}
     />
   )

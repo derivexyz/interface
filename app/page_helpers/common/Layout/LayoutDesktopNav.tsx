@@ -52,7 +52,7 @@ export default function LayoutDesktopNav({ notice, onCloseNotice, currentPath }:
         left: 0,
         right: 0,
         height: notice ? DESKTOP_HEADER_NAV_HEIGHT + DESTKOP_HEADER_NOTICE_HEIGHT : DESKTOP_HEADER_NAV_HEIGHT,
-        zIndex: 'desktopHeader',
+        zIndex: 'topNavBar',
       }}
     >
       {notice ? (

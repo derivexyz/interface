@@ -20,7 +20,7 @@ type Props = {
 
 const TRADE_BOARD_MIN_HEIGHT = 300
 
-const TradeBoardTable = withSuspense(
+const TradeSimpleBoardTable = withSuspense(
   ({ board, isCall, isBuy, selectedOption, onSelectOption }: Props) => {
     const size = getDefaultQuoteSize(board.market().name)
     const quotes = useQuoteBoard(board, size, isCall)
@@ -76,4 +76,4 @@ const TradeBoardTable = withSuspense(
   }
 )
 
-export default TradeBoardTable
+export default TradeSimpleBoardTable

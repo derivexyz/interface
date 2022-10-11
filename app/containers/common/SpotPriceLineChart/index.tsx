@@ -1,6 +1,6 @@
 import Center from '@lyra/ui/components/Center'
 import LineChart from '@lyra/ui/components/LineChart'
-import Shimmer from '@lyra/ui/components/Shimmer'
+import Spinner from '@lyra/ui/components/Spinner'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import React from 'react'
 
@@ -10,6 +10,7 @@ import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarket from '@/app/hooks/market/useMarket'
 import emptyFunction from '@/app/utils/emptyFunction'
 import formatTimestampTooltip from '@/app/utils/formatTimestampTooltip'
+import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = {
   marketAddressOrName: string
@@ -19,11 +20,12 @@ type Props = {
 } & MarginProps &
   LayoutProps
 
-const SpotPriceChart = withSuspense(
+const SpotPriceLineChart = withSuspense(
   ({ marketAddressOrName, period, onHover = emptyFunction, hoverSpotPrice, ...styleProps }: Props) => {
     const market = useMarket(marketAddressOrName)
     const history = useSpotPriceHistory(market?.name ?? '', period)
-    const spotPrice = hoverSpotPrice ?? (history.length > 0 ? history[history.length - 1].price : null)
+    const defaultSpotPrice = market ? fromBigNumber(market.spotPrice) : null
+    const spotPrice = hoverSpotPrice ?? defaultSpotPrice
     const prevSpotPrice = history.length > 0 ? history[0].price : null
     const pctChange = spotPrice && prevSpotPrice ? (spotPrice - prevSpotPrice) / prevSpotPrice : 0
     return (
@@ -39,10 +41,10 @@ const SpotPriceChart = withSuspense(
     )
   },
   ({ marketAddressOrName, period, hoverSpotPrice, onHover, ...styleProps }: Props) => (
-    <Center {...styleProps}>
-      <Shimmer width="100%" height="100%" />
+    <Center height="100%" {...styleProps}>
+      <Spinner />
     </Center>
   )
 )
 
-export default React.memo(SpotPriceChart)
+export default React.memo(SpotPriceLineChart)

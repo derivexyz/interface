@@ -8,7 +8,9 @@ import React, { useMemo } from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useMarkets from '@/app/hooks/market/useMarkets'
 import useVaultsTVLHistory, { VaultsTVLSnapshot } from '@/app/hooks/vaults/useVaultsTVLHistory'
+import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = {
   hoverData: VaultsTVLSnapshot | null
@@ -19,8 +21,16 @@ type Props = {
 const VaultsIndexTVLChartCardTitle = withSuspense(
   ({ hoverData, period, ...styleProps }: Props) => {
     const vaultHistoryTVL = useVaultsTVLHistory(period)
-    const vaultBalanceTVL = useMemo(() => vaultHistoryTVL[vaultHistoryTVL.length - 1], [vaultHistoryTVL])
-    const total = hoverData?.total ?? vaultBalanceTVL.total
+    const markets = useMarkets()
+    /* temporary fix until trading starts */
+    const vaultBalanceTVL = useMemo(
+      () =>
+        markets.reduce((totalTvl, market) => {
+          return (totalTvl += fromBigNumber(market.tvl))
+        }, 0),
+      [markets]
+    )
+    const total = hoverData?.total ?? vaultBalanceTVL
     const earliestHistory = vaultHistoryTVL[0]
     const earliestTotal = earliestHistory.total ?? 0
     const pctChangeTotal = earliestTotal > 0 ? (total - earliestTotal) / earliestTotal : 0

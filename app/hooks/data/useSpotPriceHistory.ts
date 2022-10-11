@@ -5,13 +5,17 @@ import getChartPeriodStartTimestamp from '@/app/utils/getChartPeriodStartTimesta
 import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
 import lyra from '@/app/utils/lyra'
 
-import { synthetixClient } from '../apollo/client'
+import { SNAPSHOT_RESULT_LIMIT, synthetixClient } from '../apollo/client'
 import useFetch from './useFetch'
 
 export type SpotPrice = {
   price: number
   x: number
   change: number
+  open: number
+  close: number
+  high: number
+  low: number
 }
 
 type CandleFilter = {
@@ -50,6 +54,9 @@ export const candlesQuery = gql`
       id
       synth
       close
+      open
+      high
+      low
       timestamp
       period
     }
@@ -59,6 +66,9 @@ export const candlesQuery = gql`
 export type SynthetixSpotPriceHistoryResult = {
   id: string
   close: string
+  open: string
+  high: string
+  low: string
   timestamp: string
 }
 
@@ -79,29 +89,47 @@ const getPeriod = (period: ChartPeriod): number => {
   }
 }
 
-export const fetchSpotPriceHistory = async (marketAddressOrName: string, period: ChartPeriod): Promise<SpotPrice[]> => {
+export const fetchSpotPriceHistory = async (
+  marketAddressOrName: string,
+  period: ChartPeriod,
+  candlePeriod: number,
+  limit: number = 1000
+): Promise<SpotPrice[]> => {
   const market = await lyra.market(marketAddressOrName)
   const startTimestamp = getChartPeriodStartTimestamp(market.block.timestamp, period)
 
   // TODO: @dappbeast Replace with SDK spot price feed
   const synth = !isOptimismMainnet() ? market.name.toUpperCase() : market.baseToken.symbol
   const variables: CandleQueryVariables = {
-    first: 1000,
+    first: limit,
     orderBy: 'timestamp',
     orderDirection: 'asc',
     where: {
       synth,
       timestamp_gte: startTimestamp,
-      period: getPeriod(period),
+      period: candlePeriod,
     },
   }
-  const {
-    data: { candles },
-  } = await synthetixClient.query<{ candles: SynthetixSpotPriceHistoryResult[] }>({
-    query: candlesQuery,
-    variables: variables,
-    fetchPolicy: 'cache-first',
-  })
+  // Loop for all candles
+  let allFound = false
+  let candles: SynthetixSpotPriceHistoryResult[] = []
+  let min = startTimestamp
+  while (!allFound) {
+    const {
+      data: { candles: candleBatch },
+    } = await synthetixClient.query<{ candles: SynthetixSpotPriceHistoryResult[] }>({
+      query: candlesQuery,
+      variables: { ...variables, where: { ...variables.where, timestamp_gte: min } },
+      fetchPolicy: 'cache-first',
+    })
+    candles = candles.concat(candleBatch)
+    if (candleBatch.length < SNAPSHOT_RESULT_LIMIT) {
+      allFound = true
+    } else {
+      // Set skip to last iterator val
+      min = parseInt(candleBatch[candleBatch.length - 1].timestamp) + 1
+    }
+  }
 
   const prevCandle = candles[0]
   const prevSpotPrice = parseFloat(prevCandle.close)
@@ -112,6 +140,10 @@ export const fetchSpotPriceHistory = async (marketAddressOrName: string, period:
       price: currSpotPrice,
       x: parseInt(candle.timestamp),
       change,
+      high: parseFloat(candle.high),
+      low: parseFloat(candle.low),
+      close: parseFloat(candle.close),
+      open: parseFloat(candle.open),
     }
   })
 
@@ -120,10 +152,14 @@ export const fetchSpotPriceHistory = async (marketAddressOrName: string, period:
 
 const EMPTY: SpotPrice[] = []
 
-export default function useSpotPriceHistory(marketNameOrAddress: string | null, period: ChartPeriod): SpotPrice[] {
+export default function useSpotPriceHistory(
+  marketNameOrAddress: string | null,
+  period: ChartPeriod,
+  candlePeriod?: number
+): SpotPrice[] {
   const [spotPriceData] = useFetch(
     'SpotPriceHistory',
-    marketNameOrAddress ? [marketNameOrAddress, period] : null,
+    marketNameOrAddress ? [marketNameOrAddress, period, candlePeriod ?? getPeriod(period)] : null,
     fetchSpotPriceHistory,
     {
       refreshInterval: 10 * 1000, // 10 seconds

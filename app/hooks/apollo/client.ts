@@ -2,6 +2,8 @@ import { ApolloClient, InMemoryCache } from '@apollo/client'
 
 import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
 
+export const SNAPSHOT_RESULT_LIMIT = 1000
+
 export const synthetixClient = new ApolloClient({
   uri: isOptimismMainnet()
     ? 'https://api.thegraph.com/subgraphs/name/kwenta/optimism-latest-rates'
