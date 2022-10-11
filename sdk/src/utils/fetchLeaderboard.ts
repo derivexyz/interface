@@ -84,11 +84,11 @@ export default async function fetchLeaderboard(
         })
 
       const realizedLongPnlPercentage = totalLongAverageCloseOrSettleCost.gt(0)
-        ? accountRealizedPnl.mul(UNIT).div(totalLongAverageCloseOrSettleCost)
+        ? accountRealizedLongPnl.mul(UNIT).div(totalLongAverageCloseOrSettleCost)
         : ZERO_BN
 
       const unrealizedLongPnlPercentage = totalLongAverageOpenCost.gt(0)
-        ? accountUnrealizedPnl.mul(UNIT).div(totalLongAverageOpenCost)
+        ? accountUnrealizedLongPnl.mul(UNIT).div(totalLongAverageOpenCost)
         : ZERO_BN
 
       return {

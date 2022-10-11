@@ -45,9 +45,9 @@ const PositionHistory = withSuspense(
         pageSize={10}
       />
     ) : (
-      <Flex p={6}>
-        <Text color="secondaryText">You have no position history</Text>
-      </Flex>
+      <Text mx={6} mb={6} variant="secondary" color="secondaryText">
+        You have no position history
+      </Text>
     )
   },
   () => (
@@ -90,9 +90,9 @@ const TradeHistory = withSuspense(
         }}
       />
     ) : (
-      <Flex p={6}>
-        <Text color="secondaryText">You have no trade history</Text>
-      </Flex>
+      <Text mx={6} mb={6} variant="secondary" color="secondaryText">
+        You have no trade history
+      </Text>
     )
   },
   () => (
@@ -110,7 +110,7 @@ export default function HistoryPageHelper(): JSX.Element {
       <LayoutGrid>
         <Card overflow="hidden">
           <CardBody noPadding>
-            <Flex p={4}>
+            <Flex p={6}>
               <ToggleButton
                 items={[
                   { label: 'Positions', id: HistoryTab.Position },
