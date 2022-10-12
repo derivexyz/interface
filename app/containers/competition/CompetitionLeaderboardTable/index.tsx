@@ -8,6 +8,7 @@ import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import React, { useMemo, useRef } from 'react'
 
+import TokenAmountText from '@/app/components/common/TokenAmountText'
 import { CompetitionPool, CompetitionSeasonConfig } from '@/app/constants/competition'
 import { PageId } from '@/app/constants/pages'
 import useIsPaused from '@/app/hooks/admin/useIsPaused'
@@ -53,7 +54,7 @@ const CompetitionLeaderboardTable = withSuspense(
         {
           accessor: 'rank',
           Header: 'Rank',
-          width: 70,
+          width: 50,
           Cell: (props: TableCellProps<LeaderboardTableData>) => {
             return <Text>{props.cell.value}.</Text>
           },
@@ -61,7 +62,6 @@ const CompetitionLeaderboardTable = withSuspense(
         {
           accessor: 'account',
           Header: 'Account',
-          width: 120,
           Cell: (props: TableCellProps<LeaderboardTableData>) => {
             const { ensName, account } = props.row.original
             return (
@@ -80,31 +80,10 @@ const CompetitionLeaderboardTable = withSuspense(
         {
           accessor: 'totalNotionalVolume',
           Header: 'Volume',
-          width: 120,
           Cell: (props: TableCellProps<LeaderboardTableData>) => {
             return <Text>{formatTruncatedUSD(props.cell.value)}</Text>
           },
         },
-        pool.secondaryRankKey
-          ? {
-              accessor: pool.secondaryRankKey,
-              sortType: 'basic',
-              Header: `Unrealized Gains (${sortByDollars ? '$' : '%'})`,
-              Cell: (props: TableCellProps<LeaderboardTableData>) => {
-                return (
-                  <Text
-                    color={
-                      props.cell.value === 0 ? 'secondaryText' : props.cell.value > 0 ? 'primaryText' : 'errorText'
-                    }
-                  >
-                    {sortByDollars
-                      ? formatTruncatedUSD(props.cell.value, { showSign: true })
-                      : formatPercentage(props.cell.value)}
-                  </Text>
-                )
-              },
-            }
-          : null,
         {
           accessor: pool.rankKey,
           sortType: 'basic',
@@ -118,6 +97,22 @@ const CompetitionLeaderboardTable = withSuspense(
                   ? formatTruncatedUSD(props.cell.value, { showSign: true })
                   : formatPercentage(props.cell.value)}
               </Text>
+            )
+          },
+        },
+        {
+          accessor: 'prize',
+          sortType: 'basic',
+          Header: 'Prize',
+          Cell: (props: TableCellProps<LeaderboardTableData>) => {
+            return props.cell.value > 0 ? (
+              <TokenAmountText tokenNameOrAddress="OP" amount={props.cell.value} />
+            ) : (
+              <Center height={24}>
+                <Text variant="secondary" color="secondaryText">
+                  -
+                </Text>
+              </Center>
             )
           },
         },
@@ -141,7 +136,9 @@ const CompetitionLeaderboardTable = withSuspense(
           totalLongPremiums: fromBigNumber(user.totalLongPremiums),
           totalNotionalVolume: fromBigNumber(user.totalNotionalVolume),
           prize:
-            pool.prizes.find(prize => prize.rank === idx + 1 || (Array.isArray(prize.rank) && idx + 1 <= prize.rank[1]))
+            pool.prizes
+              .filter(prize => !!prize.winner)
+              .find(prize => prize.rank === idx + 1 || (Array.isArray(prize.rank) && idx + 1 <= prize.rank[1]))
               ?.prize ?? 0,
         }))
         .filter(user => {

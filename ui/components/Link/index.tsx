@@ -1,7 +1,6 @@
 import useFontSize from '@lyra/ui/hooks/useFontSize'
 import useLineHeight from '@lyra/ui/hooks/useLineHeight'
 import getVariantSX from '@lyra/ui/utils/getVariantSX'
-import isExternalURL from '@lyra/ui/utils/isExternalURL'
 import React from 'react'
 import { Link as RebassLink } from 'rebass'
 import { SxProps } from 'theme-ui'
@@ -80,7 +79,7 @@ export default function Link({
             <IconSVG
               strokeWidth={3}
               size={fontSize}
-              icon={(href && isExternalURL(href)) || target === '_blank' ? IconType.ArrowUpRight : IconType.ArrowRight}
+              icon={target === '_blank' ? IconType.ArrowUpRight : IconType.ArrowRight}
             />
           </>
         ) : null}

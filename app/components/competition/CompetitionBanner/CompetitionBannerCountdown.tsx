@@ -32,6 +32,7 @@ const CompetitionBannerCountdown = ({ sx, ...marginProps }: Props) => {
           ml={1}
           variant="bodyLarge"
           color="primaryText"
+          fallback="0h 0m 0s"
           timestamp={COMPETITION_SEASONS_CONFIG[0].endTimestamp}
         />
       </Flex>
