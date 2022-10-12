@@ -32,6 +32,11 @@ const lightColors = {
   errorButtonHover: '#e34586',
   errorButtonActive: '#cc3e79',
 
+  // dark button
+  elevatedButtonBg: '#E8E8E8',
+  elevatedButtonHover: '#DCDCDC',
+  elevatedButtonActive: '#D1D1D1',
+
   // toggle button
   toggleButtonBg: '#E8E8E899', // #E8E8E8 50%
   toggleButtonActive: '#FEFEFE', // #FEFEFE
@@ -54,6 +59,7 @@ const lightColors = {
   errorLine: '#FC4D95',
   errorArea: '#FC4D9533',
   axis: '#C4CED7',
+  crosshair: '#6B7D94',
 
   // spinner
   lightSpinner: '#a2a2a2',
@@ -134,6 +140,11 @@ const darkColors = {
   buttonActive: '#3A424B', // 100%
   buttonDisabled: '#2e3640CC',
 
+  // dark button
+  elevatedButtonBg: '#1B252D',
+  elevatedButtonHover: '#233039',
+  elevatedButtonActive: '#2B3A47',
+
   // toggle button
   toggleButtonBg: '#3A445099', // #3A4450 60%
   toggleButtonActive: '#151F2699', // #151F26 60%
@@ -156,6 +167,7 @@ const darkColors = {
   errorLine: '#FC4D95',
   errorArea: '#FC4D9526',
   axis: '#95A4B580',
+  crosshair: '#95A4B5',
 
   // spinner
   lightSpinner: '#3A445099',
@@ -787,6 +799,21 @@ const theme = {
       '&:not(.disabled):active': {
         bg: 'transparent',
         color: 'text',
+        borderColor: 'transparent',
+      },
+    },
+    elevated: {
+      variant: 'buttons.base',
+      bg: 'elevatedButtonBg',
+      borderColor: 'transparent',
+      color: 'text',
+      boxShadow: (theme: Theme) => `0px 4px 24px ${theme.colors ? theme.colors['elevatedShadowBg'] : ''}`,
+      '&:not(.disabled):hover': {
+        bg: 'elevatedButtonHover',
+        borderColor: 'transparent',
+      },
+      '&:not(.disabled):active': {
+        bg: 'elevatedButtonActive',
         borderColor: 'transparent',
       },
     },

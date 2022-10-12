@@ -13,7 +13,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { LogEvent } from '@/app/constants/logEvents'
 import logEvent from '@/app/utils/logEvent'
 
-import TradeBoardTable from './TradeBoardTable'
+import TradeSimpleBoardTable from './TradeSimpleBoardTable'
 
 type Props = {
   market: Market
@@ -27,7 +27,7 @@ type Props = {
   onSelectBoard: (board: Board) => void
 }
 
-const TradeBoardCard = ({
+const TradeSimpleBoardCard = ({
   market,
   isCall,
   isBuy,
@@ -124,7 +124,7 @@ const TradeBoardCard = ({
       </CardSection>
       {isMobile ? <CardSeparator /> : null}
       {selectedBoard ? (
-        <TradeBoardTable
+        <TradeSimpleBoardTable
           board={selectedBoard}
           isCall={isCall}
           isBuy={isBuy}
@@ -136,4 +136,4 @@ const TradeBoardCard = ({
   )
 }
 
-export default TradeBoardCard
+export default TradeSimpleBoardCard

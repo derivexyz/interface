@@ -14,12 +14,12 @@ import Text, { TextColor, TextVariant } from '../Text'
 
 export type ButtonSize = 'sm' | 'small' | 'md' | 'medium' | 'lg' | 'large'
 
-export type ButtonVariant = 'default' | 'primary' | 'error' | 'light' | 'warning' | 'white' | 'static'
+export type ButtonVariant = 'default' | 'primary' | 'error' | 'light' | 'warning' | 'white' | 'static' | 'elevated'
 
 export type ButtonJustify = 'left' | 'right' | 'center'
 
 export type BaseButtonProps = {
-  label: string
+  label: string | React.ReactNode
   size?: ButtonSize
   target?: string
   href?: string
@@ -30,6 +30,7 @@ export type BaseButtonProps = {
   isTransparent?: boolean
   type?: string
   textVariant?: TextVariant
+  textAlign?: 'left' | 'center' | 'right'
   leftIcon?: IconType | React.ReactNode
   rightIcon?: IconType | React.ReactNode
   leftIconSpacing?: number
@@ -122,6 +123,7 @@ const getSpinnerVariant = (variant: ButtonVariant): SpinnerVariant => {
     case 'light':
     case 'static':
     case 'white':
+    case 'elevated':
       return 'light'
     case 'primary':
       return 'primary'
@@ -155,6 +157,7 @@ const Button = React.forwardRef(
       type,
       variant = 'default',
       size = 'medium',
+      textAlign = 'center',
       isOutline,
       isTransparent,
       isDisabled,
@@ -221,8 +224,10 @@ const Button = React.forwardRef(
           {left}
           {/* TODO: @dappbeast Fix this hack */}
           <Box mx={showRightIconSeparator ? 'auto' : 'none'}>
-            {textVariant ? (
-              <Text color={textColor ?? 'inherit'} variant={textVariant}>
+            {React.isValidElement(label) ? (
+              label
+            ) : textVariant ? (
+              <Text color={textColor ?? 'inherit'} variant={textVariant} textAlign={textAlign}>
                 {label}
               </Text>
             ) : (

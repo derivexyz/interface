@@ -13,8 +13,8 @@ import React, { useCallback, useMemo, useState } from 'react'
 import ChartPeriodSelector from '@/app/components/common/ChartPeriodSelector'
 import { ChartPeriod } from '@/app/constants/chart'
 
-import SpotPriceChart from '../../common/SpotPriceChart'
-import SpotPriceCardTitle from '../../common/SpotPriceChartTitle'
+import SpotPriceChartTitle from '../../common/SpotPriceChartTitle'
+import SpotPriceLineChart from '../../common/SpotPriceLineChart'
 import PositionIVChart from './PositionIVChart'
 import PositionIVChartTitle from './PositionIVChartTitle'
 import PositionPriceChart from './PositionPriceChart'
@@ -88,7 +88,7 @@ const PositionChartCard = ({ option, ...marginProps }: Props): CardElement => {
           hoverImpliedVolatility={hoverImpliedVolatility}
         />
       ) : chart === PositionChart.SpotPrice ? (
-        <SpotPriceCardTitle
+        <SpotPriceChartTitle
           textVariant="heading"
           marketAddressOrName={option.market().address}
           period={period}
@@ -116,7 +116,7 @@ const PositionChartCard = ({ option, ...marginProps }: Props): CardElement => {
         onHover={setHoverImpliedVolatility}
       />
     ) : chart === PositionChart.SpotPrice ? (
-      <SpotPriceChart
+      <SpotPriceLineChart
         marketAddressOrName={option.market().address}
         height={[120, 170]}
         period={period}

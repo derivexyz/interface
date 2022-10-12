@@ -8,7 +8,7 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Quote, QuoteDisabledReason } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
 
-import { ONE_BN } from '@/app/constants/bn'
+import { ONE_BN, ZERO_BN } from '@/app/constants/bn'
 import { MAX_IV } from '@/app/constants/contracts'
 import { LogEvent } from '@/app/constants/logEvents'
 import fromBigNumber from '@/app/utils/fromBigNumber'
@@ -26,6 +26,7 @@ type OptionData = TableData<{
   iv: number
   marketAddressOrName: string
   breakEven: number
+  toBreakEven: number
   price: number
   disabledReason: QuoteDisabledReason | null
 }>
@@ -50,8 +51,9 @@ const TradeBoardTableDesktop = ({
   const [expandedStrikes, setExpandedStrikes] = useState<Record<string, boolean>>({})
   const market = quotes.length ? quotes[0].option.market() : null
   const size = getDefaultQuoteSize(market?.name ?? '') // defaults to one
+  const spotPrice = fromBigNumber(market?.spotPrice ?? ZERO_BN)
   const rows: OptionData[] = useMemo(() => {
-    return filterNulls(
+    const rows = filterNulls(
       quotes.map(({ bid, ask, option }) => {
         const quote = isBuy ? bid : ask
         const isExpanded = !!expandedStrikes[quote.strike().id.toString()]
@@ -65,17 +67,19 @@ const TradeBoardTableDesktop = ({
           iv: fromBigNumber(quote.iv),
           price: fromBigNumber(quote.pricePerOption),
           breakEven: fromBigNumber(quote.breakEven),
+          toBreakEven: fromBigNumber(quote.breakEven.sub(market?.spotPrice ?? ZERO_BN)),
           disabledReason: quote.disabledReason,
           isExpanded,
-          onToggleExpand: isExpanded => {
+          onToggleExpand: (isExpanded: boolean) => {
             setExpandedStrikes(expandedStrikes => ({
               ...expandedStrikes,
               [quote.strike().id.toString()]: isExpanded,
             }))
             logEvent(isExpanded ? LogEvent.BoardStrikeExpand : LogEvent.BoardStrikeCollapse, getLogData(quote))
           },
+          isExpandedContentClickable: true,
           expanded: (
-            <Box pb={4}>
+            <Box pb={4} px={3}>
               <Text variant="bodyMedium" mb={4}>
                 Stats
               </Text>
@@ -85,7 +89,9 @@ const TradeBoardTableDesktop = ({
         }
       })
     )
-  }, [quotes, isBuy, expandedStrikes])
+
+    return rows
+  }, [quotes, isBuy, expandedStrikes, market?.spotPrice, spotPrice])
 
   const columns = useMemo<TableColumn<OptionData>[]>(
     () => [
@@ -103,6 +109,14 @@ const TradeBoardTableDesktop = ({
         disableSortBy: true,
         Cell: (props: TableCellProps<OptionData>) => (
           <Text variant="secondary">{props.cell.value > 0 ? formatUSD(props.cell.value) : '-'}</Text>
+        ),
+      },
+      {
+        accessor: 'toBreakEven',
+        Header: 'To Break Even',
+        disableSortBy: true,
+        Cell: (props: TableCellProps<OptionData>) => (
+          <Text variant="secondary">{(props.cell.value > 0 ? '+' : '') + formatUSD(props.cell.value)}</Text>
         ),
       },
       {
@@ -137,9 +151,14 @@ const TradeBoardTableDesktop = ({
     [market, size, selectedOption, isCall, isBuy, onSelectOption]
   )
 
+  const spotPriceRowIdx = useMemo(
+    () => Math.max(rows.findIndex(row => row.strike >= spotPrice) - 1, 0),
+    [rows, spotPrice]
+  )
+
   return (
     <CardSection noPadding>
-      <Table data={rows} columns={columns} />
+      <Table data={rows} columns={columns} tableMarker={{ rowIdx: spotPriceRowIdx, content: formatUSD(spotPrice) }} />
     </CardSection>
   )
 }

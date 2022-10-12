@@ -73,6 +73,7 @@ import {
   Zap,
 } from 'react-feather'
 
+import CandleIcon from './CandleIcon'
 import DiscordIcon from './DiscordIcon'
 import DotIcon from './DotIcon'
 import EthereumIcon from './EthereumIcon'
@@ -170,6 +171,7 @@ export enum IconType {
   Share2 = 'Share2',
   Refresh = 'RefreshCcw',
   Link2 = 'Link2',
+  Candle = 'Candle',
   GitCommit = 'GitCommit',
 }
 
@@ -217,6 +219,8 @@ const getLocalIcon = (icon: IconType) => {
       return FlagIcon
     case IconType.Rewards:
       return RewardsIcon
+    case IconType.Candle:
+      return CandleIcon
     default:
       return null
   }

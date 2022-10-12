@@ -61,7 +61,7 @@ export default function TradeBoardPriceButton({
   const isDisabled = disabledReason ? getIsButtonDisabled(disabledReason) : false
   return (
     <Button
-      variant={(isCall && isBuy) || (!isCall && !isBuy) ? 'primary' : 'error'}
+      variant={isBuy ? 'primary' : 'error'}
       width={getButtonWidthForMarket(quote.marketName)}
       showRightIconSeparator={!isDisabled}
       isOutline={!isSelected}
