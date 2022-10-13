@@ -19,7 +19,7 @@ export type TraderSettings = {
   isChartExpanded: boolean
 }
 
-const DEFAULT_TRADER_SETTINGS: TraderSettings = {
+export const DEFAULT_TRADER_SETTINGS: TraderSettings = {
   customCol1: CustomColumnOption.Delta,
   customCol2: CustomColumnOption.OI,
   isAdvancedMode: false,
