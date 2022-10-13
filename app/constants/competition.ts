@@ -217,13 +217,13 @@ export const COMPETITION_SEASONS_CONFIG: CompetitionSeasonConfig[] = [
             name: '2nd Place',
             rank: 2,
             prize: 3000,
-            winner: '0xe85457D43a161168136bFc3e46Db2E9cB99EaA71',
+            winner: '0x2D46292cbB3C601c6e2c74C32df3A4FCe99b59C7',
           },
           {
             name: '3rd Place',
             rank: 3,
             prize: 2000,
-            winner: '0x2D46292cbB3C601c6e2c74C32df3A4FCe99b59C7',
+            winner: '0xe85457D43a161168136bFc3e46Db2E9cB99EaA71',
           },
           {
             name: '4th Place',
