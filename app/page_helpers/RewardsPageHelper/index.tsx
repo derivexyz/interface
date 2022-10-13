@@ -1,5 +1,6 @@
 import React from 'react'
 
+import RewardsLastUpdatedAlert from '@/app/containers/common/RewardsLastUpdatedAlert'
 import RewardsBreakdownCard from '@/app/containers/rewards/RewardsBreakdownCard'
 import RewardsStakingCard from '@/app/containers/rewards/RewardsStakingCard'
 
@@ -10,6 +11,7 @@ const RewardsPageHelper = () => {
   return (
     <Layout header="Rewards">
       <LayoutGrid>
+        <RewardsLastUpdatedAlert />
         <RewardsStakingCard />
         <RewardsBreakdownCard />
       </LayoutGrid>
