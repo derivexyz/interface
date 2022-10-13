@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  sync:
-    if: ${{ github.repository != 'lyra-finance/interface' }}
+  private-to-public:
+    if: ${{ github.repository == 'lyra-finance/interface-private' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,8 +18,21 @@ jobs:
           token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           fetch-depth: 0
       - run: |
-          echo "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}"
           git config --global user.name "${GITHUB_ACTOR}@users.noreply.github.com"
           git remote add interface "https://lyra-finance:${GH_PERSONAL_ACCESS_TOKEN}@github.com/lyra-finance/interface.git"
           git push --set-upstream interface master
+
+  public-to-private:
+    if: ${{ github.repository == 'lyra-finance/interface' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          fetch-depth: 0
+      - run: |
+          git config --global user.email "${GITHUB_ACTOR}"
+          git config --global user.name "${GITHUB_ACTOR}@users.noreply.github.com"
+          git remote add interface-private "https://lyra-finance:${GH_PERSONAL_ACCESS_TOKEN}@github.com/lyra-finance/interface-private.git"
+          git push --set-upstream interface-private master
