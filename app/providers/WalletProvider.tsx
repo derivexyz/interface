@@ -12,6 +12,7 @@ import { publicProvider } from 'wagmi/providers/public'
 
 import Avatar from '../components/common/Avatar'
 import { ScreenWalletData } from '../constants/screen'
+import useAutoConnect from '../hooks/wallet/useAutoConnect'
 import useWallet from '../hooks/wallet/useWallet'
 import NoSSR from '../page_helpers/common/NoSSR'
 import fetchScreenWallet from '../utils/fetchScreenWallet'
@@ -55,6 +56,7 @@ const WalletScreenModal = (): JSX.Element => {
   const { account, disconnect } = useWallet()
   const [blockData, setBlockData] = useState<ScreenWalletData | null>(null)
 
+  useAutoConnect()
   const prevAccountRef = useRef(account)
 
   useEffect(() => {

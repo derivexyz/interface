@@ -42,6 +42,8 @@ function getWalletType(connectorId?: string): WalletType | null {
       return WalletType.WalletConnect
     case 'coinbaseWallet':
       return WalletType.CoinbaseWallet
+    case 'safe':
+      return WalletType.GnosisSafe
     default:
       return null
   }
@@ -55,6 +57,8 @@ export const getNameForWalletType = (walletType: WalletType): string => {
       return 'WalletConnect'
     case WalletType.CoinbaseWallet:
       return 'Coinbase'
+    case WalletType.GnosisSafe:
+      return 'GnosisSafe'
   }
 }
 

@@ -1414,6 +1414,47 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@gnosis.pm/safe-apps-provider@npm:^0.13.0":
+  version: 0.13.2
+  resolution: "@gnosis.pm/safe-apps-provider@npm:0.13.2"
+  dependencies:
+    "@gnosis.pm/safe-apps-sdk": 7.8.0
+    events: ^3.3.0
+  checksum: 80b8a004a1e0cee8b32bcebe28509f38c543ae133d4fee765842c766fab62c4bb758edcdfa599ffe7ab1843dab26cfe756272239a5ffe1f48e388ecc7bae522e
+  languageName: node
+  linkType: hard
+
+"@gnosis.pm/safe-apps-sdk@npm:7.8.0, @gnosis.pm/safe-apps-sdk@npm:^7.7.0":
+  version: 7.8.0
+  resolution: "@gnosis.pm/safe-apps-sdk@npm:7.8.0"
+  dependencies:
+    "@gnosis.pm/safe-react-gateway-sdk": ^3.1.3
+    ethers: ^5.6.8
+  checksum: 3535c20fad397795e658d19bbf3f536fea65128e5bcaca3b403582ae8d1c395d43033d04332b2a842f906066a9a2a5eda3133fe9c03043bb295b81bb1b8a7ff8
+  languageName: node
+  linkType: hard
+
+"@gnosis.pm/safe-apps-wagmi@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@gnosis.pm/safe-apps-wagmi@npm:1.0.3"
+  dependencies:
+    "@gnosis.pm/safe-apps-provider": ^0.13.0
+    "@gnosis.pm/safe-apps-sdk": ^7.7.0
+  peerDependencies:
+    "@wagmi/core": ^0.3.8
+  checksum: e8457d9ba1518696fabb7f2a09928b009376c5bed49b38882512594bba992610c59a77a3813de4fe16b32a29f97e0db8c0c8818fe630c5baeb3d411307e0ff79
+  languageName: node
+  linkType: hard
+
+"@gnosis.pm/safe-react-gateway-sdk@npm:^3.1.3":
+  version: 3.4.1
+  resolution: "@gnosis.pm/safe-react-gateway-sdk@npm:3.4.1"
+  dependencies:
+    cross-fetch: ^3.1.5
+  checksum: deb6f30c0df695e0ea54d2c0a675dc298b54b2998e04cc81e67e95dd6eb8ace0ac110da1b876616e07f09f3eb30a975ad33b7e7f2dcdc1b86d6bc63c29a6768d
+  languageName: node
+  linkType: hard
+
 "@graphql-typed-document-node/core@npm:^3.1.1":
   version: 3.1.1
   resolution: "@graphql-typed-document-node/core@npm:3.1.1"
@@ -1583,6 +1624,7 @@ __metadata:
   resolution: "@lyra/app@workspace:app"
   dependencies:
     "@apollo/client": ^3.5.10
+    "@gnosis.pm/safe-apps-wagmi": ^1.0.3
     "@lyra/ui": "workspace:*"
     "@lyrafinance/lyra-js": "workspace:*"
     "@next/bundle-analyzer": ^11.0.0
@@ -5852,7 +5894,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"events@npm:^3.0.0":
+"events@npm:^3.0.0, events@npm:^3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
