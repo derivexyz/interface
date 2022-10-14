@@ -74,7 +74,7 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
         })
         return result
       } catch (error) {
-        console.warn(`Failed request: ${url}`)
+        console.error(error)
         if (i === this.urls.length - 1) {
           // Throw on last request failure
           this.emit('debug', {
