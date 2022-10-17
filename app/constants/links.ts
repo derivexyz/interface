@@ -5,7 +5,7 @@ export const LYRA_SHARE_URL = 'https://share.lyra.finance'
 export const DISCORD_URL = 'https://discord.gg/Lyra'
 export const GITHUB_URL = 'https://github.com/lyra-finance'
 export const PARADIGM_FAUCET = 'https://faucet.paradigm.xyz/'
-export const ONE_INCH_ETH_TO_LYRA_URL = 'https://app.1inch.io/#/10/swap/ETH/LYRA'
+export const ONE_INCH_ETH_TO_LYRA_URL = 'https://app.1inch.io/#/10/unified/swap/ETH/LYRA'
 export const V1_DAPP_URL = 'https://v1-app.lyra.finance'
 export const BINANCE_URL = 'https://binance.com'
 export const CRYPTO_URL = 'https://crypto.com'
@@ -45,7 +45,7 @@ export const DYNAMIC_FEES_DOC_URL =
 export const SHORT_COLLATERAL_REWARDS_DOCS_URL =
   'https://docs.lyra.finance/governance/incentives#short-collateral-rewards'
 
-export const SWAP_SYNTH_1INCH_URL = 'https://app.1inch.io/#/10/swap/ETH/'
+export const SWAP_SYNTH_1INCH_URL = 'https://app.1inch.io/#/10/unified/swap/ETH/'
 
 export const ARRAKIS_LIQUIDITY_URL = 'https://beta.arrakis.finance/vaults/10/0x70535C46ce04181adf749f34B65B6365164d6B6E'
 

@@ -62,7 +62,7 @@ const TradeEventsTable = ({ events, onClick, hideOption, pageSize = 10 }: Props)
         collateralValue = -fromBigNumber(event.changeValue(position))
         collateralAmount = -fromBigNumber(event.changeAmount(position))
       } else if (event instanceof SettleEvent) {
-        if (event.isBaseCollateral) {
+        if (!event.isLong) {
           collateralAmount = fromBigNumber(event.returnedCollateralAmount)
           collateralValue = fromBigNumber(event.returnedCollateralValue)
         } else {
