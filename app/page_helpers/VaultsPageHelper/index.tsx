@@ -1,4 +1,3 @@
-import Box from '@lyra/ui/components/Box'
 import Card from '@lyra/ui/components/Card'
 import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
@@ -8,6 +7,7 @@ import React, { useState } from 'react'
 import MarketImage from '@/app/components/common/MarketImage'
 import VaultInfoCardRow from '@/app/components/common/VaultInfoCardRow'
 import VaultsDepositAndWithdrawForm from '@/app/containers/vaults/VaultsDepositAndWithdrawForm'
+import VaultsMarketDropdown from '@/app/containers/vaults/VaultsMarketDropdown'
 import VaultsMyLiquidityCard from '@/app/containers/vaults/VaultsMyLiquidityCard'
 import VaultsStatsCard from '@/app/containers/vaults/VaultsStatsCard'
 import VaultsStatsChartCard from '@/app/containers/vaults/VaultsStatsChartCard'
@@ -22,15 +22,7 @@ type Props = {
 const VaultsPageHelper = ({ market }: Props) => {
   const [isDeposit, setIsDeposit] = useState(true)
 
-  const header = (
-    <Flex alignItems="center">
-      <MarketImage mr={3} name={market.name} size={52} />
-      <Box>
-        <Text variant="title">{market.name.toUpperCase()} Vault</Text>
-        <Text color="secondaryText">Market Maker Vault</Text>
-      </Box>
-    </Flex>
-  )
+  const header = <VaultsMarketDropdown selectedMarket={market} />
 
   return (
     <Layout
