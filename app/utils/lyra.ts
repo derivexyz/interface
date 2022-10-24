@@ -9,5 +9,6 @@ const networkConfig = NETWORK_CONFIGS[optimismChainId]
 const optimismProvider = new CachedStaticJsonRpcProvider(networkConfig.readRpcUrls, networkConfig.chainId)
 const lyra = new Lyra({
   provider: optimismProvider,
+  subgraphUri: 'https://subgraph.satsuma.xyz/lyra/optimism-mainnet/api',
 })
 export default lyra
