@@ -222,6 +222,7 @@ export type AccountStakedLyraBalance = {
 
 export type ClaimableBalance = {
   op: BigNumber
+  stkLyra: BigNumber
   lyra: BigNumber
 }
 
@@ -353,14 +354,19 @@ export class Account {
     const stkLyraAddress = getAddress(
       this.lyra.deployment === Deployment.Mainnet ? STAKED_LYRA_OPTIMISM_ADDRESS : STAKED_LYRA_OPTIMISM_KOVAN_ADDRESS
     )
+    const lyraAddress = getAddress(
+      this.lyra.deployment === Deployment.Mainnet ? LYRA_OPTIMISM_MAINNET_ADDRESS : LYRA_OPTIMISM_KOVAN_ADDRESS
+    )
     const opAddress =
       this.lyra.deployment === Deployment.Mainnet ? OP_OPTIMISM_MAINNET_ADDRESS : LYRA_OPTIMISM_KOVAN_ADDRESS
-    const [stkLyraClaimableBalance, opClaimableBalance] = await Promise.all([
+    const [lyraClaimableBalance, stkLyraClaimableBalance, opClaimableBalance] = await Promise.all([
+      distributorContract.claimableBalances(this.address, lyraAddress),
       distributorContract.claimableBalances(this.address, stkLyraAddress),
       distributorContract.claimableBalances(this.address, opAddress),
     ])
     return {
-      lyra: stkLyraClaimableBalance ?? ZERO_BN,
+      lyra: lyraClaimableBalance ?? BigNumber.from(10),
+      stkLyra: stkLyraClaimableBalance ?? ZERO_BN,
       op: opClaimableBalance ?? ZERO_BN,
     }
   }

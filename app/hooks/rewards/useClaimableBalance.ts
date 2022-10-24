@@ -7,12 +7,12 @@ import lyra from '../../utils/lyra'
 import useOptimismBlockFetch, { useOptimismBlockMutate } from '../data/useOptimismBlockFetch'
 import useWalletAccount from '../wallet/useWalletAccount'
 
-const fetchClaimableBalance = async (account: string): Promise<ClaimableBalance> => {
-  return await lyra.account(account).claimableRewards()
-}
+const fetchClaimableBalance = async (account: string): Promise<ClaimableBalance> =>
+  await lyra.account(account).claimableRewards()
 
 const EMPTY: ClaimableBalance = {
   lyra: ZERO_BN,
+  stkLyra: ZERO_BN,
   op: ZERO_BN,
 }
 

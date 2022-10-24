@@ -13,6 +13,7 @@ import React, { useState } from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
+import { ZERO_BN } from '@/app/constants/bn'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccountWethLyraStaking from '@/app/hooks/rewards/useAccountWethLyraStaking'
 import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
@@ -25,8 +26,8 @@ const ClaimableStakedLyraText = withSuspense(
   (): CardElement => {
     const claimableBalance = useClaimableBalances()
     return (
-      <Text variant="heading" color={claimableBalance.lyra.gt(0) ? 'primaryText' : 'secondaryText'}>
-        {formatNumber(claimableBalance.lyra)} stkLYRA
+      <Text variant="heading" color={claimableBalance.stkLyra.gt(0) ? 'primaryText' : 'secondaryText'}>
+        {formatNumber(claimableBalance.stkLyra)} stkLYRA
       </Text>
     )
   },
@@ -37,14 +38,15 @@ const ClaimableRewardsText = withSuspense(
   () => {
     const claimableBalance = useClaimableBalances()
     const wethLyraAccount = useAccountWethLyraStaking()
+    const claimableLyra = claimableBalance.lyra.add(wethLyraAccount?.rewards ?? ZERO_BN)
     return (
       <>
-        {wethLyraAccount && wethLyraAccount.stakedLPTokenBalance.gt(0) ? (
+        {claimableLyra.gt(0) ? (
           <Box flexGrow={1}>
             <Text variant="secondary" color="secondaryText" mb={2}>
               Claimable LYRA
             </Text>
-            <TokenAmountText variant="secondary" tokenNameOrAddress="lyra" amount={wethLyraAccount.rewards} />
+            <TokenAmountText variant="secondary" tokenNameOrAddress="lyra" amount={claimableLyra} />
           </Box>
         ) : null}
         <Box flexGrow={1}>
@@ -74,7 +76,12 @@ const OpenClaimModalButton = withSuspense(
         label="Claim"
         variant="primary"
         onClick={onClick}
-        isDisabled={claimableBalance.lyra.isZero() && claimableBalance.op.isZero() && wethLyraAccount?.rewards.isZero()}
+        isDisabled={
+          claimableBalance.stkLyra.isZero() &&
+          claimableBalance.lyra.isZero() &&
+          claimableBalance.op.isZero() &&
+          wethLyraAccount?.rewards.isZero()
+        }
       />
     )
   },

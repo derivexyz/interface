@@ -15,6 +15,7 @@ type Props = {
 const ClaimModal = withSuspense(({ isOpen, onClose }: Props): JSX.Element => {
   const [isStkLyraChecked, setIsStkLyraChecked] = useState(false)
   const [isOpChecked, setIsOpChecked] = useState(false)
+  const [isLyraChecked, setIsLyraChecked] = useState(false)
   const [isWethLyraChecked, setIsWethLyraChecked] = useState(false)
 
   const handleClickStkLyra = () => {
@@ -23,6 +24,10 @@ const ClaimModal = withSuspense(({ isOpen, onClose }: Props): JSX.Element => {
   }
   const handleClickOp = () => {
     setIsOpChecked(!isOpChecked)
+    setIsWethLyraChecked(false)
+  }
+  const handleClickLyra = () => {
+    setIsLyraChecked(!isLyraChecked)
     setIsWethLyraChecked(false)
   }
   const handleClickWethLyra = () => {
@@ -38,11 +43,14 @@ const ClaimModal = withSuspense(({ isOpen, onClose }: Props): JSX.Element => {
           isOpChecked={isOpChecked}
           isStkLyraChecked={isStkLyraChecked}
           isWethLyraChecked={isWethLyraChecked}
+          isLyraChecked={isLyraChecked}
           onClickOp={handleClickOp}
           onClickStkLyra={handleClickStkLyra}
           onClickWethLyra={handleClickWethLyra}
+          onClickLyra={handleClickLyra}
         />
         <ClaimButton
+          isLyraChecked={isLyraChecked}
           isOpChecked={isOpChecked}
           isStkLyraChecked={isStkLyraChecked}
           isWethLyraChecked={isWethLyraChecked}

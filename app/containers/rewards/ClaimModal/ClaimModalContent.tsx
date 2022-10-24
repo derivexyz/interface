@@ -16,29 +16,65 @@ type Props = {
   isOpChecked: boolean
   isStkLyraChecked: boolean
   isWethLyraChecked: boolean
+  isLyraChecked: boolean
   onClickOp: () => void
   onClickStkLyra: () => void
   onClickWethLyra: () => void
+  onClickLyra: () => void
 }
 
 const ClaimModalContent = withSuspense(
-  ({ isOpChecked, isStkLyraChecked, isWethLyraChecked, onClickStkLyra, onClickOp, onClickWethLyra }: Props) => {
+  ({
+    isOpChecked,
+    isLyraChecked,
+    isStkLyraChecked,
+    isWethLyraChecked,
+    onClickStkLyra,
+    onClickOp,
+    onClickLyra,
+    onClickWethLyra,
+  }: Props) => {
     const claimableBalances = useClaimableBalances()
     const wethLyraAccount = useAccountWethLyraStaking()
-    const isOpAndStkLyraDisabled = isWethLyraChecked
-    const isWethLyraDisabled = isOpChecked || isStkLyraChecked
+    const isDistributorRewardsDisabled = isWethLyraChecked
+    const isWethLyraDisabled = isOpChecked || isStkLyraChecked || isLyraChecked
     return (
       <Box>
         {claimableBalances.lyra.gt(0) ? (
           <Card
             variant="nested"
             mb={6}
+            onClick={onClickLyra}
+            sx={{
+              cursor: !isDistributorRewardsDisabled ? 'pointer' : null,
+              ':hover': { bg: !isDistributorRewardsDisabled ? 'active' : null },
+              bg: isDistributorRewardsDisabled ? 'buttonDisabled' : null,
+              pointerEvents: isDistributorRewardsDisabled ? 'none' : null,
+            }}
+          >
+            <CardBody>
+              <Flex alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Text variant="secondary" color="secondaryText">
+                    Lyra Rewards
+                  </Text>
+                  <TokenAmountText tokenNameOrAddress="stkLyra" amount={claimableBalances.lyra} mt={4} />
+                </Box>
+                <Checkbox isDisabled={isDistributorRewardsDisabled} checked={isLyraChecked} onToggle={onClickLyra} />
+              </Flex>
+            </CardBody>
+          </Card>
+        ) : null}
+        {claimableBalances.stkLyra.gt(0) ? (
+          <Card
+            variant="nested"
+            mb={6}
             onClick={onClickStkLyra}
             sx={{
-              cursor: !isOpAndStkLyraDisabled ? 'pointer' : null,
-              ':hover': { bg: !isOpAndStkLyraDisabled ? 'active' : null },
-              bg: isOpAndStkLyraDisabled ? 'buttonDisabled' : null,
-              pointerEvents: isOpAndStkLyraDisabled ? 'none' : null,
+              cursor: !isDistributorRewardsDisabled ? 'pointer' : null,
+              ':hover': { bg: !isDistributorRewardsDisabled ? 'active' : null },
+              bg: isDistributorRewardsDisabled ? 'buttonDisabled' : null,
+              pointerEvents: isDistributorRewardsDisabled ? 'none' : null,
             }}
           >
             <CardBody>
@@ -49,7 +85,11 @@ const ClaimModalContent = withSuspense(
                   </Text>
                   <TokenAmountText tokenNameOrAddress="stkLyra" amount={claimableBalances.lyra} mt={4} />
                 </Box>
-                <Checkbox isDisabled={isOpAndStkLyraDisabled} checked={isStkLyraChecked} onToggle={onClickStkLyra} />
+                <Checkbox
+                  isDisabled={isDistributorRewardsDisabled}
+                  checked={isStkLyraChecked}
+                  onToggle={onClickStkLyra}
+                />
               </Flex>
             </CardBody>
           </Card>
@@ -60,10 +100,10 @@ const ClaimModalContent = withSuspense(
             mb={6}
             onClick={onClickOp}
             sx={{
-              cursor: !isOpAndStkLyraDisabled ? 'pointer' : null,
-              ':hover': { bg: !isOpAndStkLyraDisabled ? 'active' : null },
-              bg: isOpAndStkLyraDisabled ? 'buttonDisabled' : null,
-              pointerEvents: isOpAndStkLyraDisabled ? 'none' : null,
+              cursor: !isDistributorRewardsDisabled ? 'pointer' : null,
+              ':hover': { bg: !isDistributorRewardsDisabled ? 'active' : null },
+              bg: isDistributorRewardsDisabled ? 'buttonDisabled' : null,
+              pointerEvents: isDistributorRewardsDisabled ? 'none' : null,
             }}
           >
             <CardBody>
@@ -74,7 +114,7 @@ const ClaimModalContent = withSuspense(
                   </Text>
                   <TokenAmountText tokenNameOrAddress="op" amount={claimableBalances.op} mt={4} />
                 </Box>
-                <Checkbox isDisabled={isOpAndStkLyraDisabled} checked={isOpChecked} onToggle={onClickOp} />
+                <Checkbox isDisabled={isDistributorRewardsDisabled} checked={isOpChecked} onToggle={onClickOp} />
               </Flex>
             </CardBody>
           </Card>
