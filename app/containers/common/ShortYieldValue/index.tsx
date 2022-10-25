@@ -25,8 +25,13 @@ const ShortYieldValue = withSuspense(
     const delta = fromBigNumber(tradeOrPosition instanceof Trade ? tradeOrPosition.greeks.delta : option.delta)
     const expiryTimestamp = option.board().expiryTimestamp
     const isLong = tradeOrPosition.isLong
-
-    const yieldPerDay = globalEpoch?.shortCollateralYieldPerDay(fromBigNumber(size), delta, expiryTimestamp)
+    const market = option.market()
+    const yieldPerDay = globalEpoch?.shortCollateralYieldPerDay(
+      fromBigNumber(size),
+      delta,
+      expiryTimestamp,
+      market.name
+    )
     const isEnabled = !isLong && size.gt(0) && yieldPerDay
     const isEarning = yieldPerDay && yieldPerDay.lyra + yieldPerDay.op > 0
 

@@ -57,7 +57,8 @@ const ShortCollateralRewardsCardGrid = withSuspense(
           const { lyra, op } = globalRewardEpoch.shortCollateralYieldPerDay(
             fromBigNumber(position.size),
             fromBigNumber(position.delta),
-            position.expiryTimestamp
+            position.expiryTimestamp,
+            position.marketName
           )
           return { lyra: sum.lyra + lyra, op: sum.op + op }
         },
