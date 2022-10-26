@@ -50,7 +50,6 @@ const TradingRewardsCardGrid = withSuspense(
           </Text>
           <Text variant="secondary" color="primaryText" mt={2}>
             {formatPercentage(tradingFeeRebate, true)}
-            {tradingFeeRebateDelta ? ` (${formatPercentage(tradingFeeRebateDelta)})` : ''}
           </Text>
         </Flex>
         {lyraRewardsCap > 0 ? (

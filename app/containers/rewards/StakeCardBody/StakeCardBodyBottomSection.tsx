@@ -70,8 +70,7 @@ const StakeCardBodyBottomSection = withSuspense(
         <Flex mb={4} justifyContent="space-between">
           <Text color="secondaryText">Fee Rebate</Text>
           <Text color={newStakedLyraBalanceDelta.gt(0) ? 'primaryText' : 'text'}>
-            {formatPercentage(newTradingFeeRebate, true)}{' '}
-            {newTradingFeeRebateDelta ? `(${formatPercentage(newTradingFeeRebateDelta)})` : ''}
+            {formatPercentage(newTradingFeeRebate, true)}
           </Text>
         </Flex>
         <Flex mb={6} justifyContent="space-between" alignItems="center">
