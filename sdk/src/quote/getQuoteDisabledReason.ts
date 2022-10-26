@@ -63,21 +63,23 @@ export default function getQuoteDisabledReason(
     return QuoteDisabledReason.DeltaOutOfRange
   }
 
-  if (isBuy) {
-    if (newBaseIv.gt(tradeLimitParams.maxBaseIV)) {
-      return QuoteDisabledReason.IVTooHigh
-    } else if (newSkew.gt(tradeLimitParams.maxSkew)) {
-      return QuoteDisabledReason.SkewTooHigh
-    } else if (newIv.gt(tradeLimitParams.maxVol)) {
-      return QuoteDisabledReason.VolTooHigh
-    }
-  } else {
-    if (newBaseIv.lt(tradeLimitParams.minBaseIV)) {
-      return QuoteDisabledReason.IVTooLow
-    } else if (newSkew.lt(tradeLimitParams.minSkew)) {
-      return QuoteDisabledReason.SkewTooLow
-    } else if (newIv.lt(tradeLimitParams.minVol)) {
-      return QuoteDisabledReason.VolTooLow
+  if (!isForceClose) {
+    if (isBuy) {
+      if (newBaseIv.gt(tradeLimitParams.maxBaseIV)) {
+        return QuoteDisabledReason.IVTooHigh
+      } else if (newSkew.gt(tradeLimitParams.maxSkew)) {
+        return QuoteDisabledReason.SkewTooHigh
+      } else if (newIv.gt(tradeLimitParams.maxVol)) {
+        return QuoteDisabledReason.VolTooHigh
+      }
+    } else {
+      if (newBaseIv.lt(tradeLimitParams.minBaseIV)) {
+        return QuoteDisabledReason.IVTooLow
+      } else if (newSkew.lt(tradeLimitParams.minSkew)) {
+        return QuoteDisabledReason.SkewTooLow
+      } else if (newIv.lt(tradeLimitParams.minVol)) {
+        return QuoteDisabledReason.VolTooLow
+      }
     }
   }
 
