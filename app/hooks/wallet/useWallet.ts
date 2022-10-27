@@ -21,6 +21,7 @@ import useQueryParam from '../url/useQueryParam'
 type Wallet = {
   isConnected: boolean
   account: string | undefined
+  connectedAccount: string | undefined
   chainId: number | undefined
   isLoading: boolean
   walletType: WalletType | null
@@ -118,6 +119,7 @@ export default function useWallet(): Wallet {
   return useMemo(
     () => ({
       account: seeAddress ?? address,
+      connectedAccount: address,
       chainId: chain?.id,
       connector,
       isConnected: !!address && !!connector,
