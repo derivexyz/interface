@@ -36,7 +36,7 @@ export default function VaultAPYTooltip({
       tooltip={
         <Box>
           <Text variant="secondary" color="secondaryText" mb={4}>
-            Earn staked LYRA and / or OP tokens when you deposit sUSD to the {marketName} Vault.
+            Earn staked LYRA and/or OP tokens when you deposit sUSD to the {marketName} Vault.
           </Text>
           {apyMultiplier && apyMultiplier > 1 && stakedLyraBalance && stakedLyraBalance > 0 ? (
             <Text variant="secondary" color="secondaryText" mb={4}>
