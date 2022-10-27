@@ -58,7 +58,7 @@ const ClaimModalContent = withSuspense(
                   <Text variant="secondary" color="secondaryText">
                     Lyra Rewards
                   </Text>
-                  <TokenAmountText tokenNameOrAddress="stkLyra" amount={claimableBalances.lyra} mt={4} />
+                  <TokenAmountText tokenNameOrAddress="lyra" amount={claimableBalances.lyra} mt={4} />
                 </Box>
                 <Checkbox isDisabled={isDistributorRewardsDisabled} checked={isLyraChecked} onToggle={onClickLyra} />
               </Flex>
@@ -83,7 +83,7 @@ const ClaimModalContent = withSuspense(
                   <Text variant="secondary" color="secondaryText">
                     stkLyra Rewards
                   </Text>
-                  <TokenAmountText tokenNameOrAddress="stkLyra" amount={claimableBalances.lyra} mt={4} />
+                  <TokenAmountText tokenNameOrAddress="stkLyra" amount={claimableBalances.stkLyra} mt={4} />
                 </Box>
                 <Checkbox
                   isDisabled={isDistributorRewardsDisabled}
