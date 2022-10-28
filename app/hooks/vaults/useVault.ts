@@ -61,7 +61,7 @@ export const fetchVault = async (marketAddressOrName: string): Promise<Vault> =>
   const tvlChange = tvl30D > 0 ? (tvl - tvl30D) / tvl30D : 0
   const tokenPrice30D = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].tokenPrice) : 0
   const tokenPrice =
-    liquidityHistory.length > 1 ? fromBigNumber(liquidityHistory[liquidityHistory.length - 2].tokenPrice) : 0
+    liquidityHistory.length > 1 ? fromBigNumber(liquidityHistory[liquidityHistory.length - 1].tokenPrice) : 0
   const tokenPrice30DChange = tokenPrice30D > 0 ? (tokenPrice - tokenPrice30D) / tokenPrice30D : 0
   const tokenPrice30DChangeAnnualized = (tokenPrice30DChange / 30) * DAYS_IN_YEAR
   const pendingDeposits = liquidityHistory.length

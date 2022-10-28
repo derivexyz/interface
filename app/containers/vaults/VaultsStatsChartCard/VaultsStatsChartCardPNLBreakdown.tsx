@@ -22,7 +22,7 @@ const VaultsStatsChartCardPNLBreakdown = withSuspense(
   ({ hoverData, marketAddressOrName, period, ...styleProps }: Props) => {
     const isMobile = useIsMobile()
     const vaultHistoryPNL = useVaultPNLHistory(marketAddressOrName, period)
-    const vaultBalancePNL = useMemo(() => vaultHistoryPNL[vaultHistoryPNL.length - 2], [vaultHistoryPNL]) // we take a 2nd last because we do not want to use the value from the contract as it could be stale
+    const vaultBalancePNL = useMemo(() => vaultHistoryPNL[vaultHistoryPNL.length - 1], [vaultHistoryPNL])
     const pnl = hoverData?.pnl ?? vaultBalancePNL.pnl
     const earliestHistory = vaultHistoryPNL[0]
     const earliestPNL = earliestHistory.pnl ?? 0
