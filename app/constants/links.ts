@@ -4,7 +4,7 @@ export const LYRA_SHARE_URL = 'https://share.lyra.finance'
 // External
 export const DISCORD_URL = 'https://discord.gg/Lyra'
 export const GITHUB_URL = 'https://github.com/lyra-finance'
-export const PARADIGM_FAUCET = 'https://faucet.paradigm.xyz/'
+export const OPTIMISM_FAUCET = 'https://optimismfaucet.xyz/'
 export const ONE_INCH_ETH_TO_LYRA_URL = 'https://app.1inch.io/#/10/unified/swap/ETH/LYRA'
 export const V1_DAPP_URL = 'https://v1-app.lyra.finance'
 export const BINANCE_URL = 'https://binance.com'

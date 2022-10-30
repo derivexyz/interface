@@ -21,7 +21,7 @@ import isOptimismMainnet from '../utils/isOptimismMainnet'
 import isScreeningEnabled from '../utils/isScreeningEnabled'
 import mergeDeep from '../utils/mergeDeep'
 
-const SUPPORTED_CHAINS = [wagmiChain.optimism, wagmiChain.optimismKovan]
+const SUPPORTED_CHAINS = [wagmiChain.optimism, wagmiChain.optimismGoerli]
 
 const INFURA_PROJECT_ID = nullthrows(
   process.env.NEXT_PUBLIC_INFURA_PROJECT_ID,
@@ -146,7 +146,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }): JSX
     },
   })
 
-  const initialChain = isOptimismMainnet() ? wagmiChain.optimism : wagmiChain.optimismKovan
+  const initialChain = isOptimismMainnet() ? wagmiChain.optimism : wagmiChain.optimismGoerli
 
   return (
     <WagmiConfig client={wagmiClient}>

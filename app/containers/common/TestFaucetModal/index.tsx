@@ -15,7 +15,7 @@ import React, { useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { DEFAULT_MARKET } from '@/app/constants/defaults'
-import { PARADIGM_FAUCET } from '@/app/constants/links'
+import { OPTIMISM_FAUCET } from '@/app/constants/links'
 import { Network } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import useEthBalance from '@/app/hooks/erc20/useEthBalance'
@@ -92,7 +92,7 @@ const FaucetSETHBalance = withSuspense(
         label={`${sethBalanceNum} sETH`}
         variant="light"
         size="large"
-        href={getOptimismExplorerUrl(market.baseToken.symbol)}
+        href={getOptimismExplorerUrl(market.baseToken.address)}
         target="_blank"
         minWidth={170}
       />
@@ -116,7 +116,9 @@ const ClaimButton = withSuspense(
         return
       }
       setIsClaimLoading(true)
-      await executeTransaction(lyra.drip(account), { onComplete: () => mutate().then(res => console.log({ res })) })
+      await executeTransaction(lyra.drip(account), {
+        onComplete: async () => await mutate(),
+      })
       setIsClaimLoading(false)
     }
 
@@ -124,11 +126,11 @@ const ClaimButton = withSuspense(
       return (
         <TransactionButton
           transactionType={TransactionType.Faucet}
-          label={'Claim ETH from Paradigm Faucet'}
+          label="Claim ETH from Optimism Faucet"
           rightIcon={IconType.ExternalLink}
           variant="primary"
           size="large"
-          href={PARADIGM_FAUCET}
+          href={OPTIMISM_FAUCET}
           target="_blank"
           sx={{ width: '100%' }}
         />
@@ -158,7 +160,7 @@ const HelpText = withSuspense(
 
     return ethBalance.isZero() ? (
       <Text textAlign="center" color="secondaryText">
-        Claim Optimistic Kovan ETH from Paradigm's Faucet. Remember to check "Drip on additional networks".
+        Claim Optimistic Goerli ETH from the Optimism Faucet. Remember to check "Drip on additional networks".
       </Text>
     ) : (
       <Text textAlign="center" color="secondaryText">

@@ -92,7 +92,7 @@ const PortfolioMarketsTableDesktop = ({ markets }: PortfolioMarketsTableOrListPr
         accessor: 'tradingVolume30D',
         Header: '30D Volume',
         Cell: (props: TableCellProps<PortfolioMarketsData>) => {
-          return <Text variant="secondary">{formatTruncatedUSD(props.cell.value)}</Text>
+          return <Text variant="secondary">{props.cell.value !== 0 ? formatTruncatedUSD(props.cell.value) : '-'}</Text>
         },
       },
     ],

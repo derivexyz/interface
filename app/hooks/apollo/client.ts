@@ -4,10 +4,11 @@ import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
 
 export const SNAPSHOT_RESULT_LIMIT = 1000
 
+// TODO @michaelxuwu Update to Satsuma uris
 export const synthetixClient = new ApolloClient({
   uri: isOptimismMainnet()
     ? 'https://api.thegraph.com/subgraphs/name/kwenta/optimism-latest-rates'
-    : 'https://api.thegraph.com/subgraphs/name/synthetixio-team/optimism-kovan-main',
+    : 'https://api.thegraph.com/subgraphs/name/kwenta/optimism-goerli-main',
   cache: new InMemoryCache(),
 })
 

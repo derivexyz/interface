@@ -10,7 +10,6 @@ import React, { useState } from 'react'
 
 import { TERMS_OF_USE_URL } from '@/app/constants/links'
 import useWallet from '@/app/hooks/wallet/useWallet'
-import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 import isTermsOfUseEnabled from '@/app/utils/isTermsOfUseEnabled'
 import postTermsOfUse from '@/app/utils/postTermsOfUse'
@@ -26,7 +25,7 @@ export default function TermsOfUseModal({ isOpen, onClose, onConfirm }: Props) {
   const [isBChecked, setIsBChecked] = useState(false)
   const { account } = useWallet()
   const [isLoading, setIsLoading] = useState(false)
-  if (!isTermsOfUseEnabled() || !account || !isOptimismMainnet()) {
+  if (!isTermsOfUseEnabled() || !account) {
     // Ignore terms when account is not connected or we're on testnet
     return null
   }

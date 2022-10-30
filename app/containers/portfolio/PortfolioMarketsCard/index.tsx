@@ -22,7 +22,7 @@ const PortfolioMarketsCard = withSuspense(
           {markets.length > 0 ? (
             <PortfolioMarketsTableOrList markets={markets} />
           ) : (
-            <Text variant="secondary" color="secondaryText">
+            <Text mx={6} my={4} variant="secondary" color="secondaryText">
               Failed to load markets
             </Text>
           )}

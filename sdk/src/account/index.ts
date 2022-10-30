@@ -416,7 +416,7 @@ export class Account {
   }
 
   async drip(): Promise<PopulatedTransaction> {
-    if (![Deployment.Kovan, Deployment.Local].includes(this.lyra.deployment)) {
+    if (![Deployment.Testnet, Deployment.Local].includes(this.lyra.deployment)) {
       throw new Error('Faucet is only supported on local and kovan contracts')
     }
     const faucet = getLyraContract(this.lyra.provider, this.lyra.deployment, LyraContractId.TestFaucet)

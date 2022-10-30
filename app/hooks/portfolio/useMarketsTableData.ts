@@ -53,8 +53,12 @@ const fetcher = async (): Promise<MarketTableData[]> => {
       const spotPriceChange =
         spotPrice1dAgo && !isNaN(spotPrice1dAgo) ? (spotPrice - spotPrice1dAgo) / spotPrice1dAgo : 0
       const tradingVolumeHistory = await market.tradingVolumeHistory({ startTimestamp })
-      const totalVolume30dAgo = fromBigNumber(tradingVolumeHistory[0].totalNotionalVolume)
-      const totalVolume = fromBigNumber(tradingVolumeHistory[tradingVolumeHistory.length - 1].totalNotionalVolume)
+      const totalVolume30dAgo = tradingVolumeHistory.length
+        ? fromBigNumber(tradingVolumeHistory[0].totalNotionalVolume)
+        : 0
+      const totalVolume = tradingVolumeHistory.length
+        ? fromBigNumber(tradingVolumeHistory[tradingVolumeHistory.length - 1].totalNotionalVolume)
+        : 0
       const tradingVolume30D = totalVolume - totalVolume30dAgo
       const openInterest = market.liveBoards().reduce((sum, liveBoard) => {
         return (

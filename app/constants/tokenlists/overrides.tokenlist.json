@@ -13,12 +13,12 @@
       "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/staked-lyra-token.png"
     },
     {
-      "chainId": 69,
-      "address": "0xd16d254c42a03ad72d77b4226d086afcc0b2e43e",
+      "chainId": 420,
+      "address": "",
       "name": "Staked Lyra",
       "symbol": "stkLYRA",
       "decimals": 18,
-      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/staked-lyra-token.png"
+      "logoURI": "/logos/staked-lyra-token.png"
     },
     {
       "chainId": 10,
@@ -29,8 +29,8 @@
       "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/lyra-token.png"
     },
     {
-      "chainId": 69,
-      "address": "0xE7798f023fC62146e8Aa1b36Da45fb70855a77Ea",
+      "chainId": 420,
+      "address": "",
       "name": "Lyra",
       "symbol": "LYRA",
       "decimals": 18,
@@ -48,12 +48,12 @@
       }
     },
     {
-      "chainId": 69,
+      "chainId": 420,
       "address": "0x4200000000000000000000000000000000000042",
       "name": "Optimism",
       "symbol": "OP",
       "decimals": 18,
-      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/optimism.png",
+      "logoURI": "/logos/optimism.png",
       "extensions": {
         "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
       }

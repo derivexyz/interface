@@ -80,7 +80,7 @@ const LayoutMoreDropdownListItems = ({ onClose, onClickPrivacy }: Props): JSX.El
       <DropdownButtonListItem
         label={isOptimismMainnet() ? 'Testnet' : 'Mainnet'}
         onClick={() => {
-          const toChainId = isOptimismMainnet() ? OptimismChainId.OptimismKovan : OptimismChainId.OptimismMainnet
+          const toChainId = isOptimismMainnet() ? OptimismChainId.OptimismGoerli : OptimismChainId.OptimismMainnet
           logEvent(LogEvent.NavNetworkToggle, {
             toChainId,
           })
