@@ -1658,7 +1658,7 @@ __metadata:
     "@next/bundle-analyzer": ^11.0.0
     "@rainbow-me/rainbowkit": 0.6.2
     "@sentry/nextjs": ^7.13.0
-    "@socket.tech/widget": ^0.1.4
+    "@socket.tech/widget": ^0.2.3
     "@types/node": 17.0.40
     "@types/react": 18.0.1
     "@types/react-csv": ^1.1.3
@@ -2437,27 +2437,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@socket.tech/socket-v2-sdk@npm:^1.20.0":
-  version: 1.20.0
-  resolution: "@socket.tech/socket-v2-sdk@npm:1.20.0"
+"@socket.tech/socket-v2-sdk@npm:^1.21.0":
+  version: 1.21.0
+  resolution: "@socket.tech/socket-v2-sdk@npm:1.21.0"
   dependencies:
     "@socket.tech/ll-core": ^0.1.14
     axios: ^0.27.2
     ethers: ^5.6.5
     form-data: ^4.0.0
     tslib: ^2.4.0
-  checksum: 220d77a5b7c3ca9012ea45dcabb729f0996d33cb8938bee1913b795226243a052128478f15157bb309a5c571da9cbb36feb62c3b3f56245da3e83eaf268a1965
+  checksum: f7d03c86ad6fe9158a1ebfc00376c377e7680d2151738b094e8d369e975675527afa33c7549de901039f0dcc2b1a2956f6c79c741c91f55cf955c5b13a490d0f
   languageName: node
   linkType: hard
 
-"@socket.tech/widget@npm:^0.1.4":
-  version: 0.1.4
-  resolution: "@socket.tech/widget@npm:0.1.4"
+"@socket.tech/widget@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@socket.tech/widget@npm:0.2.3"
   dependencies:
     "@react-spring/web": ^9.5.0
     "@reduxjs/toolkit": ^1.8.2
     "@socket.tech/ll-core": ^0.1.10
-    "@socket.tech/socket-v2-sdk": ^1.20.0
+    "@socket.tech/socket-v2-sdk": ^1.21.0
     ethers: ^5.6.9
     react-feather: ^2.0.10
     react-redux: ^8.0.2
@@ -2465,7 +2465,7 @@ __metadata:
   peerDependencies:
     react: ">=17.0.1"
     react-dom: ">=17.0.1"
-  checksum: 9eb90e94d8c7ac25ea4b9aac02a5054ffc43fe325fb617768937f6713d28dc7fac5a31915a9a3dd39856fd2f32fb6526ea758ff2239bdba8eac4d46b7c77f9a1
+  checksum: 4e6b682f76eca025cecd32faa73f4cea97337790d862b0d7228044ad680d01eb6862fac151c2600ab3213e7962af849bdd8947ee03253bdcf1548e56d05dedea
   languageName: node
   linkType: hard
 

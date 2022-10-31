@@ -1,14 +1,17 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import useThemeColor from '@lyra/ui/hooks/useThemeColor'
+import { Currency, Network } from '@socket.tech/widget'
 import { providers } from 'ethers'
 import dynamic from 'next/dynamic'
 import React from 'react'
 import { SWRConfig } from 'swr'
 import { useSigner } from 'wagmi'
 
+import { LogEvent } from '@/app/constants/logEvents'
 import { OptimismChainId } from '@/app/constants/networks'
 import { SOCKET_NATIVE_TOKEN_ADDRESS } from '@/app/constants/token'
 import hexToRGB from '@/app/utils/hexToRGB'
+import logEvent from '@/app/utils/logEvent'
 
 const DEFAULT_WIDTH = 500
 const DEFAULT_MOBILE_WIDTH = 300
@@ -94,6 +97,27 @@ const SocketBridge = ({
           enableRefuel={enableRefuel}
           title={title}
           includeBridges={['hop', 'optimism-bridge']} // TODO: @dillonlin ask Socket guys to export types
+          onBridgeSuccess={data => {
+            logEvent(LogEvent.SocketBridgeSuccess, { ...data })
+          }}
+          onSourceNetworkChange={(network: Network) => {
+            logEvent(LogEvent.SocketSourceNetworkChange, { ...network })
+          }}
+          onDestinationNetworkChange={(network: Network) => {
+            logEvent(LogEvent.SocketDestinationNetworkChange, { ...network })
+          }}
+          onSourceTokenChange={(currency: Currency) => {
+            logEvent(LogEvent.SocketSourceTokenChange, { ...currency })
+          }}
+          onDestinationTokenChange={(currency: Currency) => {
+            logEvent(LogEvent.SocketDestinationTokenChange, { ...currency })
+          }}
+          onError={data => {
+            logEvent(LogEvent.SocketError, { ...data })
+          }}
+          onSubmit={data => {
+            logEvent(LogEvent.SocketSubmit, { ...data })
+          }}
         />
       )}
     </SWRConfig>

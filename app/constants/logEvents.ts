@@ -80,6 +80,15 @@ export enum LogEvent {
   OnboardingModalStepTwoSuccessClick = 'OnboardingModalStepTwoSuccessClick',
   OnboardingModalStepTwoCancelClick = 'OnboardingModalStepTwoCancelClick',
 
+  // Socket
+  SocketBridgeSuccess = 'SocketBridgeSuccess',
+  SocketSourceNetworkChange = 'SocketSourceNetworkChange',
+  SocketDestinationNetworkChange = 'SocketDestinationNetworkChange',
+  SocketSourceTokenChange = 'SocketSourceTokenChange',
+  SocketDestinationTokenChange = 'SocketDestinationTokenChange',
+  SocketError = 'SocketError',
+  SocketSubmit = 'SocketSubmit',
+
   // Misc
   ConnectWalletOpen = 'ConnectWalletModalOpen',
   ConnectWalletClose = 'ConnectWalletModalClose',
