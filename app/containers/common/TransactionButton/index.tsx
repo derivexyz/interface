@@ -49,7 +49,7 @@ const TransactionButton = withSuspense(
               description={
                 screenData ? (
                   <>
-                    screenData.blockDescription &nbsp; Learn more in our{' '}
+                    {screenData.blockDescription} &nbsp; Learn more in our{' '}
                     <Link
                       textVariant="small"
                       color="errorText"
