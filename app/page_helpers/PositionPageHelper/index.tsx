@@ -65,7 +65,7 @@ const PositionPageHelper = ({ position, option }: Props): JSX.Element => {
           </>
         ) : null}
         <PositionStatsCard position={position} option={option} />
-        {position ? <PositionHistoryCard position={position} /> : null}
+        {position && position.trades().length > 0 ? <PositionHistoryCard position={position} /> : null}
       </LayoutGrid>
     </Layout>
   )

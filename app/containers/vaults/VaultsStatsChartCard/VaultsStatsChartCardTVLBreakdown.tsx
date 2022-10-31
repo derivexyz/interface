@@ -7,9 +7,12 @@ import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import React, { useMemo } from 'react'
 
+import { ZERO_BN } from '@/app/constants/bn'
 import { ChartPeriod } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useMarket from '@/app/hooks/market/useMarket'
 import useVaultTVLHistory, { TVLSnapshot } from '@/app/hooks/vaults/useVaultTVLHistory'
+import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = {
   hoverData: TVLSnapshot | null
@@ -20,15 +23,19 @@ type Props = {
 
 const VaultsStatsChartCardTVLBreakdown = withSuspense(
   ({ hoverData, marketAddressOrName, period, ...styleProps }: Props) => {
+    const market = useMarket(marketAddressOrName)
     const vaultHistoryTVL = useVaultTVLHistory(marketAddressOrName, period)
     const isMobile = useIsMobile()
-    const vaultBalanceTVL = useMemo(() => vaultHistoryTVL[vaultHistoryTVL.length - 1], [vaultHistoryTVL])
-    const total = hoverData?.total ?? vaultBalanceTVL?.total
-    const utilization = hoverData?.utilization ?? vaultBalanceTVL.utilization
-    const pendingDeposits = hoverData?.deposits ?? vaultBalanceTVL.deposits
-    const earliestHistory = vaultHistoryTVL[0]
-    const earliestTotal = earliestHistory.total ?? 0
-    const pctChangeTotal = earliestTotal == 0 ? 0 : (total - earliestTotal) / earliestTotal
+    const vaultBalanceTVL = useMemo(
+      () => (vaultHistoryTVL.length ? vaultHistoryTVL[vaultHistoryTVL.length - 1] : null),
+      [vaultHistoryTVL]
+    )
+    const total = hoverData?.total ?? vaultBalanceTVL?.total ?? fromBigNumber(market?.tvl ?? ZERO_BN)
+    const utilization = hoverData?.utilization ?? vaultBalanceTVL?.utilization ?? 0
+    const pendingDeposits = hoverData?.deposits ?? vaultBalanceTVL?.deposits ?? 0
+    const earliestHistory = vaultHistoryTVL.length ? vaultHistoryTVL[0] : null
+    const earliestTotal = earliestHistory?.total ?? 0
+    const pctChangeTotal = earliestTotal === 0 ? 0 : (total - earliestTotal) / earliestTotal
     return (
       <Box {...styleProps}>
         <Text variant="heading">{formatTruncatedUSD(total)}</Text>

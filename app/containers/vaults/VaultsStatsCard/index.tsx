@@ -40,7 +40,6 @@ const VaultsStatsCard = withSuspense(
       tokenPrice30DChangeAnnualized,
       pendingDeposits,
       tradingVolume30D,
-      fees,
       openInterest,
       netDelta,
       minApy,

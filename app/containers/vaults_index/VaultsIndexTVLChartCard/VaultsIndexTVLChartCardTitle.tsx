@@ -6,6 +6,7 @@ import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import React, { useMemo } from 'react'
 
+import { ZERO_BN } from '@/app/constants/bn'
 import { ChartPeriod } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarkets from '@/app/hooks/market/useMarkets'
@@ -22,17 +23,17 @@ const VaultsIndexTVLChartCardTitle = withSuspense(
   ({ hoverData, period, ...styleProps }: Props) => {
     const vaultHistoryTVL = useVaultsTVLHistory(period)
     const markets = useMarkets()
-    /* temporary fix until trading starts */
     const vaultBalanceTVL = useMemo(
-      () =>
-        markets.reduce((totalTvl, market) => {
-          return (totalTvl += fromBigNumber(market.tvl))
-        }, 0),
+      () => (vaultHistoryTVL.length > 0 ? vaultHistoryTVL[vaultHistoryTVL.length - 1] : null),
+      [vaultHistoryTVL]
+    )
+    const fallbackTVL = useMemo(
+      () => fromBigNumber(markets.reduce((sum, market) => sum.add(market.tvl), ZERO_BN)),
       [markets]
     )
-    const total = hoverData?.total ?? vaultBalanceTVL
-    const earliestHistory = vaultHistoryTVL[0]
-    const earliestTotal = earliestHistory.total ?? 0
+    const total = hoverData?.total ?? vaultBalanceTVL?.total ?? fallbackTVL
+    const earliestHistory = vaultHistoryTVL.length > 0 ? vaultHistoryTVL[0] : null
+    const earliestTotal = earliestHistory?.total ?? 0
     const pctChangeTotal = earliestTotal > 0 ? (total - earliestTotal) / earliestTotal : 0
     return (
       <Box {...styleProps}>

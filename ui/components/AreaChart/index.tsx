@@ -16,6 +16,7 @@ import { CategoricalChartState } from 'recharts/types/chart/generateCategoricalC
 import { AxisDomain as RechartsAxisDomain, Margin } from 'recharts/types/util/types'
 import { LayoutProps, MarginProps } from 'styled-system'
 
+import Center from '../Center'
 import Text from '../Text'
 
 const DEFAULT_STROKE_WIDTH = 2
@@ -52,6 +53,7 @@ type Props<T extends DataPoint> = {
   referenceLinesProps?: ReferenceLineProps[]
   chartMargin?: Margin
   xAxisDataKey?: string
+  fallback?: string
 } & LayoutProps &
   MarginProps
 
@@ -87,6 +89,7 @@ export default function AreaChart<T extends DataPoint>({
   chartMargin = { top: 24, bottom: 8 },
   xAxisDataKey = 'x',
   color = 'primary',
+  fallback = 'No available data',
   ...styleProps
 }: Props<T>): JSX.Element {
   const background = useThemeColor('background')
@@ -106,6 +109,16 @@ export default function AreaChart<T extends DataPoint>({
 
   const strokeColor = useThemeColor(getStrokeColor(color))
   const fillColor = useThemeColor(getFillColor(color))
+
+  if (data.length === 0) {
+    return (
+      <Center {...styleProps}>
+        <Text variant="secondary" color="secondaryText">
+          {fallback}
+        </Text>
+      </Center>
+    )
+  }
 
   return (
     <Box {...styleProps}>

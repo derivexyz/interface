@@ -114,7 +114,7 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
         Header: 'Average Cost',
         width: 150,
         Cell: (props: TableCellProps<PositionTableData>) => {
-          return <Text variant="secondary">{formatUSD(props.cell.value)}</Text>
+          return <Text variant="secondary">{props.cell.value === 0 ? '-' : formatUSD(props.cell.value)}</Text>
         },
       },
       {

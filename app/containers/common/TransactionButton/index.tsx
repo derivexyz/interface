@@ -42,24 +42,28 @@ const TransactionButton = withSuspense(
 
       return (
         <Box sx={sx}>
-          {screenData.isBlocked ? (
+          {!screenData || !screenData.isBlocked ? (
             <Alert
               variant="error"
               mb={3}
               description={
-                <>
-                  {screenData.blockDescription ?? ''}&nbsp; Learn more in our{' '}
-                  <Link
-                    textVariant="small"
-                    color="errorText"
-                    variant="secondary"
-                    showRightIcon
-                    href={TERMS_OF_USE_URL}
-                    target="_blank"
-                  >
-                    Terms of Use
-                  </Link>
-                </>
+                screenData ? (
+                  <>
+                    screenData.blockDescription &nbsp; Learn more in our{' '}
+                    <Link
+                      textVariant="small"
+                      color="errorText"
+                      variant="secondary"
+                      showRightIcon
+                      href={TERMS_OF_USE_URL}
+                      target="_blank"
+                    >
+                      Terms of Use
+                    </Link>
+                  </>
+                ) : (
+                  'Something went wrong while verifying this transaction.'
+                )
               }
             />
           ) : null}
@@ -82,7 +86,7 @@ const TransactionButton = withSuspense(
                   }
                 }}
                 ref={ref}
-                isDisabled={!isReady || screenData?.isBlocked || isDisabled}
+                isDisabled={!isReady || !screenData || screenData?.isBlocked || isDisabled}
               />
             </>
           ) : null}
@@ -107,7 +111,7 @@ const TransactionButton = withSuspense(
       )
     }
   ),
-  ({ transactionType, helperButton, sx, ...buttonProps }) => (
+  ({ transactionType, helperButton, onClick, sx, ...buttonProps }) => (
     <Box sx={sx}>
       <ButtonShimmer width="100%" {...buttonProps} />
     </Box>

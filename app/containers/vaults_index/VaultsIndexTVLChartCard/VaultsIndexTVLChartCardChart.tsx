@@ -21,10 +21,10 @@ type Props = {
 const VaultsIndexTVLChartCardChart = withSuspense(
   ({ period, hoverData, onHover = emptyFunction, ...styleProps }: Props) => {
     const vaultHistoryTVL = useVaultsTVLHistory(period)
-    const vaultBalanceTVL = vaultHistoryTVL[vaultHistoryTVL.length - 1]
-    const earliestSnapshot = vaultHistoryTVL[0]
-    const total = hoverData?.total ?? vaultBalanceTVL.total
-    const earliestTotal = earliestSnapshot.total ?? 0
+    const vaultBalanceTVL = vaultHistoryTVL.length > 0 ? vaultHistoryTVL[vaultHistoryTVL.length - 1] : null
+    const earliestSnapshot = vaultHistoryTVL.length > 0 ? vaultHistoryTVL[0] : null
+    const total = hoverData?.total ?? vaultBalanceTVL?.total ?? 0
+    const earliestTotal = earliestSnapshot?.total ?? 0
     const change = earliestTotal == 0 ? 0 : (total - earliestTotal) / earliestTotal
     return (
       <AreaChart

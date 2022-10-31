@@ -28,6 +28,12 @@ export type VaultBalance = {
   myRewards: AccountRewardEpochTokens
 }
 
+const EMPTY_VAULT_APY: AccountRewardEpochAPY = {
+  total: 0,
+  op: 0,
+  lyra: 0,
+}
+
 export const fetchVaultBalance = async (owner: string, marketAddressOrName: string): Promise<VaultBalance> => {
   const vault = await fetchVault(marketAddressOrName)
   const { market, globalRewardEpoch } = vault
@@ -37,7 +43,7 @@ export const fetchVaultBalance = async (owner: string, marketAddressOrName: stri
       account.liquidityTokenBalance(market.address),
       account.liquidityDeposits(market.address),
       account.liquidityWithdrawals(market.address),
-      globalRewardEpoch.accountRewardEpoch(owner),
+      globalRewardEpoch ? globalRewardEpoch.accountRewardEpoch(owner) : null,
       account.liquidityUnrealizedPnl(market.address),
     ])
 
@@ -51,7 +57,7 @@ export const fetchVaultBalance = async (owner: string, marketAddressOrName: stri
     myPnlPercent: fromBigNumber(pnlPercent),
     myApy: accountRewardEpoch
       ? accountRewardEpoch.vaultApy(marketAddressOrName)
-      : globalRewardEpoch.minVaultApy(marketAddressOrName),
+      : globalRewardEpoch?.minVaultApy(marketAddressOrName) ?? EMPTY_VAULT_APY,
     myApyMultiplier: accountRewardEpoch ? accountRewardEpoch.vaultApyMultiplier(marketAddressOrName) : 1,
     myRewards: accountRewardEpoch ? accountRewardEpoch.vaultRewards(marketAddressOrName) : { lyra: 0, op: 0 },
   }

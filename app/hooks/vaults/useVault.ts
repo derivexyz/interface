@@ -1,4 +1,4 @@
-import { GlobalRewardEpoch, Market } from '@lyrafinance/lyra-js'
+import { GlobalRewardEpoch, GlobalRewardEpochAPY, Market } from '@lyrafinance/lyra-js'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { DAYS_IN_YEAR, SECONDS_IN_MONTH, SECONDS_IN_WEEK } from '@/app/constants/time'
@@ -9,7 +9,7 @@ import useFetch from '../data/useFetch'
 
 export type Vault = {
   market: Market
-  globalRewardEpoch: GlobalRewardEpoch
+  globalRewardEpoch: GlobalRewardEpoch | null
   tvl: number
   tvlChange: number
   tradingVolume30D: number
@@ -30,20 +30,43 @@ export type Vault = {
   utilization: number
 }
 
+const EMPTY_VAULT_APY: GlobalRewardEpochAPY = {
+  total: 0,
+  op: 0,
+  lyra: 0,
+}
+
 export const fetchVault = async (marketAddressOrName: string): Promise<Vault> => {
   const market = await lyra.market(marketAddressOrName)
   const startTimestamp = market.block.timestamp - SECONDS_IN_MONTH
-  const [tradingVolumeHistory, liquidityHistory, netGreeks, globalRewardEpoch] = await Promise.all([
-    market.tradingVolumeHistory({ startTimestamp }),
-    market.liquidityHistory({ startTimestamp }),
-    market.netGreeks(),
-    lyra.latestGlobalRewardEpoch(),
-  ])
+  const [tradingVolumeHistoryResult, liquidityHistoryResult, netGreeksResult, globalRewardEpochResult] =
+    await Promise.allSettled([
+      market.tradingVolumeHistory({ startTimestamp }),
+      market.liquidityHistory({ startTimestamp }),
+      market.netGreeks(),
+      lyra.latestGlobalRewardEpoch(),
+    ])
 
-  const { total: minApy, op: minOpApy, lyra: minLyraApy } = globalRewardEpoch.minVaultApy(marketAddressOrName)
-  const { total: maxApy, op: maxOpApy, lyra: maxLyraApy } = globalRewardEpoch.maxVaultApy(marketAddressOrName)
-  const totalNotionalVolume = tradingVolumeHistory[tradingVolumeHistory.length - 1].totalNotionalVolume
-  const totalNotionalVolume30DAgo = tradingVolumeHistory[0].totalNotionalVolume
+  const tradingVolumeHistory = tradingVolumeHistoryResult.status === 'fulfilled' ? tradingVolumeHistoryResult.value : []
+  const liquidityHistory = liquidityHistoryResult.status === 'fulfilled' ? liquidityHistoryResult.value : []
+  const netGreeks = netGreeksResult.status === 'fulfilled' ? netGreeksResult.value : null
+  const globalRewardEpoch = globalRewardEpochResult.status === 'fulfilled' ? globalRewardEpochResult.value : null
+
+  const {
+    total: minApy,
+    op: minOpApy,
+    lyra: minLyraApy,
+  } = globalRewardEpoch?.minVaultApy(marketAddressOrName) ?? EMPTY_VAULT_APY
+  const {
+    total: maxApy,
+    op: maxOpApy,
+    lyra: maxLyraApy,
+  } = globalRewardEpoch?.maxVaultApy(marketAddressOrName) ?? EMPTY_VAULT_APY
+
+  const totalNotionalVolume = tradingVolumeHistory.length
+    ? tradingVolumeHistory[tradingVolumeHistory.length - 1].totalNotionalVolume
+    : ZERO_BN
+  const totalNotionalVolume30DAgo = tradingVolumeHistory.length ? tradingVolumeHistory[0].totalNotionalVolume : ZERO_BN
   const tradingVolume30D = fromBigNumber(totalNotionalVolume.sub(totalNotionalVolume30DAgo))
   const fees = tradingVolumeHistory.reduce(
     (sum, tradingVolume) =>
@@ -83,8 +106,8 @@ export const fetchVault = async (marketAddressOrName: string): Promise<Vault> =>
     tokenPrice30DChangeAnnualized: is14dOld ? tokenPrice30DChangeAnnualized : 0,
     fees: fromBigNumber(fees),
     openInterest: fromBigNumber(market.openInterest),
-    netDelta: fromBigNumber(netGreeks.netDelta),
-    netStdVega: fromBigNumber(netGreeks.netStdVega),
+    netDelta: fromBigNumber(netGreeks?.netDelta ?? ZERO_BN),
+    netStdVega: fromBigNumber(netGreeks?.netStdVega ?? ZERO_BN),
     utilization,
     minApy,
     minLyraApy,

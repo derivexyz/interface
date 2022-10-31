@@ -54,7 +54,7 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
             valueTextVariant="secondaryMedium"
             value={`${position.isLong ? 'LONG' : 'SHORT'} ${formatNumber(position.sizeBeforeClose())}`}
           />
-          <LabelItem label="Average Cost" value={formatUSD(averageCost)} />
+          <LabelItem label="Average Cost" value={averageCost.isZero() ? '-' : formatUSD(averageCost)} />
           {position.isOpen ? <LabelItem label="Current Price" value={formatUSD(currentPrice)} /> : null}
           <LabelItem
             label="Profit / Loss"
