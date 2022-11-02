@@ -41,7 +41,7 @@ type Props = {
   onTrade?: (market: Market, positionId: number) => void
 }
 
-const SLIPPAGE = 0.5 / 100 // 0.5%
+const SLIPPAGE = 2.0 / 100 // 2.0%
 
 const TradeForm = withSuspense(
   ({ isBuy, option, positionId, onTrade, hideTitle }: Props) => {
