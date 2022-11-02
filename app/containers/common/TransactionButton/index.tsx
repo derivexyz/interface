@@ -15,6 +15,7 @@ import useLocalStorage from '@/app/hooks/local_storage/useLocalStorage'
 import useIsReady from '@/app/hooks/wallet/useIsReady'
 import useScreenTransaction from '@/app/hooks/wallet/useScreenTransaction'
 import useWallet from '@/app/hooks/wallet/useWallet'
+import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 import isTermsOfUseEnabled from '@/app/utils/isTermsOfUseEnabled'
 
 import ConnectWalletButton from '../ConnectWalletButton'
@@ -42,12 +43,12 @@ const TransactionButton = withSuspense(
 
       return (
         <Box sx={sx}>
-          {!screenData || !screenData.isBlocked ? (
+          {isScreeningEnabled() && (!screenData || screenData.isBlocked) ? (
             <Alert
               variant="error"
               mb={3}
               description={
-                screenData ? (
+                screenData?.blockDescription ? (
                   <>
                     {screenData.blockDescription} &nbsp; Learn more in our{' '}
                     <Link
@@ -61,9 +62,9 @@ const TransactionButton = withSuspense(
                       Terms of Use
                     </Link>
                   </>
-                ) : (
+                ) : !screenData ? (
                   'Something went wrong while verifying this transaction.'
-                )
+                ) : null
               }
             />
           ) : null}
