@@ -20,7 +20,7 @@
     "@lyrafinance/lyra-js": "workspace:*",
     "@rainbow-me/rainbowkit": "0.6.2",
     "@sentry/nextjs": "^7.13.0",
-    "@socket.tech/widget": "^0.2.3",
+    "@socket.tech/plugin": "^1.0.0",
     "copy-to-clipboard": "^3.3.1",
     "ethers": "^5.7.2",
     "graphql": "^16.3.0",

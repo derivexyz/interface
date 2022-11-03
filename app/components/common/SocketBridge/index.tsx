@@ -1,6 +1,6 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import useThemeColor from '@lyra/ui/hooks/useThemeColor'
-import { Currency, Network } from '@socket.tech/widget'
+import { Currency, Network } from '@socket.tech/plugin'
 import { providers } from 'ethers'
 import dynamic from 'next/dynamic'
 import React from 'react'
@@ -44,7 +44,7 @@ type SocketCustomizationProps = {
 const DynamicBridge = dynamic(
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  () => import('@socket.tech/widget').then(mod => mod.Bridge),
+  () => import('@socket.tech/plugin').then(mod => mod.Bridge),
   {
     ssr: false,
   }

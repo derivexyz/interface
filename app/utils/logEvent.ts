@@ -55,9 +55,12 @@ export default function logEvent(eventAction: LogEvent, logData?: LogData): void
   }, {})
 
   const parsedEventAction = eventAction === LogEvent.PageView ? '$pageview' : eventAction
-
-  posthog.capture(parsedEventAction, {
-    ...parsedLogDataWithContext,
-    $set: { address: appContext?.address ?? 'disconnected' },
-  })
+  try {
+    posthog.capture(parsedEventAction, {
+      ...parsedLogDataWithContext,
+      $set: { address: appContext?.address ?? 'disconnected' },
+    })
+  } catch (e) {
+    console.warn('posthog.capture error:', e)
+  }
 }

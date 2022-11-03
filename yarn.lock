@@ -1658,7 +1658,7 @@ __metadata:
     "@next/bundle-analyzer": ^11.0.0
     "@rainbow-me/rainbowkit": 0.6.2
     "@sentry/nextjs": ^7.13.0
-    "@socket.tech/widget": ^0.2.3
+    "@socket.tech/plugin": ^1.0.0
     "@types/node": 17.0.40
     "@types/react": 18.0.1
     "@types/react-csv": ^1.1.3
@@ -2437,22 +2437,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@socket.tech/socket-v2-sdk@npm:^1.21.0":
-  version: 1.21.0
-  resolution: "@socket.tech/socket-v2-sdk@npm:1.21.0"
-  dependencies:
-    "@socket.tech/ll-core": ^0.1.14
-    axios: ^0.27.2
-    ethers: ^5.6.5
-    form-data: ^4.0.0
-    tslib: ^2.4.0
-  checksum: f7d03c86ad6fe9158a1ebfc00376c377e7680d2151738b094e8d369e975675527afa33c7549de901039f0dcc2b1a2956f6c79c741c91f55cf955c5b13a490d0f
-  languageName: node
-  linkType: hard
-
-"@socket.tech/widget@npm:^0.2.3":
-  version: 0.2.3
-  resolution: "@socket.tech/widget@npm:0.2.3"
+"@socket.tech/plugin@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@socket.tech/plugin@npm:1.0.0"
   dependencies:
     "@react-spring/web": ^9.5.0
     "@reduxjs/toolkit": ^1.8.2
@@ -2465,7 +2452,20 @@ __metadata:
   peerDependencies:
     react: ">=17.0.1"
     react-dom: ">=17.0.1"
-  checksum: 4e6b682f76eca025cecd32faa73f4cea97337790d862b0d7228044ad680d01eb6862fac151c2600ab3213e7962af849bdd8947ee03253bdcf1548e56d05dedea
+  checksum: 9cbc2065b4442bb8489cabf16d1d97bed7a900ff19007f69fc7d95e3f5cc2d5451242bc116a8017b54650bf9b2180466b75670f3641857d9142dcf68b57057a0
+  languageName: node
+  linkType: hard
+
+"@socket.tech/socket-v2-sdk@npm:^1.21.0":
+  version: 1.21.0
+  resolution: "@socket.tech/socket-v2-sdk@npm:1.21.0"
+  dependencies:
+    "@socket.tech/ll-core": ^0.1.14
+    axios: ^0.27.2
+    ethers: ^5.6.5
+    form-data: ^4.0.0
+    tslib: ^2.4.0
+  checksum: f7d03c86ad6fe9158a1ebfc00376c377e7680d2151738b094e8d369e975675527afa33c7549de901039f0dcc2b1a2956f6c79c741c91f55cf955c5b13a490d0f
   languageName: node
   linkType: hard
 
@@ -5833,7 +5833,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
