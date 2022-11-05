@@ -39,7 +39,7 @@ const VaultsIndexMarketsTableMobile = ({ vaults, ...styleProps }: VaultsIndexMar
                   <Flex alignSelf="flex-end" alignItems="center">
                     <VaultAPYTooltip marketName={market.name} opApy={vault.minOpApy} lyraApy={vault.minLyraApy}>
                       <Text variant="small" color="primaryText">
-                        {formatPercentage(vault.minApy, true)} APY
+                        {formatPercentage(vault.minApy, true)} - {formatPercentage(vault.maxApy, true)} APY
                       </Text>
                     </VaultAPYTooltip>
                   </Flex>

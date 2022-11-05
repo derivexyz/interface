@@ -17,7 +17,7 @@ import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 
 import MMVPerfTooltip from '../../common/MMVPerfTooltip'
-import TokenAmountText from '../../common/TokenAmountText'
+import TokenAPYRangeText from '../../common/TokenAPYRangeText'
 import VaultAPYTooltip from '../../common/VaultAPYTooltip'
 
 type VaultsIndexMarketsTableData = TableData<{
@@ -27,6 +27,7 @@ type VaultsIndexMarketsTableData = TableData<{
   tvl: number
   tvlChange: number
   apy: number
+  maxApy: number
   lyraApy: number
   opApy: number
   tokenPrice30DChange: number
@@ -56,6 +57,7 @@ const VaultsIndexMarketsTableDesktop = ({
         apy: vault.minApy,
         lyraApy: vault.minLyraApy,
         opApy: vault.minOpApy,
+        maxApy: vault.maxApy,
         onClick: () => push(getPagePath({ page: PageId.Vaults, marketAddressOrName: market.name })),
       }
     })
@@ -104,12 +106,12 @@ const VaultsIndexMarketsTableDesktop = ({
               opApy={cell.row.original.opApy}
               lyraApy={cell.row.original.lyraApy}
             >
-              <TokenAmountText
+              <TokenAPYRangeText
                 tokenNameOrAddress={['stkLyra', 'OP']}
-                amount={cell.value}
-                isPercentage
                 variant="secondary"
                 color="primaryText"
+                leftValue={formatPercentage(cell.row.original.apy, true)}
+                rightValue={formatPercentage(cell.row.original.maxApy, true)}
               />
             </VaultAPYTooltip>
           ) : (

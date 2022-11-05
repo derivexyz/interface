@@ -14,7 +14,7 @@ import React from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
 import MMVPerfTooltip from '@/app/components/common/MMVPerfTooltip'
-import TokenAmountText from '@/app/components/common/TokenAmountText'
+import TokenAPYRangeText from '@/app/components/common/TokenAPYRangeText'
 import VaultAPYTooltip from '@/app/components/common/VaultAPYTooltip'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useVault from '@/app/hooks/vaults/useVault'
@@ -45,6 +45,7 @@ const VaultsStatsCard = withSuspense(
       minApy,
       minOpApy,
       minLyraApy,
+      maxApy,
     } = vault
     return (
       <Card {...styleProps}>
@@ -80,12 +81,12 @@ const VaultsStatsCard = withSuspense(
                     opApy={minOpApy}
                     lyraApy={minLyraApy}
                   >
-                    <TokenAmountText
+                    <TokenAPYRangeText
                       variant="secondary"
                       color="primaryText"
                       tokenNameOrAddress={['stkLyra', 'OP']}
-                      amount={minApy}
-                      isPercentage
+                      leftValue={formatPercentage(minApy, true)}
+                      rightValue={formatPercentage(maxApy, true)}
                     />
                   </VaultAPYTooltip>
                 ) : (
