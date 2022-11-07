@@ -45,7 +45,7 @@ const RewardsHistoryCard = withSuspense(
             </Box>
           )
         })}
-        {!showAll && epochs.length > REWARDS_HISTORY_DEFAULT_EPOCH_LIMIT ? (
+        {!showAll && epochs.length >= REWARDS_HISTORY_DEFAULT_EPOCH_LIMIT ? (
           <CardSection
             onClick={() => setShowAll(true)}
             sx={{
