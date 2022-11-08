@@ -24,8 +24,14 @@ const fetcher = async (address: string, transactionType: TransactionType): Promi
 export default function useScreenTransaction(transactionType: TransactionType): ScreenTransactionData | null {
   const { account } = useWallet()
   const isReady = useIsReady()
-  const isScreenable = isReady && isOptimismMainnet() && isScreeningEnabled()
+  const isScreenable = isReady && isScreeningEnabled()
   const [data] = useFetch('ScreenTransaction', isScreenable && account ? [account, transactionType] : null, fetcher)
-
+  if (!isOptimismMainnet()) {
+    return {
+      isBlocked: false,
+      blockReason: null,
+      blockDescription: null,
+    }
+  }
   return data
 }

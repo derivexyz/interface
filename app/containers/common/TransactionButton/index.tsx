@@ -38,7 +38,6 @@ const TransactionButton = withSuspense(
       const isTermsAccepted = account && !!termsDict[account]
       const [isTermsOpen, setIsTermsOpen] = useState(false)
       const screenData = useScreenTransaction(transactionType)
-
       const isReady = useIsReady()
 
       return (
