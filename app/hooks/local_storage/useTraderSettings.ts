@@ -16,7 +16,6 @@ export type TraderSettings = {
   customCol2: CustomColumnOption
   isAdvancedMode: boolean
   isCandleChart: boolean
-  isChartExpanded: boolean
 }
 
 export const DEFAULT_TRADER_SETTINGS: TraderSettings = {
@@ -24,7 +23,6 @@ export const DEFAULT_TRADER_SETTINGS: TraderSettings = {
   customCol2: CustomColumnOption.OI,
   isAdvancedMode: false,
   isCandleChart: false,
-  isChartExpanded: true,
 }
 
 export default function useTraderSettings(): [

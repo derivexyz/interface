@@ -1,5 +1,6 @@
 import IconButton from '@lyra/ui/components/Button/IconButton'
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
+import ToggleButtonItem from '@lyra/ui/components/Button/ToggleButtonItem'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Center from '@lyra/ui/components/Center'
@@ -111,14 +112,20 @@ export default function HistoryPageHelper(): JSX.Element {
         <Card overflow="hidden">
           <CardBody noPadding>
             <Flex p={6}>
-              <ToggleButton
-                items={[
+              <ToggleButton>
+                {[
                   { label: 'Positions', id: HistoryTab.Position },
                   { label: 'Trade', id: HistoryTab.Trade },
-                ]}
-                selectedItemId={table}
-                onChange={val => setTable(val)}
-              />
+                ].map(item => (
+                  <ToggleButtonItem
+                    key={item.id}
+                    id={item.id}
+                    label={item.label}
+                    isSelected={table === item.id}
+                    onSelect={val => setTable(val)}
+                  />
+                ))}
+              </ToggleButton>
               <DownloadTradeHistory />
             </Flex>
             {table === HistoryTab.Trade ? <TradeHistory /> : null}

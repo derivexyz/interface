@@ -104,7 +104,7 @@ const PortfolioBalanceCard = withSuspense(
             mb={1}
           />
           <Flex>
-            <ChartPeriodSelector period={period} periods={PERIODS} onChangePeriod={setPeriod} />
+            <ChartPeriodSelector selectedPeriod={period} periods={PERIODS} onChangePeriod={setPeriod} />
           </Flex>
         </CardBody>
       </>
@@ -140,7 +140,7 @@ const PortfolioBalanceCard = withSuspense(
         <CardSeparator isVertical />
         <CardSection flexGrow={1}>
           <Flex mb={2} justifyContent="flex-end">
-            <ChartPeriodSelector period={period} periods={PERIODS} onChangePeriod={setPeriod} />
+            <ChartPeriodSelector selectedPeriod={period} periods={PERIODS} onChangePeriod={setPeriod} />
           </Flex>
           <PortfolioBalanceCardHistoryChart
             flexGrow={1}

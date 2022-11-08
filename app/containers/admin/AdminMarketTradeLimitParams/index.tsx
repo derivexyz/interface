@@ -2,6 +2,7 @@ import { PopulatedTransaction } from '@ethersproject/contracts'
 import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
+import ToggleButtonItem from '@lyra/ui/components/Button/ToggleButtonItem'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Collapsible from '@lyra/ui/components/Collapsible'
 import Flex from '@lyra/ui/components/Flex'
@@ -64,17 +65,24 @@ const AdminMarketTradeLimitParams = withSuspense(
                       <Text color="secondaryText" variant="small">
                         {typedKey}
                       </Text>
-                      <ToggleButton
-                        my={2}
-                        items={[
-                          { id: 'false', label: 'false' },
-                          { id: 'true', label: 'true' },
-                        ]}
-                        selectedItemId={toVal.toString()}
-                        onChange={val => {
-                          setParams({ ...params, [key]: val === 'false' ? false : true })
-                        }}
-                      />
+                      <ToggleButton my={2}>
+                        <ToggleButtonItem
+                          id="false"
+                          label="false"
+                          isSelected={toVal.toString() === 'false'}
+                          onSelect={() => {
+                            setParams({ ...params, [key]: false })
+                          }}
+                        />
+                        <ToggleButtonItem
+                          id="true"
+                          label="true"
+                          isSelected={toVal.toString() === 'true'}
+                          onSelect={() => {
+                            setParams({ ...params, [key]: true })
+                          }}
+                        />
+                      </ToggleButton>
                     </Box>
                   )
                 }

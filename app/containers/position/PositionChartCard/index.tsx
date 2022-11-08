@@ -1,7 +1,7 @@
 import Box from '@lyra/ui/components/Box'
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
-import { ToggleButtonItemProps } from '@lyra/ui/components/Button/ToggleButton'
+import { ToggleButtonItemProps } from '@lyra/ui/components/Button/ToggleButtonItem'
 import Card, { CardElement } from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Flex from '@lyra/ui/components/Flex'
@@ -30,7 +30,7 @@ enum PositionChart {
   SpotPrice = 'SpotPrice',
 }
 
-const CHARTS: ToggleButtonItemProps<PositionChart>[] = [
+const CHARTS: Pick<ToggleButtonItemProps<PositionChart>, 'id' | 'label'>[] = [
   {
     id: PositionChart.OptionPrice,
     label: 'Option Price',
@@ -131,7 +131,7 @@ const PositionChartCard = ({ option, ...marginProps }: Props): CardElement => {
         <CardBody>
           <Flex>
             {titleComponent}
-            <ChartPeriodSelector ml="auto" period={period} onChangePeriod={setPeriod} />
+            <ChartPeriodSelector ml="auto" selectedPeriod={period} onChangePeriod={setPeriod} />
           </Flex>
           {chartComponent}
         </CardBody>
@@ -143,7 +143,7 @@ const PositionChartCard = ({ option, ...marginProps }: Props): CardElement => {
         <CardBody>
           {titleComponent}
           {chartComponent}
-          <ChartPeriodSelector period={period} onChangePeriod={setPeriod} />
+          <ChartPeriodSelector selectedPeriod={period} onChangePeriod={setPeriod} />
         </CardBody>
       </Card>
     )

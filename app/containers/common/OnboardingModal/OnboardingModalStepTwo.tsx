@@ -1,4 +1,5 @@
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
+import ToggleButtonItem from '@lyra/ui/components/Button/ToggleButtonItem'
 import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
@@ -41,14 +42,20 @@ export default function OnboardingModalStepTwo({ defaultToggle = OnboardingMetho
     <>
       <OnboardingModalPrompt toToken={toToken} />
       <Flex mx={8} mb={6}>
-        <ToggleButton
-          items={[
+        <ToggleButton>
+          {[
             { label: 'Swap', id: OnboardingMethod.Swap },
             { label: 'Bridge', id: OnboardingMethod.Bridge },
-          ]}
-          selectedItemId={onboardingMethod}
-          onChange={val => setOnboardingMethod(val)}
-        />
+          ].map(item => (
+            <ToggleButtonItem
+              key={item.id}
+              id={item.id}
+              label={item.label}
+              isSelected={onboardingMethod === item.id}
+              onSelect={val => setOnboardingMethod(val)}
+            />
+          ))}
+        </ToggleButton>
       </Flex>
       {onboardingMethod === OnboardingMethod.Bridge ? (
         <Flex mx={isMobile ? 4 : 8} mb={6}>

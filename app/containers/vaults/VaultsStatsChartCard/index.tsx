@@ -133,7 +133,7 @@ const VaultsStatsChartCard = ({ marketAddressOrName, ...marginProps }: Props) =>
           {chartComponent}
           <Center mt={2} mb={4}>
             <ChartPeriodSelector
-              period={period}
+              selectedPeriod={period}
               onChangePeriod={period => {
                 setPeriod(period)
                 logEvent(LogEvent.VaultChartPeriodSelect, { chart: selectedChartId, period })
@@ -178,7 +178,7 @@ const VaultsStatsChartCard = ({ marketAddressOrName, ...marginProps }: Props) =>
           <ChartPeriodSelector
             ml="auto"
             mb={2}
-            period={period}
+            selectedPeriod={period}
             onChangePeriod={period => {
               setPeriod(period)
               logEvent(LogEvent.VaultChartPeriodSelect, { chart: selectedChartId, period })

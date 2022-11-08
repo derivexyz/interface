@@ -4,6 +4,7 @@ import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonLis
 import DropdownIconButton from '@lyra/ui/components/Button/DropdownIconButton'
 import IconButton from '@lyra/ui/components/Button/IconButton'
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
+import ToggleButtonItem from '@lyra/ui/components/Button/ToggleButtonItem'
 import Card, { CardElement } from '@lyra/ui/components/Card'
 import CardSection from '@lyra/ui/components/Card/CardSection'
 import Flex from '@lyra/ui/components/Flex'
@@ -16,7 +17,7 @@ import React, { useCallback, useState } from 'react'
 
 export default function ButtonDemoCard({ ...marginProps }: MarginProps): CardElement {
   const isMobile = useIsMobile()
-  const [tab, setTab] = useState(1)
+  const [selectedTab, setSelectedTab] = useState(1)
   const [isOpen, setIsOpen] = useState(false)
   const [isOpen2, setIsOpen2] = useState(false)
   const [isOpen3, setIsOpen3] = useState(false)
@@ -155,16 +156,21 @@ export default function ButtonDemoCard({ ...marginProps }: MarginProps): CardEle
       </CardSection>
       <CardSection>
         <Text variant="heading">Toggle Button</Text>
-        <ToggleButton
-          maxWidth={200}
-          items={[
+        <ToggleButton maxWidth={200}>
+          {[
             { id: 1, label: '1' },
             { id: 2, label: '2' },
             { id: 3, label: '3' },
-          ]}
-          selectedItemId={tab}
-          onChange={setTab}
-        />
+          ].map(tab => (
+            <ToggleButtonItem
+              key={tab.id}
+              id={tab.id}
+              label={tab.label}
+              isSelected={selectedTab === tab.id}
+              onSelect={setSelectedTab}
+            />
+          ))}
+        </ToggleButton>
       </CardSection>
       <CardSection>
         <Text variant="heading">Dropdowns</Text>

@@ -2,6 +2,7 @@ import AreaChart from '@lyra/ui/components/AreaChart'
 import BarChart from '@lyra/ui/components/BarChart'
 import Box from '@lyra/ui/components/Box'
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
+import ToggleButtonItem from '@lyra/ui/components/Button/ToggleButtonItem'
 import CardSection from '@lyra/ui/components/Card/CardSection'
 import LineChart from '@lyra/ui/components/LineChart'
 import Text from '@lyra/ui/components/Text'
@@ -43,14 +44,20 @@ export default function ChartDemoCard({ ...marginProps }: MarginProps): JSX.Elem
         </CardSection>
         <CardSection>
           <Text variant="heading">Area Chart</Text>
-          <ToggleButton
-            onChange={() => setIsAreaStacked(!isAreaStacked)}
-            selectedItemId={isAreaStacked ? 'stacked' : 'unstacked'}
-            items={[
-              { id: 'stacked', label: 'Stack' },
-              { id: 'unstacked', label: 'Unstack' },
-            ]}
-          />
+          <ToggleButton>
+            <ToggleButtonItem
+              id="stacked"
+              label="Stack"
+              isSelected={isAreaStacked}
+              onSelect={() => setIsAreaStacked(!isAreaStacked)}
+            />
+            <ToggleButtonItem
+              id="unstacked"
+              label="Unstack"
+              isSelected={!isAreaStacked}
+              onSelect={() => setIsAreaStacked(!isAreaStacked)}
+            />
+          </ToggleButton>
           <Box>
             <AreaChart
               height={300}
@@ -74,14 +81,20 @@ export default function ChartDemoCard({ ...marginProps }: MarginProps): JSX.Elem
         </CardSection>
         <CardSection>
           <Text variant="heading">Bar Chart</Text>
-          <ToggleButton
-            onChange={() => setIsBarStacked(!isBarStacked)}
-            selectedItemId={isBarStacked ? 'stacked' : 'unstacked'}
-            items={[
-              { id: 'stacked', label: 'Stack' },
-              { id: 'unstacked', label: 'Unstack' },
-            ]}
-          />
+          <ToggleButton>
+            <ToggleButtonItem
+              id="stacked"
+              label="Stack"
+              isSelected={isBarStacked}
+              onSelect={() => setIsBarStacked(!isAreaStacked)}
+            />
+            <ToggleButtonItem
+              id="unstacked"
+              label="Unstack"
+              isSelected={!isBarStacked}
+              onSelect={() => setIsBarStacked(!isAreaStacked)}
+            />
+          </ToggleButton>
           <Box>
             <BarChart
               height={300}

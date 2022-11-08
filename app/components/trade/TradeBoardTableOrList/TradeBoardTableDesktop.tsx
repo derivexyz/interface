@@ -43,7 +43,6 @@ const getLogData = (quote: Quote): LogData => ({
 
 const TradeBoardTableDesktop = ({
   isBuy,
-  isCall,
   selectedOption,
   onSelectOption,
   quotes,
@@ -91,7 +90,7 @@ const TradeBoardTableDesktop = ({
     )
 
     return rows
-  }, [quotes, isBuy, expandedStrikes, market?.spotPrice, spotPrice])
+  }, [quotes, isBuy, expandedStrikes, market?.spotPrice])
 
   const columns = useMemo<TableColumn<OptionData>[]>(
     () => [
@@ -148,17 +147,17 @@ const TradeBoardTableDesktop = ({
         },
       },
     ],
-    [market, size, selectedOption, isCall, isBuy, onSelectOption]
+    [market, size, selectedOption, onSelectOption]
   )
 
-  const spotPriceRowIdx = useMemo(
-    () => Math.max(rows.findIndex(row => row.strike >= spotPrice) - 1, 0),
-    [rows, spotPrice]
-  )
+  const spotPriceMarker = useMemo(() => {
+    const spotPriceRowIdx = Math.max(rows.findIndex(row => row.strike >= spotPrice) - 1, 0)
+    return { rowIdx: spotPriceRowIdx, content: formatUSD(spotPrice) }
+  }, [spotPrice, rows])
 
   return (
     <CardSection noPadding>
-      <Table data={rows} columns={columns} tableMarker={{ rowIdx: spotPriceRowIdx, content: formatUSD(spotPrice) }} />
+      <Table data={rows} columns={columns} tableMarker={spotPriceMarker} />
     </CardSection>
   )
 }

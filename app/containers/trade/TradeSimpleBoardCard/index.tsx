@@ -1,6 +1,7 @@
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
+import ToggleButtonItem from '@lyra/ui/components/Button/ToggleButtonItem'
 import Card from '@lyra/ui/components/Card'
 import CardSection from '@lyra/ui/components/Card/CardSection'
 import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
@@ -47,43 +48,74 @@ const TradeSimpleBoardCard = ({
     <Card>
       <CardSection flexDirection={isMobile ? 'column' : 'row'}>
         <Center my={[2, 0]}>
-          <ToggleButton
-            items={[
-              { label: 'Buy', id: 1 },
-              { label: 'Sell', id: 0 },
-            ]}
-            selectedItemId={isBuy ? 1 : 0}
-            onChange={val => {
-              onToggleBuy(val === 1)
-              logEvent(LogEvent.BoardIsBuyToggle, {
-                marketName: market.name,
-                marketAddress: market.address,
-                boardId: selectedBoard?.id,
-                expiryTimestamp: selectedBoard?.expiryTimestamp,
-                isCall,
-                isBuy: val === 1,
-              })
-            }}
-            mr={4}
-          />
-          <ToggleButton
-            items={[
-              { label: 'Call', id: 1 },
-              { label: 'Put', id: 0 },
-            ]}
-            selectedItemId={isCall ? 1 : 0}
-            onChange={val => {
-              onToggleCall(val === 1)
-              logEvent(LogEvent.BoardIsCallToggle, {
-                marketName: market.name,
-                marketAddress: market.address,
-                boardId: selectedBoard?.id,
-                expiryTimestamp: selectedBoard?.expiryTimestamp,
-                isBuy,
-                isCall: val === 1,
-              })
-            }}
-          />
+          <ToggleButton mr={4}>
+            <ToggleButtonItem
+              id={1}
+              label="Buy"
+              isSelected={isBuy}
+              onSelect={() => {
+                onToggleBuy(true)
+                logEvent(LogEvent.BoardIsBuyToggle, {
+                  marketName: market.name,
+                  marketAddress: market.address,
+                  boardId: selectedBoard?.id,
+                  expiryTimestamp: selectedBoard?.expiryTimestamp,
+                  isCall,
+                  isBuy: true,
+                })
+              }}
+            />
+            <ToggleButtonItem
+              id={0}
+              label="Sell"
+              isSelected={!isBuy}
+              onSelect={() => {
+                onToggleBuy(false)
+                logEvent(LogEvent.BoardIsBuyToggle, {
+                  marketName: market.name,
+                  marketAddress: market.address,
+                  boardId: selectedBoard?.id,
+                  expiryTimestamp: selectedBoard?.expiryTimestamp,
+                  isCall,
+                  isBuy: false,
+                })
+              }}
+            />
+          </ToggleButton>
+          <ToggleButton>
+            <ToggleButtonItem
+              id={1}
+              label="Call"
+              isSelected={isCall}
+              onSelect={() => {
+                onToggleCall(true)
+                logEvent(LogEvent.BoardIsCallToggle, {
+                  marketName: market.name,
+                  marketAddress: market.address,
+                  boardId: selectedBoard?.id,
+                  expiryTimestamp: selectedBoard?.expiryTimestamp,
+                  isBuy,
+                  isCall: true,
+                })
+              }}
+            />
+            <ToggleButtonItem
+              id={0}
+              label="Put"
+              isSelected={!isCall}
+              onSelect={() => {
+                onToggleCall(false)
+                logEvent(LogEvent.BoardIsCallToggle, {
+                  marketName: market.name,
+                  marketAddress: market.address,
+                  boardId: selectedBoard?.id,
+                  expiryTimestamp: selectedBoard?.expiryTimestamp,
+                  isBuy,
+                  isCall: false,
+                })
+              }}
+            />
+          </ToggleButton>
         </Center>
         <DropdownButton
           my={[2, 0]}

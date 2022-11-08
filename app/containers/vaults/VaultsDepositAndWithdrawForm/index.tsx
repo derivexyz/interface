@@ -1,5 +1,5 @@
-import { ToggleButtonItemProps } from '@lyra/ui/components/Button/ToggleButton'
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
+import ToggleButtonItem, { ToggleButtonItemProps } from '@lyra/ui/components/Button/ToggleButtonItem'
 import CardSection from '@lyra/ui/components/Card/CardSection'
 import Center from '@lyra/ui/components/Center'
 import React from 'react'
@@ -13,7 +13,7 @@ type Props = {
   onToggleDeposit: (isDeposit: boolean) => void
 }
 
-const VAULTS_FORM_TOGGLE: ToggleButtonItemProps[] = [
+const VAULTS_FORM_TOGGLE: Pick<ToggleButtonItemProps, 'id' | 'label'>[] = [
   {
     id: 0,
     label: 'Deposit',
@@ -29,11 +29,17 @@ const VaultsDepositAndWithdrawForm = ({ marketAddressOrName, isDeposit, onToggle
     <>
       <CardSection noPadding px={6} pt={6}>
         <Center>
-          <ToggleButton
-            items={VAULTS_FORM_TOGGLE}
-            selectedItemId={isDeposit ? 0 : 1}
-            onChange={val => onToggleDeposit(val === 0)}
-          />
+          <ToggleButton>
+            {VAULTS_FORM_TOGGLE.map(item => (
+              <ToggleButtonItem
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                isSelected={isDeposit ? item.id === 0 : item.id === 1}
+                onSelect={val => onToggleDeposit(val === 0)}
+              />
+            ))}
+          </ToggleButton>
         </Center>
       </CardSection>
       {isDeposit ? (

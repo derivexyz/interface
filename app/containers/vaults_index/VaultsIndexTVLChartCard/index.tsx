@@ -33,7 +33,7 @@ const VaultsIndexTVLChartCard = ({ ...marginProps }: MarginProps) => {
             <ChartPeriodSelector
               ml="auto"
               width={['100%', 'auto']}
-              period={period}
+              selectedPeriod={period}
               onChangePeriod={setPeriod}
               periods={DEFAULT_CHARTS_PERIOD_OPTIONS}
             />
@@ -42,7 +42,11 @@ const VaultsIndexTVLChartCard = ({ ...marginProps }: MarginProps) => {
         <VaultsIndexTVLChartCardChart mt={1} period={period} onHover={setHoverData} hoverData={hoverData} />
         {isMobile ? (
           <Center mt={4}>
-            <ChartPeriodSelector period={period} onChangePeriod={setPeriod} periods={DEFAULT_CHARTS_PERIOD_OPTIONS} />
+            <ChartPeriodSelector
+              selectedPeriod={period}
+              onChangePeriod={setPeriod}
+              periods={DEFAULT_CHARTS_PERIOD_OPTIONS}
+            />
           </Center>
         ) : null}
       </CardBody>

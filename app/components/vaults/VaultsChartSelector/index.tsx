@@ -1,7 +1,6 @@
 import Box from '@lyra/ui/components/Box'
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
-import { ToggleButtonItemProps } from '@lyra/ui/components/Button/ToggleButton'
 import Shimmer from '@lyra/ui/components/Shimmer'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import React, { useCallback, useState } from 'react'
@@ -15,7 +14,7 @@ export enum VaultChart {
   NetDelta = 'netdelta',
 }
 
-export const VAULTS_CHARTS: ToggleButtonItemProps<VaultChart>[] = [
+export const VAULTS_CHARTS: { id: VaultChart; label: string }[] = [
   {
     id: VaultChart.TVL,
     label: 'TVL',

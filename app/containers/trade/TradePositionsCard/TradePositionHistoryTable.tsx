@@ -41,7 +41,7 @@ const TradePositionHistoryTable = withSuspense(
   },
   () => (
     <CardBody>
-      <Center height={200}>
+      <Center>
         <Spinner />
       </Center>
     </CardBody>

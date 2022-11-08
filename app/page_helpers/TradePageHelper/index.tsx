@@ -195,17 +195,19 @@ export default function TradePageHelper({ market: initialMarket }: Props): JSX.E
         </Card>
       }
       header={
-        <Flex alignItems="center">
+        <Flex alignItems="flex-end">
           <TradeMarketDropdown onChangeMarket={handleChangeMarket} selectedMarket={market} />
           {!isMobile ? (
-            <Flex ml="auto" mr={DESKTOP_RIGHT_COLUMN_WIDTH} alignItems="center">
+            <Flex ml="auto" mr={DESKTOP_RIGHT_COLUMN_WIDTH} mb={2} alignItems="center">
               <Button
+                isTransparent={isAdvancedMode}
                 label="Simple"
                 variant={isAdvancedMode ? 'light' : 'default'}
                 onClick={() => handleChangeAdvancedMode(false)}
               />
               <Button
                 ml={2}
+                isTransparent={!isAdvancedMode}
                 label="Advanced"
                 variant={isAdvancedMode ? 'default' : 'light'}
                 onClick={() => handleChangeAdvancedMode(true)}
