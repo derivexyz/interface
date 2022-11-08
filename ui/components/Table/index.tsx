@@ -9,11 +9,16 @@ import { LayoutProps, MarginProps } from 'styled-system'
 
 import Collapsible from '../Collapsible'
 import Text from '../Text'
+import TableRowMarker, { TableRowMarkerProps } from './TableRowMarker'
 
 const DEFAULT_CELL_PX = 3
 const DEFAULT_EDGE_CELL_PX = 6
 
 export type TableRecordType = Record<string, boolean | BigNumberish | { [key: string]: any } | null>
+
+type TableMarkerOptions = {
+  rowIdx: number
+} & TableRowMarkerProps
 
 export type TableData<T extends TableRecordType> = {
   id?: string
@@ -25,11 +30,6 @@ export type TableData<T extends TableRecordType> = {
   isExpandedContentClickable?: boolean
 } & T
 
-type TableRowMarkerOptions = {
-  content: string | React.ReactNode
-  rowIdx: number
-}
-
 export type TableProps<T extends TableRecordType> = {
   data: Array<TableData<T>>
   // Columns must be memoized https://react-table.tanstack.com/docs/api/useTable#table-options
@@ -38,7 +38,7 @@ export type TableProps<T extends TableRecordType> = {
   pageSize?: number
   isOutline?: boolean
   hideHeader?: boolean
-  tableMarker?: TableRowMarkerOptions
+  tableRowMarker?: TableMarkerOptions
 } & MarginProps &
   LayoutProps
 
@@ -67,7 +67,7 @@ export default function Table<T extends TableRecordType>({
   isOutline,
   hideHeader = false,
   columnOptions,
-  tableMarker,
+  tableRowMarker: tableMarker,
   ...styleProps
 }: TableProps<T>): TableElement<T> {
   const isMobile = useIsMobile()
@@ -228,6 +228,9 @@ export default function Table<T extends TableRecordType>({
                   borderColor: 'background',
                 }}
               >
+                {tableMarker && rowIdx === tableMarker.rowIdx ? (
+                  <TableRowMarker content={tableMarker.content} mt={tableMarker.rowIdx === 0 ? 6 : 0} />
+                ) : null}
                 <Box
                   as="tr"
                   sx={{
@@ -275,29 +278,8 @@ export default function Table<T extends TableRecordType>({
                     )
                   })}
                 </Box>
-                {tableMarker && rowIdx === tableMarker.rowIdx ? (
-                  <Flex alignItems="center" justifyContent="center" height={1} as="tr" bg="primaryButtonBg">
-                    <Flex
-                      as="td"
-                      alignItems="center"
-                      justifyContent="center"
-                      px={3}
-                      py={1}
-                      bg="elevatedButtonBg"
-                      sx={{
-                        borderRadius: 'card',
-                        boxShadow: '10px 10px 10px elevatedShadowBg',
-                        border: '1px solid',
-                        borderColor: 'primaryButtonBg',
-                      }}
-                    >
-                      {React.isValidElement(tableMarker.content) ? (
-                        tableMarker.content
-                      ) : (
-                        <Text variant="secondary">{tableMarker.content}</Text>
-                      )}
-                    </Flex>
-                  </Flex>
+                {tableMarker && tableMarker.rowIdx > rows.length - 1 && rowIdx === rows.length - 1 ? (
+                  <TableRowMarker content={tableMarker.content} mb={6} />
                 ) : null}
                 {expandedContent ? (
                   <Box

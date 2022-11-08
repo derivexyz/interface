@@ -151,13 +151,16 @@ const TradeBoardTableDesktop = ({
   )
 
   const spotPriceMarker = useMemo(() => {
-    const spotPriceRowIdx = Math.max(rows.findIndex(row => row.strike >= spotPrice) - 1, 0)
+    const spotPriceRowIdx = rows.reduce(
+      (markerIdx, row) => (row.strike && spotPrice < row.strike ? markerIdx : markerIdx + 1),
+      0
+    )
     return { rowIdx: spotPriceRowIdx, content: formatUSD(spotPrice) }
   }, [spotPrice, rows])
 
   return (
     <CardSection noPadding>
-      <Table data={rows} columns={columns} tableMarker={spotPriceMarker} />
+      <Table data={rows} columns={columns} tableRowMarker={spotPriceMarker} />
     </CardSection>
   )
 }

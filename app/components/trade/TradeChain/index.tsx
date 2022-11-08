@@ -235,7 +235,10 @@ const TradeChain = ({ board, selectedOption, onSelectOption, isBuy, customCol1, 
   }, [board, size])
 
   const spotPriceMarker = useMemo(() => {
-    const spotPriceRowIdx = Math.max(rows.findIndex(row => row.strikePrice && row.strikePrice >= spotPrice) - 1, 0)
+    const spotPriceRowIdx = rows.reduce(
+      (markerIdx, row) => (row.strikePrice && spotPrice < row.strikePrice ? markerIdx : markerIdx + 1),
+      0
+    )
     return { rowIdx: spotPriceRowIdx, content: formatUSD(spotPrice) }
   }, [rows, spotPrice])
 
@@ -249,7 +252,9 @@ const TradeChain = ({ board, selectedOption, onSelectOption, isBuy, customCol1, 
     )
   }
 
-  return <Table hideHeader columns={columns} data={rows} columnOptions={columnOptions} tableMarker={spotPriceMarker} />
+  return (
+    <Table hideHeader columns={columns} data={rows} columnOptions={columnOptions} tableRowMarker={spotPriceMarker} />
+  )
 }
 
 export default TradeChain
