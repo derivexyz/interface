@@ -6,7 +6,6 @@ import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
 import React from 'react'
 
-import { ZERO_BN } from '@/app/constants/bn'
 import TokenImage from '@/app/containers/common/TokenImage'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
@@ -14,8 +13,7 @@ import TokenImageStack from '../TokenImageStack'
 
 type Props = {
   tokenNameOrAddress: string | string[]
-  amount?: BigNumber | number
-  amountRange?: React.ReactNode
+  amount: BigNumber | number
   decimals?: number
   isTruncated?: boolean
   isPercentage?: boolean
@@ -60,7 +58,6 @@ export default function TokenAmountText({
   textAlign,
   as,
   amount,
-  amountRange,
   decimals,
   isPercentage,
   isTruncated,
@@ -70,7 +67,7 @@ export default function TokenAmountText({
   minDps,
   ...styleProps
 }: Props): FlexElement {
-  const val = BigNumber.isBigNumber(amount) ? fromBigNumber(amount ?? ZERO_BN, decimals) : amount ?? 0
+  const val = BigNumber.isBigNumber(amount) ? fromBigNumber(amount, decimals) : amount
   const size = getTokenAmountHeightForVariant(variant)
   return (
     <Flex {...styleProps} alignItems="flex-end">
@@ -79,18 +76,15 @@ export default function TokenAmountText({
       ) : (
         <TokenImage size={size} nameOrAddress={tokenNameOrAddress} />
       )}
-      {amount ? (
-        <Text mb={getMB(variant)} ml={2} variant={variant} color={color} textAlign={textAlign} as={as}>
-          {prefix}
-          {isPercentage
-            ? formatPercentage(val, !showSign)
-            : isTruncated
-            ? formatTruncatedNumber(val)
-            : formatNumber(val, { minDps })}
-          {suffix}
-        </Text>
-      ) : null}
-      {amountRange ? amountRange : null}
+      <Text mb={getMB(variant)} ml={2} variant={variant} color={color} textAlign={textAlign} as={as}>
+        {prefix}
+        {isPercentage
+          ? formatPercentage(val, !showSign)
+          : isTruncated
+          ? formatTruncatedNumber(val)
+          : formatNumber(val, { minDps })}
+        {suffix}
+      </Text>
     </Flex>
   )
 }
