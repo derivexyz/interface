@@ -22,7 +22,7 @@ export default function ToggleButtonItem<ToggleButtonItemID extends string | num
   isSelected,
   onSelect,
   size = 'medium',
-  textVariant = 'secondaryMedium',
+  textVariant = 'bodyMedium',
   ...styleProps
 }: ToggleButtonItemProps<ToggleButtonItemID>) {
   function handleOnChange(id: ToggleButtonItemID) {
