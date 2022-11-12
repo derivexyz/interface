@@ -40,7 +40,7 @@ const VaultsWithdrawalsTableDesktop = ({
         market: market.name,
         delayReason,
         balance: fromBigNumber(withdrawal.balance),
-        requestedDate: withdrawal.withdrawalTimestamp,
+        requestedDate: startTimestamp,
         timeToExit,
         timeToExitPercentage: progressPct,
         onClick: onClick ? () => onClick(withdrawal) : undefined,
