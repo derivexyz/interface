@@ -18,14 +18,14 @@ const getDelayReasonText = (delayReason: LiquidityDelayReason) => {
   let link = CIRCUIT_BREAKER_DOC_URL
   switch (delayReason) {
     case LiquidityDelayReason.Liquidity:
-      label = 'Blocked'
-      tooltip = 'Deposits and withdrawals have been temporarily blocked due to low liquidity in the vault.'
-      title = 'Blocked'
+      label = 'Delayed'
+      tooltip = 'Deposits and withdrawals have been temporarily delayed due to low liquidity in the vault.'
+      title = 'Delayed'
       break
     case LiquidityDelayReason.Volatility:
-      label = 'Blocked'
-      tooltip = 'Deposits and withdrawals have been temporarily blocked due to high volatility in the vault.'
-      title = 'Blocked'
+      label = 'Delayed'
+      tooltip = 'Deposits and withdrawals have been temporarily delayed due to high volatility in the vault.'
+      title = 'Delayed'
       break
     case LiquidityDelayReason.Keeper:
       label = 'Pending'
