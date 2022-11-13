@@ -49,6 +49,7 @@ const VaultsMarketDropdown = withSuspense(
             isSelected={isMarketEqual(market, selectedMarket.address)}
             label={`${market.name} Vault`}
             href={getPagePath({ page: PageId.Vaults, marketAddressOrName: market.name })}
+            onClick={onClose}
             icon={<MarketImage size={32} name={market.name} />}
             rightContent={
               <Flex width={80} flexDirection="column" alignItems="flex-end">
