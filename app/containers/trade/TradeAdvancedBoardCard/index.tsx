@@ -2,6 +2,7 @@ import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
+import CardSection from '@lyra/ui/components/Card/CardSection'
 import Center from '@lyra/ui/components/Center'
 import Flex from '@lyra/ui/components/Flex'
 import Icon, { IconType } from '@lyra/ui/components/Icon'
@@ -12,9 +13,10 @@ import formatDate from '@lyra/ui/utils/formatDate'
 import { Market, Option, Quote, Strike } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
 
-import TradeChain, { getButtonWidthForMarket } from '@/app/components/trade/TradeChain'
+import TradeChainTable, { getButtonWidthForMarket } from '@/app/components/trade/TradeChainTable'
 import { TRADE_BOARD_MIN_HEIGHT } from '@/app/constants/layout'
 import { LogEvent } from '@/app/constants/logEvents'
+import useIsGlobalPaused from '@/app/hooks/admin/useIsGlobalPaused'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useTraderSettings, { CustomColumnOption } from '@/app/hooks/local_storage/useTraderSettings'
 import useLiveBoards from '@/app/hooks/market/useLiveBoards'
@@ -74,6 +76,7 @@ const TradeAdvancedBoardCard = withSuspense(
       const now = boards[0].block.timestamp
       return boards.find(board => board.tradingCutoffTimestamp > now)?.id ?? boards[0].id
     }, [boards])
+    const isGlobalPaused = useIsGlobalPaused()
     const [isCustomCol1LeftOpen, setIsCustomCol1LeftOpen] = useState(false)
     const [isCustomCol1RightOpen, setIsCustomCol1RightOpen] = useState(false)
     const [isCustomCol2LeftOpen, setIsCustomCol2LeftOpen] = useState(false)
@@ -317,7 +320,8 @@ const TradeAdvancedBoardCard = withSuspense(
             noExpandedPadding: true,
             isExpandedContentClickable: false,
             expanded: (
-              <TradeChain
+              <TradeChainTable
+                isGlobalPaused={!!isGlobalPaused}
                 customCol1={customCol1}
                 customCol2={customCol2}
                 board={board}
@@ -334,14 +338,24 @@ const TradeAdvancedBoardCard = withSuspense(
             strike: null,
           }
         }),
-      [boards, expandedExpiries, selectedOption, onSelectOption, isBuy, defaultExpandedBoardId, customCol1, customCol2]
+      [
+        boards,
+        expandedExpiries,
+        defaultExpandedBoardId,
+        isGlobalPaused,
+        customCol1,
+        customCol2,
+        selectedOption,
+        onSelectOption,
+        isBuy,
+      ]
     )
 
     return (
       <Card>
-        <CardBody noPadding>
+        <CardSection noPadding>
           <Table columns={columns} data={rows} columnOptions={columnOptions} />
-        </CardBody>
+        </CardSection>
       </Card>
     )
   },

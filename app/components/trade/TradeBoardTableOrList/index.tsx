@@ -1,18 +1,16 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { Option, Quote } from '@lyrafinance/lyra-js'
+import { Board, Option } from '@lyrafinance/lyra-js'
 import React from 'react'
+
+import { OptionQuotesNullable } from '@/app/constants/contracts'
 
 import TradeBoardListMobile from './TradeBoardListMobile'
 import TradeBoardTableDesktop from './TradeBoardTableDesktop'
 
 export type TradeBoardTableOrListProps = {
-  quotes: {
-    option: Option
-    bid: Quote
-    ask: Quote
-  }[]
+  board: Board
+  quotes: OptionQuotesNullable[]
   isBuy: boolean
-  isCall: boolean
   selectedOption: Option | null
   onSelectOption: (option: Option) => void
 }

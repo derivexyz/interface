@@ -6,7 +6,7 @@ import formatBalance from '@lyra/ui/utils/formatBalance'
 import { Option, Position, Trade } from '@lyrafinance/lyra-js'
 import React from 'react'
 
-import { SHORT_COLLATERAL_REWARDS_DOCS_URL } from '@/app/constants/links'
+import { SHORT_COLLATERAL_REWARDS_DOC_URL } from '@/app/constants/links'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLatestGlobalRewardEpoch from '@/app/hooks/rewards/useLatestGlobalRewardEpoch'
 import fromBigNumber from '@/app/utils/fromBigNumber'
@@ -62,7 +62,7 @@ const ShortYieldValue = withSuspense(
           ) : null
         }
         isDisabled={!isEnabled}
-        href={SHORT_COLLATERAL_REWARDS_DOCS_URL}
+        href={SHORT_COLLATERAL_REWARDS_DOC_URL}
         target="_blank"
         placement="top-end"
       >

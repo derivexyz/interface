@@ -12,7 +12,7 @@ export const VAULTS_CHART_HEIGHT = [120, 260]
 export const VAULTS_INDEX_CHART_HEIGHT = [120, 200]
 export const FAUCET_MODAL_WIDTH = 450
 
-export const TRADE_BOARD_MIN_HEIGHT = [450, 300]
+export const TRADE_BOARD_MIN_HEIGHT = [400, 300]
 export const TRADE_CHAIN_MIN_HEIGHT = 150
 
 export const ONBOARDING_MODAL_WIDTH = 600

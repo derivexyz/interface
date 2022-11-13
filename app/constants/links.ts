@@ -42,8 +42,9 @@ export const VAULTS_ABOUT_DOC_URL = 'https://docs.lyra.finance/overview/how-does
 export const SYNTH_COLLATERAL_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/synthetix'
 export const DYNAMIC_FEES_DOC_URL =
   'https://docs.lyra.finance/overview/how-does-lyra-work/options-pricing-and-the-amm#dynamic-fees'
-export const SHORT_COLLATERAL_REWARDS_DOCS_URL =
+export const SHORT_COLLATERAL_REWARDS_DOC_URL =
   'https://docs.lyra.finance/governance/incentives#short-collateral-rewards'
+export const TRADING_CUTOFF_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/trading#trading-cutoffs'
 
 export const SWAP_SYNTH_1INCH_URL = 'https://app.1inch.io/#/10/unified/swap/ETH/'
 

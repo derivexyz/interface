@@ -1,13 +1,14 @@
 import Center from '@lyra/ui/components/Center'
 import Spinner from '@lyra/ui/components/Spinner'
-import Text from '@lyra/ui/components/Text'
+import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { Board, Option } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
+import TradeBoardNoticeSection from '@/app/components/trade/TradeBoardNoticeSection'
 import TradeBoardTableOrList from '@/app/components/trade/TradeBoardTableOrList'
 import useIsGlobalPaused from '@/app/hooks/admin/useIsGlobalPaused'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useQuoteBoard from '@/app/hooks/market/useQuoteBoard'
+import useBoardQuotesSync from '@/app/hooks/market/useBoardQuotesSync'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
 
 type Props = {
@@ -23,48 +24,43 @@ const TRADE_BOARD_MIN_HEIGHT = 300
 const TradeSimpleBoardTable = withSuspense(
   ({ board, isCall, isBuy, selectedOption, onSelectOption }: Props) => {
     const size = getDefaultQuoteSize(board.market().name)
-    const quotes = useQuoteBoard(board, size, isCall)
     const isGlobalPaused = !!useIsGlobalPaused()
-
-    const market = quotes.length ? quotes[0].option.market() : null
-    const filteredQuotes = useMemo(
+    const boardQuotes = useBoardQuotesSync(board, size)
+    const optionQuotes = useMemo(
       () =>
-        quotes
-          .filter(quote => !quote.ask.isDisabled || !quote.bid.isDisabled)
-          .filter(quote => {
-            const quotedStrike = isBuy ? quote.bid : quote.ask
-            if (market?.name.toLowerCase() === 'btc' && quotedStrike.strikeId === 36) {
-              return false
-            } else {
-              return true
+        boardQuotes
+          .map(({ strike, callBid, callAsk, putBid, putAsk }) => {
+            const bid = isCall ? callBid : putBid
+            const ask = isCall ? callAsk : putAsk
+            const option = strike.option(isCall)
+            return {
+              bid,
+              ask,
+              option,
             }
-          }),
-      [quotes, isBuy, market]
+          })
+          .filter(({ bid, ask }) => !!bid || !!ask),
+      [boardQuotes, isCall]
     )
-    if (isGlobalPaused) {
-      return (
-        <Center minHeight={TRADE_BOARD_MIN_HEIGHT}>
-          <Text color="secondaryText">Trading is paused</Text>
-        </Center>
-      )
-    }
-    if (filteredQuotes.length === 0) {
-      return (
-        <Center minHeight={TRADE_BOARD_MIN_HEIGHT}>
-          <Text variant="secondary" color="secondaryText">
-            No strikes are available for this expiry
-          </Text>
-        </Center>
-      )
-    }
+    const isMobile = useIsMobile()
     return (
-      <TradeBoardTableOrList
-        quotes={filteredQuotes}
-        isCall={isCall}
-        isBuy={isBuy}
-        selectedOption={selectedOption}
-        onSelectOption={onSelectOption}
-      />
+      <>
+        <TradeBoardNoticeSection
+          mt={isMobile ? 6 : 0}
+          mx={6}
+          mb={6}
+          board={board}
+          isGlobalPaused={isGlobalPaused}
+          quotes={optionQuotes}
+        />
+        <TradeBoardTableOrList
+          board={board}
+          quotes={optionQuotes}
+          isBuy={isBuy}
+          selectedOption={selectedOption}
+          onSelectOption={onSelectOption}
+        />
+      </>
     )
   },
   () => {

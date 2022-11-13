@@ -1,4 +1,3 @@
-import Center from '@lyra/ui/components/Center'
 import Flex from '@lyra/ui/components/Flex'
 import Table, { TableCellProps, TableColumn } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
@@ -10,12 +9,14 @@ import { Board, Option, Strike } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import { UNIT } from '@/app/constants/bn'
-import { TRADE_CHAIN_MIN_HEIGHT } from '@/app/constants/layout'
 import { getCustomColumnWidth, OptionChainTableData } from '@/app/containers/trade/TradeAdvancedBoardCard'
 import { CustomColumnOption } from '@/app/hooks/local_storage/useTraderSettings'
+import useBoardQuotesSync from '@/app/hooks/market/useBoardQuotesSync'
+import filterNulls from '@/app/utils/filterNulls'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
 
+import TradeBoardNoticeSection from '../TradeBoardNoticeSection'
 import TradeChainPriceButton from './TradeChainPriceButton'
 
 export const getButtonWidthForMarket = (marketName: string) => {
@@ -53,6 +54,7 @@ type Props = {
   board: Board
   selectedOption: Option | null
   isBuy: boolean
+  isGlobalPaused: boolean
   customCol1: CustomColumnOption
   customCol2: CustomColumnOption
   onSelectOption: (option: Option, isBuy: boolean, isCall: boolean) => void
@@ -60,7 +62,15 @@ type Props = {
 
 type OptionData = Omit<OptionChainTableData, 'isExpanded'>
 
-const TradeChain = ({ board, selectedOption, onSelectOption, isBuy, customCol1, customCol2 }: Props) => {
+const TradeChainTable = ({
+  board,
+  selectedOption,
+  onSelectOption,
+  isBuy,
+  isGlobalPaused,
+  customCol1,
+  customCol2,
+}: Props) => {
   const size = getDefaultQuoteSize(board.market().name ?? '') // defaults to one
   const isCall = selectedOption?.isCall ?? true
   const marketName = board.market().name
@@ -204,35 +214,30 @@ const TradeChain = ({ board, selectedOption, onSelectOption, isBuy, customCol1, 
 
   const columnOptions = useMemo(() => [{}, {}, { px: 0 }, { px: 0 }, { px: 0 }, { px: 0 }, { px: 0 }, {}, {}], [])
 
-  const rows: OptionData[] = useMemo(() => {
-    return board
-      .strikes()
-      .sort((a, b) => fromBigNumber(a.strikePrice.sub(b.strikePrice)))
-      .reduce((allStrikes, strike) => {
-        // Bid from AMM => trader sell-side
-        const callBid = strike.call().quoteSync(false, size)
-        const putBid = strike.put().quoteSync(false, size)
-        // Ask from AMM => trader buy-side
-        const callAsk = strike.call().quoteSync(true, size)
-        const putAsk = strike.put().quoteSync(true, size)
-        const isStrikeDisabled = callBid.isDisabled && callAsk.isDisabled && putBid.isDisabled && putAsk.isDisabled
-        return isStrikeDisabled
-          ? allStrikes
-          : [
-              ...allStrikes,
-              {
-                callBid,
-                callAsk,
-                putBid,
-                putAsk,
-                strikePrice: fromBigNumber(strike.strikePrice),
-                strike: strike,
-                expiry: board.expiryTimestamp,
-                noExpandedPadding: true,
-              },
-            ]
-      }, [] as OptionData[])
-  }, [board, size])
+  const quotes = useBoardQuotesSync(board, size)
+
+  const filteredQuotes = useMemo(() => {
+    return filterNulls(
+      quotes.filter(({ callBid, callAsk, putBid, putAsk }) => !!callBid || !!callAsk || !!putBid || !!putAsk)
+    )
+  }, [quotes])
+
+  const rows: OptionData[] = useMemo(
+    () =>
+      filterNulls(
+        filteredQuotes.map(({ callBid, callAsk, putBid, putAsk, strike }) => ({
+          callBid,
+          callAsk,
+          putBid,
+          putAsk,
+          strikePrice: fromBigNumber(strike.strikePrice),
+          strike: strike,
+          expiry: board.expiryTimestamp,
+          noExpandedPadding: true,
+        }))
+      ),
+    [board.expiryTimestamp, filteredQuotes]
+  )
 
   const spotPriceMarker = useMemo(() => {
     const spotPriceRowIdx = rows.reduce(
@@ -242,19 +247,12 @@ const TradeChain = ({ board, selectedOption, onSelectOption, isBuy, customCol1, 
     return { rowIdx: spotPriceRowIdx, content: formatUSD(spotPrice) }
   }, [rows, spotPrice])
 
-  if (rows.length === 0) {
-    return (
-      <Center minHeight={TRADE_CHAIN_MIN_HEIGHT}>
-        <Text variant="secondary" color="secondaryText">
-          No strikes are available for this expiry
-        </Text>
-      </Center>
-    )
-  }
-
   return (
-    <Table hideHeader columns={columns} data={rows} columnOptions={columnOptions} tableRowMarker={spotPriceMarker} />
+    <>
+      <TradeBoardNoticeSection m={6} board={board} isGlobalPaused={isGlobalPaused} quotes={filteredQuotes} />
+      <Table hideHeader columns={columns} data={rows} columnOptions={columnOptions} tableRowMarker={spotPriceMarker} />
+    </>
   )
 }
 
-export default TradeChain
+export default TradeChainTable

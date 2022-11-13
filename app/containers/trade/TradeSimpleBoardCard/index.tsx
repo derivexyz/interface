@@ -43,7 +43,6 @@ const TradeSimpleBoardCard = ({
   const isMobile = useIsMobile()
   const [isOpen, setIsOpen] = useState(false)
   const onClose = useCallback(() => setIsOpen(false), [])
-
   return (
     <Card>
       <CardSection flexDirection={isMobile ? 'column' : 'row'}>

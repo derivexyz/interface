@@ -150,7 +150,7 @@ const darkColors = {
   toggleButtonActive: '#151F2699', // #151F26 60%
 
   // tokens + alerts
-  defaultTokenBg: '#3A445099',
+  defaultTokenBg: '#3A445066',
   primaryTokenBg: '#57B29C26',
   warningTokenBg: '#F7931A26',
   errorTokenBg: '#FC4D9526',
@@ -502,7 +502,7 @@ const theme = {
     },
     alertInfo: {
       variant: 'variants.alert',
-      bg: 'cardBg',
+      bg: 'defaultTokenBg',
       color: 'secondaryText',
     },
     alertError: {

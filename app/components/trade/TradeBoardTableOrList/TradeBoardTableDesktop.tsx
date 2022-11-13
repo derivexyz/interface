@@ -1,6 +1,5 @@
 import Box from '@lyra/ui/components/Box'
-import CardSection from '@lyra/ui/components/Card/CardSection'
-import Table, { TableCellProps, TableColumn, TableData, TableElement } from '@lyra/ui/components/Table'
+import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
 import filterNulls from '@lyra/ui/utils/filterNulls'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
@@ -8,11 +7,9 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Quote, QuoteDisabledReason } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
 
-import { ONE_BN, ZERO_BN } from '@/app/constants/bn'
 import { MAX_IV } from '@/app/constants/contracts'
 import { LogEvent } from '@/app/constants/logEvents'
 import fromBigNumber from '@/app/utils/fromBigNumber'
-import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
 import logEvent, { LogData } from '@/app/utils/logEvent'
 
 import OptionStatsGrid from '../../common/OptionStatsGrid'
@@ -42,31 +39,34 @@ const getLogData = (quote: Quote): LogData => ({
 })
 
 const TradeBoardTableDesktop = ({
+  board,
+  quotes,
   isBuy,
   selectedOption,
   onSelectOption,
-  quotes,
-}: TradeBoardTableOrListProps): TableElement<OptionData> => {
+}: TradeBoardTableOrListProps) => {
   const [expandedStrikes, setExpandedStrikes] = useState<Record<string, boolean>>({})
-  const market = quotes.length ? quotes[0].option.market() : null
-  const size = getDefaultQuoteSize(market?.name ?? '') // defaults to one
-  const spotPrice = fromBigNumber(market?.spotPrice ?? ZERO_BN)
+  const spotPrice = fromBigNumber(board.market().spotPrice)
   const rows: OptionData[] = useMemo(() => {
     const rows = filterNulls(
       quotes.map(({ bid, ask, option }) => {
-        const quote = isBuy ? bid : ask
+        const quote = isBuy ? ask : bid
+        if (!quote) {
+          return null
+        }
         const isExpanded = !!expandedStrikes[quote.strike().id.toString()]
-        const id = quote.strike().id.toString()
+        const strike = option.strike()
+        const strikeId = strike.id
         return {
-          id,
+          id: strikeId.toString(),
           quote,
-          strikeId: quote.strike().id,
+          strikeId,
           marketAddressOrName: quote.market().address,
-          strike: fromBigNumber(quote.strike().strikePrice),
+          strike: fromBigNumber(strike.strikePrice),
           iv: fromBigNumber(quote.iv),
           price: fromBigNumber(quote.pricePerOption),
           breakEven: fromBigNumber(quote.breakEven),
-          toBreakEven: fromBigNumber(quote.breakEven.sub(market?.spotPrice ?? ZERO_BN)),
+          toBreakEven: fromBigNumber(quote.toBreakEven),
           disabledReason: quote.disabledReason,
           isExpanded,
           onToggleExpand: (isExpanded: boolean) => {
@@ -79,10 +79,10 @@ const TradeBoardTableDesktop = ({
           isExpandedContentClickable: true,
           expanded: (
             <Box pb={4} px={3}>
-              <Text variant="bodyMedium" mb={4}>
+              <Text variant="bodyMedium" mb={6}>
                 Stats
               </Text>
-              <OptionStatsGrid option={option} isBuy={isBuy} />
+              <OptionStatsGrid option={option} bid={bid} ask={ask} />
             </Box>
           ),
         }
@@ -90,7 +90,7 @@ const TradeBoardTableDesktop = ({
     )
 
     return rows
-  }, [quotes, isBuy, expandedStrikes, market?.spotPrice])
+  }, [quotes, isBuy, expandedStrikes])
 
   const columns = useMemo<TableColumn<OptionData>[]>(
     () => [
@@ -132,7 +132,7 @@ const TradeBoardTableDesktop = ({
       },
       {
         accessor: 'price',
-        Header: !market || size.eq(ONE_BN) ? 'Price' : `Price (${fromBigNumber(size)} ${market.name})`,
+        Header: 'Price',
         disableSortBy: true,
         Cell: (props: TableCellProps<OptionData>) => {
           const { quote, strikeId } = props.row.original
@@ -147,7 +147,7 @@ const TradeBoardTableDesktop = ({
         },
       },
     ],
-    [market, size, selectedOption, onSelectOption]
+    [selectedOption, onSelectOption]
   )
 
   const spotPriceMarker = useMemo(() => {
@@ -158,11 +158,11 @@ const TradeBoardTableDesktop = ({
     return { rowIdx: spotPriceRowIdx, content: formatUSD(spotPrice) }
   }, [spotPrice, rows])
 
-  return (
-    <CardSection noPadding>
-      <Table data={rows} columns={columns} tableRowMarker={spotPriceMarker} />
-    </CardSection>
-  )
+  if (rows.length === 0) {
+    return null
+  }
+
+  return <Table data={rows} columns={columns} tableRowMarker={spotPriceMarker} />
 }
 
 export default TradeBoardTableDesktop

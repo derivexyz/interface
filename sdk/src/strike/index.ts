@@ -25,6 +25,14 @@ export type StrikeIVHistory = {
   timestamp: number
 }
 
+export type StrikeQuotes = {
+  callBid: Quote
+  callAsk: Quote
+  putBid: Quote
+  putAsk: Quote
+  strike: Strike
+}
+
 export class Strike {
   private lyra: Lyra
   private __board: Board
@@ -116,6 +124,10 @@ export class Strike {
     return await market.strike(strikeId)
   }
 
+  async refresh(): Promise<Strike> {
+    return Strike.get(this.lyra, this.market().address, this.id)
+  }
+
   // Dynamic Fields
 
   async ivHistory(lyra: Lyra, options?: SnapshotOptions): Promise<StrikeIVHistory[]> {
@@ -144,9 +156,29 @@ export class Strike {
     return isCall ? this.call() : this.put()
   }
 
-  // Quote
-
   async quote(isCall: boolean, isBuy: boolean, size: BigNumber, options?: QuoteOptions): Promise<Quote> {
-    return await this.market().quote(this.id, isCall, isBuy, size, options)
+    const strike = await this.refresh()
+    return strike.quoteSync(isCall, isBuy, size, options)
+  }
+
+  quoteSync(isCall: boolean, isBuy: boolean, size: BigNumber, options?: QuoteOptions): Quote {
+    return this.option(isCall).quoteSync(isBuy, size, options)
+  }
+
+  async quoteAll(size: BigNumber, options?: QuoteOptions): Promise<StrikeQuotes> {
+    const strike = await this.refresh()
+    return strike.quoteAllSync(size, options)
+  }
+
+  quoteAllSync(size: BigNumber, options?: QuoteOptions): StrikeQuotes {
+    const { bid: callBid, ask: callAsk } = this.option(true).quoteAllSync(size, options)
+    const { bid: putBid, ask: putAsk } = this.option(false).quoteAllSync(size, options)
+    return {
+      strike: this,
+      callBid,
+      callAsk,
+      putBid,
+      putAsk,
+    }
   }
 }

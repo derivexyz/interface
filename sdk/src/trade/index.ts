@@ -197,7 +197,7 @@ export class Trade {
     const isBaseCollateral = position ? position.collateral?.isBase : _isBaseCollateral
     this.size = size
 
-    let quote = Quote.get(option, this.isBuy, this.size, {
+    let quote = Quote.getSync(lyra, option, this.isBuy, this.size, {
       iterations,
     })
 
@@ -207,7 +207,7 @@ export class Trade {
         quote.disabledReason === QuoteDisabledReason.TradingCutoff)
     ) {
       // Retry quote with force close flag
-      quote = Quote.get(option, this.isBuy, this.size, {
+      quote = Quote.getSync(lyra, option, this.isBuy, this.size, {
         iterations,
         isForceClose: true,
       })

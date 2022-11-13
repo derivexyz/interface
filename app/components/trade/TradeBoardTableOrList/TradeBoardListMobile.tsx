@@ -19,21 +19,25 @@ import { TradeBoardTableOrListProps } from '.'
 import TradeBoardPriceButton from './TradeBoardPriceButton'
 
 const TradeBoardListMobile = ({
-  isCall,
   isBuy,
   quotes,
   selectedOption,
   onSelectOption,
-  ...styleProps
 }: TradeBoardTableOrListProps): ListElement => {
-  const [expandedQuote, setExpandedQuote] = useState<{ bid: Quote; ask: Quote; option: Option } | null>(null)
+  const [expandedQuote, setExpandedQuote] = useState<{ bid: Quote | null; ask: Quote | null; option: Option } | null>(
+    null
+  )
   const strikeId = selectedOption?.strike().id
   return (
-    <Box {...styleProps}>
+    <Box>
       {quotes.map(({ option, bid, ask }) => {
-        const quote = isBuy ? bid : ask
+        const quote = isBuy ? ask : bid
+        const strike = option.strike()
+        if (!quote) {
+          return null
+        }
         return (
-          <React.Fragment key={option.strike().id}>
+          <React.Fragment key={strike.id}>
             <CardSection
               onClick={() => {
                 setExpandedQuote({ option, bid, ask })
@@ -78,7 +82,7 @@ const TradeBoardListMobile = ({
           expandedQuote ? (
             <Text variant="heading" ml={6} mt={6}>
               {expandedQuote.option.market().name} ${fromBigNumber(expandedQuote.option.strike().strikePrice)}{' '}
-              {isCall ? 'Call' : 'Put'}
+              {expandedQuote.option.isCall ? 'Call' : 'Put'}
               <Text as="span" color="secondaryText">
                 &nbsp;·&nbsp;Exp. {formatDate(expandedQuote.option.board().expiryTimestamp, true)}
               </Text>
@@ -90,7 +94,7 @@ const TradeBoardListMobile = ({
       >
         {expandedQuote ? (
           <CardSection>
-            <OptionStatsGrid option={expandedQuote.option} isBuy={isBuy} />
+            <OptionStatsGrid {...expandedQuote} />
           </CardSection>
         ) : null}
       </Modal>

@@ -4,13 +4,8 @@ import { useCallback, useMemo } from 'react'
 import useNumberQueryParam from '../url/useNumberQueryParam'
 
 export default function useSelectedBoard(market: Market): [Board | null, (board: Board | null) => void] {
-  const timestamp = market.block.timestamp
   const liveBoards = useMemo(() => market.liveBoards().sort((a, b) => a.expiryTimestamp - b.expiryTimestamp), [market])
-
-  const defaultBoard = useMemo(
-    () => liveBoards.find(board => board.tradingCutoffTimestamp > timestamp) ?? null,
-    [liveBoards, timestamp]
-  )
+  const defaultBoard = useMemo(() => liveBoards.find(board => !board.isTradingCutoff) ?? null, [liveBoards])
 
   const [queryBoardIdOrExpiryTimestamp, setQueryBoardIdOrExpiryTimestamp] = useNumberQueryParam('expiry')
   const queryBoard = useMemo(

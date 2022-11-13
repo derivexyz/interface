@@ -3,7 +3,7 @@ import { PopulatedTransaction } from '@ethersproject/contracts'
 import { Block } from '@ethersproject/providers'
 import { parseBytes32String } from '@ethersproject/strings'
 
-import { Board } from '../board'
+import { Board, BoardQuotes } from '../board'
 import { UNIT, ZERO_BN } from '../constants/bn'
 import { DataSource, LyraMarketContractId } from '../constants/contracts'
 import { SnapshotOptions } from '../constants/snapshots'
@@ -209,6 +209,11 @@ export type AddStrikeReturn = {
   strike: StrikeParams
 }
 
+export type MarketQuotes = {
+  boards: BoardQuotes[]
+  market: Market
+}
+
 export type MarketTradeOptions = Omit<TradeOptions, 'minOrMaxPremium' | 'premiumSlippage'>
 
 export type GlobalCache = {
@@ -389,6 +394,10 @@ export class Market {
     )
   }
 
+  async refresh(): Promise<Market> {
+    return await Market.get(this.lyra, this.address)
+  }
+
   // Edges
 
   // TODO: @dappbeast Make async
@@ -460,10 +469,24 @@ export class Market {
     size: BigNumber,
     options?: QuoteOptions
   ): Promise<Quote> {
-    // TODO: @dappbeast Make async
-    const strike = this.liveStrike(strikeId)
-    const option = strike.option(isCall)
-    return Quote.get(option, isBuy, size, options)
+    const market = await this.refresh()
+    return market.quoteSync(strikeId, isCall, isBuy, size, options)
+  }
+
+  quoteSync(strikeId: number, isCall: boolean, isBuy: boolean, size: BigNumber, options?: QuoteOptions): Quote {
+    return this.liveOption(strikeId, isCall).quoteSync(isBuy, size, options)
+  }
+
+  async quoteAll(size: BigNumber, options?: QuoteOptions): Promise<MarketQuotes> {
+    const market = await this.refresh()
+    return market.quoteAllSync(size, options)
+  }
+
+  quoteAllSync(size: BigNumber, options?: QuoteOptions): MarketQuotes {
+    return {
+      boards: this.liveBoards().map(board => board.quoteAllSync(size, options)),
+      market: this,
+    }
   }
 
   async trade(

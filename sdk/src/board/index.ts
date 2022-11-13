@@ -9,9 +9,14 @@ import Lyra from '../lyra'
 import { Market } from '../market'
 import { Option } from '../option'
 import { Quote, QuoteOptions } from '../quote'
-import { Strike } from '../strike'
+import { Strike, StrikeQuotes } from '../strike'
 import buildTx from '../utils/buildTx'
 import getLyraMarketContract from '../utils/getLyraMarketContract'
+
+export type BoardQuotes = {
+  strikes: StrikeQuotes[]
+  board: Board
+}
 
 export class Board {
   private lyra: Lyra
@@ -24,7 +29,9 @@ export class Board {
   expiryTimestamp: number
   tradingCutoffTimestamp: number
   isExpired: boolean
+  isTradingCutoff: boolean
   timeToExpiry: number
+  timeToTradingCutoff: number
   spotPriceAtExpiry?: BigNumber
   baseIv: BigNumber
   isPaused: boolean
@@ -36,7 +43,7 @@ export class Board {
     this.__boardData = boardView
     this.block = block
 
-    const fields = Board.getFields(boardView, block)
+    const fields = Board.getFields(market, boardView, block)
     this.id = fields.id
     this.expiryTimestamp = fields.expiryTimestamp
     this.timeToExpiry = fields.timeToExpiry
@@ -44,8 +51,9 @@ export class Board {
     this.baseIv = fields.baseIv
     this.spotPriceAtExpiry = fields.spotPriceAtExpiry
     this.isPaused = fields.isPaused
-    this.tradingCutoffTimestamp =
-      this.expiryTimestamp - market.__marketData.marketParameters.tradeLimitParams.tradingCutoff.toNumber()
+    this.tradingCutoffTimestamp = fields.tradingCutoffTimestamp
+    this.timeToTradingCutoff = fields.timeToTradingCutoff
+    this.isTradingCutoff = fields.isTradingCutoff
     this.liveStrikeMap = boardView.strikes.reduce(
       (map, strikeView) => ({
         ...map,
@@ -56,20 +64,27 @@ export class Board {
   }
 
   // TODO: @dappbeast Remove getFields
-  private static getFields(boardView: OptionMarketViewer.BoardViewStructOutput, block: Block) {
+  private static getFields(market: Market, boardView: OptionMarketViewer.BoardViewStructOutput, block: Block) {
     const id = boardView.boardId.toNumber()
     const expiryTimestamp = boardView.expiry.toNumber()
     const timeToExpiry = Math.max(0, expiryTimestamp - block.timestamp)
+    const tradingCutoffTimestamp =
+      expiryTimestamp - market.__marketData.marketParameters.tradeLimitParams.tradingCutoff.toNumber()
+    const timeToTradingCutoff = Math.max(0, tradingCutoffTimestamp - block.timestamp)
     const spotPriceAtExpiry = !boardView.priceAtExpiry.isZero() ? boardView.priceAtExpiry : undefined
     // Expired flag is determined by priceAtExpiry state being set
-    const isExpired = !!spotPriceAtExpiry
+    const isExpired = !!spotPriceAtExpiry && timeToExpiry === 0
+    const isTradingCutoff = timeToTradingCutoff === 0
     const baseIv = !isExpired ? boardView.baseIv : ZERO_BN
     const isPaused = boardView.isPaused
     return {
       id,
       expiryTimestamp,
+      tradingCutoffTimestamp,
       timeToExpiry,
+      timeToTradingCutoff,
       isExpired,
+      isTradingCutoff,
       spotPriceAtExpiry,
       baseIv,
       isPaused,
@@ -81,6 +96,10 @@ export class Board {
   static async get(lyra: Lyra, marketAddressOrName: string, boardId: number): Promise<Board> {
     const market = await Market.get(lyra, marketAddressOrName)
     return await market.board(boardId)
+  }
+
+  async refresh(): Promise<Board> {
+    return await Board.get(this.lyra, this.market().address, this.id)
   }
 
   // Edges
@@ -108,8 +127,6 @@ export class Board {
     return strike.option(isCall)
   }
 
-  // Quote
-
   async quote(
     strikeId: number,
     isCall: boolean,
@@ -117,7 +134,24 @@ export class Board {
     size: BigNumber,
     options?: QuoteOptions
   ): Promise<Quote> {
-    return await this.market().quote(strikeId, isCall, isBuy, size, options)
+    const board = await this.refresh()
+    return board.quoteSync(strikeId, isCall, isBuy, size, options)
+  }
+
+  quoteSync(strikeId: number, isCall: boolean, isBuy: boolean, size: BigNumber, options?: QuoteOptions): Quote {
+    return this.option(strikeId, isCall).quoteSync(isBuy, size, options)
+  }
+
+  async quoteAll(size: BigNumber, options?: QuoteOptions): Promise<BoardQuotes> {
+    const board = await this.refresh()
+    return board.quoteAllSync(size, options)
+  }
+
+  quoteAllSync(size: BigNumber, options?: QuoteOptions): BoardQuotes {
+    return {
+      strikes: this.strikes().map(strike => strike.quoteAllSync(size, options)),
+      board: this,
+    }
   }
 
   // Admin

@@ -6,6 +6,7 @@ import { Quote, QuoteDisabledReason } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import emptyFunction from '@/app/utils/emptyFunction'
+import getIsQuoteHidden from '@/app/utils/getIsQuoteHidden'
 
 type Props = {
   quote: Quote
@@ -33,15 +34,6 @@ const getDisabledMessage = (disabledReason: QuoteDisabledReason): string => {
   }
 }
 
-const getIsButtonDisabled = (disabledReason: QuoteDisabledReason): boolean => {
-  switch (disabledReason) {
-    case QuoteDisabledReason.InsufficientLiquidity:
-      return false
-    default:
-      return true
-  }
-}
-
 const getButtonWidthForMarket = (marketName: string) => {
   switch (marketName.toLowerCase()) {
     case 'btc':
@@ -57,8 +49,8 @@ export default function TradeBoardPriceButton({
   onSelected = emptyFunction,
   ...styleProps
 }: Props): ButtonElement {
-  const { isCall, isBuy, disabledReason } = quote
-  const isDisabled = disabledReason ? getIsButtonDisabled(disabledReason) : false
+  const { isBuy, disabledReason } = quote
+  const isDisabled = disabledReason ? getIsQuoteHidden(disabledReason) : false
   return (
     <Button
       variant={isBuy ? 'primary' : 'error'}

@@ -7,7 +7,7 @@ import { WethLyraStaking } from '.'
 import { Account } from './account'
 import { AccountRewardEpoch } from './account_reward_epoch'
 import { Admin } from './admin'
-import { Board } from './board'
+import { Board, BoardQuotes } from './board'
 import { CollateralUpdateEvent } from './collateral_update_event'
 import { Deployment } from './constants/contracts'
 import { GlobalRewardEpoch } from './global_reward_epoch'
@@ -16,13 +16,12 @@ import { LiquidityWithdrawal } from './liquidity_withdrawal'
 import { LyraStake } from './lyra_stake'
 import { LyraStaking } from './lyra_staking'
 import { LyraUnstake } from './lyra_unstake'
-import { Market, MarketContractAddresses, MarketTradeOptions } from './market'
-import { Option } from './option'
+import { Market, MarketContractAddresses, MarketQuotes, MarketTradeOptions } from './market'
+import { Option, OptionQuotes } from './option'
 import { Position, PositionFilter, PositionLeaderboard, PositionLeaderboardFilter } from './position'
 import { Quote, QuoteOptions } from './quote'
-import getQuoteBoard from './quote/getQuoteBoard'
 import { SettleEvent } from './settle_event'
-import { Strike } from './strike'
+import { Strike, StrikeQuotes } from './strike'
 import { Trade } from './trade'
 import { TradeEvent, TradeEventListener, TradeEventListenerCallback, TradeEventListenerOptions } from './trade_event'
 import { TransferEvent } from './transfer_event'
@@ -81,13 +80,40 @@ export default class Lyra {
     return await market.quote(strikeId, isCall, isBuy, size, options)
   }
 
+  async quoteOption(
+    marketAddressOrName: string,
+    strikeId: number,
+    isCall: boolean,
+    size: BigNumber,
+    options?: QuoteOptions
+  ): Promise<OptionQuotes> {
+    const option = await this.option(marketAddressOrName, strikeId, isCall)
+    return option.quoteAllSync(size, options)
+  }
+
+  async quoteStrike(
+    marketAddressOrName: string,
+    strikeId: number,
+    size: BigNumber,
+    options?: QuoteOptions
+  ): Promise<StrikeQuotes> {
+    const strike = await this.strike(marketAddressOrName, strikeId)
+    return strike.quoteAllSync(size, options)
+  }
+
   async quoteBoard(
     marketAddressOrName: string,
     boardId: number,
-    size: BigNumber
-  ): Promise<{ bid: Quote; ask: Quote; option: Option }[]> {
+    size: BigNumber,
+    options?: QuoteOptions
+  ): Promise<BoardQuotes> {
     const board = await this.board(marketAddressOrName, boardId)
-    return getQuoteBoard(board, size)
+    return board.quoteAllSync(size, options)
+  }
+
+  async quoteMarket(marketAddressOrName: string, size: BigNumber, options?: QuoteOptions): Promise<MarketQuotes> {
+    const market = await this.market(marketAddressOrName)
+    return market.quoteAllSync(size, options)
   }
 
   // Trade

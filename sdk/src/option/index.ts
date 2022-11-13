@@ -29,6 +29,12 @@ export type OptionTradingVolume = {
   timestamp: number
 }
 
+export type OptionQuotes = {
+  option: Option
+  bid: Quote
+  ask: Quote
+}
+
 export class Option {
   private lyra: Lyra
   private __strike: Strike
@@ -137,6 +143,10 @@ export class Option {
     return await market.option(strikeId, isCall)
   }
 
+  async refresh(): Promise<Option> {
+    return Option.get(this.lyra, this.market().address, this.strike().id, this.isCall)
+  }
+
   // Edges
 
   market(): Market {
@@ -151,12 +161,26 @@ export class Option {
     return this.__strike
   }
 
-  quoteSync(isBuy: boolean, size: BigNumber, options?: QuoteOptions): Quote {
-    return Quote.get(this, isBuy, size, options)
+  async quote(isBuy: boolean, size: BigNumber, options?: QuoteOptions): Promise<Quote> {
+    const option = await this.refresh()
+    return option.quoteSync(isBuy, size, options)
   }
 
-  async quote(isBuy: boolean, size: BigNumber, options?: QuoteOptions): Promise<Quote> {
-    return await this.strike().quote(this.isCall, isBuy, size, options)
+  quoteSync(isBuy: boolean, size: BigNumber, options?: QuoteOptions): Quote {
+    return Quote.getSync(this.lyra, this, isBuy, size, options)
+  }
+
+  async quoteAll(size: BigNumber, options?: QuoteOptions): Promise<OptionQuotes> {
+    const option = await this.refresh()
+    return option.quoteAllSync(size, options)
+  }
+
+  quoteAllSync(size: BigNumber, options?: QuoteOptions): OptionQuotes {
+    return {
+      option: this,
+      bid: this.quoteSync(false, size, options),
+      ask: this.quoteSync(true, size, options),
+    }
   }
 
   async tradingVolumeHistory(options?: SnapshotOptions): Promise<OptionTradingVolume[]> {
