@@ -235,7 +235,7 @@ const TradeChainTable = ({
           expiry: board.expiryTimestamp,
           noExpandedPadding: true,
         }))
-      ),
+      ).sort((a, b) => a.strikePrice - b.strikePrice),
     [board.expiryTimestamp, filteredQuotes]
   )
 

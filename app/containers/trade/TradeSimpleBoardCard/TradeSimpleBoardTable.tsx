@@ -9,6 +9,7 @@ import TradeBoardTableOrList from '@/app/components/trade/TradeBoardTableOrList'
 import useIsGlobalPaused from '@/app/hooks/admin/useIsGlobalPaused'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useBoardQuotesSync from '@/app/hooks/market/useBoardQuotesSync'
+import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
 
 type Props = {
@@ -37,9 +38,11 @@ const TradeSimpleBoardTable = withSuspense(
               bid,
               ask,
               option,
+              strikePrice: fromBigNumber(strike.strikePrice),
             }
           })
-          .filter(({ bid, ask }) => !!bid || !!ask),
+          .filter(({ bid, ask }) => !!bid || !!ask)
+          .sort((a, b) => a.strikePrice - b.strikePrice),
       [boardQuotes, isCall]
     )
     const isMobile = useIsMobile()
