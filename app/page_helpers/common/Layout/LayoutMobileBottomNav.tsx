@@ -161,13 +161,6 @@ export default function LayoutMobileBottomNav(): JSX.Element {
             />
             <DropdownButtonListItem
               onClick={() => {
-                router.push(getPagePath({ page: PageId.Competition }))
-                onClose()
-              }}
-              label="Competition"
-            />
-            <DropdownButtonListItem
-              onClick={() => {
                 router.push(getPagePath({ page: PageId.VaultsIndex }))
                 onClose()
               }}

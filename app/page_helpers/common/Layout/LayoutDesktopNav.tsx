@@ -103,16 +103,6 @@ export default function LayoutDesktopNav({ notice, onCloseNotice, currentPath }:
               Trade
             </Link>
             <Link
-              mx={4}
-              href={getPagePath({ page: PageId.Competition })}
-              onClick={() => logEvent(LogEvent.NavTradeTabClick)}
-              textVariant="bodyMedium"
-              variant="secondary"
-              color={page !== PageId.Competition ? 'secondaryText' : 'text'}
-            >
-              Competition
-            </Link>
-            <Link
               textVariant="bodyMedium"
               variant="secondary"
               mx={4}

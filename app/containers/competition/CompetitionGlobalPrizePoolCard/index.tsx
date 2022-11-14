@@ -26,7 +26,7 @@ import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
 import getOptimismExplorerUrl from '@/app/utils/getOptimismExplorerUrl'
 import getPagePath from '@/app/utils/getPagePath'
 
-import CompetitionLeaderboardTable from '../CompetitionLeaderboardTable'
+import CompetitionFinalLeaderboardTable from '../CompetitionFinalLeaderboardTable'
 
 type Props = {
   selectedSeason: CompetitionSeasonConfig
@@ -171,7 +171,7 @@ const CompetitionGlobalPrizePoolCard = ({ selectedPool, selectedPoolIdx, selecte
                 </Flex>
               ) : null}
             </Flex>
-            <CompetitionLeaderboardTable search={search} season={selectedSeason} pool={selectedPool} />
+            <CompetitionFinalLeaderboardTable search={search} season={selectedSeason} pool={selectedPool} />
           </>
         ) : null}
       </Box>
