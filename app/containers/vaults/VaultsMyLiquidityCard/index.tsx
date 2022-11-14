@@ -24,7 +24,7 @@ const VaultsMyLiquidityCard = withSuspense(({ marketAddressOrName, ...styleProps
   const liquidityBalance = vaultBalance.balance
   const liquidityDeposits = vaultBalance.deposits
   const liquidityWithdrawals = vaultBalance.withdrawals
-  console.log("THis is liquidityWithdrawals", liquidityWithdrawals)
+
   if (liquidityBalance.balance.isZero() && liquidityDeposits.length === 0 && liquidityWithdrawals.length === 0) {
     return null
   }

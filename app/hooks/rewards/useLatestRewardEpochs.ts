@@ -22,6 +22,7 @@ export const fetchLatestRewardEpochs = async (address?: string): Promise<LatestR
           accountRewardEpochs.find(epoch => epoch.globalEpoch.startTimestamp === global.startTimestamp) ?? null
         return { account, global }
       })
+      .sort((a, b) => b.global.endTimestamp - a.global.endTimestamp)
       .find(({ account, global }) => account?.isPendingRewards || global.isCurrent) ?? null
   )
 }
