@@ -19,8 +19,8 @@ type VaultsMyLiquidityBalancesTableOrListData = TableData<{
   market: string
   tvl: number
   value: number
-  tokenPrice30DChange: number
-  tokenPrice30DChangeAnnualized: number
+  tokenPrice90DChange: number
+  tokenPrice90DChangeAnnualized: number
   apy: number
   apyMultiplier: number
   opApy: number
@@ -42,8 +42,8 @@ const VaultsMyLiquidityBalancesTableDesktop = ({
         market: balance.market.name,
         tvl: fromBigNumber(balance.market.tvl),
         value: fromBigNumber(balance.value),
-        tokenPrice30DChange: vault.tokenPrice30DChange,
-        tokenPrice30DChangeAnnualized: vault.tokenPrice30DChangeAnnualized,
+        tokenPrice90DChange: vault.tokenPrice90DChange,
+        tokenPrice90DChangeAnnualized: vault.tokenPrice90DChangeAnnualized,
         apy: myApy.total,
         apyMultiplier: myApyMultiplier,
         opApy: myApy.op,

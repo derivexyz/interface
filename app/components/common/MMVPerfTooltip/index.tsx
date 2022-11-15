@@ -9,14 +9,14 @@ import { VAULTS_ABOUT_DOC_URL } from '@/app/constants/links'
 type Props = {
   children: React.ReactNode
   marketName: string
-  tokenPrice30DChange: number
-  tokenPrice30DChangeAnnualized: number
+  tokenPrice90DChange: number
+  tokenPrice90DChangeAnnualized: number
 } & FlexProps
 
 export default function MMVPerfTooltip({
   marketName,
-  tokenPrice30DChange,
-  tokenPrice30DChangeAnnualized,
+  tokenPrice90DChange,
+  tokenPrice90DChangeAnnualized,
   children,
   ...flexProps
 }: Props): TooltipElement {
@@ -24,14 +24,14 @@ export default function MMVPerfTooltip({
     <Tooltip
       tooltip={
         <Text variant="secondary" color="secondaryText">
-          The {marketName} market maker vault collects trading fees. In the last 30 days it has{' '}
-          {tokenPrice30DChange >= 0 ? 'profited' : 'lost'}{' '}
-          <Text as="span" color={tokenPrice30DChange >= 0 ? 'primaryText' : 'errorText'}>
-            {formatPercentage(tokenPrice30DChange)}
+          The {marketName} market maker vault collects trading fees. In the last 90 days it has{' '}
+          {tokenPrice90DChange >= 0 ? 'profited' : 'lost'}{' '}
+          <Text as="span" color={tokenPrice90DChange >= 0 ? 'primaryText' : 'errorText'}>
+            {formatPercentage(tokenPrice90DChange)}
           </Text>
           , which is{' '}
-          <Text as="span" color={tokenPrice30DChangeAnnualized >= 0 ? 'primaryText' : 'errorText'}>
-            {formatPercentage(tokenPrice30DChangeAnnualized)}
+          <Text as="span" color={tokenPrice90DChangeAnnualized >= 0 ? 'primaryText' : 'errorText'}>
+            {formatPercentage(tokenPrice90DChangeAnnualized)}
           </Text>{' '}
           annualized.
         </Text>
@@ -40,7 +40,7 @@ export default function MMVPerfTooltip({
       showInfoIcon
       target="_blank"
       placement="top"
-      title="30D Performance (Annualized)"
+      title="90D Performance (Annualized)"
       {...flexProps}
     >
       {children}

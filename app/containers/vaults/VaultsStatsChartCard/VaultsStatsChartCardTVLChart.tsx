@@ -41,7 +41,7 @@ const VaultsStatsChartCardTVLChart = withSuspense(
         data={vaultHistoryTVL}
         xAxisDataKey="timestamp"
         dataKeys={[{ key: 'total', label: 'timestamp' }]}
-        color={change >= 0 ? 'primary' : 'error'}
+        color="primary"
         onHover={onHover}
         renderTooltip={({ timestamp }) => formatTimestampTooltip(timestamp, period)}
       />

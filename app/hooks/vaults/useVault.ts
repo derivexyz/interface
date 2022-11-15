@@ -1,7 +1,7 @@
 import { GlobalRewardEpoch, GlobalRewardEpochAPY, Market } from '@lyrafinance/lyra-js'
 
 import { ZERO_BN } from '@/app/constants/bn'
-import { DAYS_IN_YEAR, SECONDS_IN_MONTH, SECONDS_IN_WEEK } from '@/app/constants/time'
+import { DAYS_IN_YEAR, SECONDS_IN_THREE_MONTHS, SECONDS_IN_WEEK } from '@/app/constants/time'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import lyra from '@/app/utils/lyra'
 
@@ -12,10 +12,10 @@ export type Vault = {
   globalRewardEpoch: GlobalRewardEpoch | null
   tvl: number
   tvlChange: number
-  tradingVolume30D: number
+  tradingVolume90D: number
   tokenPrice: number
-  tokenPrice30DChange: number
-  tokenPrice30DChangeAnnualized: number
+  tokenPrice90DChange: number
+  tokenPrice90DChangeAnnualized: number
   fees: number
   openInterest: number
   netDelta: number
@@ -38,7 +38,7 @@ const EMPTY_VAULT_APY: GlobalRewardEpochAPY = {
 
 export const fetchVault = async (marketAddressOrName: string): Promise<Vault> => {
   const market = await lyra.market(marketAddressOrName)
-  const startTimestamp = market.block.timestamp - SECONDS_IN_MONTH
+  const startTimestamp = market.block.timestamp - SECONDS_IN_THREE_MONTHS
   const [tradingVolumeHistoryResult, liquidityHistoryResult, netGreeksResult, globalRewardEpochResult] =
     await Promise.allSettled([
       market.tradingVolumeHistory({ startTimestamp }),
@@ -66,8 +66,8 @@ export const fetchVault = async (marketAddressOrName: string): Promise<Vault> =>
   const totalNotionalVolume = tradingVolumeHistory.length
     ? tradingVolumeHistory[tradingVolumeHistory.length - 1].totalNotionalVolume
     : ZERO_BN
-  const totalNotionalVolume30DAgo = tradingVolumeHistory.length ? tradingVolumeHistory[0].totalNotionalVolume : ZERO_BN
-  const tradingVolume30D = fromBigNumber(totalNotionalVolume.sub(totalNotionalVolume30DAgo))
+  const totalNotionalVolume90DAgo = tradingVolumeHistory.length ? tradingVolumeHistory[0].totalNotionalVolume : ZERO_BN
+  const tradingVolume90D = fromBigNumber(totalNotionalVolume.sub(totalNotionalVolume90DAgo))
   const fees = tradingVolumeHistory.reduce(
     (sum, tradingVolume) =>
       sum
@@ -82,11 +82,11 @@ export const fetchVault = async (marketAddressOrName: string): Promise<Vault> =>
   const tvl = fromBigNumber(market.tvl)
   const tvl30D = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].nav) : 0
   const tvlChange = tvl30D > 0 ? (tvl - tvl30D) / tvl30D : 0
-  const tokenPrice30D = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].tokenPrice) : 0
+  const tokenPrice90D = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].tokenPrice) : 0
   const tokenPrice =
     liquidityHistory.length > 1 ? fromBigNumber(liquidityHistory[liquidityHistory.length - 1].tokenPrice) : 0
-  const tokenPrice30DChange = tokenPrice30D > 0 ? (tokenPrice - tokenPrice30D) / tokenPrice30D : 0
-  const tokenPrice30DChangeAnnualized = (tokenPrice30DChange / 30) * DAYS_IN_YEAR
+  const tokenPrice90DChange = tokenPrice90D > 0 ? (tokenPrice - tokenPrice90D) / tokenPrice90D : 0
+  const tokenPrice90DChangeAnnualized = (tokenPrice90DChange / 90) * DAYS_IN_YEAR
   const pendingDeposits = liquidityHistory.length
     ? fromBigNumber(liquidityHistory[liquidityHistory.length - 1].pendingDeposits)
     : 0
@@ -100,10 +100,10 @@ export const fetchVault = async (marketAddressOrName: string): Promise<Vault> =>
     globalRewardEpoch,
     tvl,
     tvlChange: is14dOld ? tvlChange : 0,
-    tradingVolume30D: is14dOld ? tradingVolume30D : 0,
+    tradingVolume90D: is14dOld ? tradingVolume90D : 0,
     tokenPrice,
-    tokenPrice30DChange: is14dOld ? tokenPrice30DChange : 0,
-    tokenPrice30DChangeAnnualized: is14dOld ? tokenPrice30DChangeAnnualized : 0,
+    tokenPrice90DChange: is14dOld ? tokenPrice90DChange : 0,
+    tokenPrice90DChangeAnnualized: is14dOld ? tokenPrice90DChangeAnnualized : 0,
     fees: fromBigNumber(fees),
     openInterest: fromBigNumber(market.openInterest),
     netDelta: fromBigNumber(netGreeks?.netDelta ?? ZERO_BN),

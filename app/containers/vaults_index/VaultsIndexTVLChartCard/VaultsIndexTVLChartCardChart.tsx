@@ -21,11 +21,6 @@ type Props = {
 const VaultsIndexTVLChartCardChart = withSuspense(
   ({ period, hoverData, onHover = emptyFunction, ...styleProps }: Props) => {
     const vaultHistoryTVL = useVaultsTVLHistory(period)
-    const vaultBalanceTVL = vaultHistoryTVL.length > 0 ? vaultHistoryTVL[vaultHistoryTVL.length - 1] : null
-    const earliestSnapshot = vaultHistoryTVL.length > 0 ? vaultHistoryTVL[0] : null
-    const total = hoverData?.total ?? vaultBalanceTVL?.total ?? 0
-    const earliestTotal = earliestSnapshot?.total ?? 0
-    const change = earliestTotal == 0 ? 0 : (total - earliestTotal) / earliestTotal
     return (
       <AreaChart
         {...styleProps}
@@ -34,7 +29,7 @@ const VaultsIndexTVLChartCardChart = withSuspense(
         xAxisDataKey="timestamp"
         data={vaultHistoryTVL}
         dataKeys={[{ key: 'total', label: 'timestamp' }]}
-        color={change >= 0 ? 'primary' : 'error'}
+        color="primary"
         onHover={onHover}
         renderTooltip={({ timestamp }) => formatTimestampTooltip(timestamp, period)}
       />

@@ -36,10 +36,10 @@ const VaultsStatsCard = withSuspense(
       market,
       tvl,
       utilization,
-      tokenPrice30DChange,
-      tokenPrice30DChangeAnnualized,
+      tokenPrice90DChange,
+      tokenPrice90DChangeAnnualized,
       pendingDeposits,
-      tradingVolume30D,
+      tradingVolume90D,
       openInterest,
       netDelta,
       minApy,
@@ -55,17 +55,17 @@ const VaultsStatsCard = withSuspense(
           </Text>
           <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gridColumnGap: 6, gridRowGap: 6 }}>
             <LabelItem
-              label="30D Perf. (Annualized)"
+              label="90D Perf. (Annualized)"
               value={
                 <MMVPerfTooltip
                   mt="auto"
                   marketName={market.name}
-                  tokenPrice30DChange={tokenPrice30DChange}
-                  tokenPrice30DChangeAnnualized={tokenPrice30DChangeAnnualized}
+                  tokenPrice90DChange={tokenPrice90DChange}
+                  tokenPrice90DChangeAnnualized={tokenPrice90DChangeAnnualized}
                   alignItems="center"
                 >
-                  <Text variant="secondary" color={tokenPrice30DChange >= 0 ? 'primaryText' : 'errorText'}>
-                    {formatPercentage(tokenPrice30DChangeAnnualized, tokenPrice30DChange === 0)}
+                  <Text variant="secondary" color={tokenPrice90DChange >= 0 ? 'primaryText' : 'errorText'}>
+                    {formatPercentage(tokenPrice90DChangeAnnualized, tokenPrice90DChange === 0)}
                   </Text>
                 </MMVPerfTooltip>
               }
@@ -114,9 +114,9 @@ const VaultsStatsCard = withSuspense(
               valueColor={utilization > 0 ? 'text' : 'secondaryText'}
             />
             <LabelItem
-              label="30D Volume"
-              value={tradingVolume30D > 0 ? formatTruncatedUSD(tradingVolume30D) : '-'}
-              valueColor={tradingVolume30D > 0 ? 'text' : 'secondaryText'}
+              label="90D Volume"
+              value={tradingVolume90D > 0 ? formatTruncatedUSD(tradingVolume90D) : '-'}
+              valueColor={tradingVolume90D > 0 ? 'text' : 'secondaryText'}
             />
             <LabelItem
               label="Open Interest"

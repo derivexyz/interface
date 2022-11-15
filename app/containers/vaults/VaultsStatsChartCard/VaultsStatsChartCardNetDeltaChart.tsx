@@ -30,7 +30,7 @@ const VaultsStatsChartCardNetDeltaChart = withSuspense(
         type="linear"
         data={vaultHistoryNetDelta}
         dataKeys={[{ key: 'netDelta', label: 'timestamp' }]}
-        lineColor={netDelta >= 0 ? 'primary' : 'error'}
+        lineColor="primary"
         onHover={onHover}
         hideXAxis={false}
         renderTooltip={({ x }) => formatTimestampTooltip(x, period)}

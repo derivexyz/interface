@@ -30,8 +30,8 @@ type VaultsIndexMarketsTableData = TableData<{
   maxApy: number
   lyraApy: number
   opApy: number
-  tokenPrice30DChange: number
-  tokenPrice30DChangeAnnualized: number
+  tokenPrice90DChange: number
+  tokenPrice90DChangeAnnualized: number
   onClick?: () => void
 }>
 
@@ -49,11 +49,11 @@ const VaultsIndexMarketsTableDesktop = ({
         marketBaseSymbol: market.baseToken.symbol,
         tvl: vault.tvl,
         tvlChange: vault.tvlChange,
-        volume: vault.tradingVolume30D,
+        volume: vault.tradingVolume90D,
         openInterest: fromBigNumber(market.openInterest),
         openInterestDollars: fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice),
-        tokenPrice30DChange: vault.tokenPrice30DChange,
-        tokenPrice30DChangeAnnualized: vault.tokenPrice30DChangeAnnualized,
+        tokenPrice90DChange: vault.tokenPrice90DChange,
+        tokenPrice90DChangeAnnualized: vault.tokenPrice90DChangeAnnualized,
         apy: vault.minApy,
         lyraApy: vault.minLyraApy,
         opApy: vault.minOpApy,
@@ -122,15 +122,15 @@ const VaultsIndexMarketsTableDesktop = ({
         },
       },
       {
-        accessor: 'tokenPrice30DChangeAnnualized',
-        Header: '30D Perf. (Annualized)',
+        accessor: 'tokenPrice90DChangeAnnualized',
+        Header: '90D Perf. (Annualized)',
         Cell: ({ cell }: TableCellProps<VaultsIndexMarketsTableData>) => {
           return cell.value ? (
             <MMVPerfTooltip
               alignItems="center"
               marketName={cell.row.original.market}
-              tokenPrice30DChange={cell.row.original.tokenPrice30DChange}
-              tokenPrice30DChangeAnnualized={cell.value}
+              tokenPrice90DChange={cell.row.original.tokenPrice90DChange}
+              tokenPrice90DChangeAnnualized={cell.value}
             >
               <Text variant="secondary" color={cell.value >= 0 ? 'primaryText' : 'errorText'}>
                 {formatPercentage(cell.value, cell.value === 0)}

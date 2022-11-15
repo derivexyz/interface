@@ -33,7 +33,7 @@ const VaultsStatsChartCardPNLChart = withSuspense(
         type="linear"
         data={vaultHistoryPNL}
         dataKeys={[{ key: 'pnl', label: 'timestamp' }]}
-        lineColor={change >= 0 ? 'primary' : 'error'}
+        lineColor="primary"
         onHover={onHover}
         hideXAxis={false}
         renderTooltip={({ x }) => formatTimestampTooltip(x, period)}
