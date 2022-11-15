@@ -54,7 +54,7 @@ const VaultsWithdrawalsTableDesktop = ({
         Header: 'Market',
         Cell: (props: TableCellProps<VaultsPendingWithdrawalsTableData>) => {
           const { timeToExitPercentage } = props.row.original
-          return <MarketLabelProgress marketName={props.cell.value} progress={timeToExitPercentage} color="error" />
+          return <MarketLabelProgress marketName={props.cell.value} progress={timeToExitPercentage} color="errorText" />
         },
       },
       {

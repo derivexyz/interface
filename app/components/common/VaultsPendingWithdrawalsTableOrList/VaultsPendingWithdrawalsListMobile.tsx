@@ -29,7 +29,7 @@ const VaultsPendingWithdrawalsListMobile = ({
         return (
           <ListItem
             key={`${withdrawal.queueId}-${market.address}`}
-            label={<MarketLabelProgress marketName={market.name} progress={progressPct} color="error" />}
+            label={<MarketLabelProgress marketName={market.name} progress={progressPct} color="errorText" />}
             onClick={onClick ? () => onClick(withdrawal) : undefined}
             rightContent={
               <Box textAlign="right">
