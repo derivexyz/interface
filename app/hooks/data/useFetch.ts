@@ -43,12 +43,7 @@ function getCacheKey<T extends FetchArg[]>(args: T): FetchKey<T> {
 export const createFetcher =
   <Data, Args extends FetchArg[]>(fetcher: Fetcher<Data, Args>) =>
   async (_queryId: string, ...params: Args): Promise<Data | null> => {
-    const _fetcher = createFetcherWithThrow(fetcher)
-    try {
-      return await _fetcher(_queryId, ...params)
-    } catch (error) {
-      return null
-    }
+    return await createFetcherWithThrow(fetcher)(_queryId, ...params)
   }
 
 export const createFetcherWithThrow =
