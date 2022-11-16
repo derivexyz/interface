@@ -20,6 +20,7 @@ import useIsGlobalPaused from '@/app/hooks/admin/useIsGlobalPaused'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useTraderSettings, { CustomColumnOption } from '@/app/hooks/local_storage/useTraderSettings'
 import useLiveBoards from '@/app/hooks/market/useLiveBoards'
+import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
 import logEvent from '@/app/utils/logEvent'
 
 type Props = {
@@ -77,6 +78,7 @@ const TradeAdvancedBoardCard = withSuspense(
       return boards.find(board => board.tradingCutoffTimestamp > now)?.id ?? boards[0].id
     }, [boards])
     const isGlobalPaused = useIsGlobalPaused()
+    const marketLiquidity = useMarketLiquidity(market.address)
     const [isCustomCol1LeftOpen, setIsCustomCol1LeftOpen] = useState(false)
     const [isCustomCol1RightOpen, setIsCustomCol1RightOpen] = useState(false)
     const [isCustomCol2LeftOpen, setIsCustomCol2LeftOpen] = useState(false)
@@ -328,6 +330,7 @@ const TradeAdvancedBoardCard = withSuspense(
                 selectedOption={selectedOption}
                 onSelectOption={onSelectOption}
                 isBuy={isBuy}
+                marketLiquidity={marketLiquidity}
               />
             ),
             callBid: null,
@@ -348,6 +351,7 @@ const TradeAdvancedBoardCard = withSuspense(
         selectedOption,
         onSelectOption,
         isBuy,
+        marketLiquidity,
       ]
     )
 

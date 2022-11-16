@@ -16,7 +16,9 @@ import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import TokenAPYRangeText from '@/app/components/common/TokenAPYRangeText'
 import VaultAPYTooltip from '@/app/components/common/VaultAPYTooltip'
+import { ONE_BN } from '@/app/constants/bn'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
 import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
@@ -29,10 +31,19 @@ type RowProps = {
   market: Market
 }
 
+const VaultRewardsMyLiquidity = withSuspense(
+  ({ accountRewardEpoch, market }: { market: Market; accountRewardEpoch?: AccountRewardEpoch | null }) => {
+    const vaultTokens = accountRewardEpoch ? accountRewardEpoch.vaultTokenBalance(market.address) : 0
+    const marketLiquidity = useMarketLiquidity(market.address)
+    const vaultLiquidity = vaultTokens * fromBigNumber(marketLiquidity?.tokenPrice ?? ONE_BN)
+
+    return <Text variant="secondary">{formatUSD(vaultLiquidity)}</Text>
+  },
+  () => <TextShimmer variant="secondary" width={50} />
+)
+
 const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }: RowProps) => {
   const marketName = market.name
-  const vaultTokens = accountRewardEpoch ? accountRewardEpoch.vaultTokenBalance(marketName) : 0
-  const vaultLiquidity = vaultTokens * fromBigNumber(market.liquidity.tokenPrice)
   const { op: opRewards, lyra: lyraRewards } = accountRewardEpoch
     ? accountRewardEpoch.vaultRewards(marketName)
     : { op: 0, lyra: 0 }
@@ -60,7 +71,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
         <Text variant="secondary" color="secondaryText" mb={2}>
           My Liquidity
         </Text>
-        <Text variant="secondary">{formatUSD(vaultLiquidity)}</Text>
+        <VaultRewardsMyLiquidity market={market} accountRewardEpoch={accountRewardEpoch} />
       </Flex>
       <Flex flexDirection="column" justifyContent="space-between">
         <Text variant="secondary" color="secondaryText" mb={2}>

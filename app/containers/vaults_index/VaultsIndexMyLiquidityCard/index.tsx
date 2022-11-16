@@ -14,6 +14,7 @@ import VaultsIndexMyLiquiditySection from '@/app/components/vaults_index/VaultsI
 import { ZERO_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
 import { PageId } from '@/app/constants/pages'
+import useMarketsLiquidity from '@/app/hooks/market/useMarketsLiquidity'
 import useVaultBalances from '@/app/hooks/vaults/useVaultBalances'
 import getPagePath from '@/app/utils/getPagePath'
 import logEvent from '@/app/utils/logEvent'
@@ -22,6 +23,7 @@ type Props = MarginProps
 
 const VaultsIndexMyLiquidityCard = withSuspense(({ ...styleProps }: Props) => {
   const vaultBalances = useVaultBalances()
+  const marketsLiquidity = useMarketsLiquidity()
   const router = useRouter()
 
   const liquidityDeposits = useMemo(() => {
@@ -50,6 +52,7 @@ const VaultsIndexMyLiquidityCard = withSuspense(({ ...styleProps }: Props) => {
         </Text>
         <VaultsMyLiquidityBalancesTableOrList
           vaultBalances={vaultBalances}
+          marketsLiquidity={marketsLiquidity}
           onClick={({ vault: { market } }) => {
             router.push(getPagePath({ page: PageId.Vaults, marketAddressOrName: market.name }))
             logEvent(LogEvent.NavVaultsTabClick, {

@@ -5,7 +5,7 @@ import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Board, Option, Strike } from '@lyrafinance/lyra-js'
+import { Board, MarketLiquidity, Option, Strike } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import { UNIT } from '@/app/constants/bn'
@@ -55,6 +55,7 @@ type Props = {
   selectedOption: Option | null
   isBuy: boolean
   isGlobalPaused: boolean
+  marketLiquidity: MarketLiquidity | null
   customCol1: CustomColumnOption
   customCol2: CustomColumnOption
   onSelectOption: (option: Option, isBuy: boolean, isCall: boolean) => void
@@ -68,6 +69,7 @@ const TradeChainTable = ({
   onSelectOption,
   isBuy,
   isGlobalPaused,
+  marketLiquidity,
   customCol1,
   customCol2,
 }: Props) => {
@@ -249,7 +251,13 @@ const TradeChainTable = ({
 
   return (
     <>
-      <TradeBoardNoticeSection m={6} board={board} isGlobalPaused={isGlobalPaused} quotes={filteredQuotes} />
+      <TradeBoardNoticeSection
+        m={6}
+        board={board}
+        isGlobalPaused={isGlobalPaused}
+        quotes={filteredQuotes}
+        marketLiquidity={marketLiquidity}
+      />
       <Table hideHeader columns={columns} data={rows} columnOptions={columnOptions} tableRowMarker={spotPriceMarker} />
     </>
   )

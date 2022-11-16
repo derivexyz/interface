@@ -18,6 +18,7 @@ import { ZERO_BN } from '@/app/constants/bn'
 import { WITHDRAW_WARNING_DOC_URL } from '@/app/constants/links'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarket from '@/app/hooks/market/useMarket'
+import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
 import useLiquidityDepositBalance from '@/app/hooks/vaults/useLiquidityDepositBalance'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
@@ -32,6 +33,7 @@ const VaultsDepositForm = withSuspense(
   ({ marketAddressOrName }: Props) => {
     const market = useMarket(marketAddressOrName)
     const susd = useLiquidityDepositBalance(marketAddressOrName)
+    const marketLiquidity = useMarketLiquidity(marketAddressOrName)
     const susdBalance = susd?.balance ?? ZERO_BN
     const [amount, setAmount] = useState(ZERO_BN)
 
@@ -89,7 +91,7 @@ const VaultsDepositForm = withSuspense(
               {formatPercentage(fromBigNumber(market.__marketData.marketParameters.lpParams.withdrawalFee), true)}
             </Text>
           </Flex>
-          {market.liquidity.utilization > 0.9 ? (
+          {marketLiquidity && marketLiquidity.utilization > 0.9 ? (
             <Alert
               mb={3}
               icon={IconType.AlertTriangle}

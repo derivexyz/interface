@@ -10,7 +10,7 @@ import React, { useMemo } from 'react'
 import { ZERO_BN } from '@/app/constants/bn'
 import { ChartPeriod } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useMarket from '@/app/hooks/market/useMarket'
+import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
 import useVaultTVLHistory, { TVLSnapshot } from '@/app/hooks/vaults/useVaultTVLHistory'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
@@ -23,14 +23,14 @@ type Props = {
 
 const VaultsStatsChartCardTVLBreakdown = withSuspense(
   ({ hoverData, marketAddressOrName, period, ...styleProps }: Props) => {
-    const market = useMarket(marketAddressOrName)
+    const marketLiquidity = useMarketLiquidity(marketAddressOrName)
     const vaultHistoryTVL = useVaultTVLHistory(marketAddressOrName, period)
     const isMobile = useIsMobile()
     const vaultBalanceTVL = useMemo(
       () => (vaultHistoryTVL.length ? vaultHistoryTVL[vaultHistoryTVL.length - 1] : null),
       [vaultHistoryTVL]
     )
-    const total = hoverData?.total ?? vaultBalanceTVL?.total ?? fromBigNumber(market?.tvl ?? ZERO_BN)
+    const total = hoverData?.total ?? vaultBalanceTVL?.total ?? fromBigNumber(marketLiquidity?.nav ?? ZERO_BN)
     const utilization = hoverData?.utilization ?? vaultBalanceTVL?.utilization ?? 0
     const pendingDeposits = hoverData?.deposits ?? vaultBalanceTVL?.deposits ?? 0
     const earliestHistory = vaultHistoryTVL.length ? vaultHistoryTVL[0] : null

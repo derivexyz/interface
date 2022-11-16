@@ -2,7 +2,7 @@ import Alert from '@lyra/ui/components/Alert'
 import { IconType } from '@lyra/ui/components/Icon'
 import { MarginProps } from '@lyra/ui/types'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
-import { Board } from '@lyrafinance/lyra-js'
+import { Board, MarketLiquidity } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { MAX_UTILIZATION, OptionQuotesNullable, StrikeQuotesNullable } from '@/app/constants/contracts'
@@ -12,9 +12,16 @@ type Props = {
   board: Board
   isGlobalPaused: boolean
   quotes: (StrikeQuotesNullable | OptionQuotesNullable)[]
+  marketLiquidity: MarketLiquidity | null
 } & MarginProps
 
-export default function TradeBoardNoticeSection({ board, isGlobalPaused, quotes, ...marginProps }: Props) {
+export default function TradeBoardNoticeSection({
+  board,
+  isGlobalPaused,
+  quotes,
+  marketLiquidity,
+  ...marginProps
+}: Props) {
   const market = board.market()
   if (board.isTradingCutoff || board.isExpired) {
     return (
@@ -40,14 +47,14 @@ export default function TradeBoardNoticeSection({ board, isGlobalPaused, quotes,
         {...marginProps}
       />
     )
-  } else if (market.liquidity.utilization >= MAX_UTILIZATION) {
+  } else if (marketLiquidity && marketLiquidity.utilization >= MAX_UTILIZATION) {
     return (
       <Alert
         icon={IconType.AlertTriangle}
         title="High Utilization"
         variant="warning"
         description={`The ${market.name} market is ${
-          market.liquidity.utilization === 1 ? 'fully utilized' : 'almost fully utilized'
+          marketLiquidity.utilization === 1 ? 'fully utilized' : 'almost fully utilized'
         }. When a vault is fully utilized new positions can be opened. Traders can still close their ${
           market.name
         } positions.`}

@@ -32,6 +32,7 @@ type VaultsMyLiquidityBalancesTableOrListData = TableData<{
 
 const VaultsMyLiquidityBalancesTableDesktop = ({
   vaultBalances,
+  marketsLiquidity,
   onClick,
   ...styleProps
 }: VaultsMyLiquidityBalancesTableOrListProps): TableElement<VaultsMyLiquidityBalancesTableOrListData> => {
@@ -40,7 +41,7 @@ const VaultsMyLiquidityBalancesTableDesktop = ({
       const { balance, vault, myApy, myApyMultiplier, myPnl, myPnlPercent, accountRewardEpoch } = vaultBalance
       return {
         market: balance.market.name,
-        tvl: fromBigNumber(balance.market.tvl),
+        tvl: marketsLiquidity ? fromBigNumber(marketsLiquidity[balance.market.address].nav) : 0,
         value: fromBigNumber(balance.value),
         tokenPrice90DChange: vault.tokenPrice90DChange,
         tokenPrice90DChangeAnnualized: vault.tokenPrice90DChangeAnnualized,
@@ -54,7 +55,7 @@ const VaultsMyLiquidityBalancesTableDesktop = ({
         onClick: onClick ? () => onClick(vaultBalance) : undefined,
       }
     })
-  }, [onClick, vaultBalances])
+  }, [onClick, vaultBalances, marketsLiquidity])
 
   const stakedLyraBalance = vaultBalances.length > 0 ? vaultBalances[0].accountRewardEpoch?.stakedLyraBalance ?? 0 : 0
   const isBoostedApy = stakedLyraBalance > 0

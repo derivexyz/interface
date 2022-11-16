@@ -9,6 +9,7 @@ import TradeBoardTableOrList from '@/app/components/trade/TradeBoardTableOrList'
 import useIsGlobalPaused from '@/app/hooks/admin/useIsGlobalPaused'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useBoardQuotesSync from '@/app/hooks/market/useBoardQuotesSync'
+import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
 
@@ -27,6 +28,7 @@ const TradeSimpleBoardTable = withSuspense(
     const size = getDefaultQuoteSize(board.market().name)
     const isGlobalPaused = !!useIsGlobalPaused()
     const boardQuotes = useBoardQuotesSync(board, size)
+    const marketLiquidity = useMarketLiquidity(board.market().address)
     const optionQuotes = useMemo(
       () =>
         boardQuotes
@@ -55,6 +57,7 @@ const TradeSimpleBoardTable = withSuspense(
           board={board}
           isGlobalPaused={isGlobalPaused}
           quotes={optionQuotes}
+          marketLiquidity={marketLiquidity}
         />
         <TradeBoardTableOrList
           board={board}

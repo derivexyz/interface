@@ -13,6 +13,7 @@ import MarketImage from '@/app/components/common/MarketImage'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarkets from '@/app/hooks/market/useMarkets'
+import useMarketsLiquidity from '@/app/hooks/market/useMarketsLiquidity'
 import getPagePath from '@/app/utils/getPagePath'
 import isMarketEqual from '@/app/utils/isMarketEqual'
 
@@ -25,6 +26,7 @@ const VaultsMarketDropdown = withSuspense(
     const [isOpen, setIsOpen] = useState(false)
     const onClose = useCallback(() => setIsOpen(false), [])
     const markets = useMarkets()
+    const marketsLiquidity = useMarketsLiquidity()
     const filteredMarkets = useMemo(() => markets.filter(market => market.liveBoards().length > 0), [markets])
     return (
       <DropdownButton
@@ -53,7 +55,9 @@ const VaultsMarketDropdown = withSuspense(
             icon={<MarketImage size={32} name={market.name} />}
             rightContent={
               <Flex width={80} flexDirection="column" alignItems="flex-end">
-                <Text variant="secondary">{formatTruncatedUSD(market?.tvl ?? 0)}</Text>
+                <Text variant="secondary">
+                  {formatTruncatedUSD(marketsLiquidity ? marketsLiquidity[market.address].nav : 0)}
+                </Text>
               </Flex>
             }
           />

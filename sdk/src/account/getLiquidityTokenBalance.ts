@@ -10,13 +10,16 @@ export default async function getLiquidityTokenBalance(
   market: Market
 ): Promise<AccountLiquidityTokenBalance> {
   const optionMarketViewer = getLyraContract(lyra.provider, lyra.deployment, LyraContractId.OptionMarketViewer)
-  const [liquidityTokenBalance] = await optionMarketViewer.getLiquidityBalancesAndAllowances([market.address], owner)
+  const [[liquidityTokenBalance], marketLiquidity] = await Promise.all([
+    optionMarketViewer.getLiquidityBalancesAndAllowances([market.address], owner),
+    market.liquidity(),
+  ])
   return {
     market,
     address: liquidityTokenBalance.token,
     balance: liquidityTokenBalance.balance,
-    value: market.liquidity.tokenPrice.mul(liquidityTokenBalance.balance).div(UNIT),
-    tokenPrice: market.liquidity.tokenPrice,
+    value: marketLiquidity.tokenPrice.mul(liquidityTokenBalance.balance).div(UNIT),
+    tokenPrice: marketLiquidity.tokenPrice,
     allowance: liquidityTokenBalance.allowance,
     // TODO: @dappbeast Add symbol and decimals to getLiquidityBalancesAndAllowances
     symbol: `Ly${market.name}LP`,

@@ -38,6 +38,7 @@ const EMPTY_VAULT_APY: GlobalRewardEpochAPY = {
 
 export const fetchVault = async (marketAddressOrName: string): Promise<Vault> => {
   const market = await lyra.market(marketAddressOrName)
+  const marketLiquidity = await market.liquidity()
   const startTimestamp = market.block.timestamp - SECONDS_IN_THREE_MONTHS
   const [tradingVolumeHistoryResult, liquidityHistoryResult, netGreeksResult, globalRewardEpochResult] =
     await Promise.allSettled([
@@ -79,7 +80,7 @@ export const fetchVault = async (marketAddressOrName: string): Promise<Vault> =>
         .add(tradingVolume.varianceFees),
     ZERO_BN
   )
-  const tvl = fromBigNumber(market.tvl)
+  const tvl = fromBigNumber(marketLiquidity.nav)
   const tvl30D = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].nav) : 0
   const tvlChange = tvl30D > 0 ? (tvl - tvl30D) / tvl30D : 0
   const tokenPrice90D = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].tokenPrice) : 0
@@ -90,7 +91,7 @@ export const fetchVault = async (marketAddressOrName: string): Promise<Vault> =>
   const pendingDeposits = liquidityHistory.length
     ? fromBigNumber(liquidityHistory[liquidityHistory.length - 1].pendingDeposits)
     : 0
-  const utilization = market.liquidity.utilization
+  const utilization = liquidityHistory.length ? liquidityHistory[liquidityHistory.length - 1].utilization : 0
 
   const earliestStartTimestamp = tradingVolumeHistory.length ? tradingVolumeHistory[0].startTimestamp : startTimestamp
   const is14dOld = earliestStartTimestamp - startTimestamp < SECONDS_IN_WEEK

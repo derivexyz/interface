@@ -16,9 +16,9 @@ export default async function fetchLiquidityDelayReason(
     LyraMarketContractId.LiquidityPool
   )
   const currentTimestamp = market.block.timestamp
-  const cbTimestamp = await liquidityPoolContract.CBTimestamp()
+  const [cbTimestamp, marketLiquidity] = await Promise.all([liquidityPoolContract.CBTimestamp(), market.liquidity()])
   if (cbTimestamp.gt(currentTimestamp)) {
-    if (market.liquidity.utilization > VAULTS_UTILIZATION_THRESHOLD) {
+    if (marketLiquidity.utilization > VAULTS_UTILIZATION_THRESHOLD) {
       return LiquidityDelayReason.Liquidity
     } else {
       return LiquidityDelayReason.Volatility

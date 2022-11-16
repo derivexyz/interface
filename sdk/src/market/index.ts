@@ -4,7 +4,7 @@ import { Block } from '@ethersproject/providers'
 import { parseBytes32String } from '@ethersproject/strings'
 
 import { Board, BoardQuotes } from '../board'
-import { UNIT, ZERO_BN } from '../constants/bn'
+import { ZERO_BN } from '../constants/bn'
 import { DataSource, LyraMarketContractId } from '../constants/contracts'
 import { SnapshotOptions } from '../constants/snapshots'
 import { OptionGreekCache, OptionMarketPricer, OptionMarketViewer, OptionToken } from '../contracts/typechain'
@@ -17,11 +17,12 @@ import { Quote, QuoteOptions } from '../quote'
 import { Strike } from '../strike'
 import { Trade, TradeOptions } from '../trade'
 import buildTx from '../utils/buildTx'
+import fetchLatestLiquidity from '../utils/fetchLatestLiquidity'
+import fetchLatestNetGreeks from '../utils/fetchLatestNetGreeks'
 import fetchLiquidityHistory from '../utils/fetchLiquidityHistory'
 import fetchNetGreeksHistory from '../utils/fetchNetGreeksHistory'
 import fetchSpotPriceHistory from '../utils/fetchSpotPriceHistory'
 import fetchTradingVolumeHistory from '../utils/fetchTradingVolumeHistory'
-import fromBigNumber from '../utils/fromBigNumber'
 import getBoardView from '../utils/getBoardView'
 import getBoardViewForStrikeId from '../utils/getBoardViewForStrikeId'
 import getLyraMarketContract from '../utils/getLyraMarketContract'
@@ -238,8 +239,6 @@ export class Market {
   quoteToken: MarketToken
   baseToken: MarketToken
   tradingCutoff: number
-  tvl: BigNumber
-  liquidity: MarketLiquidity
   isPaused: boolean
   openInterest: BigNumber
   spotPrice: BigNumber
@@ -270,7 +269,6 @@ export class Market {
     this.tradingCutoff = fields.tradingCutoff
     this.name = fields.name
     this.contractAddresses = fields.contractAddresses
-    this.tvl = fields.tvl
     this.openInterest = this.liveBoards().reduce((sum, board) => {
       const strikes = board.strikes()
       const longCallOpenInterest = strikes.reduce((sum, strike) => sum.add(strike.call().longOpenInterest), ZERO_BN)
@@ -281,7 +279,6 @@ export class Market {
     }, ZERO_BN)
     this.depositDelay = fields.depositDelay
     this.withdrawalDelay = fields.withdrawalDelay
-    this.liquidity = fields.liquidity
     this.liveBoardsMap = marketView.liveBoards.reduce(
       (map, boardView) => ({
         ...map,
@@ -301,34 +298,17 @@ export class Market {
     const quoteAddress = marketView.marketAddresses.quoteAsset
     const baseAddress = marketView.marketAddresses.baseAsset
     const name = baseKey.substring(1) // Remove leading 's'
-    const tvl = marketView.liquidity.NAV
     const tradingCutoff = marketView.marketParameters.tradeLimitParams.tradingCutoff.toNumber()
     const netDelta = marketView.globalNetGreeks.netDelta
     const netStdVega = marketView.globalNetGreeks.netStdVega
     const depositDelay = marketView.marketParameters.lpParams.depositDelay.toNumber()
     const withdrawalDelay = marketView.marketParameters.lpParams.withdrawalDelay.toNumber()
-    const freeLiquidity = marketView.liquidity.freeLiquidity
-    const burnableLiquidity = marketView.liquidity.burnableLiquidity
-    const totalQueuedDeposits = marketView.totalQueuedDeposits
-    const nav = marketView.liquidity.NAV
-    const utilization = marketView.liquidity.NAV.gt(0)
-      ? fromBigNumber(
-          marketView.liquidity.NAV.sub(marketView.liquidity.freeLiquidity).mul(UNIT).div(marketView.liquidity.NAV)
-        )
-      : 0
-    const totalWithdrawingDeposits = marketView.totalQueuedWithdrawals
-    const usedCollatLiquidity = marketView.liquidity.usedCollatLiquidity
-    const pendingDeltaLiquidity = marketView.liquidity.pendingDeltaLiquidity
-    const usedDeltaLiquidity = marketView.liquidity.usedDeltaLiquidity
-    const tokenPrice = marketView.tokenPrice
-    const timestamp = block.timestamp
     return {
       address,
       name,
       isPaused,
       spotPrice,
       tradingCutoff,
-      tvl,
       quoteToken: {
         address: quoteAddress,
         symbol: quoteKey,
@@ -338,20 +318,6 @@ export class Market {
         address: baseAddress,
         symbol: baseKey,
         decimals: 18,
-      },
-      // TODO: Make liquidity async to acquire accurate hedged NAV
-      liquidity: {
-        freeLiquidity,
-        burnableLiquidity,
-        totalQueuedDeposits,
-        nav,
-        utilization,
-        totalWithdrawingDeposits,
-        usedCollatLiquidity,
-        pendingDeltaLiquidity,
-        usedDeltaLiquidity,
-        tokenPrice,
-        timestamp,
       },
       contractAddresses: marketView.marketAddresses,
       netDelta,
@@ -505,28 +471,12 @@ export class Market {
   }
 
   // Dynamic fields
+  async liquidity(): Promise<MarketLiquidity> {
+    return await fetchLatestLiquidity(this.lyra, this.address)
+  }
 
-  // TODO: @dappbeast Add pool + hedger net delta to viewer, make sync
   async netGreeks(): Promise<MarketNetGreeks> {
-    const poolHedger = getLyraMarketContract(this.lyra, this.contractAddresses, LyraMarketContractId.ShortPoolHedger)
-    const liquidityPool = getLyraMarketContract(this.lyra, this.contractAddresses, LyraMarketContractId.LiquidityPool)
-    const [hedgerNetDelta, lockedCollateral] = await Promise.all([
-      poolHedger.getCurrentHedgedNetDelta(),
-      liquidityPool.lockedCollateral(),
-    ])
-    const baseBalance = lockedCollateral.base
-    const netStdVega = this.__marketData.globalNetGreeks.netStdVega
-    const poolNetStdVega = netStdVega.mul(-1)
-    const optionsNetDelta = this.__marketData.globalNetGreeks.netDelta.mul(-1)
-    const poolNetDelta = optionsNetDelta.add(baseBalance)
-    const netDelta = poolNetDelta.add(hedgerNetDelta)
-    return {
-      netDelta,
-      poolNetDelta,
-      hedgerNetDelta,
-      netStdVega: poolNetStdVega,
-      timestamp: this.block.timestamp,
-    }
+    return await fetchLatestNetGreeks(this.lyra, this)
   }
 
   async liquidityHistory(options?: SnapshotOptions): Promise<MarketLiquidityHistory[]> {
@@ -536,11 +486,8 @@ export class Market {
   }
 
   async netGreeksHistory(options?: SnapshotOptions): Promise<MarketNetGreeks[]> {
-    const [netGreeks, netGreeksHistory] = await Promise.all([
-      this.netGreeks(),
-      fetchNetGreeksHistory(this.lyra, this, options),
-    ])
-    return mergeAndSortSnapshots(netGreeksHistory, 'timestamp', netGreeks)
+    const netGreeksHistory = await fetchNetGreeksHistory(this.lyra, this, options)
+    return mergeAndSortSnapshots(netGreeksHistory, 'timestamp')
   }
 
   async tradingVolumeHistory(options?: SnapshotOptions): Promise<MarketTradingVolumeHistory[]> {
