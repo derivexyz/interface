@@ -6,7 +6,6 @@ import Grid from '@lyra/ui/components/Grid'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
-import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import { AccountRewardEpoch, GlobalRewardEpoch, Market } from '@lyrafinance/lyra-js'
@@ -15,6 +14,7 @@ import React, { useMemo } from 'react'
 import MarketImage from '@/app/components/common/MarketImage'
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
+import TokenAPYRangeText from '@/app/components/common/TokenAPYRangeText'
 import VaultAPYTooltip from '@/app/components/common/VaultAPYTooltip'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
@@ -39,6 +39,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
   const { op: opApy, lyra: lyraApy } = accountRewardEpoch
     ? accountRewardEpoch.vaultApy(marketName)
     : globalRewardEpoch.minVaultApy(marketName)
+  const maxApy = globalRewardEpoch.maxVaultApy(marketName).total
   const apyMultiplier = accountRewardEpoch ? accountRewardEpoch.vaultApyMultiplier(marketName) : 1
   const stakedLyraBalance = accountRewardEpoch ? accountRewardEpoch.stakedLyraBalance : 0
 
@@ -72,9 +73,13 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
           apyMultiplier={apyMultiplier}
           stakedLyraBalance={stakedLyraBalance}
         >
-          <Text variant="secondary" color="primaryText">
-            {formatPercentage(opApy + lyraApy, true)} {apyMultiplier > 1 ? `(${formatNumber(apyMultiplier)}x)` : ''}
-          </Text>
+          <TokenAPYRangeText
+            tokenNameOrAddress={['stkLyra', 'OP']}
+            variant="secondary"
+            color="primaryText"
+            leftValue={formatPercentage(opApy + lyraApy, true)}
+            rightValue={formatPercentage(maxApy, true)}
+          />
         </VaultAPYTooltip>
       </Flex>
       {lyraApy > 0 ? (
