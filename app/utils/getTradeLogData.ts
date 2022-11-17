@@ -25,5 +25,11 @@ export default function getTradeLogData(trade: Trade | TradeEvent | CollateralUp
         ? trade.collateralAmount
         : trade.amount,
     isBaseCollateral: trade instanceof Trade ? trade.collateral?.isBase : trade.isBaseCollateral,
+    quoteAsset:
+      trade instanceof Trade
+        ? trade.quoteToken.address
+        : trade instanceof CollateralUpdateEvent || trade instanceof TradeEvent
+        ? trade.swap?.address
+        : null,
   }
 }
