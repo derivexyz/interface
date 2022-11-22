@@ -1,8 +1,10 @@
+import { BigNumber } from 'ethers'
 import posthog from 'posthog-js'
 
 import { LOCAL_STORAGE_TRADER_SETTINGS_KEY } from '../constants/localStorage'
 import { LogEvent } from '../constants/logEvents'
 import { DEFAULT_TRADER_SETTINGS } from '../hooks/local_storage/useTraderSettings'
+import fromBigNumber from './fromBigNumber'
 import isServer from './isServer'
 
 export type LogData = Record<string, any>
@@ -38,12 +40,28 @@ export default function logEvent(eventAction: LogEvent, logData?: LogData): void
     : null
 
   const parsedEventAction = eventAction === LogEvent.PageView ? '$pageview' : eventAction
+
+  // Parse BigNumber
+  const parsedLogData = logData
+    ? Object.keys(logData).reduce((data, key) => {
+        const dat = logData[key]
+        if (dat === undefined) {
+          return data
+        } else {
+          return {
+            [key]: dat && BigNumber.isBigNumber(dat) ? fromBigNumber(dat) : dat,
+            ...data,
+          }
+        }
+      }, {} as LogData)
+    : null
+
   try {
     posthog.capture(parsedEventAction, {
       queryParams,
       ...appContext,
       ...traderSettings,
-      ...logData,
+      ...parsedLogData,
       $set: { address: appContext?.address ?? 'disconnected' },
     })
   } catch (e) {
