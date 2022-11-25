@@ -1,4 +1,5 @@
 import Box from '@lyra/ui/components/Box'
+import Flex from '@lyra/ui/components/Flex'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
 import Token from '@lyra/ui/components/Token'
@@ -6,7 +7,14 @@ import { MarginProps } from '@lyra/ui/types'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { CollateralUpdateEvent, Position, SettleEvent, TradeEvent } from '@lyrafinance/lyra-js'
+import {
+  AccountRewardEpoch,
+  AccountRewardEpochTokens,
+  CollateralUpdateEvent,
+  Position,
+  SettleEvent,
+  TradeEvent,
+} from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import filterNulls from '@/app/utils/filterNulls'
@@ -19,6 +27,7 @@ type Props = {
   onClick?: (event: TradeEvent | CollateralUpdateEvent | SettleEvent) => void
   hideOption?: boolean
   pageSize?: number
+  accountRewardEpochs?: AccountRewardEpoch[]
 } & MarginProps
 
 export type TradeEventTableData = TableData<{
@@ -30,6 +39,8 @@ export type TradeEventTableData = TableData<{
   isCall: boolean
   timestamp: number
   premium: number
+  fee: number
+  feeRebate: AccountRewardEpochTokens
   pnl: number
   collateralValue: number
   collateralAmount: number
@@ -37,17 +48,24 @@ export type TradeEventTableData = TableData<{
   isBaseCollateral: boolean
 }>
 
-const TradeEventsTable = ({ events, onClick, hideOption, pageSize = 10 }: Props) => {
+const TradeEventsTable = ({ events, accountRewardEpochs, onClick, hideOption, pageSize = 10 }: Props) => {
   const rows: TradeEventTableData[] = useMemo(() => {
     return events.map(({ event, position }) => {
       const marketName = event.marketName
       const strikePrice = fromBigNumber(event.strikePrice)
       const isCall = event.isCall
       const expiryTimestamp = event.expiryTimestamp
-
+      const accountRewardEpoch = accountRewardEpochs?.find(
+        epoch => epoch.globalEpoch.startTimestamp < event.timestamp && epoch.globalEpoch.endTimestamp >= event.timestamp
+      )
+      let feeRebate: AccountRewardEpochTokens = {
+        op: 0,
+        lyra: 0,
+      }
       let collateralValue = 0
       let collateralAmount = 0
       let premium = 0
+      let fee = 0
       const isBaseCollateral = !!event.isBaseCollateral
       const pnl = fromBigNumber(event.pnl(position))
       let stable: string | undefined
@@ -58,6 +76,8 @@ const TradeEventsTable = ({ events, onClick, hideOption, pageSize = 10 }: Props)
           collateralValue = -fromBigNumber(collateralUpdate.changeValue(position))
           collateralAmount = -fromBigNumber(collateralUpdate.changeAmount(position))
         }
+        fee = fromBigNumber(event.fee)
+        feeRebate = accountRewardEpoch ? accountRewardEpoch.tradingRewardFeeRebates(fee) : feeRebate
       } else if (event instanceof CollateralUpdateEvent) {
         collateralValue = -fromBigNumber(event.changeValue(position))
         collateralAmount = -fromBigNumber(event.changeAmount(position))
@@ -79,6 +99,8 @@ const TradeEventsTable = ({ events, onClick, hideOption, pageSize = 10 }: Props)
         expiryTimestamp,
         isCall,
         premium,
+        fee,
+        feeRebate,
         collateralAmount,
         collateralValue,
         isBaseCollateral,
@@ -87,7 +109,7 @@ const TradeEventsTable = ({ events, onClick, hideOption, pageSize = 10 }: Props)
         onClick: onClick ? () => onClick(event) : undefined,
       }
     })
-  }, [events, onClick])
+  }, [events, accountRewardEpochs, onClick])
 
   const columns = useMemo<TableColumn<TradeEventTableData>[]>(() => {
     return filterNulls([
@@ -190,6 +212,27 @@ const TradeEventsTable = ({ events, onClick, hideOption, pageSize = 10 }: Props)
             {props.cell.value === 0 ? '-' : formatUSD(props.cell.value, { showSign: true })}
           </Text>
         ),
+      },
+      {
+        accessor: 'fee',
+        Header: 'Fees / Rebates',
+        width: 150,
+        Cell: (props: TableCellProps<TradeEventTableData>) => {
+          const lyraFeeRebate = props.row.original.feeRebate.lyra
+          const opFeeRebate = props.row.original.feeRebate.op
+          return (
+            <Flex flexDirection="column">
+              <Text variant="secondary" color={props.cell.value === 0 ? 'secondaryText' : 'text'}>
+                {props.cell.value === 0 ? '-' : formatUSD(props.cell.value, { showSign: false })}
+              </Text>
+              {lyraFeeRebate > 0 || opFeeRebate > 0 ? (
+                <Text variant="small" color="secondaryText">
+                  {formatNumber(lyraFeeRebate)} LYRA / {formatNumber(opFeeRebate)} OP
+                </Text>
+              ) : null}
+            </Flex>
+          )
+        },
       },
       {
         accessor: 'pnl',

@@ -19,6 +19,7 @@ import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import usePositionHistory from '@/app/hooks/position/usePositionHistory'
 import useTradeHistory from '@/app/hooks/position/useTradeHistory'
+import useAccountRewardEpochs from '@/app/hooks/rewards/useAccountRewardEpochs'
 import useQueryParam from '@/app/hooks/url/useQueryParam'
 import getPagePath from '@/app/utils/getPagePath'
 import { getTradeHistoryCSV } from '@/app/utils/getTradeHistoryCSV'
@@ -79,10 +80,12 @@ const DownloadTradeHistory = withSuspense(() => {
 const TradeHistory = withSuspense(
   () => {
     const events = useTradeHistory()
+    const accountRewardEpochs = useAccountRewardEpochs()
     const router = useRouter()
     return events.length > 0 ? (
       <TradeEventsTable
         events={events}
+        accountRewardEpochs={accountRewardEpochs}
         onClick={event => {
           const positionId = event.positionId
           return router.push(

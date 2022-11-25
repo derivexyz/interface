@@ -223,4 +223,14 @@ export class AccountRewardEpoch {
       op: !isIgnored ? mmvRewards.op ?? 0 : 0,
     }
   }
+
+  tradingRewardFeeRebates(fees: number): AccountRewardEpochTokens {
+    const feeProportion = fees / this.accountEpoch.tradingRewards.tradingFees
+    const lyraRebate = this.accountEpoch.tradingRewards.lyraRebate
+    const opRebate = this.accountEpoch.tradingRewards.opRebate
+    return {
+      lyra: lyraRebate === 0 ? 0 : feeProportion * lyraRebate,
+      op: opRebate === 0 ? 0 : feeProportion * opRebate,
+    }
+  }
 }
