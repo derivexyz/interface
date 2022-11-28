@@ -55,7 +55,7 @@ export default function TradeBoardNoticeSection({
         variant="warning"
         description={`The ${market.name} market is ${
           marketLiquidity.utilization === 1 ? 'fully utilized' : 'almost fully utilized'
-        }. When a vault is fully utilized new positions can be opened. Traders can still close their ${
+        }. When a vault is fully utilized new positions cannot be opened. Traders can still close their ${
           market.name
         } positions.`}
         {...marginProps}
