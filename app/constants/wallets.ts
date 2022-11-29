@@ -37,3 +37,36 @@ export const qredo = ({ chains }: WalletOptions): Wallet => ({
     }
   },
 })
+
+export const rabby = ({ chains }: WalletOptions): Wallet => ({
+  id: 'rabby',
+  name: 'Rabby Wallet',
+  iconUrl: getAssetSrc('/images/rabby.jpeg'),
+  downloadUrls: {
+    qrCode: 'https://chrome.google.com/webstore/detail/rabby/acmacodkjbdgmoleebolmdjonilkdbch?hl=en',
+    browserExtension: 'https://chrome.google.com/webstore/detail/rabby/acmacodkjbdgmoleebolmdjonilkdbch?hl=en',
+  },
+  iconBackground: '#e8e8e8',
+  createConnector: () => {
+    const connector = getWalletConnectConnector({ chains })
+    return {
+      connector,
+      mobile: {
+        getUri: async () => (await connector.getProvider()).connector.uri,
+      },
+      qrCode: {
+        getUri: async () => (await connector.getProvider()).connector.uri,
+        instructions: {
+          learnMoreUrl: 'https://rabby.io/',
+          steps: [
+            {
+              description: 'After you scan, a connection prompt will appear for you to connect your wallet.',
+              step: 'scan',
+              title: 'Tap the scan button',
+            },
+          ],
+        },
+      },
+    }
+  },
+})

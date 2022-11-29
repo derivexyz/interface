@@ -12,7 +12,7 @@ import { publicProvider } from 'wagmi/providers/public'
 
 import Avatar from '../components/common/Avatar'
 import { ScreenWalletData } from '../constants/screen'
-import { qredo } from '../constants/wallets'
+import { qredo, rabby } from '../constants/wallets'
 import useQueryParam from '../hooks/url/useQueryParam'
 import useAutoConnect from '../hooks/wallet/useAutoConnect'
 import useWallet from '../hooks/wallet/useWallet'
@@ -44,7 +44,9 @@ const connectors = connectorsForWallets([
       wallet.rainbow({ chains }),
       wallet.imToken({ chains }),
       wallet.trust({ chains }),
+      wallet.brave({ chains }),
       qredo({ chains }),
+      rabby({ chains }),
       wallet.injected({ chains }),
     ],
   },
