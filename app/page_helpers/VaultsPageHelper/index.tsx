@@ -30,7 +30,7 @@ const VaultsPageHelper = ({ market }: Props) => {
       desktopRightColumn={
         <Card overflowY="auto" overflowX="hidden">
           <VaultsDepositAndWithdrawForm
-            marketAddressOrName={market.address}
+            marketAddressOrName={market.name}
             isDeposit={isDeposit}
             onToggleDeposit={setIsDeposit}
           />

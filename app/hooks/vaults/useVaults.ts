@@ -11,6 +11,6 @@ const fetcher = async (): Promise<Vault[]> => {
 const EMPTY: Vault[] = []
 
 export default function useVaults(): Vault[] {
-  const [poolsStats] = useFetch('AllVaults', [], fetcher)
-  return poolsStats ?? EMPTY
+  const [allVaults] = useFetch('AllVaults', [], fetcher)
+  return allVaults ?? EMPTY
 }

@@ -98,7 +98,15 @@ const VaultsIndexMarketsTableDesktop = ({
       {
         accessor: 'apy',
         Header: 'Rewards APY',
-        Cell: ({ cell }: TableCellProps<VaultsIndexMarketsTableData>) => {
+        Cell: ({ cell, row }: TableCellProps<VaultsIndexMarketsTableData>) => {
+          if (row.original.market.toLowerCase() === 'sol') {
+            return (
+              <Text variant="secondary" color="secondaryText">
+                {' '}
+                -{' '}
+              </Text>
+            )
+          }
           return cell.value > 0 ? (
             <VaultAPYTooltip
               alignItems="center"
@@ -147,17 +155,20 @@ const VaultsIndexMarketsTableDesktop = ({
         accessor: 'id',
         Header: '',
         width: 100,
-        Cell: (props: TableCellProps<VaultsIndexMarketsTableData>) => (
-          <Flex justifyContent={'flex-end'} width="100%">
-            <Button
-              variant="primary"
-              label="Deposit"
-              rightIcon={IconType.ArrowRight}
-              href={getPagePath({ page: PageId.Vaults, marketAddressOrName: props.row.original.market })}
-              minWidth={100}
-            />
-          </Flex>
-        ),
+        Cell: (props: TableCellProps<VaultsIndexMarketsTableData>) => {
+          const market = props.row.original.market
+          return (
+            <Flex justifyContent={'flex-end'} width="100%">
+              <Button
+                variant="primary"
+                label={market.toLowerCase() === 'sol' ? 'Vault' : 'Deposit'}
+                rightIcon={IconType.ArrowRight}
+                href={getPagePath({ page: PageId.Vaults, marketAddressOrName: market })}
+                minWidth={100}
+              />
+            </Flex>
+          )
+        },
       },
     ],
     []

@@ -77,21 +77,25 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
         <Text variant="secondary" color="secondaryText" mb={2}>
           APY
         </Text>
-        <VaultAPYTooltip
-          marketName={marketName}
-          opApy={opApy}
-          lyraApy={lyraApy}
-          apyMultiplier={apyMultiplier}
-          stakedLyraBalance={stakedLyraBalance}
-        >
-          <TokenAPYRangeText
-            tokenNameOrAddress={['stkLyra', 'OP']}
-            variant="secondary"
-            color="primaryText"
-            leftValue={formatPercentage(opApy + lyraApy, true)}
-            rightValue={formatPercentage(maxApy, true)}
-          />
-        </VaultAPYTooltip>
+        {marketName.toLowerCase() === 'sol' ? (
+          ' - '
+        ) : (
+          <VaultAPYTooltip
+            marketName={marketName}
+            opApy={opApy}
+            lyraApy={lyraApy}
+            apyMultiplier={apyMultiplier}
+            stakedLyraBalance={stakedLyraBalance}
+          >
+            <TokenAPYRangeText
+              tokenNameOrAddress={['stkLyra', 'OP']}
+              variant="secondary"
+              color="primaryText"
+              leftValue={formatPercentage(opApy + lyraApy, true)}
+              rightValue={formatPercentage(maxApy, true)}
+            />
+          </VaultAPYTooltip>
+        )}
       </Flex>
       {lyraApy > 0 ? (
         <Flex flexDirection="column" justifyContent="space-between">

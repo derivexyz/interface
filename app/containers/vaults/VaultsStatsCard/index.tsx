@@ -73,7 +73,7 @@ const VaultsStatsCard = withSuspense(
             <LabelItem
               label="Rewards APY"
               value={
-                minApy > 0 ? (
+                minApy > 0 && market.name.toLowerCase() !== 'sol' ? (
                   <VaultAPYTooltip
                     mt="auto"
                     alignItems="center"
