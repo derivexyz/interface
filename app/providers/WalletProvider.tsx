@@ -2,7 +2,7 @@ import Button from '@lyra/ui/components/Button'
 import Modal from '@lyra/ui/components/Modal'
 import ModalBody from '@lyra/ui/components/Modal/ModalBody'
 import Text from '@lyra/ui/components/Text'
-import useThemeColor from '@lyra/ui/hooks/useThemeColor'
+import { getThemePreset } from '@lyra/ui/theme'
 import { connectorsForWallets, lightTheme, RainbowKitProvider, wallet } from '@rainbow-me/rainbowkit'
 import nullthrows from 'nullthrows'
 import React, { useEffect, useRef, useState } from 'react'
@@ -12,6 +12,7 @@ import { publicProvider } from 'wagmi/providers/public'
 
 import Avatar from '../components/common/Avatar'
 import { ScreenWalletData } from '../constants/screen'
+import { qredo } from '../constants/wallets'
 import useQueryParam from '../hooks/url/useQueryParam'
 import useAutoConnect from '../hooks/wallet/useAutoConnect'
 import useWallet from '../hooks/wallet/useWallet'
@@ -43,6 +44,8 @@ const connectors = connectorsForWallets([
       wallet.rainbow({ chains }),
       wallet.imToken({ chains }),
       wallet.trust({ chains }),
+      qredo({ chains }),
+      wallet.injected({ chains }),
     ],
   },
 ])
@@ -90,23 +93,23 @@ const WalletScreenModal = (): JSX.Element => {
 
 // Store selected walletType in local browser storage
 export function WalletProvider({ children }: { children: React.ReactNode }): JSX.Element {
-  const primaryText = useThemeColor('primaryText')
-  const errorText = useThemeColor('errorText')
-  const modalBg = useThemeColor('modalBg')
-  const modalOverlayBg = useThemeColor('modalOverlayBg')
-  const text = useThemeColor('text')
-  const secondaryText = useThemeColor('secondaryText')
-  const buttonBg = useThemeColor('buttonBg')
-  const buttonHover = useThemeColor('buttonHover')
-  const primaryButtonBg = useThemeColor('primaryButtonBg')
-  const elevatedShadowBg = useThemeColor('elevatedShadowBg')
-  const white = useThemeColor('white')
+  const lyraThemeLight = getThemePreset(false, true)
+  const text = lyraThemeLight.colors?.text
+  const secondaryText = lyraThemeLight.colors?.secondaryText
+  const primaryText = lyraThemeLight.colors?.primaryText
+  const errorText = lyraThemeLight.colors?.errorText
+  const modalBg = lyraThemeLight.colors?.modalBg
+  const buttonBg = lyraThemeLight.colors?.buttonBg
+  const primaryButtonBg = lyraThemeLight.colors?.primaryButtonBg
+  const buttonHover = lyraThemeLight.colors?.buttonHover
+  const modalOverlayBg = lyraThemeLight.colors?.modalOverlayBg
+  const elevatedShadowBg = lyraThemeLight.colors?.elevatedShadowBg
 
   const theme = mergeDeep(lightTheme(), {
     fonts: { body: 'Inter var' },
     colors: {
       accentColor: primaryText,
-      accentColorForeground: white,
+      accentColorForeground: 'white',
       actionButtonBorder: 'transparent',
       actionButtonBorderMobile: buttonBg,
       actionButtonSecondaryBackground: buttonBg,
@@ -115,8 +118,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }): JSX
       connectButtonBackground: primaryButtonBg,
       connectButtonBackgroundError: primaryButtonBg,
       connectButtonInnerBackground: text,
-      connectButtonText: white,
-      connectButtonTextError: white,
+      connectButtonText: 'white',
+      connectButtonTextError: 'white',
       connectionIndicator: text,
       error: errorText,
       generalBorder: 'transparent',

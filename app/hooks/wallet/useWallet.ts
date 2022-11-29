@@ -64,7 +64,7 @@ export const getNameForWalletType = (walletType: WalletType): string => {
 }
 
 export default function useWallet(): Wallet {
-  const { address, connector, isConnecting } = useAccount()
+  const { address, connector } = useAccount()
   const { isLoading } = useConnect()
   const { chain } = useNetwork()
   const { switchNetworkAsync } = useSwitchNetwork()
@@ -123,7 +123,7 @@ export default function useWallet(): Wallet {
       chainId: chain?.id,
       connector,
       isConnected: !!address && !!connector,
-      isLoading: isLoading || isConnecting,
+      isLoading,
       isOverride: !!seeAddress,
       provider,
       signer,
@@ -138,7 +138,6 @@ export default function useWallet(): Wallet {
       connector,
       chain,
       isLoading,
-      isConnecting,
       seeAddress,
       signer,
       provider,
