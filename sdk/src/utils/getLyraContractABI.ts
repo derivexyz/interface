@@ -6,6 +6,7 @@ import LIQUIDITY_POOL_ABI from '../contracts/abis/LiquidityPool.json'
 import LIQUIDITY_TOKEN_ABI from '../contracts/abis/LiquidityToken.json'
 import LYRA_REGISTRY_ABI from '../contracts/abis/LyraRegistry.json'
 import LYRA_STAKING_MODULE_ABI from '../contracts/abis/LyraStakingModule.json'
+import MULTICALL_3_ABI from '../contracts/abis/Multicall3.json'
 import MULTIDISTRIBUTOR_ABI from '../contracts/abis/MultiDistributor.json'
 import OPTION_GREEK_CACHE_ABI from '../contracts/abis/OptionGreekCache.json'
 import OPTION_MARKET_ABI from '../contracts/abis/OptionMarket.json'
@@ -55,5 +56,7 @@ export default function getLyraContractABI(contractId: LyraContractId | LyraMark
       return ARRAKIS_POOL_ABI
     case LyraContractId.WethLyraStakingRewards:
       return STAKING_REWARDS_ABI
+    case LyraContractId.Multicall3:
+      return MULTICALL_3_ABI
   }
 }

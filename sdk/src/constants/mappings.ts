@@ -4,6 +4,7 @@ import {
   LiquidityToken,
   LyraRegistry,
   LyraStakingModule,
+  Multicall3,
   MultiDistributor,
   OptionGreekCache,
   OptionMarketPricer,
@@ -29,6 +30,7 @@ export type LyraContractReturnType = {
   [LyraContractId.LyraRegistry]: LyraRegistry
   [LyraContractId.ArrakisPool]: ArrakisPool
   [LyraContractId.WethLyraStakingRewards]: StakingRewards
+  [LyraContractId.Multicall3]: Multicall3
 }
 
 export type LyraMarketContractReturnType = {

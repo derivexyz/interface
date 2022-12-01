@@ -24,6 +24,7 @@ const getAddressMap = (deployment: Deployment, contractId: LyraContractId): Reco
     case LyraContractId.MultiDistributor:
     case LyraContractId.ArrakisPool:
     case LyraContractId.WethLyraStakingRewards:
+    case LyraContractId.Multicall3:
       return deployment === Deployment.Testnet
         ? goerliMiscAddressMap
         : deployment === Deployment.Mainnet

@@ -11,6 +11,7 @@ export enum LyraContractId {
   MultiDistributor = 'MultiDistributor',
   ArrakisPool = 'ArrakisPool',
   WethLyraStakingRewards = 'WethLyraStakingRewards',
+  Multicall3 = 'Multicall3',
 }
 
 // Per-market contract name mappings

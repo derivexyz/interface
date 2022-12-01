@@ -26,6 +26,7 @@ import { Position } from '../position'
 import { SettleEvent } from '../settle_event'
 import { TradeEvent } from '../trade_event'
 import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
+import callContractWithMulticall from '../utils/callContractWithMulticall'
 import getERC20Contract from '../utils/getERC20Contract'
 import getLyraContract from '../utils/getLyraContract'
 import getLyraContractAddress from '../utils/getLyraContractAddress'
@@ -324,9 +325,23 @@ export class Account {
       this.lyra.deployment,
       LyraContractId.LyraStakingModuleProxy
     )
-    const [balance, stakingAllowance] = await Promise.all([
-      lyraTokenContract.balanceOf(this.address),
-      lyraTokenContract.allowance(this.address, lyraStakingModuleProxyAddress),
+    const balanceOfCallData = lyraTokenContract.interface.encodeFunctionData('balanceOf', [this.address])
+    const allowanceCallData = lyraTokenContract.interface.encodeFunctionData('allowance', [
+      this.address,
+      lyraStakingModuleProxyAddress,
+    ])
+
+    const [[balance], [stakingAllowance]] = await callContractWithMulticall<[[BigNumber], [BigNumber]]>(this.lyra, [
+      {
+        callData: balanceOfCallData,
+        contract: lyraTokenContract,
+        functionFragment: 'balanceOf',
+      },
+      {
+        callData: allowanceCallData,
+        contract: lyraTokenContract,
+        functionFragment: 'allowance',
+      },
     ])
     return {
       balance,

@@ -2,6 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 
 import { LyraContractId } from '../constants/contracts'
 import Lyra from '../lyra'
+import callContractWithMulticall from '../utils/callContractWithMulticall'
 import fetchLyraTokenSpotPrice from '../utils/fetchLyraTokenSpotPrice'
 import getLyraContract from '../utils/getLyraContract'
 
@@ -35,13 +36,30 @@ export class LyraStaking {
       lyra.deployment,
       LyraContractId.LyraStakingModuleProxy
     )
-    // TODO: @DillonLin Implement with multicall
-    const [cooldownPeriod, unstakeWindow, totalSupply, lyraPrice] = await Promise.all([
-      lyraStakingModuleContract.COOLDOWN_SECONDS(),
-      lyraStakingModuleContract.UNSTAKE_WINDOW(),
-      lyraStakingModuleContract.totalSupply(),
-      fetchLyraTokenSpotPrice(lyra),
+    const cooldownPeriodCallData = lyraStakingModuleContract.interface.encodeFunctionData('COOLDOWN_SECONDS')
+    const unstakeWindowCallData = lyraStakingModuleContract.interface.encodeFunctionData('UNSTAKE_WINDOW')
+    const totalSupplyCallData = lyraStakingModuleContract.interface.encodeFunctionData('totalSupply')
+    const [[cooldownPeriod], [unstakeWindow], [totalSupply]] = await callContractWithMulticall<
+      [[BigNumber], [BigNumber], [BigNumber]]
+    >(lyra, [
+      {
+        callData: cooldownPeriodCallData,
+        contract: lyraStakingModuleContract,
+        functionFragment: 'COOLDOWN_SECONDS',
+      },
+      {
+        callData: unstakeWindowCallData,
+        contract: lyraStakingModuleContract,
+        functionFragment: 'UNSTAKE_WINDOW',
+      },
+      {
+        callData: totalSupplyCallData,
+        contract: lyraStakingModuleContract,
+        functionFragment: 'totalSupply',
+      },
     ])
+
+    const lyraPrice = await fetchLyraTokenSpotPrice(lyra)
     return new LyraStaking(lyra, {
       cooldownPeriod: cooldownPeriod.toNumber(),
       unstakeWindow: unstakeWindow.toNumber(),
