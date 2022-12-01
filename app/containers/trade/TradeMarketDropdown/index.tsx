@@ -46,6 +46,7 @@ const TradeMarketDropdown = withSuspense(
             onClick={() => {
               logEvent(LogEvent.BoardMarketSelect, { marketName: market.name, marketAddress: market.address })
               onChangeMarket(market)
+              onClose()
             }}
             key={market.address}
             isSelected={isMarketEqual(market, selectedMarket.address)}
