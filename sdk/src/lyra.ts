@@ -231,10 +231,6 @@ export default class Lyra {
     return await LiquidityDeposit.getByOwner(this, marketAddressOrName, owner)
   }
 
-  async liquidityDeposit(marketAddressOrName: string, id: string): Promise<LiquidityDeposit> {
-    return await LiquidityDeposit.getByQueueId(this, marketAddressOrName, id)
-  }
-
   async deposit(
     beneficiary: string,
     marketAddressOrName: string,
@@ -247,10 +243,6 @@ export default class Lyra {
 
   async liquidityWithdrawals(marketAddressOrName: string, owner: string): Promise<LiquidityWithdrawal[]> {
     return await LiquidityWithdrawal.getByOwner(this, marketAddressOrName, owner)
-  }
-
-  async liquidityWithdrawal(marketAddressOrName: string, id: string): Promise<LiquidityWithdrawal> {
-    return await LiquidityWithdrawal.getByQueueId(this, marketAddressOrName, id)
   }
 
   async withdraw(

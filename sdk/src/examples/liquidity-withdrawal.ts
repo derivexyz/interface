@@ -2,7 +2,7 @@ import yargs from 'yargs'
 
 import getLyra from './utils/getLyra'
 
-export default async function liquidityWithdrawal(argv: string[]) {
+export default async function liquidityWithdrawals(argv: string[]) {
   const lyra = getLyra()
   const args = await yargs(argv).options({
     market: { type: 'string', alias: 'm', require: true },
