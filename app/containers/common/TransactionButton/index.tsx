@@ -6,11 +6,13 @@ import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import React, { useState } from 'react'
 import { SxStyleProp } from 'rebass'
 
+import { FeatureFlag } from '@/app/constants/featureFlag'
 import { TERMS_OF_USE_URL } from '@/app/constants/links'
 import { LOCAL_STORAGE_TERMS_OF_USE_KEY } from '@/app/constants/localStorage'
 import { TransactionType } from '@/app/constants/screen'
 import TermsOfUseModal from '@/app/containers/common/TermsOfUseModal'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useFeatureFlags from '@/app/hooks/feature_flag/useFeatureFlags'
 import useLocalStorage from '@/app/hooks/local_storage/useLocalStorage'
 import useIsReady from '@/app/hooks/wallet/useIsReady'
 import useScreenTransaction from '@/app/hooks/wallet/useScreenTransaction'
@@ -39,7 +41,8 @@ const TransactionButton = withSuspense(
       const [isTermsOpen, setIsTermsOpen] = useState(false)
       const screenData = useScreenTransaction(transactionType)
       const isReady = useIsReady()
-
+      const featureFlags = useFeatureFlags()
+      const isFeatureFlagEnabled = !featureFlags[FeatureFlag.DisableTransactions][transactionType]
       return (
         <Box sx={sx}>
           {isScreeningEnabled() && (!screenData || screenData.isBlocked) ? (
@@ -67,6 +70,13 @@ const TransactionButton = withSuspense(
               }
             />
           ) : null}
+          {isFeatureFlagEnabled ? null : (
+            <Alert
+              variant="error"
+              mb={3}
+              description={`Transaction type: ${transactionType} has been temporarily disabled.`}
+            />
+          )}
           {!isReady ? <ConnectWalletButton mb={3} width="100%" size={buttonProps.size} /> : null}
           {!hideIfNotReady || (isReady && hideIfNotReady) ? (
             <>
@@ -86,7 +96,7 @@ const TransactionButton = withSuspense(
                   }
                 }}
                 ref={ref}
-                isDisabled={!isReady || !screenData || screenData?.isBlocked || isDisabled}
+                isDisabled={!isReady || !screenData || screenData?.isBlocked || isDisabled || !isFeatureFlagEnabled}
               />
             </>
           ) : null}
