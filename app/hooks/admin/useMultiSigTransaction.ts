@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { getLyraContract, getLyraContractAddress, LyraContractId } from '@lyrafinance/lyra-js'
+import { LyraContractId } from '@lyrafinance/lyra-js'
 import { hexlify } from 'ethers/lib/utils'
 import { useCallback } from 'react'
 
@@ -42,6 +42,7 @@ export type AddStrikeToBoardTransaction = MultiSigTransaction & {
 }
 
 const fetcher = async (owner: string, transactionId: BigNumber) => {
+  const admin = lyra.admin()
   const multiSigWallet = getMultiSigWalletContract(owner)
   const transaction = await multiSigWallet.transactions(transactionId)
   const markets = await lyra.markets()
@@ -73,12 +74,12 @@ const fetcher = async (owner: string, transactionId: BigNumber) => {
   // Check if transaction was any other known contract call
   const contractIdAndAddress = Object.values(LyraContractId)
     .filter(c => c !== LyraContractId.TestFaucet)
-    .map(contractId => ({ contractId, address: getLyraContractAddress(lyra.deployment, contractId) }))
+    .map(contractId => ({ contractId, address: admin.getLyraContractAddress(contractId) }))
     .find(contractIdAndAddress => contractIdAndAddress.address === transaction.destination)
 
   if (contractIdAndAddress) {
     const { contractId } = contractIdAndAddress
-    const contract = getLyraContract(lyra.provider, lyra.deployment, contractId)
+    const contract = admin.getLyraContract(contractId)
     const fragment = contract.interface.getFunction(method)
     const decodedData = contract.interface.decodeFunctionData(method, transaction.data)
     return {

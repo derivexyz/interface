@@ -2,7 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
 
 import Lyra, {
-  getLyraContractABI,
   LyraMarketContractId,
   TradeEvent,
   TradeEventListener,
@@ -11,6 +10,7 @@ import Lyra, {
 } from '..'
 import { ZERO_ADDRESS } from '../constants/bn'
 import { OptionMarket, TradeEvent as ContractTradeEvent } from '../contracts/typechain/OptionMarket'
+import getLyraContractABI from './getLyraContractABI'
 import getMarketAddresses from './getMarketAddresses'
 
 const DEFAULT_POLL_INTERVAL = 10 * 1000

@@ -1,6 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
 import Lyra, { LyraMarketContractId, LyraMarketContractReturnType, MarketContractAddresses } from '@lyrafinance/lyra-js'
-import { getLyraContractABI } from '@lyrafinance/lyra-js'
 
 export default function getLyraMarketContractFromAddress<T extends LyraMarketContractId>(
   lyra: Lyra,
@@ -44,7 +43,7 @@ export default function getLyraMarketContractFromAddress<T extends LyraMarketCon
   if (!contractId) {
     return null
   }
-  const abi = getLyraContractABI(contractId)
+  const abi = lyra.admin().getLyraContractABI(contractId)
   return {
     contractId,
     contract: new Contract(address, abi, lyra.provider) as LyraMarketContractReturnType[T],

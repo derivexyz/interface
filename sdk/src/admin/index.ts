@@ -1,11 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { PopulatedTransaction } from '@ethersproject/contracts'
+import { ContractInterface, PopulatedTransaction } from '@ethersproject/contracts'
 
 import Lyra, { LyraRegistry, OptionMarketViewer } from '..'
-import { LyraContractId } from '../constants/contracts'
+import { LyraContractId, LyraMarketContractId } from '../constants/contracts'
 import buildTx from '../utils/buildTx'
 import getGlobalOwner from '../utils/getGlobalOwner'
 import getLyraContract from '../utils/getLyraContract'
+import getLyraContractABI from '../utils/getLyraContractABI'
+import getLyraContractAddress from '../utils/getLyraContractAddress'
 
 export class Admin {
   private lyra: Lyra
@@ -16,6 +18,16 @@ export class Admin {
 
   static get(lyra: Lyra): Admin {
     return new Admin(lyra)
+  }
+
+  getLyraContractABI(contractId: LyraContractId | LyraMarketContractId): ContractInterface {
+    return getLyraContractABI(contractId)
+  }
+  getLyraContractAddress(contractId: LyraContractId): ContractInterface {
+    return getLyraContractAddress(this.lyra.deployment, contractId)
+  }
+  getLyraContract(contractId: LyraContractId) {
+    return getLyraContract(this.lyra.provider, this.lyra.deployment, contractId)
   }
 
   async globalOwner(): Promise<string> {

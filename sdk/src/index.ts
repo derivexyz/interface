@@ -22,8 +22,5 @@ export * from './account_reward_epoch'
 export * from './contracts/typechain'
 export * from './constants/contracts'
 export * from './constants/mappings'
-export { default as getLyraContractABI } from './utils/getLyraContractABI'
-export { default as getLyraContractAddress } from './utils/getLyraContractAddress'
-export { default as getLyraContract } from './utils/getLyraContract'
 import Lyra from './lyra'
 export default Lyra
