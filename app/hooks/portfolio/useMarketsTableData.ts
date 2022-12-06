@@ -18,7 +18,7 @@ export type MarketTableData = {
 const fetcher = async (): Promise<MarketTableData[]> => {
   const toTimestamp = Math.floor(new Date().getTime() / 1000)
   const startTimestamp = toTimestamp - 30 * 24 * 60 * 60
-  const markets = await lyra.markets()
+  const markets = (await lyra.markets()).filter(market => market.liveBoards().length > 0)
   const marketNames = markets.map(market => market.name)
 
   // TODO: @dappbeast Replace with SDK spot price feed
