@@ -8,9 +8,10 @@ export default async function approve(market: Market, stableToken: string): Prom
   const signer = getSigner(lyra)
 
   const account = lyra.account(signer.address)
-  const balances = await account.balances()
+  const marketBalance = await account.marketBalances(market.address)
+  const quoteAsset = await account.quoteAsset(market.address, stableToken)
 
-  if (balances.stable(stableToken).allowance.isZero()) {
+  if (quoteAsset.tradeAllowance.isZero()) {
     console.log('approving quote...')
     const tx = await account.approveStableToken(stableToken, MAX_BN)
     if (!tx) {
@@ -21,7 +22,7 @@ export default async function approve(market: Market, stableToken: string): Prom
     console.log('approved quote')
   }
 
-  if (balances.base(market.address).allowance.isZero()) {
+  if (marketBalance.baseAsset.tradeAllowance.isZero()) {
     console.log('approving base...')
     const tx = await account.approveBaseToken(market.address, MAX_BN)
     if (!tx) {
@@ -32,7 +33,7 @@ export default async function approve(market: Market, stableToken: string): Prom
     console.log('approved base')
   }
 
-  if (!balances.optionToken(market.address).isApprovedForAll) {
+  if (!marketBalance.optionToken.isApprovedForAll) {
     console.log('approving option token...')
     const tx = await account.approveOptionToken(market.address, true)
     if (!tx) {

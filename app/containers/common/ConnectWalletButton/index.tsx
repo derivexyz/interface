@@ -8,6 +8,7 @@ import withSuspense from '@/app/hooks/data/withSuspense'
 import useQueryParam from '@/app/hooks/url/useQueryParam'
 import useWallet from '@/app/hooks/wallet/useWallet'
 import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
+import getChainForChainId from '@/app/utils/getChainForChainId'
 import getNetworkConfig from '@/app/utils/getNetworkConfig'
 import getOptimismChainId from '@/app/utils/getOptimismChainId'
 import logEvent from '@/app/utils/logEvent'
@@ -34,6 +35,7 @@ const ConnectWalletButton = withSuspense(
     const [_, setSeeAddress] = useQueryParam('see')
 
     const targetChainId = getOptimismChainId()
+    const targetChain = getChainForChainId(targetChainId)
     const isWrongNetwork = isConnected && walletChainId !== targetChainId
 
     const [isConnectModalOpen, setIsConnectModalOpen] = useState(false)
@@ -56,7 +58,7 @@ const ConnectWalletButton = withSuspense(
     if (isOverride && account) {
       buttonLabel = `Watching ${formatTruncatedAddress(account)}`
     } else if (isWrongNetwork) {
-      buttonLabel = `Switch to ${getNetworkConfig(targetChainId).shortName}`
+      buttonLabel = `Switch to ${getNetworkConfig(targetChain).shortName}`
     } else if (!isConnected) {
       buttonLabel = 'Connect Wallet'
     }

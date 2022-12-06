@@ -5,7 +5,9 @@ import { Board } from '../board'
 import { ZERO_BN } from '../constants/bn'
 import { DataSource } from '../constants/contracts'
 import { SnapshotOptions } from '../constants/snapshots'
-import Lyra from '../lyra'
+import { OptionMarketViewer as OptionMarketViewerAvalon } from '../contracts/avalon/typechain'
+import { OptionMarketViewer } from '../contracts/newport/typechain'
+import Lyra, { Version } from '../lyra'
 import { Market } from '../market'
 import { Quote, QuoteOptions } from '../quote'
 import { Strike } from '../strike'
@@ -36,9 +38,9 @@ export type OptionQuotes = {
 }
 
 export class Option {
-  private lyra: Lyra
   private __strike: Strike
   __source = DataSource.ContractCall
+  lyra: Lyra
   block: Block
   isCall: boolean
   price: BigNumber
@@ -54,7 +56,7 @@ export class Option {
     this.__strike = strike
     this.block = block
     this.isCall = isCall
-    const fields = Option.getFields(strike, isCall)
+    const fields = Option.getFields(lyra.version, strike, isCall)
     this.price = fields.price
     this.longOpenInterest = fields.longOpenInterest
     this.shortOpenInterest = fields.shortOpenInterest
@@ -66,6 +68,7 @@ export class Option {
 
   // TODO: @dappbeast Remove getFields
   static getFields(
+    version: Version,
     strike: Strike,
     isCall: boolean
   ): {
@@ -100,9 +103,18 @@ export class Option {
         ? strikeView.shortCallBaseOpenInterest.add(strikeView.shortCallQuoteOpenInterest)
         : strikeView.shortPutOpenInterest
 
-      const spotPrice = fromBigNumber(marketView.exchangeParams.spotPrice)
+      const spotPrice = fromBigNumber(
+        version === Version.Avalon
+          ? (marketView as OptionMarketViewerAvalon.MarketViewWithBoardsStructOutput).exchangeParams.spotPrice
+          : (marketView as OptionMarketViewer.MarketViewWithBoardsStructOutput).spotPrice
+      )
       const strikePriceNum = fromBigNumber(strikeView.strikePrice)
-      const rate = fromBigNumber(marketView.marketParameters.greekCacheParams.rateAndCarry)
+      const rate = fromBigNumber(
+        version === Version.Avalon
+          ? (marketView as OptionMarketViewerAvalon.MarketViewWithBoardsStructOutput).marketParameters.greekCacheParams
+              .rateAndCarry
+          : (marketView as OptionMarketViewer.MarketViewWithBoardsStructOutput).rateAndCarry
+      )
       const strikeIV = fromBigNumber(strike.iv)
 
       const price = toBigNumber(

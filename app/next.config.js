@@ -5,6 +5,9 @@ const withTM = require('next-transpile-modules')(['@lyrafinance/lyra-js', '@lyra
 module.exports = withBundleAnalyzer(
   withTM({
     trailingSlash: true,
+    experimental: {
+      esmExternals: false,
+    },
     rewrites: async () => {
       if (process.env.GLOBAL_REWRITE) {
         console.log('Enabling global rewrite to', process.env.GLOBAL_REWRITE)

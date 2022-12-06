@@ -35,7 +35,7 @@ const VaultsIndexMyLiquidityCard = withSuspense(({ ...styleProps }: Props) => {
   }, [vaultBalances])
 
   const totalLiquidityBalance = useMemo(() => {
-    return vaultBalances.reduce((sum, b) => b.balance.balance.add(sum), ZERO_BN)
+    return vaultBalances.reduce((sum, b) => b.balances.liquidityToken.balance.add(sum), ZERO_BN)
   }, [vaultBalances])
 
   if (totalLiquidityBalance.isZero() && liquidityDeposits.length === 0 && liquidityWithdrawals.length === 0) {

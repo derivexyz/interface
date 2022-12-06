@@ -19,6 +19,7 @@ import { BoardParams, Market } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
 
 import { UNIT, ZERO_BN } from '@/app/constants/bn'
+import useAdmin from '@/app/hooks/admin/useAdmin'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
 import useWallet from '@/app/hooks/wallet/useWallet'
@@ -44,6 +45,7 @@ type ListingWithIv = TableData<
 const AdminMarketAddBoard = withSuspense(
   ({ market, owner, onAddBoard }: Props) => {
     const { isConnected, account } = useWallet()
+    const admin = useAdmin()
     const [isOpen, setIsOpen] = useState(false)
     const [expiry, setExpiry] = useState<string>('')
     const [baseIv, setBaseIv] = useState<BigNumber>(ZERO_BN)
@@ -185,12 +187,13 @@ const AdminMarketAddBoard = withSuspense(
               variant="primary"
               label="Add Board"
               leftIcon={IconType.Plus}
-              onClick={() => {
-                if (!market || !account) {
+              onClick={async () => {
+                if (!account || !admin) {
                   return
                 }
                 setIsLoading(true)
-                const { tx, board } = market.addBoard(
+                const { tx, board } = await admin.addBoard(
+                  market.address,
                   account,
                   !isNaN(parseInt(expiry)) ? BigNumber.from(parseInt(expiry)) : ZERO_BN,
                   baseIv,

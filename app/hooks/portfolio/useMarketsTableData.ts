@@ -19,17 +19,17 @@ const fetcher = async (): Promise<MarketTableData[]> => {
   const toTimestamp = Math.floor(new Date().getTime() / 1000)
   const startTimestamp = toTimestamp - 30 * 24 * 60 * 60
   const markets = (await lyra.markets()).filter(market => market.liveBoards().length > 0)
-  const marketNames = markets.map(market => market.name)
+  const marketBaseTokens = markets.map(market => market.baseToken.symbol)
 
   // TODO: @dappbeast Replace with SDK spot price feed
   const marketsSpotPriceHistory = await Promise.all(
-    marketNames.map(async name => {
+    marketBaseTokens.map(async synth => {
       const variables: CandleQueryVariables = {
         first: 1,
         orderBy: 'timestamp',
         orderDirection: 'asc',
         where: {
-          synth: `s${name}`,
+          synth,
           timestamp_gte: toTimestamp - 24 * 60 * 60, // 1 day ago
           timestamp_lt: toTimestamp,
         },
@@ -39,14 +39,14 @@ const fetcher = async (): Promise<MarketTableData[]> => {
         variables: variables,
         fetchPolicy: 'cache-first',
       })
-      return { name, candles: data.candles }
+      return { synth, candles: data.candles }
     })
   )
 
   const marketData = await Promise.all(
     markets.map(async market => {
       const spotPriceHistory = marketsSpotPriceHistory.find(
-        history => history.name.toLowerCase() === market.name.toLowerCase()
+        history => history.synth.toLowerCase() === market.baseToken.symbol.toLowerCase()
       )
       const spotPrice = fromBigNumber(market.spotPrice)
       const spotPrice1dAgo = parseFloat(spotPriceHistory?.candles[0].close ?? '0')

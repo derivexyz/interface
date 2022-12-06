@@ -15,6 +15,7 @@ import { Market, OptionMarketParams } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
+import useAdmin from '@/app/hooks/admin/useAdmin'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarketOwner from '@/app/hooks/market/useMarketOwner'
 import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
@@ -33,6 +34,7 @@ const zeroDecimalKeys: (keyof OptionMarketParams)[] = ['maxBoardExpiry']
 const AdminMarketOptionMarketParams = withSuspense(
   ({ market, isExpanded, onClickExpand, onParamUpdate }: Props) => {
     const { account, isConnected } = useWallet()
+    const admin = useAdmin()
     const owner = useMarketOwner(market.name)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
     const [params, setParams] = useState<Partial<OptionMarketParams>>({})
@@ -100,11 +102,11 @@ const AdminMarketOptionMarketParams = withSuspense(
                 isDisabled={!isConnected}
                 isLoading={isLoading}
                 onClick={async () => {
-                  if (!account) {
+                  if (!account || !admin) {
                     return
                   }
                   setIsLoading(true)
-                  const { tx, params: newParams } = await market.setOptionMarketParams(account, params)
+                  const { tx, params: newParams } = await admin.setOptionMarketParams(market, account, params)
                   setIsLoading(false)
                   setNewParams(newParams)
                   setTx(tx)

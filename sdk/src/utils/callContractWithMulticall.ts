@@ -16,7 +16,7 @@ export default async function callContractWithMulticall<MulticallResponse>(
   lyra: Lyra,
   multicallData: MulticallData[]
 ): Promise<MulticallResponse> {
-  const multicall3Contract = getLyraContract(lyra.provider, lyra.deployment, LyraContractId.Multicall3)
+  const multicall3Contract = getLyraContract(lyra, LyraContractId.Multicall3)
   const calls = multicallData.map(data => {
     return {
       target: data.contract.address,

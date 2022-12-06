@@ -10,8 +10,10 @@ import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import React from 'react'
 
-import MarketLabel from '../MarketLabel'
+import { UNIT } from '@/app/constants/bn'
+
 import VaultAPYTooltip from '../VaultAPYTooltip'
+import VaultLabel from '../VaultLabel'
 import { VaultsMyLiquidityBalancesTableOrListProps } from '.'
 
 const VaultsMyLiquidityBalancesListMobile = ({
@@ -22,18 +24,19 @@ const VaultsMyLiquidityBalancesListMobile = ({
   return (
     <List {...styleProps}>
       {vaultBalances.map(vaultBalance => {
-        const { balance, myApy, myApyMultiplier } = vaultBalance
+        const { market, balances, myApy, myApyMultiplier, marketLiquidity } = vaultBalance
+        const value = marketLiquidity.tokenPrice.mul(balances.liquidityToken.balance).div(UNIT)
         return (
           <ListItem
-            key={balance.market.address}
-            label={<MarketLabel marketName={balance.market.name} />}
+            key={market.address}
+            label={<VaultLabel marketName={market.baseToken.symbol} />}
             rightContent={
               <Flex alignItems="center">
                 <Box>
                   <Text textAlign="right" variant="secondary">
-                    {formatTruncatedUSD(balance.value)} Bal.
+                    {formatTruncatedUSD(value)} Bal.
                   </Text>
-                  <VaultAPYTooltip marketName={balance.market.name} opApy={myApy.op} lyraApy={myApy.lyra}>
+                  <VaultAPYTooltip marketName={market.name} opApy={myApy.op} lyraApy={myApy.lyra}>
                     <Text ml={1} variant="small" color="primaryText">
                       {formatPercentage(myApy.total, true)} APY{' '}
                       {myApyMultiplier > 1 ? `(${formatNumber(myApyMultiplier)}x)` : ''}

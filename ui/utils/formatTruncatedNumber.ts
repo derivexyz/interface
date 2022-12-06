@@ -3,9 +3,9 @@ import { BigNumber } from '@ethersproject/bignumber'
 import formatNumber from './formatNumber'
 import fromWei from './fromWei'
 
-const BILLION = Math.pow(10, 9)
-const MILLION = Math.pow(10, 6)
-const THOUSAND = Math.pow(10, 3)
+const BILLION = Math.pow(10, 9) - Math.pow(10, 7)
+const MILLION = Math.pow(10, 6) - Math.pow(10, 4)
+const THOUSAND = Math.pow(10, 3) - Math.pow(10, 1)
 
 export default function formatTruncatedNumber(value: BigNumber | number) {
   let val = 0

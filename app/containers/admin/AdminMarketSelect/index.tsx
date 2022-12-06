@@ -57,12 +57,11 @@ const AdminMarketSelect = withSuspense(
               href={getPagePath({ page: PageId.Admin })}
             />
             {markets.map(market => {
-              const fullName = getMarketDisplayName(market.baseToken.symbol)
               return (
                 <DropdownButtonListItem
                   key={market.address}
                   isSelected={selectedMarket?.address === market.address}
-                  label={fullName}
+                  label={market.name}
                   icon={<MarketImage size={28} name={market.name} />}
                   href={getPagePath({ page: PageId.AdminMarket, marketAddressOrName: market.name })}
                 />

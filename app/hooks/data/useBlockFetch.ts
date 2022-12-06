@@ -1,6 +1,6 @@
+import { Network } from '@lyrafinance/lyra-js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Network } from '../../constants/networks'
 import useFetch, { FetchArg, FetchConfig, Fetcher, FetchResponse, useMutate } from './useFetch'
 
 const getFetchKey = (network: Network, queryId: string) => ['__web3__', network, queryId].join('-')

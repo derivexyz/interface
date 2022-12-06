@@ -14,8 +14,8 @@ import { VaultsIndexMarketsTableOrListProps } from '@/app/components/vaults_inde
 import { PageId } from '@/app/constants/pages'
 import getPagePath from '@/app/utils/getPagePath'
 
-import MarketLabel from '../../common/MarketLabel'
 import VaultAPYTooltip from '../../common/VaultAPYTooltip'
+import VaultLabel from '../../common/VaultLabel'
 
 const VaultsIndexMarketsTableMobile = ({ vaults, ...styleProps }: VaultsIndexMarketsTableOrListProps): ListElement => {
   const router = useRouter()
@@ -26,7 +26,7 @@ const VaultsIndexMarketsTableMobile = ({ vaults, ...styleProps }: VaultsIndexMar
         return (
           <ListItem
             key={market.address}
-            label={<MarketLabel marketName={market.name} />}
+            label={<VaultLabel marketName={market.baseToken.symbol} />}
             onClick={() => {
               router.push(getPagePath({ page: PageId.Vaults, marketAddressOrName: market.name }))
             }}

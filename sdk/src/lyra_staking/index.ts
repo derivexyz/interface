@@ -31,11 +31,7 @@ export class LyraStaking {
   // Getters
 
   static async get(lyra: Lyra): Promise<LyraStaking> {
-    const lyraStakingModuleContract = getLyraContract(
-      lyra.provider,
-      lyra.deployment,
-      LyraContractId.LyraStakingModuleProxy
-    )
+    const lyraStakingModuleContract = getLyraContract(lyra, LyraContractId.LyraStakingModuleProxy)
     const cooldownPeriodCallData = lyraStakingModuleContract.interface.encodeFunctionData('COOLDOWN_SECONDS')
     const unstakeWindowCallData = lyraStakingModuleContract.interface.encodeFunctionData('UNSTAKE_WINDOW')
     const totalSupplyCallData = lyraStakingModuleContract.interface.encodeFunctionData('totalSupply')

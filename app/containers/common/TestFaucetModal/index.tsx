@@ -11,16 +11,17 @@ import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatUSD from '@lyra/ui/utils/formatUSD'
+import { AccountQuoteBalance, Network } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
-import { DEFAULT_MARKET } from '@/app/constants/defaults'
+import { getDefaultMarket } from '@/app/constants/defaults'
 import { OPTIMISM_FAUCET } from '@/app/constants/links'
-import { Network } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import useEthBalance from '@/app/hooks/erc20/useEthBalance'
 import useBalances, { useMutateBalances } from '@/app/hooks/market/useBalances'
 import useMarket from '@/app/hooks/market/useMarket'
+import useMarketBalances from '@/app/hooks/market/useMarketBalances'
 import useWalletAccount from '@/app/hooks/wallet/useWalletAccount'
 import getOptimismExplorerUrl from '@/app/utils/getOptimismExplorerUrl'
 import lyra from '@/app/utils/lyra'
@@ -54,8 +55,8 @@ const FaucetETHBalance = withSuspense(
 
 const FaucetSUSDBalance = withSuspense(
   () => {
-    const market = useMarket(DEFAULT_MARKET)
-    const quoteToken = useBalances().stable('sUSD')
+    const market = useMarket(getDefaultMarket(Network.Optimism))
+    const quoteToken = useMarketBalances(market?.address ?? '')?.quoteAsset
     const susdBalanceNum = formatUSD(quoteToken?.balance ?? ZERO_BN)
     if (!market) {
       return null
@@ -78,17 +79,16 @@ const FaucetSUSDBalance = withSuspense(
 
 const FaucetSETHBalance = withSuspense(
   () => {
-    const market = useMarket(DEFAULT_MARKET)
-    const balances = useBalances()
+    const market = useMarket(getDefaultMarket(Network.Optimism))
+    const marketBalance = useMarketBalances(market?.address ?? '')
     if (!market) {
       return null
     }
-    const baseBalance = balances.base(market.baseToken.symbol).balance
-    const sethBalanceNum = formatNumber(baseBalance, { maxDps: 4 })
+    const sethBalanceNum = formatNumber(marketBalance?.baseAsset.balance ?? ZERO_BN, { maxDps: 4 })
     return (
       <Button
         leftIcon={<TokenImage nameOrAddress={market.baseToken.symbol} />}
-        rightIcon={baseBalance.gt(0) ? IconType.Check : null}
+        rightIcon={marketBalance?.baseAsset.balance.gt(0) ? IconType.Check : null}
         label={`${sethBalanceNum} sETH`}
         variant="light"
         size="large"
@@ -107,7 +107,13 @@ const ClaimButton = withSuspense(
     const [isClaimLoading, setIsClaimLoading] = useState(false)
     const executeTransaction = useTransaction()
     const ethBalance = useEthBalance(Network.Optimism)
-    const hasStables = useBalances().stables.some(stable => stable.balance?.gt(0))
+    const balances = useBalances()
+    const quoteBalances: AccountQuoteBalance[] = balances.reduce(
+      (quoteBalances, balance) => [...quoteBalances, ...balance.quoteSwapAssets],
+      [] as AccountQuoteBalance[]
+    )
+    const hasStables = quoteBalances.some(stable => stable.balance?.gt(0))
+
     const mutate = useMutateBalances()
 
     const claim = async () => {

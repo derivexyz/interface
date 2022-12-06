@@ -33,7 +33,7 @@ const AdminMarketPauseButton = withSuspense(({ market, owner }: Props) => {
             return
           }
           setIsLoading(true)
-          const tx = await admin.setMarketPaused(account, market.address, !isPaused)
+          const tx = admin.setMarketPaused(account, market.address, !isPaused)
           if (tx) {
             execute(tx, {
               onComplete: () => {

@@ -5,8 +5,8 @@ import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React, { useState } from 'react'
 
-import { EthereumChainId } from '@/app/constants/networks'
 import { SOCKET_NATIVE_TOKEN_ADDRESS } from '@/app/constants/token'
+import { MAINNET_NETWORK_CONFIG } from '@/app/utils/mainnetProvider'
 
 import SocketBridge from '../../../components/common/SocketBridge'
 import { OnboardingMethod } from '.'
@@ -55,7 +55,7 @@ export default function OnboardingModalStepOne({
             title={'Bridge'}
             defaultSourceToken={SOCKET_NATIVE_TOKEN_ADDRESS}
             defaultDestToken={defaultDestToken}
-            defaultSourceNetwork={EthereumChainId.Mainnet}
+            defaultSourceNetwork={MAINNET_NETWORK_CONFIG.chainId}
           />
         </Flex>
       ) : null}

@@ -17,13 +17,14 @@ import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
 import TradeFormSizeInput from '@/app/containers/trade/TradeForm/TradeFormSizeInput'
 import TradeFormStableSelector from '@/app/containers/trade/TradeForm/TradeFormStableSelector'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useBalances from '@/app/hooks/market/useBalances'
+import useMarketBalances from '@/app/hooks/market/useMarketBalances'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
 import useOpenPositions from '@/app/hooks/position/useOpenPositions'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
 import getDefaultStableAddress from '@/app/utils/getDefaultStable'
 import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
+import isTokenEqual from '@/app/utils/isTokenEqual'
 
 import ShortYieldValue from '../../common/ShortYieldValue'
 import TradeFormButton from './TradeFormButton'
@@ -59,19 +60,21 @@ const TradeForm = withSuspense(
       }
     }, [positionId, openPositions, option])
 
-    const balances = useBalances()
+    const balances = useMarketBalances(option.market().address)
     const market = option.market()
     const isLong = position ? position.isLong : isBuy
 
     // TODO - @michaelxuwu re-enable default stable
     const defaultStableAddress = useMemo(
-      () => (isOptimismMainnet() ? balances.stable('sUSD') : getDefaultStableAddress(balances)),
-      [balances]
+      () => (isOptimismMainnet() ? option.market().quoteToken : getDefaultStableAddress(balances)),
+      [balances, option]
     )
 
     const [isCoveredCall, setIsCoveredCall] = useState(position ? !!position.collateral?.isBase : false)
     const [stableAddress, setStableAddress] = useState<string>(defaultStableAddress.address)
 
+    const quoteBalance = balances.quoteSwapAssets.find(quoteAsset => isTokenEqual(quoteAsset, stableAddress))
+    const baseBalance = balances.baseAsset
     const isBaseCollateral = isCoveredCall
 
     const [size, setSize] = useState<BigNumber>(ZERO_BN)
@@ -117,11 +120,10 @@ const TradeForm = withSuspense(
       isBaseCollateral,
       slippage: SLIPPAGE,
       stableAddress,
-      stableDecimals: balances.stable(stableAddress).decimals,
+      stableDecimals: quoteBalance?.decimals ?? 18,
     })
 
-    const stableBalance = useMemo(() => balances.stable(stableAddress), [balances, stableAddress])
-    const baseBalance = useMemo(() => balances.base(trade.baseToken.address), [balances, trade])
+    const stableBalance = quoteBalance
 
     const pnl = useMemo(() => trade.pnl(), [trade])
 
@@ -155,7 +157,7 @@ const TradeForm = withSuspense(
             label={isBuy ? 'Buy With' : 'Sell With'}
             value={
               <TradeFormStableSelector
-                balances={balances.stables}
+                balances={balances.quoteSwapAssets}
                 stableAddress={stableAddress}
                 onChangeStableAddress={setStableAddress}
                 width="50%"
@@ -231,10 +233,17 @@ const TradeForm = withSuspense(
             label="Balance"
             value={
               isBaseCollateral
-                ? formatBalance(fromBigNumber(baseBalance.balance, baseBalance.decimals), baseBalance.symbol)
-                : formatBalance(fromBigNumber(stableBalance.balance, stableBalance.decimals), stableBalance.symbol, {
-                    showDollars: true,
-                  })
+                ? formatBalance(
+                    fromBigNumber(baseBalance?.balance ?? ZERO_BN, baseBalance?.decimals),
+                    baseBalance?.symbol ?? ''
+                  )
+                : formatBalance(
+                    fromBigNumber(stableBalance?.balance ?? ZERO_BN, stableBalance?.decimals),
+                    stableBalance?.symbol ?? '',
+                    {
+                      showDollars: true,
+                    }
+                  )
             }
             valueColor={'text'}
             textVariant="small"

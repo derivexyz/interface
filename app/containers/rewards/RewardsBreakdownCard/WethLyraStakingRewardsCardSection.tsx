@@ -87,7 +87,13 @@ export default function WethLyraStakingRewardsCardSection() {
         Liquidity providers earn LYRA tokens which can be claimed at any time.
       </Text>
       <Grid sx={{ gridTemplateColumns: `${isMobile ? '1fr' : '1fr 1fr 1fr 1fr'}`, gridColumnGap: 4 }}>
-        <Button label="Stake" size="lg" variant="primary" onClick={() => setIsStakeModalOpen(!isStakeModalOpen)} />
+        <Button
+          label="Stake"
+          mb={isMobile ? 4 : 0}
+          size="lg"
+          variant="primary"
+          onClick={() => setIsStakeModalOpen(!isStakeModalOpen)}
+        />
         <Button label="Unstake" size="lg" onClick={() => setIsUnstakeModalOpen(!isUnstakeModalOpen)} />
       </Grid>
       <WethLyraStakeModal isOpen={isStakeModalOpen} onClose={() => setIsStakeModalOpen(false)} />

@@ -11,6 +11,7 @@ import { Market } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import { UNIT } from '@/app/constants/bn'
+import useAdmin from '@/app/hooks/admin/useAdmin'
 import useGlobalCache, { useMutateGlobalCache } from '@/app/hooks/admin/useGlobalCache'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarketOwner from '@/app/hooks/market/useMarketOwner'
@@ -30,6 +31,7 @@ const QUEUE_LIMIT = 100
 const AdminMarketGuardianProcess = withSuspense(
   ({ market, isExpanded, onClickExpand, onParamUpdate }: Props) => {
     const account = useWalletAccount()
+    const admin = useAdmin()
     const owner = useMarketOwner(market.name)
     const globalCache = useGlobalCache(market.address)
     const mutateGlobalCache = useMutateGlobalCache(market.address)
@@ -81,11 +83,11 @@ const AdminMarketGuardianProcess = withSuspense(
                     isLoading={isDepositsLoading}
                     label={`Process next ${QUEUE_LIMIT} deposits`}
                     onClick={async () => {
-                      if (!account) {
+                      if (!account || !admin) {
                         return
                       }
                       setIsDespositsLoading(true)
-                      const tx = market.processDepositQueue(account, QUEUE_LIMIT)
+                      const tx = admin.processDepositQueue(market, account, QUEUE_LIMIT)
                       if (tx) {
                         execute(tx, {
                           onComplete: () => {
@@ -109,11 +111,11 @@ const AdminMarketGuardianProcess = withSuspense(
                     variant="primary"
                     label={`Process next ${QUEUE_LIMIT} withdrawals`}
                     onClick={async () => {
-                      if (!account) {
+                      if (!account || !admin) {
                         return
                       }
                       setIsWithdrawalsLoading(true)
-                      const tx = market.processWithdrawalQueue(account, QUEUE_LIMIT)
+                      const tx = admin.processWithdrawalQueue(market, account, QUEUE_LIMIT)
                       if (tx) {
                         execute(tx, {
                           onComplete: () => {

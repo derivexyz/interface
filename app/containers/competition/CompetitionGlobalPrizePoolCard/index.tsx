@@ -12,6 +12,7 @@ import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
 import Tooltip from '@lyra/ui/components/Tooltip'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
+import { Network } from '@lyrafinance/lyra-js'
 import { getAddress } from 'ethers/lib/utils'
 import React, { useRef, useState } from 'react'
 import { Card } from 'rebass'
@@ -19,7 +20,7 @@ import { Card } from 'rebass'
 import LabelItem from '@/app/components/common/LabelItem'
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import { CompetitionPool, CompetitionSeasonConfig } from '@/app/constants/competition'
-import { DEFAULT_MARKET } from '@/app/constants/defaults'
+import { getDefaultMarket } from '@/app/constants/defaults'
 import { HOP_URL } from '@/app/constants/links'
 import { PageId } from '@/app/constants/pages'
 import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
@@ -77,7 +78,9 @@ const CompetitionGlobalPrizePoolCard = ({ selectedPool, selectedPoolIdx, selecte
             variant="primary"
             label={selectedPool.isRandom ? 'Bridge on Hop' : 'Start Trading'}
             href={
-              selectedPool.isRandom ? HOP_URL : getPagePath({ page: PageId.Trade, marketAddressOrName: DEFAULT_MARKET })
+              selectedPool.isRandom
+                ? HOP_URL
+                : getPagePath({ page: PageId.Trade, marketAddressOrName: getDefaultMarket(Network.Optimism) })
             }
             target={selectedPool.isRandom ? '_blank' : '_self'}
             rightIcon={selectedPool.isRandom ? IconType.ArrowUpRight : IconType.ArrowRight}

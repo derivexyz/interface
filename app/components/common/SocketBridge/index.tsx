@@ -1,5 +1,6 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import useThemeColor from '@lyra/ui/hooks/useThemeColor'
+import { Chain } from '@lyrafinance/lyra-js'
 import { Currency, Network } from '@socket.tech/plugin'
 import { providers } from 'ethers'
 import dynamic from 'next/dynamic'
@@ -8,7 +9,7 @@ import { SWRConfig } from 'swr'
 import { useSigner } from 'wagmi'
 
 import { LogEvent } from '@/app/constants/logEvents'
-import { OptimismChainId } from '@/app/constants/networks'
+import { NETWORK_CONFIGS } from '@/app/constants/networks'
 import { SOCKET_NATIVE_TOKEN_ADDRESS } from '@/app/constants/token'
 import hexToRGB from '@/app/utils/hexToRGB'
 import logEvent from '@/app/utils/logEvent'
@@ -54,8 +55,8 @@ const SocketBridge = ({
   title = 'Swap or Bridge',
   defaultSourceToken = SOCKET_NATIVE_TOKEN_ADDRESS,
   defaultDestToken,
-  defaultSourceNetwork = OptimismChainId.OptimismMainnet,
-  defaultDestNetwork = OptimismChainId.OptimismMainnet,
+  defaultSourceNetwork = NETWORK_CONFIGS[Chain.Optimism].chainId,
+  defaultDestNetwork = NETWORK_CONFIGS[Chain.Optimism].chainId,
   enableRefuel = true,
 }: Props): JSX.Element => {
   const isMobile = useIsMobile()

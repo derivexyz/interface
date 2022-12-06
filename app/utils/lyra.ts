@@ -2,12 +2,17 @@ import Lyra from '@lyrafinance/lyra-js'
 
 import { NETWORK_CONFIGS } from '../constants/networks'
 import CachedStaticJsonRpcProvider from './CachedStaticJsonRpcProvider'
+import getChainForChainId from './getChainForChainId'
 import getOptimismChainId from './getOptimismChainId'
 
 const optimismChainId = getOptimismChainId()
-const networkConfig = NETWORK_CONFIGS[optimismChainId]
-const optimismProvider = new CachedStaticJsonRpcProvider(networkConfig.readRpcUrls, networkConfig.chainId)
+const optimismNetworkConfig = NETWORK_CONFIGS[getChainForChainId(optimismChainId)]
+const optimismProvider = new CachedStaticJsonRpcProvider(
+  optimismNetworkConfig.readRpcUrls,
+  optimismNetworkConfig.chainId
+)
 const lyra = new Lyra({
   provider: optimismProvider,
 })
+
 export default lyra

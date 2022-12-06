@@ -37,7 +37,7 @@ export default function getLyraMarketContractFromAddress<T extends LyraMarketCon
       contractId = LyraMarketContractId.ShortCollateral
       break
     case 'poolHedger':
-      contractId = LyraMarketContractId.ShortPoolHedger
+      contractId = LyraMarketContractId.PoolHedger
       break
   }
   if (!contractId) {

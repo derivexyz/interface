@@ -1,11 +1,12 @@
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import { IconType } from '@lyra/ui/components/Icon'
 import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
+import { Chain } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { DISCORD_URL, DOCS_URL, GITHUB_URL, STATS_URL, V1_DAPP_URL } from '@/app/constants/links'
 import { LogEvent } from '@/app/constants/logEvents'
-import { OptimismChainId } from '@/app/constants/networks'
+import getNetworkConfig from '@/app/utils/getNetworkConfig'
 import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
 import logEvent from '@/app/utils/logEvent'
 import setOptimismChainId from '@/app/utils/setOptimismChainId'
@@ -80,7 +81,9 @@ const LayoutMoreDropdownListItems = ({ onClose, onClickPrivacy }: Props): JSX.El
       <DropdownButtonListItem
         label={isOptimismMainnet() ? 'Testnet' : 'Mainnet'}
         onClick={() => {
-          const toChainId = isOptimismMainnet() ? OptimismChainId.OptimismGoerli : OptimismChainId.OptimismMainnet
+          const toChainId = isOptimismMainnet()
+            ? getNetworkConfig(Chain.OptimismGoerli).chainId
+            : getNetworkConfig(Chain.Optimism).chainId
           logEvent(LogEvent.NavNetworkToggle, {
             toChainId,
           })

@@ -23,17 +23,22 @@ export default async function trade(argv: string[]) {
     buy: { type: 'boolean', alias: 'b', require: true },
     market: { type: 'string', alias: 'm', require: true },
     strike: { type: 'number', alias: 's', require: true },
+    quote: { type: 'string', alias: 'q', require: false },
     collat: { type: 'number', require: false },
     base: { type: 'boolean', require: false },
     stable: { type: 'string', require: false },
   }).argv
 
+  const marketAddressOrName = args.market
+  const marketBalance = await lyra.account(signer.address).marketBalances(marketAddressOrName)
+  const quoteToken = args.quote
+    ? await lyra.account(signer.address).quoteAsset(marketAddressOrName, args.quote)
+    : marketBalance.quoteAsset
   const size = toBigNumber(args.amount)
   const isCall = !!args.call
   const isBuy = !!args.buy
-  const setToCollateral = args.collat ? toBigNumber(args.collat) : undefined
+  const setToCollateral = args.collat ? toBigNumber(args.collat, quoteToken.decimals) : undefined
   const strikeId = args.strike
-  const marketAddressOrName = args.market
   const isBaseCollateral = args.base
 
   const owner = signer.address
@@ -53,6 +58,10 @@ export default async function trade(argv: string[]) {
     setToCollateral,
     isBaseCollateral,
     premiumSlippage: SLIPPAGE,
+    inputAsset: {
+      address: quoteToken.address,
+      decimals: quoteToken.decimals,
+    },
   })
 
   printObject('Quote', {

@@ -5,8 +5,9 @@ import { Board } from '../board'
 import { ONE_BN, UNIT, ZERO_BN } from '../constants/bn'
 import { DataSource } from '../constants/contracts'
 import { SnapshotOptions } from '../constants/snapshots'
-import { OptionMarketViewer } from '../contracts/typechain'
-import Lyra from '../lyra'
+import { OptionMarketViewer as OptionMarketViewerAvalon } from '../contracts/avalon/typechain'
+import { OptionMarketViewer } from '../contracts/newport/typechain'
+import Lyra, { Version } from '../lyra'
 import { Market } from '../market'
 import { Option } from '../option'
 import { Quote, QuoteOptions } from '../quote'
@@ -55,7 +56,7 @@ export class Strike {
       throw new Error('Strike does not exist for board')
     }
     this.__strikeData = strikeView
-    const fields = Strike.getFields(board, strikeId)
+    const fields = Strike.getFields(lyra.version, board, strikeId)
     this.block = block
     this.id = fields.id
     this.strikePrice = fields.strikePrice
@@ -66,7 +67,7 @@ export class Strike {
     this.isDeltaInRange = fields.isDeltaInRange
   }
 
-  private static getFields(board: Board, strikeId: number) {
+  private static getFields(version: Version, board: Board, strikeId: number) {
     const strikeView = board.__boardData.strikes.find(strikeView => strikeView.strikeId.toNumber() === strikeId)
     if (!strikeView) {
       throw new Error('Strike does not exist for board')
@@ -90,7 +91,12 @@ export class Strike {
       const ivNum = fromBigNumber(iv)
       const spotPrice = fromBigNumber(board.market().spotPrice)
       const strikePriceNum = fromBigNumber(strikePrice)
-      const rate = fromBigNumber(board.market().__marketData.marketParameters.greekCacheParams.rateAndCarry) ?? 0
+      const marketParameters = board.market().__marketData.marketParameters
+      const rate = fromBigNumber(
+        (version == Version.Avalon
+          ? (marketParameters as OptionMarketViewerAvalon.MarketParametersStructOutput).greekCacheParams.rateAndCarry
+          : (board.market().__marketData as OptionMarketViewer.MarketViewWithBoardsStructOutput).rateAndCarry) ?? 0
+      )
       const vega =
         ivNum > 0 && spotPrice > 0
           ? toBigNumber(getVega(timeToExpiryAnnualized, ivNum, spotPrice, strikePriceNum, rate))

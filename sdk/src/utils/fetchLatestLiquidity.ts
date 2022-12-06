@@ -47,7 +47,7 @@ export default async function fetchLatestLiquidity(lyra: Lyra, marketAddress: st
     burnableLiquidity,
     nav,
     utilization: nav.gt(0) ? fromBigNumber(nav.sub(freeLiquidity).mul(UNIT).div(nav)) : 0,
-    usedCollatLiquidity: usedCollatLiquidity,
+    reservedCollatLiquidity: usedCollatLiquidity,
     pendingDeltaLiquidity: pendingDeltaLiquidity,
     usedDeltaLiquidity: usedDeltaLiquidity,
     tokenPrice,

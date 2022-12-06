@@ -29,7 +29,9 @@ const VaultsPendingDepositsListMobile = ({
         return (
           <ListItem
             key={`${deposit.queueId}-${market.address}`}
-            label={<MarketLabelProgress marketName={market.name} progress={progressPct} color="primaryText" />}
+            label={
+              <MarketLabelProgress marketName={market.baseToken.symbol} progress={progressPct} color="primaryText" />
+            }
             onClick={onClick ? () => onClick(deposit) : undefined}
             rightContent={
               <Box textAlign="right">

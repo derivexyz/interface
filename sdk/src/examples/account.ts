@@ -9,18 +9,19 @@ export default async function market(argv: string[]) {
 
   const owner = signer.address
   const account = lyra.account(owner)
-  const balances = await account.balances()
-  const stableBalances = balances.stables.reduce((balances, token) => {
+  const balances = await account.quoteAssets()
+  const ethBalance = await signer.getBalance()
+  const stableBalances = balances.reduce((balances, token) => {
     if (token.symbol === 'usdc') {
       return {
         ...balances,
-        [token.address]: fromBigNumber(to18DecimalBN(token.balance, token.decimals)),
+        [token.symbol]: fromBigNumber(to18DecimalBN(token.balance, token.decimals)),
       }
     }
     return {
       ...balances,
-      [token.address]: fromBigNumber(token.balance),
+      [token.symbol]: fromBigNumber(token.balance),
     }
   }, {} as { [stable: string]: number })
-  console.log(stableBalances)
+  console.log({ ...stableBalances, ETH: fromBigNumber(ethBalance) })
 }

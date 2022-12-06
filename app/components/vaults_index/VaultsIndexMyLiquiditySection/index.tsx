@@ -9,7 +9,7 @@ import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import React, { useMemo } from 'react'
 
-import { ZERO_BN } from '@/app/constants/bn'
+import { UNIT, ZERO_BN } from '@/app/constants/bn'
 import { VaultBalance } from '@/app/hooks/vaults/useVaultBalance'
 
 import LabelItem from '../../common/LabelItem'
@@ -23,7 +23,12 @@ type Props = {
 const VaultsIndexMyLiquiditySection = ({ vaultBalances, ...styleProps }: Props): CardSectionElement => {
   const isMobile = useIsMobile()
   const totalLiquidityValue = useMemo(
-    () => vaultBalances.reduce((sum, { balance }) => sum.add(balance.value), ZERO_BN),
+    () =>
+      vaultBalances.reduce(
+        (sum, { balances: balance, marketLiquidity }) =>
+          sum.add(balance.liquidityToken.balance.mul(marketLiquidity.tokenPrice).div(UNIT)),
+        ZERO_BN
+      ),
     [vaultBalances]
   )
   const totalRewards = useMemo(

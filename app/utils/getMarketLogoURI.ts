@@ -5,23 +5,17 @@ export default function getMarketLogoURI(marketName: string): string {
     case 'lylp':
     case 'seth':
     case 'eth':
+    case 'seth-susd':
       return getAssetSrc('/images/ethereum-logo.png')
     case 'btc':
+    case 'sbtc':
+    case 'sbtc-susd':
+    case 'wbtc-usdc':
       return getAssetSrc('/images/bitcoin-logo.png')
-    case 'link':
-      return getAssetSrc('/images/chainlink-logo.png')
     case 'sol':
+    case 'ssol':
+    case 'ssol-susd':
       return getAssetSrc('/images/solana-logo.png')
-    case 'aave':
-      return 'https://ethereum-optimism.github.io/logos/AAVE.svg'
-    case 'avax':
-      return getAssetSrc('/images/avax-logo.png')
-    case 'matic':
-      return getAssetSrc('/images/matic-logo.png')
-    case 'uni':
-      return 'https://ethereum-optimism.github.io/logos/UNI.png'
-    case 'wti':
-      return getAssetSrc('/images/wti-logo.png')
     default:
       return ''
   }

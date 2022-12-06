@@ -6,7 +6,7 @@
     "baseUrl": "./",
     "paths": {
       "@lyra/ui/*": ["../ui/*"],
-      "@lyrafinance/lyra-js": ["../sdk/src/*"],
+      "@lyrafinance/lyra-js": ["../sdk/src/index.ts"],
       "@/app/*": ["*"]
     },
     "incremental": true

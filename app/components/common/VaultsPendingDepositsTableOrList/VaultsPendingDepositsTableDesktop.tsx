@@ -15,6 +15,7 @@ import { VaultsPendingDepositsTableOrListProps } from '.'
 
 type VaultsPendingDepositsTableData = TableData<{
   market: string
+  baseSymbol: string
   value: number
   requestedDate: number
   timeToEntry: number
@@ -34,6 +35,7 @@ const VaultsDepositsTableDesktop = ({ deposits, onClick, ...styleProps }: Vaults
       const delayReason = deposit.delayReason
       return {
         market: deposit.market().name,
+        baseSymbol: deposit.market().baseToken.symbol,
         value: fromBigNumber(deposit.value),
         requestedDate: deposit.depositTimestamp,
         timeToEntry,
@@ -49,10 +51,8 @@ const VaultsDepositsTableDesktop = ({ deposits, onClick, ...styleProps }: Vaults
         accessor: 'market',
         Header: 'Market',
         Cell: (props: TableCellProps<VaultsPendingDepositsTableData>) => {
-          const { timeToEntryPercentage } = props.row.original
-          return (
-            <MarketLabelProgress marketName={props.cell.value} progress={timeToEntryPercentage} color="primaryText" />
-          )
+          const { timeToEntryPercentage, baseSymbol } = props.row.original
+          return <MarketLabelProgress marketName={baseSymbol} progress={timeToEntryPercentage} color="primaryText" />
         },
       },
       {

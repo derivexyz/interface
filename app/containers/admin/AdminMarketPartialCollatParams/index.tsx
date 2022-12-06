@@ -13,6 +13,7 @@ import { Market, PartialCollatParams } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
+import useAdmin from '@/app/hooks/admin/useAdmin'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarketOwner from '@/app/hooks/market/useMarketOwner'
 import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
@@ -31,6 +32,7 @@ const zeroDecimalKeys: (keyof PartialCollatParams)[] = []
 const AdminMarketPartialCollatParams = withSuspense(
   ({ market, onParamUpdate }: Props) => {
     const { account, isConnected } = useWallet()
+    const admin = useAdmin()
     const owner = useMarketOwner(market.name)
     const [isExpanded, setIsExpanded] = useState(false)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -88,11 +90,11 @@ const AdminMarketPartialCollatParams = withSuspense(
                 isDisabled={!isConnected}
                 isLoading={isLoading}
                 onClick={async () => {
-                  if (!account) {
+                  if (!account || !admin) {
                     return
                   }
                   setIsLoading(true)
-                  const { tx, params: newParams } = await market.setPartialCollatParams(account, params)
+                  const { tx, params: newParams } = await admin.setPartialCollatParams(market, account, params)
                   setIsLoading(false)
                   setNewParams(newParams)
                   setTx(tx)

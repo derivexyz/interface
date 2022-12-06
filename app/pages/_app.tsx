@@ -1,13 +1,14 @@
 import '@rainbow-me/rainbowkit/styles.css'
 
 import ThemeProvider from '@lyra/ui/theme/ThemeProvider'
+import { Network } from '@lyrafinance/lyra-js'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import posthog from 'posthog-js'
 import React, { useEffect } from 'react'
 import { SWRConfig } from 'swr'
 
-import { DEFAULT_MARKET } from '../constants/defaults'
+import { getDefaultMarket } from '../constants/defaults'
 import { LogEvent } from '../constants/logEvents'
 import { PageId } from '../constants/pages'
 import AppLayout from '../page_helpers/common/AppLayout'
@@ -42,7 +43,7 @@ function Application({ Component, pageProps }: AppProps): JSX.Element {
   useEffect(() => {
     Promise.all([
       prefetch(getPagePath({ page: PageId.Portfolio })),
-      prefetch(getPagePath({ page: PageId.Trade, marketAddressOrName: DEFAULT_MARKET })),
+      prefetch(getPagePath({ page: PageId.Trade, marketAddressOrName: getDefaultMarket(Network.Optimism) })),
       prefetch(getPagePath({ page: PageId.VaultsIndex })),
       prefetch(getPagePath({ page: PageId.Rewards })),
       prefetch(getPagePath({ page: PageId.Competition })),

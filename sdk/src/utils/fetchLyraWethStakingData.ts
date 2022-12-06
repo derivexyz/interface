@@ -13,8 +13,8 @@ const fetchLyraWethStakingData = async (
   apy: number
   tokenValue: number
 }> => {
-  const gelatoPoolContract = getLyraContract(lyra.provider, lyra.deployment, LyraContractId.ArrakisPool)
-  const stakingContract = getLyraContract(lyra.provider, lyra.deployment, LyraContractId.WethLyraStakingRewards)
+  const gelatoPoolContract = getLyraContract(lyra, LyraContractId.ArrakisPool)
+  const stakingContract = getLyraContract(lyra, LyraContractId.WethLyraStakingRewards)
   const [lyraPrice, wethPrice] = await Promise.all([
     fetchTokenSpotPrice(lyra, LYRA_OPTIMISM_MAINNET_ADDRESS),
     fetchTokenSpotPrice(lyra, WETH_OPTIMISM_MAINNET_ADDRESS),

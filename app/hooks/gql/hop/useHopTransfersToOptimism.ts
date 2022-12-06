@@ -1,6 +1,7 @@
+import { Chain } from '@lyrafinance/lyra-js'
 import gql from 'graphql-tag'
 
-import { OptimismChainId } from '@/app/constants/networks'
+import getNetworkConfig from '@/app/utils/getNetworkConfig'
 
 import { hopArbitrumClient, hopMainnetClient, hopPolygonClient, hopXDaiClient } from '../../apollo/client'
 import useFetch from '../../data/useFetch'
@@ -104,7 +105,7 @@ export const fetchTransfersSentToOptimism = async (account: string, startTimesta
     fromTimestamp: startTimestamp,
     from: account.toLowerCase(),
     recipient: account.toLowerCase(),
-    destinationChainId: OptimismChainId.OptimismMainnet,
+    destinationChainId: getNetworkConfig(Chain.Optimism).chainId,
   }
   const [
     {

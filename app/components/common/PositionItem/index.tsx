@@ -23,7 +23,7 @@ export default function PositionItem({ position, customSize, hideSize }: Props):
       <MarketImage mr={2} name={position.marketName} size={32} />
       <Box>
         <Text variant="secondary">
-          {position.marketName}&nbsp;${fromBigNumber(position.strikePrice)}&nbsp;
+          {position.market().baseToken.symbol}&nbsp;${fromBigNumber(position.strikePrice)}&nbsp;
           {position.isCall ? 'Call' : 'Put'}
         </Text>
         <Text variant="small" color="secondaryText">

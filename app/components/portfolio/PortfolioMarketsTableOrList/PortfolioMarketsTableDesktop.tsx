@@ -37,7 +37,7 @@ const PortfolioMarketsTableDesktop = ({ markets }: PortfolioMarketsTableOrListPr
         pricePctChange: spotPriceChange,
         openInterest,
         openInterestDollar: openInterest * spotPrice,
-        symbol: market.name,
+        symbol: market.baseToken.symbol,
         tradingVolume30D,
         onClick: () => {
           logEvent(LogEvent.PortfolioMarketClick, {

@@ -40,7 +40,7 @@ const VaultsMarketDropdown = withSuspense(
         isTransparent
         label={
           <Flex alignItems="flex-start" flexDirection="column">
-            <Text variant="title">{`${selectedMarket.name} Vault`}</Text>
+            <Text variant="title">{`${selectedMarket.baseToken.symbol} Vault`}</Text>
           </Flex>
         }
         leftIcon={<MarketImage size={32} name={selectedMarket.name} />}
@@ -49,7 +49,7 @@ const VaultsMarketDropdown = withSuspense(
           <DropdownButtonListItem
             key={market.address}
             isSelected={isMarketEqual(market, selectedMarket.address)}
-            label={`${market.name} Vault`}
+            label={`${market.baseToken.symbol} Vault`}
             href={getPagePath({ page: PageId.Vaults, marketAddressOrName: market.name })}
             onClick={onClose}
             icon={<MarketImage size={32} name={market.name} />}

@@ -99,7 +99,7 @@ export const fetchSpotPriceHistory = async (
   const startTimestamp = getChartPeriodStartTimestamp(market.block.timestamp, period)
 
   // TODO: @dappbeast Replace with SDK spot price feed
-  const synth = !isOptimismMainnet() ? market.name.toUpperCase() : market.baseToken.symbol
+  const synth = market.baseToken.symbol
   const variables: CandleQueryVariables = {
     first: limit,
     orderBy: 'timestamp',

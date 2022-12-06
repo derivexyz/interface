@@ -3,11 +3,11 @@ import Flex from '@lyra/ui/components/Flex'
 import Modal from '@lyra/ui/components/Modal'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import Text from '@lyra/ui/components/Text'
+import { Network } from '@lyrafinance/lyra-js'
 import { TokenInfo } from '@uniswap/token-lists'
 import React, { useMemo, useState } from 'react'
 
 import { LogEvent } from '@/app/constants/logEvents'
-import { Network } from '@/app/constants/networks'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useEthBalance from '@/app/hooks/erc20/useEthBalance'
 import useBalances from '@/app/hooks/market/useBalances'
@@ -89,18 +89,16 @@ const OnboardingModalCallToAction = withSuspense(
     const isStepOne = onboardingStep === OnboardingModalStep.GetETH
     const balances = useBalances()
     const hasToTokenBalance = useMemo(() => {
-      let hasToTokenBalance = false
-      balances.bases.forEach(base => {
-        if (base.address === toToken?.address && base.balance.gt(0)) {
-          hasToTokenBalance = true
-        }
+      return balances.some(balance => {
+        const quoteToken = balance.quoteSwapAssets.find(
+          quoteAsset => quoteAsset.address.toLowerCase() === toToken?.address.toLowerCase()
+        )
+        return (
+          (balance.baseAsset.address.toLowerCase() === toToken?.address.toLowerCase() &&
+            balance.baseAsset.balance.gt(0)) ||
+          (quoteToken && quoteToken.balance.gt(0))
+        )
       })
-      balances.stables.forEach(stable => {
-        if (stable.address === toToken?.address && stable.balance.gt(0)) {
-          hasToTokenBalance = true
-        }
-      })
-      return hasToTokenBalance
     }, [balances, toToken])
     const ethBalance = useEthBalance(Network.Optimism)
     return (

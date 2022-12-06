@@ -21,10 +21,14 @@ const VaultsMyLiquidityCard = withSuspense(({ marketAddressOrName, ...styleProps
   if (!vaultBalance) {
     return null
   }
-  const liquidityBalance = vaultBalance.balance
+  const liquidityBalance = vaultBalance.balances
   const liquidityDeposits = vaultBalance.deposits
   const liquidityWithdrawals = vaultBalance.withdrawals
-  if (liquidityBalance.balance.isZero() && liquidityDeposits.length === 0 && liquidityWithdrawals.length === 0) {
+  if (
+    liquidityBalance.liquidityToken.balance.isZero() &&
+    liquidityDeposits.length === 0 &&
+    liquidityWithdrawals.length === 0
+  ) {
     return null
   }
   return (

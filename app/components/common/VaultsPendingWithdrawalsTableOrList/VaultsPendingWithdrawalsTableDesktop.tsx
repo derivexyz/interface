@@ -14,6 +14,7 @@ import { VaultsPendingWithdrawalsTableOrListProps } from '.'
 
 type VaultsPendingWithdrawalsTableData = TableData<{
   market: string
+  baseSymbol: string
   balance: number
   requestedDate: number
   timeToExit: number
@@ -38,6 +39,7 @@ const VaultsWithdrawalsTableDesktop = ({
       const delayReason = withdrawal.delayReason
       return {
         market: market.name,
+        baseSymbol: market.baseToken.symbol,
         delayReason,
         balance: fromBigNumber(withdrawal.balance),
         requestedDate: startTimestamp,
@@ -53,8 +55,8 @@ const VaultsWithdrawalsTableDesktop = ({
         accessor: 'market',
         Header: 'Market',
         Cell: (props: TableCellProps<VaultsPendingWithdrawalsTableData>) => {
-          const { timeToExitPercentage } = props.row.original
-          return <MarketLabelProgress marketName={props.cell.value} progress={timeToExitPercentage} color="errorText" />
+          const { timeToExitPercentage, baseSymbol } = props.row.original
+          return <MarketLabelProgress marketName={baseSymbol} progress={timeToExitPercentage} color="errorText" />
         },
       },
       {

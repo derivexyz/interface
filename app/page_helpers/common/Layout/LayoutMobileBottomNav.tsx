@@ -8,10 +8,11 @@ import Modal from '@lyra/ui/components/Modal'
 import Text from '@lyra/ui/components/Text'
 import Token from '@lyra/ui/components/Token'
 import { ModalContext } from '@lyra/ui/theme/ModalProvider'
+import { Network } from '@lyrafinance/lyra-js'
 import { useRouter } from 'next/router'
 import React, { useCallback, useContext, useState } from 'react'
 
-import { DEFAULT_MARKET } from '@/app/constants/defaults'
+import { getDefaultMarket } from '@/app/constants/defaults'
 import { MOBILE_FOOTER_HEIGHT } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
 import AccountButton from '@/app/containers/common/AccountButton'
@@ -34,7 +35,7 @@ const getRootPagePath = (path: string): string => {
   } else if (parts[0].startsWith('portfolio')) {
     return getPagePath({ page: PageId.Portfolio })
   } else if (parts[0].startsWith('position') || parts[0].startsWith('trade')) {
-    return getPagePath({ page: PageId.Trade, marketAddressOrName: DEFAULT_MARKET })
+    return getPagePath({ page: PageId.Trade, marketAddressOrName: getDefaultMarket(Network.Optimism) })
   } else if (parts[0].startsWith('admin')) {
     return getPagePath({ page: PageId.Admin })
   } else if (parts[0].startsWith('rewards')) {
@@ -154,7 +155,9 @@ export default function LayoutMobileBottomNav(): JSX.Element {
             />
             <DropdownButtonListItem
               onClick={() => {
-                router.push(getPagePath({ page: PageId.Trade, marketAddressOrName: DEFAULT_MARKET }))
+                router.push(
+                  getPagePath({ page: PageId.Trade, marketAddressOrName: getDefaultMarket(Network.Optimism) })
+                )
                 onClose()
               }}
               label="Trade"

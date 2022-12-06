@@ -15,11 +15,9 @@ export default async function fetchOpenPositionDataByOwner(
   markets: Market[]
 ): Promise<PositionData[]> {
   // Fetch all owner positions across all markets
-  const positionsByMarketAddress = await getLyraContract(
-    lyra.provider,
-    lyra.deployment,
-    LyraContractId.OptionMarketViewer
-  ).getOwnerPositions(owner)
+  const positionsByMarketAddress = await getLyraContract(lyra, LyraContractId.OptionMarketViewer).getOwnerPositions(
+    owner
+  )
 
   const marketsByAddress: Record<string, Market> = markets.reduce(
     (dict, market) => ({ ...dict, [market.address]: market }),

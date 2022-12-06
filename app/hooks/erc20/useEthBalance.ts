@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { Network } from '@lyrafinance/lyra-js'
 
-import { Network } from '@/app/constants/networks'
 import lyra from '@/app/utils/lyra'
 
 import { ZERO_BN } from '../../constants/bn'

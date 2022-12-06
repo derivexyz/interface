@@ -10,7 +10,6 @@ import React, { useMemo } from 'react'
 
 import MarketImage from '@/app/components/common/MarketImage'
 import TokenAmountText from '@/app/components/common/TokenAmountText'
-import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 
 import VaultAPYTooltip from '../../../components/common/VaultAPYTooltip'
 
@@ -40,7 +39,7 @@ const VaultRewardsHistoryMarketRow = ({ accountRewardEpoch, market }: RowProps) 
         <Flex alignItems="flex-end">
           <MarketImage name={marketName} size={24} />
           <Text variant="secondary" ml={2} color="secondaryText">
-            {getMarketDisplayName(marketName)}
+            {market.baseToken.symbol}
           </Text>
         </Flex>
       </Flex>

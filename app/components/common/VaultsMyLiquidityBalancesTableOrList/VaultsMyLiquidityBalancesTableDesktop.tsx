@@ -6,17 +6,19 @@ import Text from '@lyra/ui/components/Text'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import React, { useMemo } from 'react'
 
+import { UNIT } from '@/app/constants/bn'
 import { PageId } from '@/app/constants/pages'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getPagePath from '@/app/utils/getPagePath'
 
-import MarketLabel from '../MarketLabel'
 import TokenAmountText from '../TokenAmountText'
 import VaultAPYTooltip from '../VaultAPYTooltip'
+import VaultLabel from '../VaultLabel'
 import { VaultsMyLiquidityBalancesTableOrListProps } from '.'
 
 type VaultsMyLiquidityBalancesTableOrListData = TableData<{
   market: string
+  baseSymbol: string
   tvl: number
   value: number
   tokenPrice90DChange: number
@@ -32,17 +34,28 @@ type VaultsMyLiquidityBalancesTableOrListData = TableData<{
 
 const VaultsMyLiquidityBalancesTableDesktop = ({
   vaultBalances,
-  marketsLiquidity,
   onClick,
   ...styleProps
 }: VaultsMyLiquidityBalancesTableOrListProps): TableElement<VaultsMyLiquidityBalancesTableOrListData> => {
   const rows: VaultsMyLiquidityBalancesTableOrListData[] = useMemo(() => {
     return vaultBalances.map(vaultBalance => {
-      const { balance, vault, myApy, myApyMultiplier, myPnl, myPnlPercent, accountRewardEpoch } = vaultBalance
+      const {
+        market,
+        marketLiquidity,
+        balances,
+        vault,
+        myApy,
+        myApyMultiplier,
+        myPnl,
+        myPnlPercent,
+        accountRewardEpoch,
+      } = vaultBalance
+      const value = marketLiquidity.tokenPrice.mul(balances.liquidityToken.balance).div(UNIT)
       return {
-        market: balance.market.name,
-        tvl: marketsLiquidity ? fromBigNumber(marketsLiquidity[balance.market.address].nav) : 0,
-        value: fromBigNumber(balance.value),
+        market: market.name,
+        baseSymbol: market.baseToken.symbol,
+        tvl: fromBigNumber(marketLiquidity.nav),
+        value: fromBigNumber(value),
         tokenPrice90DChange: vault.tokenPrice90DChange,
         tokenPrice90DChangeAnnualized: vault.tokenPrice90DChangeAnnualized,
         apy: myApy.total,
@@ -55,7 +68,7 @@ const VaultsMyLiquidityBalancesTableDesktop = ({
         onClick: onClick ? () => onClick(vaultBalance) : undefined,
       }
     })
-  }, [onClick, vaultBalances, marketsLiquidity])
+  }, [onClick, vaultBalances])
 
   const stakedLyraBalance = vaultBalances.length > 0 ? vaultBalances[0].accountRewardEpoch?.stakedLyraBalance ?? 0 : 0
   const isBoostedApy = stakedLyraBalance > 0
@@ -66,7 +79,7 @@ const VaultsMyLiquidityBalancesTableDesktop = ({
         accessor: 'market',
         Header: 'Market',
         Cell: (props: TableCellProps<VaultsMyLiquidityBalancesTableOrListData>) => {
-          return <MarketLabel marketName={props.cell.value} />
+          return <VaultLabel marketName={props.cell.row.original.baseSymbol} />
         },
       },
       {

@@ -7,11 +7,12 @@ import Flex from '@lyra/ui/components/Flex'
 import { IconType } from '@lyra/ui/components/Icon'
 import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
+import { Network } from '@lyrafinance/lyra-js'
 import { useRouter } from 'next/router'
 import React from 'react'
 
 import PositionsTable from '@/app/components/common/PositionsTable'
-import { DEFAULT_MARKET } from '@/app/constants/defaults'
+import { getDefaultMarket } from '@/app/constants/defaults'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useOpenPositions from '@/app/hooks/position/useOpenPositions'
@@ -46,7 +47,7 @@ const PortfolioOpenPositionsTable = withSuspense(
           width={150}
           size="md"
           rightIcon={IconType.ArrowRight}
-          href={getPagePath({ page: PageId.Trade, marketAddressOrName: DEFAULT_MARKET })}
+          href={getPagePath({ page: PageId.Trade, marketAddressOrName: getDefaultMarket(Network.Optimism) })}
         />
       </Box>
     )

@@ -3,6 +3,7 @@ import Lyra from '@lyrafinance/lyra-js'
 import { NETWORK_CONFIGS } from '../constants/networks'
 import CachedStaticJsonRpcProvider from './CachedStaticJsonRpcProvider'
 import filterNulls from './filterNulls'
+import getChainForChainId from './getChainForChainId'
 import getOptimismChainId from './getOptimismChainId'
 import isOptimismMainnet from './isOptimismMainnet'
 
@@ -10,7 +11,7 @@ const optimismChainId = getOptimismChainId()
 
 const buildInfuraId = process.env.BUILD_INFURA_PROJECT_ID
 const buildAlchemyId = process.env.BUILD_ALCHEMY_PROJECT_ID
-const networkConfig = NETWORK_CONFIGS[optimismChainId]
+const networkConfig = NETWORK_CONFIGS[getChainForChainId(optimismChainId)]
 const rpcUrl =
   buildInfuraId && isOptimismMainnet()
     ? filterNulls([

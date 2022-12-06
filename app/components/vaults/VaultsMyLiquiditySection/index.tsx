@@ -12,6 +12,7 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import React from 'react'
 
 import formatPercentage from '@/app/../ui/utils/formatPercentage'
+import { UNIT } from '@/app/constants/bn'
 import { PageId } from '@/app/constants/pages'
 import { VaultBalance } from '@/app/hooks/vaults/useVaultBalance'
 import getPagePath from '@/app/utils/getPagePath'
@@ -25,27 +26,36 @@ type Props = {
 } & MarginProps &
   LayoutProps
 
-const VaultsMyLiquiditySection = ({
-  vaultBalance: { balance, myApy, myRewards, myApyMultiplier, accountRewardEpoch, myPnl, myPnlPercent },
-  ...styleProps
-}: Props): CardSectionElement => {
+const VaultsMyLiquiditySection = ({ vaultBalance, ...styleProps }: Props): CardSectionElement => {
   const isMobile = useIsMobile()
+  const {
+    market,
+    balances,
+    myApy,
+    myRewards,
+    myApyMultiplier,
+    accountRewardEpoch,
+    myPnl,
+    myPnlPercent,
+    marketLiquidity,
+  } = vaultBalance
   const stakedLyraBalance = accountRewardEpoch?.stakedLyraBalance ?? 0
+  const liquidityValue = balances.liquidityToken.balance.mul(marketLiquidity.tokenPrice).div(UNIT)
   return (
     <CardSection {...styleProps}>
       <Box mb={6}>
         <Text variant="heading">My Liquidity</Text>
-        <Text variant="heading">{balance.value.isZero() ? '-' : formatUSD(balance.value)}</Text>
+        <Text variant="heading">{liquidityValue.isZero() ? '-' : formatUSD(liquidityValue)}</Text>
       </Box>
       <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: [3, 6] }}>
         <LabelItem
           label="Profit / Loss"
           value={
-            balance.value.isZero()
+            liquidityValue.isZero()
               ? '-'
               : `${formatTruncatedUSD(myPnl, { showSign: true })} (${formatPercentage(myPnlPercent)})`
           }
-          valueColor={balance.value.isZero() ? 'secondaryText' : myPnl > 0 ? 'primaryText' : 'errorText'}
+          valueColor={liquidityValue.isZero() ? 'secondaryText' : myPnl > 0 ? 'primaryText' : 'errorText'}
         />
         <LabelItem
           label={`${stakedLyraBalance > 0 ? 'Boosted' : 'My'} APY`}
@@ -54,7 +64,7 @@ const VaultsMyLiquiditySection = ({
               <VaultAPYTooltip
                 mt="auto"
                 alignItems={'center'}
-                marketName={balance.market.name}
+                marketName={market.name}
                 opApy={myApy.op}
                 lyraApy={myApy.lyra}
                 apyMultiplier={myApyMultiplier}

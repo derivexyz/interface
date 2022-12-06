@@ -7,9 +7,10 @@ import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
 import Token from '@lyra/ui/components/Token'
 import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useCallback, useState } from 'react'
 
-import { DEFAULT_MARKET } from '@/app/constants/defaults'
+import { getDefaultMarket } from '@/app/constants/defaults'
 import {
   DESKTOP_HEADER_NAV_HEIGHT,
   DESKTOP_LAYOUT_LARGE_WIDTH,
@@ -94,7 +95,7 @@ export default function LayoutDesktopNav({ notice, onCloseNotice, currentPath }:
             </Link>
             <Link
               mx={4}
-              href={getPagePath({ page: PageId.Trade, marketAddressOrName: DEFAULT_MARKET })}
+              href={getPagePath({ page: PageId.Trade, marketAddressOrName: getDefaultMarket(Network.Optimism) })}
               onClick={() => logEvent(LogEvent.NavTradeTabClick)}
               textVariant="bodyMedium"
               variant="secondary"

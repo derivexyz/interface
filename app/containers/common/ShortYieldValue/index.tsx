@@ -30,7 +30,7 @@ const ShortYieldValue = withSuspense(
       fromBigNumber(size),
       delta,
       expiryTimestamp,
-      market.name
+      market.baseToken.symbol
     )
     const isEnabled = !isLong && size.gt(0) && yieldPerDay
     const isEarning = yieldPerDay && yieldPerDay.lyra + yieldPerDay.op > 0

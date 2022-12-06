@@ -1,25 +1,7 @@
+import { Chain, Network } from '@lyrafinance/lyra-js'
 import nullthrows from 'nullthrows'
 
 import filterNulls from '../utils/filterNulls'
-
-export enum EthereumChainId {
-  Mainnet = 1,
-  Kovan = 42,
-  Local = 1337,
-}
-
-export enum OptimismChainId {
-  OptimismMainnet = 10,
-  OptimismGoerli = 420,
-  Local = 31337, // Optimism
-}
-
-export type ChainId = EthereumChainId | OptimismChainId
-
-export enum Network {
-  Optimism = 'Optimism',
-  Ethereum = 'Ethereum',
-}
 
 export enum WalletType {
   MetaMask = 'MetaMask',
@@ -31,7 +13,7 @@ export enum WalletType {
 export type NetworkConfig = {
   name: string
   shortName: string
-  chainId: ChainId
+  chainId: number
   network: Network
   walletRpcUrl: string
   readRpcUrls: string[]
@@ -45,31 +27,11 @@ const INFURA_PROJECT_ID = nullthrows(
 )
 const ALCHEMY_PROJECT_ID = process.env.NEXT_PUBLIC_ALCHEMY_PROJECT_ID
 
-export const NETWORK_CONFIGS: Record<ChainId, NetworkConfig> = {
-  [EthereumChainId.Mainnet]: {
-    name: 'Mainnet',
-    shortName: 'Mainnet',
-    chainId: EthereumChainId.Mainnet,
-    network: Network.Ethereum,
-    walletRpcUrl: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-    readRpcUrls: [`https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`],
-    blockExplorerUrl: 'https://etherscan.io/',
-    iconUrls: [],
-  },
-  [EthereumChainId.Kovan]: {
-    name: 'Kovan',
-    shortName: 'Kovan',
-    chainId: EthereumChainId.Kovan,
-    network: Network.Ethereum,
-    walletRpcUrl: `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
-    readRpcUrls: [`https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`],
-    blockExplorerUrl: 'https://kovan.etherscan.io',
-    iconUrls: [],
-  },
-  [OptimismChainId.OptimismMainnet]: {
+export const NETWORK_CONFIGS: Record<Chain, NetworkConfig> = {
+  [Chain.Optimism]: {
     name: 'Optimistic Ethereum',
     shortName: 'Optimism',
-    chainId: OptimismChainId.OptimismMainnet,
+    chainId: 10,
     network: Network.Optimism,
     walletRpcUrl: 'https://mainnet.optimism.io',
     readRpcUrls: filterNulls([
@@ -79,34 +41,24 @@ export const NETWORK_CONFIGS: Record<ChainId, NetworkConfig> = {
     blockExplorerUrl: 'https://optimistic.etherscan.io',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
   },
-  [OptimismChainId.OptimismGoerli]: {
+  [Chain.OptimismGoerli]: {
     name: 'Optimistic Ethereum (Goerli)',
     shortName: 'Optimistic Goerli',
-    chainId: OptimismChainId.OptimismGoerli,
+    chainId: 420,
     network: Network.Optimism,
     walletRpcUrl: 'https://goerli.optimism.io',
     readRpcUrls: ['https://goerli.optimism.io', `https://optimism-goerli.infura.io/v3/${INFURA_PROJECT_ID}`],
     blockExplorerUrl: 'https://goerli-optimism.etherscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
   },
-  [EthereumChainId.Local]: {
-    name: 'Local',
-    shortName: 'Local',
-    chainId: EthereumChainId.Local,
-    network: Network.Ethereum,
-    walletRpcUrl: 'http://127.0.0.1:8545',
-    readRpcUrls: ['http://127.0.0.1:8545'],
-    blockExplorerUrl: 'https://kovan-explorer.optimism.io/',
-    iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
-  },
-  [OptimismChainId.Local]: {
-    name: 'Local',
-    shortName: 'Local',
-    chainId: OptimismChainId.Local,
-    network: Network.Optimism,
-    walletRpcUrl: 'http://127.0.0.1:8545',
-    readRpcUrls: ['http://127.0.0.1:8545'],
-    blockExplorerUrl: 'https://kovan-explorer.optimism.io/',
+  [Chain.ArbitrumGoerli]: {
+    name: 'Arbitrum Nitro Goerli Rollup Testnet',
+    shortName: 'Arbitrum Goerli',
+    chainId: 421613,
+    network: Network.Arbitrum,
+    walletRpcUrl: 'https://goerli-rollup.arbitrum.io/rpc',
+    readRpcUrls: ['https://arbitrum-goerli.infura.io/v3/0454e8da3dd7418c8cc8bf0961417068'],
+    blockExplorerUrl: 'https://goerli.arbiscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
   },
 }

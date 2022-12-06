@@ -28,7 +28,7 @@ const VaultsWithdrawForm = withSuspense(
   ({ marketAddressOrName, ...styleProps }: Props) => {
     const market = useMarket(marketAddressOrName)
     const vault = useVaultBalance(marketAddressOrName)
-    const lpBalance = vault?.balance.balance ?? ZERO_BN
+    const lpBalance = vault?.balances.liquidityToken.balance ?? ZERO_BN
     const [amount, setAmount] = useState(ZERO_BN)
 
     if (!market) {

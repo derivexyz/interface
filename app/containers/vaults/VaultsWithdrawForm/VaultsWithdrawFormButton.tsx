@@ -40,7 +40,7 @@ const VaultsWithdrawFormButton = withSuspense(
       setIsLoading(false)
     }, [account, amount, execute, market, mutateAccount])
 
-    const lpBalance = vault?.balance.balance ?? ZERO_BN
+    const lpBalance = vault?.balances.liquidityToken.balance ?? ZERO_BN
 
     const insufficientBalance = lpBalance.lt(amount)
 

@@ -10,6 +10,7 @@ import { Board, Market } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
+import useAdmin from '@/app/hooks/admin/useAdmin'
 import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
 import useWallet from '@/app/hooks/wallet/useWallet'
 
@@ -22,6 +23,7 @@ type Props = {
 
 export default function AdminBoardBaseIv({ market, board, owner, onUpdateBoard }: Props) {
   const { account, isConnected } = useWallet()
+  const admin = useAdmin()
   const [baseIv, setBaseIv] = useState(ZERO_BN)
   const [isLoading, setIsLoading] = useState(false)
   const execute = useAdminTransaction(owner)
@@ -41,11 +43,11 @@ export default function AdminBoardBaseIv({ market, board, owner, onUpdateBoard }
             isLoading={isLoading}
             label="Update"
             onClick={() => {
-              if (!account) {
+              if (!account || !admin) {
                 return
               }
               setIsLoading(true)
-              const tx = market.setBoardBaseIv(account, BigNumber.from(board.id), baseIv)
+              const tx = admin.setBoardBaseIv(market, account, BigNumber.from(board.id), baseIv)
               execute(tx, {
                 onComplete: () => {
                   onUpdateBoard()

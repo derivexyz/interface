@@ -19,7 +19,7 @@ export default function MarketLabel({ marketName, ...marginProps }: Props) {
       <Box ml={2}>
         <Text variant="secondaryMedium">{getMarketDisplayName(marketName)}</Text>
         <Text variant="small" color="secondaryText">
-          {`s${marketName.toUpperCase()}-sUSD`}
+          {marketName}
         </Text>
       </Box>
     </Flex>

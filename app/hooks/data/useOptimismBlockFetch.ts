@@ -1,4 +1,4 @@
-import { Network } from '@/app/constants/networks'
+import { Network } from '@lyrafinance/lyra-js'
 
 import useBlockFetch, { BlockFetchResponse, useBlockMutate } from './useBlockFetch'
 import { FetchArg, FetchConfig, Fetcher } from './useFetch'

@@ -11,9 +11,10 @@ export default async function admin(argv: string[]) {
     market: { type: 'string', alias: 'm', require: true },
   }).argv
   const market = await lyra.market(args.market)
+  const admin = lyra.admin()
   const boards = market.liveBoards()
   const owner = await market.owner()
-  const globalOwner = await lyra.admin().globalOwner()
+  const globalOwner = await admin.globalOwner()
 
   console.log({ owner, globalOwner })
   const expiry = BigNumber.from('1653091199')
@@ -21,17 +22,14 @@ export default async function admin(argv: string[]) {
   const strikePrices = [market.spotPrice]
   const skews = [toBigNumber(1)]
 
-  const { board, tx } = await market.addBoard(owner, expiry, baseIV, strikePrices, skews)
+  const { board, tx } = await admin.addBoard(market.address, owner, expiry, baseIV, strikePrices, skews)
   console.log({ board, tx })
-  const { strike: strikeParams, tx: strikeTx } = await market.addStrikeToBoard(
-    owner,
-    BigNumber.from(boards[0].id),
-    strikePrices[0],
-    skews[0]
-  )
+  const { strike: strikeParams, tx: strikeTx } = await lyra
+    .admin()
+    .addStrikeToBoard(market.address, owner, BigNumber.from(boards[0].id), strikePrices[0], skews[0])
   console.log({ strikeParams, strikeTx })
 
-  const { params: newParams, tx: _greekCacheTx } = await market.setGreekCacheParams(owner, {
+  const { params: newParams, tx: _greekCacheTx } = await admin.setGreekCacheParams(market, owner, {
     maxStrikesPerBoard: toBigNumber(20),
   })
   console.log({

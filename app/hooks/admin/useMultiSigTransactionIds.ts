@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { Network } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
-import { Network } from '@/app/constants/networks'
 import getIsOwnerMultiSig from '@/app/utils/getIsOwnerMultiSig'
 import getMultiSigWalletContract from '@/app/utils/getMultiSigWalletContract'
 

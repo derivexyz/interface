@@ -1,14 +1,14 @@
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
-import { AccountStableBalance } from '@lyrafinance/lyra-js'
+import { AccountQuoteBalance } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import TokenImage from '@/app/containers/common/TokenImage'
 
 type Props = {
   stableAddress: string | null
-  balances: AccountStableBalance[]
+  balances: AccountQuoteBalance[]
   onChangeStableAddress: (stableAddress: string) => void
 } & MarginProps &
   Omit<LayoutProps, 'size'>

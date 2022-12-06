@@ -21,7 +21,6 @@ import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
 import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
 import fromBigNumber from '@/app/utils/fromBigNumber'
-import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 
 type Props = MarginProps
 
@@ -63,7 +62,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
         <Flex alignItems="flex-end">
           <MarketImage name={marketName} size={24} />
           <Text variant="secondary" ml={2}>
-            {getMarketDisplayName(marketName)}
+            {market.baseToken.symbol}
           </Text>
         </Flex>
       </Flex>

@@ -334,11 +334,11 @@ export class GlobalRewardEpoch {
     contracts: number,
     delta: number,
     expiryTimestamp: number,
-    marketAddressOrName: string
+    marketBaseSymbol: string
   ): GlobalRewardEpochTokens {
     const timeToExpiry = Math.max(0, expiryTimestamp - this.blockTimestamp)
     const { longDatedPenalty, tenDeltaRebatePerOptionDay, ninetyDeltaRebatePerOptionDay } =
-      this.epoch.tradingRewardConfig.shortCollatRewards[`s${marketAddressOrName.toUpperCase()}`]
+      this.epoch.tradingRewardConfig.shortCollatRewards[marketBaseSymbol.toUpperCase()]
     const { lyraPortion, floorTokenPriceLyra, floorTokenPriceOP } = this.epoch.tradingRewardConfig.rewards
     const absDelta = Math.abs(delta)
 

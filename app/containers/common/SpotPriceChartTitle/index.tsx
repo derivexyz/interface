@@ -15,12 +15,13 @@ import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarket from '@/app/hooks/market/useMarket'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
-// TODO @michaelxuwu add enum market name support
-const getOhlcWidthForMarket = (marketName: string) => {
-  switch (marketName.toLowerCase()) {
+const getOhlcWidthForToken = (token: string) => {
+  switch (token.toLowerCase()) {
     case 'btc':
+    case 'sbtc':
       return 100
     case 'sol':
+    case 'ssol':
       return 75
     default:
       return 90
@@ -55,7 +56,7 @@ const SpotPriceChartTitle = withSuspense(
     const pctChange = spotPrice && prevSpotPrice ? (spotPrice - prevSpotPrice) / prevSpotPrice : 0
     const candle = hoverCandle ?? (history.length > 0 ? history[history.length - 1] : null)
     const isCandleUp = candle ? candle?.close > candle?.open : false
-    const ohlcLabelWidth = market ? getOhlcWidthForMarket(market.name) : 90
+    const ohlcLabelWidth = market ? getOhlcWidthForToken(market.baseToken.symbol) : 90
     return (
       <Box {...styleProps}>
         <Text variant={textVariant}>{spotPrice ? formatUSD(spotPrice) : '-'}</Text>

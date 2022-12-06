@@ -1,9 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { LyraContractId } from '@lyrafinance/lyra-js'
+import { LyraContractId, Network } from '@lyrafinance/lyra-js'
 import { hexlify } from 'ethers/lib/utils'
 import { useCallback } from 'react'
 
-import { Network } from '@/app/constants/networks'
 import getLyraMarketContractFromAddress from '@/app/utils/getLyraMarketContractFromAddress'
 import getMultiSigWalletContract from '@/app/utils/getMultiSigWalletContract'
 import lyra from '@/app/utils/lyra'
@@ -73,8 +72,11 @@ const fetcher = async (owner: string, transactionId: BigNumber) => {
   }
   // Check if transaction was any other known contract call
   const contractIdAndAddress = Object.values(LyraContractId)
-    .filter(c => c !== LyraContractId.TestFaucet)
-    .map(contractId => ({ contractId, address: admin.getLyraContractAddress(contractId) }))
+    .filter(c => c !== LyraContractId.TestFaucet && c !== LyraContractId.ExchangeAdapter)
+    .map(contractId => ({
+      contractId,
+      address: admin.getLyraContractAddress(contractId),
+    }))
     .find(contractIdAndAddress => contractIdAndAddress.address === transaction.destination)
 
   if (contractIdAndAddress) {

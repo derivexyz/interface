@@ -12,10 +12,9 @@ import { TransactionType } from '@/app/constants/screen'
 import OnboardingModal, { OnboardingModalStep } from '@/app/containers/common/OnboardingModal'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccount from '@/app/hooks/market/useAccount'
+import { useMutateBalances } from '@/app/hooks/market/useBalances'
+import useMarketBalances from '@/app/hooks/market/useMarketBalances'
 import useTransaction from '@/app/hooks/transaction/useTransaction'
-import useLiquidityDepositBalance, {
-  useMutateLiquidityDepositBalance,
-} from '@/app/hooks/vaults/useLiquidityDepositBalance'
 import { useMutateVaultBalance } from '@/app/hooks/vaults/useVaultBalance'
 import logEvent from '@/app/utils/logEvent'
 
@@ -30,10 +29,11 @@ const VaultsDepositFormButton = withSuspense(
   ({ market, amount, ...styleProps }: Props) => {
     const [isLoading, setIsLoading] = useState(false)
     const [isApprovalLoading, setIsApprovalLoading] = useState(false)
-    const susd = useLiquidityDepositBalance(market.address)
+    const marketBalances = useMarketBalances(market.address)
+    const quoteAsset = marketBalances?.quoteAsset
     const account = useAccount()
 
-    const mutateLiquidityDepositBalance = useMutateLiquidityDepositBalance()
+    const mutateLiquidityDepositBalance = useMutateBalances()
     const mutateMyVaultLiquidity = useMutateVaultBalance()
 
     const execute = useTransaction()
@@ -45,7 +45,7 @@ const VaultsDepositFormButton = withSuspense(
       setIsApprovalLoading(true)
       const tx = await account.approveDeposit(market.address, MAX_BN)
       await execute(tx, {
-        onComplete: async () => await Promise.all([mutateLiquidityDepositBalance(market.address)]),
+        onComplete: async () => await Promise.all([mutateLiquidityDepositBalance()]),
       })
       setIsApprovalLoading(false)
     }, [account, market, execute, mutateLiquidityDepositBalance])
@@ -58,13 +58,13 @@ const VaultsDepositFormButton = withSuspense(
       setIsLoading(true)
       await execute(market.deposit(account.address, amount), {
         onComplete: async () =>
-          await Promise.all([mutateLiquidityDepositBalance(market.address), mutateMyVaultLiquidity(market.address)]),
+          await Promise.all([mutateLiquidityDepositBalance(), mutateMyVaultLiquidity(market.address)]),
       })
       setIsLoading(false)
     }, [account, amount, execute, market, mutateLiquidityDepositBalance, mutateMyVaultLiquidity])
 
-    const insufficientBalance = susd?.balance.lt(amount) || susd?.balance.isZero()
-    const insufficientAllowance = susd?.allowance.lt(amount) || susd?.allowance.isZero()
+    const insufficientBalance = quoteAsset?.balance.lt(amount) || quoteAsset?.balance.isZero()
+    const insufficientAllowance = quoteAsset?.depositAllowance.lt(amount) || quoteAsset?.depositAllowance.isZero()
 
     const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false)
 
@@ -76,7 +76,7 @@ const VaultsDepositFormButton = withSuspense(
           sx={{ mb: 3, width: '100%' }}
           variant="primary"
           size="lg"
-          label={`Swap to ${susd?.symbol}`}
+          label={`Swap to ${quoteAsset?.symbol}`}
           onClick={() => {
             setIsOnboardingModalOpen(true)
             logEvent(LogEvent.OnboardingModalOpen)
@@ -121,7 +121,7 @@ const VaultsDepositFormButton = withSuspense(
         <OnboardingModal
           isOpen={isOnboardingModalOpen}
           onClose={() => setIsOnboardingModalOpen(false)}
-          defaultDestToken={susd?.address}
+          defaultDestToken={quoteAsset?.address}
           step={OnboardingModalStep.GetTokens}
         />
       </Box>

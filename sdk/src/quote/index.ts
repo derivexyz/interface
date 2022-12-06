@@ -3,7 +3,9 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Board } from '../board'
 import { UNIT, ZERO_BN } from '../constants/bn'
 import { DataSource, DEFAULT_ITERATIONS } from '../constants/contracts'
-import Lyra from '../lyra'
+import { OptionMarketViewer as OptionMarketViewerAvalon } from '../contracts/avalon/typechain'
+import { OptionMarketViewer } from '../contracts/newport/typechain'
+import Lyra, { Version } from '../lyra'
 import { Market } from '../market'
 import { Option } from '../option'
 import { Strike } from '../strike'
@@ -220,7 +222,7 @@ export class Quote {
     }
 
     const iterationSize = size.div(numIterations)
-    const iterations = []
+    const iterations: QuoteIteration[] = []
 
     const optionStdVega = strike.__strikeData.cachedGreeks.stdVega.mul(-1)
 
@@ -246,7 +248,11 @@ export class Quote {
     const fairIv = baseIv.mul(skew).div(UNIT)
     const spotPrice = option.market().spotPrice
     const strikePrice = option.strike().strikePrice
-    const rate = option.market().__marketData.marketParameters.greekCacheParams.rateAndCarry
+    const rate =
+      option.lyra.version === Version.Avalon
+        ? (option.market().__marketData as OptionMarketViewerAvalon.MarketViewWithBoardsStructOutput).marketParameters
+            .greekCacheParams.rateAndCarry
+        : (option.market().__marketData as OptionMarketViewer.MarketViewWithBoardsStructOutput).rateAndCarry
 
     const delta = toBigNumber(
       getDelta(

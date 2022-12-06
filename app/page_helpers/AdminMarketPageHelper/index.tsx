@@ -20,10 +20,8 @@ import AdminMarketMinCollateralParams from '@/app/containers/admin/AdminMarketMi
 import AdminMarketOptionMarketParams from '@/app/containers/admin/AdminMarketOptionMarketParams'
 import AdminMarketPartialCollatParams from '@/app/containers/admin/AdminMarketPartialCollatParams'
 import AdminMarketPauseButton from '@/app/containers/admin/AdminMarketPauseButton'
-import AdminMarketPoolHedgerParams from '@/app/containers/admin/AdminMarketPoolHedgerParams'
 import AdminMarketPricingParams from '@/app/containers/admin/AdminMarketPricingParams'
 import AdminMarketSelect from '@/app/containers/admin/AdminMarketSelect'
-import AdminMarketShortBufferParams from '@/app/containers/admin/AdminMarketShortBufferParam'
 import AdminMarketSpotPrice from '@/app/containers/admin/AdminMarketSpotPrice'
 import AdminMarketTradeLimitParams from '@/app/containers/admin/AdminMarketTradeLimitParams'
 import AdminMarketVarianceFeeParams from '@/app/containers/admin/AdminMarketVarianceFeeParams'
@@ -167,18 +165,6 @@ const AdminMarketPageHelper = withSuspense(
                 market={market}
                 isExpanded={isPartialCollatExpanded}
                 onClickExpand={() => setIsPartialCollatExpanded(!isPartialCollatExpanded)}
-                onParamUpdate={mutateMarket}
-              />
-              <AdminMarketPoolHedgerParams
-                market={market}
-                isExpanded={isPoolHedgerExpanded}
-                onClickExpand={() => setIsPoolHedgerExpanded(!isPoolHedgerExpanded)}
-                onParamUpdate={mutateMarket}
-              />
-              <AdminMarketShortBufferParams
-                market={market}
-                isExpanded={isShortBufferExpanded}
-                onClickExpand={() => setIsShortBufferExpanded(!isShortBufferExpanded)}
                 onParamUpdate={mutateMarket}
               />
               <AdminMarketPricingParams

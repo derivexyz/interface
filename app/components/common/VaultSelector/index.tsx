@@ -34,7 +34,7 @@ const VaultSelector = ({
       onClose={onClose}
       onClick={() => setIsOpen(true)}
       isOpen={isOpen}
-      label={`${selectedVault?.name} Vault APY` ?? ''}
+      label={`${selectedVault?.baseToken.symbol} Vault APY` ?? ''}
       size={size}
       textVariant={textVariant}
     >
@@ -43,7 +43,7 @@ const VaultSelector = ({
           <DropdownButtonListItem
             key={market.address}
             isSelected={market?.address === selectedVault?.address}
-            label={`${market?.name} Vault APY` ?? ''}
+            label={`${market?.baseToken.symbol} Vault APY` ?? ''}
             onClick={() => {
               onChangeVault(market)
               onClose()

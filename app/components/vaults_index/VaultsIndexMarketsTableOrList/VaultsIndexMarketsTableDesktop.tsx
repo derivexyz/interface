@@ -13,7 +13,6 @@ import React, { useMemo } from 'react'
 import { VaultsIndexMarketsTableOrListProps } from '@/app/components/vaults_index/VaultsIndexMarketsTableOrList'
 import { PageId } from '@/app/constants/pages'
 import fromBigNumber from '@/app/utils/fromBigNumber'
-import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 
 import MMVPerfTooltip from '../../common/MMVPerfTooltip'
@@ -68,15 +67,11 @@ const VaultsIndexMarketsTableDesktop = ({
         accessor: 'market',
         Header: 'Market',
         Cell: (props: TableCellProps<VaultsIndexMarketsTableData>) => {
-          const market = getMarketDisplayName(props.cell.value)
           return (
             <Flex alignItems="center">
               <MarketImage size={32} name={props.cell.value} />
               <Box ml={2}>
-                <Text variant="secondaryMedium">{market}</Text>
-                <Text variant="small" color="secondaryText">
-                  {props.row.original.marketBaseSymbol}-{props.row.original.marketQuoteSymbol}
-                </Text>
+                <Text variant="secondaryMedium">{props.row.original.marketBaseSymbol}</Text>
               </Box>
             </Flex>
           )

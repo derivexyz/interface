@@ -3,31 +3,16 @@ export default function getMarketDisplayName(baseTokenSymbol: string | null): st
     case 'lylp':
     case 'eth':
     case 'seth':
+    case 'seth-susd':
       return 'Ethereum'
     case 'btc':
     case 'sbtc':
+    case 'sbtc-susd':
       return 'Bitcoin'
-    case 'link':
-    case 'slink':
-      return 'Chainlink'
     case 'sol':
     case 'ssol':
+    case 'ssol-susd':
       return 'Solana'
-    case 'aave':
-    case 'saave':
-      return 'Aave'
-    case 'avax':
-    case 'savax':
-      return 'Avax'
-    case 'matic':
-    case 'smatic':
-      return 'Matic'
-    case 'uni':
-    case 'suni':
-      return 'Uniswap'
-    case 'wti':
-    case 'swti':
-      return 'Oil'
     default:
       return ''
   }

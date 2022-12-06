@@ -4,7 +4,8 @@ import { Block } from '@ethersproject/providers'
 
 import { ZERO_BN } from '../constants/bn'
 import { DataSource, LyraMarketContractId } from '../constants/contracts'
-import { OptionMarketViewer } from '../contracts/typechain'
+import { BoardViewStructOutput } from '../constants/views'
+import { OptionMarketViewer } from '../contracts/newport/typechain'
 import Lyra from '../lyra'
 import { Market } from '../market'
 import { Option } from '../option'
@@ -23,7 +24,7 @@ export class Board {
   private __market: Market
   private liveStrikeMap: Record<number, OptionMarketViewer.StrikeViewStructOutput>
   __source = DataSource.ContractCall
-  __boardData: OptionMarketViewer.BoardViewStructOutput
+  __boardData: BoardViewStructOutput
   block: Block
   id: number
   expiryTimestamp: number
@@ -36,7 +37,7 @@ export class Board {
   baseIv: BigNumber
   isPaused: boolean
 
-  constructor(lyra: Lyra, market: Market, boardView: OptionMarketViewer.BoardViewStructOutput, block: Block) {
+  constructor(lyra: Lyra, market: Market, boardView: BoardViewStructOutput, block: Block) {
     this.lyra = lyra
     this.block = block
     this.__market = market
@@ -64,7 +65,7 @@ export class Board {
   }
 
   // TODO: @dappbeast Remove getFields
-  private static getFields(market: Market, boardView: OptionMarketViewer.BoardViewStructOutput, block: Block) {
+  private static getFields(market: Market, boardView: BoardViewStructOutput, block: Block) {
     const id = boardView.boardId.toNumber()
     const expiryTimestamp = boardView.expiry.toNumber()
     const timeToExpiry = Math.max(0, expiryTimestamp - block.timestamp)

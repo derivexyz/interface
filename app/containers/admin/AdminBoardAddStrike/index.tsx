@@ -11,6 +11,7 @@ import React, { useState } from 'react'
 import { Flex } from 'rebass'
 
 import { UNIT, ZERO_BN } from '@/app/constants/bn'
+import useAdmin from '@/app/hooks/admin/useAdmin'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
 import useWallet from '@/app/hooks/wallet/useWallet'
@@ -25,6 +26,7 @@ type Props = {
 
 const AdminBoardAddStrike = withSuspense(({ board, market, owner, onAddStrike }: Props) => {
   const { account, isConnected } = useWallet()
+  const admin = useAdmin()
   const [strike, setStrike] = useState<BigNumber>(ZERO_BN)
   const [skew, setSkew] = useState<BigNumber>(ZERO_BN)
   const [isLoading, setIsLoading] = useState(false)
@@ -62,11 +64,17 @@ const AdminBoardAddStrike = withSuspense(({ board, market, owner, onAddStrike }:
             label="Add Strike"
             leftIcon={IconType.Plus}
             onClick={async () => {
-              if (!market || !account) {
+              if (!account || !admin) {
                 return
               }
               setIsLoading(true)
-              const { tx } = await market.addStrikeToBoard(account, BigNumber.from(board.id), strike, skew)
+              const { tx } = await admin.addStrikeToBoard(
+                market.address,
+                account,
+                BigNumber.from(board.id),
+                strike,
+                skew
+              )
               execute(tx, {
                 onComplete: () => {
                   onAddStrike()

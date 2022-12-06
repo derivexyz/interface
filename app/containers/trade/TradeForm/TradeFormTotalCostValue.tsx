@@ -6,7 +6,7 @@ import React from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useBalances from '@/app/hooks/market/useBalances'
+import useQuoteBalance from '@/app/hooks/market/useQuoteBalance'
 import useTradeWithSwap from '@/app/hooks/market/useTradeWithSwap'
 
 type Props = {
@@ -15,8 +15,7 @@ type Props = {
 
 const TradeFormTotalCostValue = withSuspense(
   ({ trade }: Props) => {
-    const balances = useBalances()
-    const quoteToken = balances.stable(trade.quoteToken.address)
+    const quoteToken = useQuoteBalance(trade.quoteToken.address)
     const tradeWithSwap = useTradeWithSwap(trade, quoteToken.address, quoteToken.decimals)
     const externalSwapFee = tradeWithSwap?.externalSwapFee ?? ZERO_BN
     const premium = tradeWithSwap?.premium ?? ZERO_BN

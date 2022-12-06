@@ -6,8 +6,10 @@ export default async function faucet() {
   const lyra = getLyra()
   const signer = getSigner(lyra)
   const preAccount = lyra.account(signer.address)
+  const ethBalance = await signer.getBalance()
   const balances = await preAccount.balances()
-  if (balances.base('sETH').balance.isZero() || balances.stables.every(stableToken => stableToken.balance.isZero())) {
+  const stables = await preAccount.quoteAssets()
+  if (stables.every(stableToken => stableToken.balance.isZero())) {
     console.log('minting...', signer.address)
     const tx = await lyra.drip(signer.address)
     if (!tx) {
@@ -20,9 +22,16 @@ export default async function faucet() {
   } else {
     console.log('already minted', signer.address)
   }
-  const newBalances = await lyra.account(signer.address).balances()
+  const newBalances = await lyra.account(signer.address).quoteAssets()
   console.log('balances', {
-    quote: newBalances.stables,
-    base: fromBigNumber(newBalances.base('sETH').balance),
+    eth: fromBigNumber(ethBalance),
+    quote: newBalances.map(stable => ({
+      ...stable,
+      balance: fromBigNumber(stable.balance, stable.decimals),
+    })),
+    base: balances.map(balance => ({
+      ...balance.baseAsset,
+      balance: fromBigNumber(balance.baseAsset.balance, balance.baseAsset.decimals),
+    })),
   })
 }

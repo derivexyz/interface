@@ -6,6 +6,7 @@ import formatDateTime from '@lyra/ui/utils/formatDateTime'
 import { Board, Market } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
+import useAdmin from '@/app/hooks/admin/useAdmin'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
 import useWallet from '@/app/hooks/wallet/useWallet'
@@ -19,6 +20,7 @@ type Props = {
 
 const AdminBoardInfo = withSuspense(({ board, market, owner, onUpdateBoard }: Props) => {
   const { account, isConnected } = useWallet()
+  const admin = useAdmin()
   const execute = useAdminTransaction(owner)
   const [isLoading, setIsLoading] = useState(false)
   return (
@@ -34,11 +36,11 @@ const AdminBoardInfo = withSuspense(({ board, market, owner, onUpdateBoard }: Pr
           variant={board.isPaused ? 'primary' : 'error'}
           label={board.isPaused ? 'Unpause Board' : 'Pause Board'}
           onClick={async () => {
-            if (!account) {
+            if (!account || !admin) {
               return
             }
             setIsLoading(true)
-            const tx = await market.setBoardPaused(account, BigNumber.from(board.id), !board.isPaused)
+            const tx = await admin.setBoardPaused(market, account, BigNumber.from(board.id), !board.isPaused)
             execute(tx, {
               onComplete: () => {
                 onUpdateBoard()

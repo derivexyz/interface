@@ -13,6 +13,7 @@ import { ForceCloseParams, Market } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
+import useAdmin from '@/app/hooks/admin/useAdmin'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarketOwner from '@/app/hooks/market/useMarketOwner'
 import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
@@ -30,6 +31,7 @@ const zeroDecimalKeys: (keyof ForceCloseParams)[] = ['ivGWAVPeriod', 'skewGWAVPe
 const AdminMarketForceCloseParams = withSuspense(
   ({ market, isExpanded, onClickExpand, onParamUpdate }: Props) => {
     const { account, isConnected } = useWallet()
+    const admin = useAdmin()
     const owner = useMarketOwner(market.name)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
     const [params, setParams] = useState<Partial<ForceCloseParams>>({})
@@ -86,11 +88,11 @@ const AdminMarketForceCloseParams = withSuspense(
               isLoading={isLoading}
               label="Update"
               onClick={async () => {
-                if (!account) {
+                if (!account || !admin) {
                   return
                 }
                 setIsLoading(true)
-                const { tx, params: newParams } = await market.setForceCloseParams(account, params)
+                const { tx, params: newParams } = await admin.setForceCloseParams(market, account, params)
                 setIsLoading(false)
                 setNewParams(newParams)
                 setTx(tx)

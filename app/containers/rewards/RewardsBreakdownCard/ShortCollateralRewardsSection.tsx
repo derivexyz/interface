@@ -58,7 +58,7 @@ const ShortCollateralRewardsCardGrid = withSuspense(
             fromBigNumber(position.size),
             fromBigNumber(position.delta),
             position.expiryTimestamp,
-            position.marketName
+            position.market().baseToken.symbol
           )
           return { lyra: sum.lyra + lyra, op: sum.op + op }
         },

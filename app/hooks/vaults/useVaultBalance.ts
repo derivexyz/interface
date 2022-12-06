@@ -1,10 +1,12 @@
 import {
-  AccountLiquidityTokenBalance,
+  AccountBalances,
   AccountRewardEpoch,
   AccountRewardEpochAPY,
   AccountRewardEpochTokens,
   LiquidityDeposit,
   LiquidityWithdrawal,
+  Market,
+  MarketLiquidity,
 } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
@@ -16,7 +18,9 @@ import useWalletAccount from '../wallet/useWalletAccount'
 import { fetchVault, Vault } from './useVault'
 
 export type VaultBalance = {
-  balance: AccountLiquidityTokenBalance
+  market: Market
+  marketLiquidity: MarketLiquidity
+  balances: AccountBalances
   deposits: LiquidityDeposit[]
   withdrawals: LiquidityWithdrawal[]
   accountRewardEpoch: AccountRewardEpoch | null
@@ -38,17 +42,18 @@ export const fetchVaultBalance = async (owner: string, marketAddressOrName: stri
   const vault = await fetchVault(marketAddressOrName)
   const { market, globalRewardEpoch } = vault
   const account = lyra.account(owner)
-  const [liquidityBalance, liquidityDeposits, liquidityWithdrawals, accountRewardEpoch, { pnl, pnlPercent }] =
+  const [balances, liquidityDeposits, liquidityWithdrawals, accountRewardEpoch, { pnl, pnlPercent }, marketLiquidity] =
     await Promise.all([
-      account.liquidityTokenBalance(market.address),
+      account.marketBalances(market.address),
       account.liquidityDeposits(market.address),
       account.liquidityWithdrawals(market.address),
       globalRewardEpoch ? globalRewardEpoch.accountRewardEpoch(owner) : null,
       account.liquidityUnrealizedPnl(market.address),
+      market.liquidity(),
     ])
-
   return {
-    balance: liquidityBalance,
+    market,
+    balances,
     deposits: liquidityDeposits.filter(d => d.isPending),
     withdrawals: liquidityWithdrawals.filter(w => w.isPending),
     vault,
@@ -60,6 +65,7 @@ export const fetchVaultBalance = async (owner: string, marketAddressOrName: stri
       : globalRewardEpoch?.minVaultApy(marketAddressOrName) ?? EMPTY_VAULT_APY,
     myApyMultiplier: accountRewardEpoch ? accountRewardEpoch.vaultApyMultiplier(marketAddressOrName) : 1,
     myRewards: accountRewardEpoch ? accountRewardEpoch.vaultRewards(marketAddressOrName) : { lyra: 0, op: 0 },
+    marketLiquidity,
   }
 }
 

@@ -10,7 +10,7 @@ const fetcher = async (owner: string): Promise<VaultBalance[]> => {
   const vaultBalances = await Promise.all(
     marketAddresses.map(async marketAddress => await fetchVaultBalance(owner, marketAddress))
   )
-  return vaultBalances.filter(vaultBalance => vaultBalance.balance.balance.gt(0))
+  return vaultBalances.filter(vaultBalance => vaultBalance.balances.liquidityToken.balance.gt(0))
 }
 
 const EMPTY: VaultBalance[] = []

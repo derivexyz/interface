@@ -18,8 +18,8 @@ import { ZERO_BN } from '@/app/constants/bn'
 import { WITHDRAW_WARNING_DOC_URL } from '@/app/constants/links'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarket from '@/app/hooks/market/useMarket'
+import useMarketBalances from '@/app/hooks/market/useMarketBalances'
 import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
-import useLiquidityDepositBalance from '@/app/hooks/vaults/useLiquidityDepositBalance'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import VaultsDepositFormButton from './VaultsDepositFormButton'
@@ -32,9 +32,9 @@ type Props = {
 const VaultsDepositForm = withSuspense(
   ({ marketAddressOrName }: Props) => {
     const market = useMarket(marketAddressOrName)
-    const susd = useLiquidityDepositBalance(marketAddressOrName)
+    const marketBalances = useMarketBalances(marketAddressOrName)
     const marketLiquidity = useMarketLiquidity(marketAddressOrName)
-    const susdBalance = susd?.balance ?? ZERO_BN
+    const quoteBalance = marketBalances.quoteAsset.balance
     const [amount, setAmount] = useState(ZERO_BN)
 
     if (!market) {
@@ -46,7 +46,7 @@ const VaultsDepositForm = withSuspense(
         <CardSection>
           <Flex alignItems="center" justifyContent="space-between" mb={4}>
             <Text color="secondaryText">Amount</Text>
-            <VaultsFormSizeInput amount={amount} max={susdBalance} onChangeAmount={setAmount} />
+            <VaultsFormSizeInput amount={amount} max={quoteBalance} onChangeAmount={setAmount} />
           </Flex>
           <Flex alignItems="center" justifyContent="space-between">
             <Text color="secondaryText" variant="secondary">
@@ -56,8 +56,8 @@ const VaultsDepositForm = withSuspense(
               variant="secondary"
               symbol="sUSD"
               isUSDFormat
-              prevAmount={susdBalance}
-              newAmount={susdBalance.sub(amount)}
+              prevAmount={quoteBalance}
+              newAmount={quoteBalance.sub(amount)}
             />
           </Flex>
         </CardSection>

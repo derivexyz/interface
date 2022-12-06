@@ -24,7 +24,7 @@ const PositionPageHelper = ({ position, option }: Props): JSX.Element => {
   const strikePrice = position.strikePrice
   const expiryTimestamp = position.expiryTimestamp
   const isCall = position.isCall
-  const marketName = position.marketName
+  const marketName = position.market().baseToken.symbol
   const isMobile = useIsMobile()
   const titleText = (
     <Text variant="title">
