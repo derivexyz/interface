@@ -19,7 +19,7 @@ export default function WethLyraStakeModal({ isOpen, onClose }: Props) {
     <Modal isOpen={isOpen} onClose={onClose} title="Stake WETH/LYRA">
       <CardBody>
         <Text mb={8} color="secondaryText">
-          Add liquidity to the WETH/LYRA Uniswap v3 pool via Arrakis and stake your LP tokens to earn LYRA rewards.
+          Add liquidity to the WETH/LYRA Uniswap v3 pool via Arrakis and stake your LP tokens to earn OP rewards.
           Rewards are continuous and you can unstake LP tokens at any time.
         </Text>
         <WethLyraStakeModalContent

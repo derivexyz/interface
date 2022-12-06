@@ -23,6 +23,12 @@ export type AccountRewardEpochTokens = {
   op: number
 }
 
+export type AccountRewardEpochTokensWethLyraStaking = {
+  opRewards: number
+  gUniTokensStaked: number
+  percentShare: number
+}
+
 export class AccountRewardEpoch {
   private lyra: Lyra
   private vaultTokenBalances: Record<string, AccountLiquidityTokenBalance>
@@ -38,6 +44,7 @@ export class AccountRewardEpoch {
   totalVaultRewards: AccountRewardEpochTokens
   tradingRewards: AccountRewardEpochTokens
   shortCollateralRewards: AccountRewardEpochTokens
+  wethLyraStaking: AccountRewardEpochTokensWethLyraStaking
   constructor(
     lyra: Lyra,
     account: string,
@@ -81,7 +88,6 @@ export class AccountRewardEpoch {
     )
     this.tradingFeeRebate = this.globalEpoch.tradingFeeRebate(this.stakedLyraBalance)
     this.tradingFees = this.accountEpoch.tradingRewards.tradingFees
-
     this.tradingRewards = this.globalEpoch.tradingRewards(this.tradingFees, this.stakedLyraBalance)
     this.shortCollateralRewards = this.globalEpoch.shortCollateralRewards(
       this.accountEpoch.tradingRewards.totalCollatRebateDollars
@@ -106,6 +112,12 @@ export class AccountRewardEpoch {
     })
 
     this.isPendingRewards = !this.globalEpoch.isComplete || isTradingPending || isStakingPending || isVaultsPending
+
+    this.wethLyraStaking = {
+      opRewards: this.accountEpoch.wethLyraStakingRewards?.opRewards ?? 0,
+      gUniTokensStaked: this.accountEpoch.wethLyraStakingRewards?.gUniTokensStaked ?? 0,
+      percentShare: this.accountEpoch.wethLyraStakingRewards?.percentShare ?? 0,
+    }
   }
 
   // Getters
@@ -217,16 +229,6 @@ export class AccountRewardEpoch {
     return {
       lyra: !isIgnored ? mmvRewards.lyra ?? 0 : 0,
       op: !isIgnored ? mmvRewards.op ?? 0 : 0,
-    }
-  }
-
-  tradingRewardFeeRebates(fees: number): AccountRewardEpochTokens {
-    const feeProportion = fees / this.accountEpoch.tradingRewards.tradingFees
-    const lyraRebate = this.accountEpoch.tradingRewards.lyraRebate
-    const opRebate = this.accountEpoch.tradingRewards.opRebate
-    return {
-      lyra: lyraRebate === 0 ? 0 : feeProportion * lyraRebate,
-      op: opRebate === 0 ? 0 : feeProportion * opRebate,
     }
   }
 }

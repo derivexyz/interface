@@ -77,7 +77,9 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, hideOption, pa
           collateralAmount = -fromBigNumber(collateralUpdate.changeAmount(position))
         }
         fee = fromBigNumber(event.fee)
-        feeRebate = accountRewardEpoch ? accountRewardEpoch.tradingRewardFeeRebates(fee) : feeRebate
+        feeRebate = accountRewardEpoch
+          ? accountRewardEpoch.globalEpoch.tradingRewards(fee, accountRewardEpoch.stakedLyraBalance)
+          : feeRebate
       } else if (event instanceof CollateralUpdateEvent) {
         collateralValue = -fromBigNumber(event.changeValue(position))
         collateralAmount = -fromBigNumber(event.changeAmount(position))

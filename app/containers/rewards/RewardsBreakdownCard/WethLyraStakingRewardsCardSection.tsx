@@ -55,9 +55,9 @@ const WethLyraRewardsGridItems = withSuspense(
         </Box>
         <Box>
           <Text variant="secondary" color="secondaryText" mb={2}>
-            LYRA Rewards
+            OP Rewards
           </Text>
-          <TokenAmountText tokenNameOrAddress="lyra" variant="secondary" amount={accountStaking?.rewards ?? 0} />
+          <TokenAmountText tokenNameOrAddress="op" variant="secondary" amount={accountStaking?.opRewards ?? 0} />
         </Box>
       </>
     )
@@ -84,7 +84,7 @@ export default function WethLyraStakingRewardsCardSection() {
       </Grid>
       <Text mb={8} maxWidth={['100%', '75%']} variant="secondary" color="secondaryText">
         Lyra's WETH/LYRA program rewards WETH/LYRA liquidity providers on the Uniswap v3 pool via Arrakis Finance.
-        Liquidity providers earn LYRA tokens which can be claimed at any time.
+        Liquidity providers earn OP tokens.
       </Text>
       <Grid sx={{ gridTemplateColumns: `${isMobile ? '1fr' : '1fr 1fr 1fr 1fr'}`, gridColumnGap: 4 }}>
         <Button

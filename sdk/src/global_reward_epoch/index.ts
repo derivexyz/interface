@@ -54,7 +54,7 @@ export class GlobalRewardEpoch {
   tradingRewardsCap: GlobalRewardEpochTokens
   prices: GlobalRewardEpochTokens
   tradingFeeRebateTiers: GlobalRewardEpochTradingFeeRebateTier[]
-
+  wethLyraStaking: GlobalRewardEpochTokens
   constructor(
     lyra: Lyra,
     id: number,
@@ -122,6 +122,11 @@ export class GlobalRewardEpoch {
     this.tradingRewardsCap = {
       lyra: lyraRewardsCap,
       op: opRewardsCap,
+    }
+
+    this.wethLyraStaking = {
+      lyra: 0,
+      op: this.epoch.wethLyraStakingRewardConfig?.totalRewards.OP ?? 0,
     }
   }
 

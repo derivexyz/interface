@@ -33,6 +33,7 @@ import getLyraContractAddress from '../utils/getLyraContractAddress'
 import getLyraMarketContract from '../utils/getLyraMarketContract'
 import getUniqueBy from '../utils/getUniqueBy'
 import isTokenEqual from '../utils/isTokenEqual'
+import toBigNumber from '../utils/toBigNumber'
 import fetchAccountBalancesAndAllowances from './fetchAccountBalancesAndAllowances'
 import fetchPortfolioBalance from './fetchPortfolioBalance'
 import fetchPortfolioHistory from './fetchPortfolioHistory'
@@ -203,6 +204,7 @@ export type AccountWethLyraStaking = {
   unstakedLPTokenBalance: BigNumber
   stakedLPTokenBalance: BigNumber
   rewards: BigNumber
+  opRewards: BigNumber
   allowance: BigNumber
 }
 
@@ -525,17 +527,23 @@ export class Account {
       getLyraContract(this.lyra, LyraContractId.ArrakisPool),
       getLyraContract(this.lyra, LyraContractId.WethLyraStakingRewards),
     ])
-    const [unstakedLPTokenBalance, allowance, stakedLPTokenBalance, rewards] = await Promise.all([
-      gelatoPoolContract.balanceOf(this.address),
-      gelatoPoolContract.allowance(this.address, wethLyraStakingRewardsContract.address),
-      wethLyraStakingRewardsContract.balanceOf(this.address),
-      wethLyraStakingRewardsContract.earned(this.address),
-    ])
+    const [unstakedLPTokenBalance, allowance, stakedLPTokenBalance, rewards, latestGlobalRewardEpoch] =
+      await Promise.all([
+        gelatoPoolContract.balanceOf(this.address),
+        gelatoPoolContract.allowance(this.address, wethLyraStakingRewardsContract.address),
+        wethLyraStakingRewardsContract.balanceOf(this.address),
+        wethLyraStakingRewardsContract.earned(this.address), // @dillon: keep this here for now because some people are yet to claim from old system
+        this.lyra.latestGlobalRewardEpoch(),
+      ])
+    const opRewards = toBigNumber(
+      (await latestGlobalRewardEpoch.accountRewardEpoch(this.address))?.wethLyraStaking.opRewards ?? 0
+    )
     return {
       unstakedLPTokenBalance,
       allowance,
       stakedLPTokenBalance,
-      rewards,
+      rewards: rewards,
+      opRewards: opRewards,
     }
   }
 
