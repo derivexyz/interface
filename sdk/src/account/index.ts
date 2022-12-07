@@ -456,8 +456,8 @@ export class Account {
   }
 
   async approveDeposit(marketAddressOrName: string, amount: BigNumber): Promise<PopulatedTransaction> {
-    const quoteToken = await this.quoteAssetBalance(marketAddressOrName)
     const market = await Market.get(this.lyra, marketAddressOrName)
+    const quoteToken = await this.quoteAssetBalance(market.quoteToken.address)
     const liquidityPoolContract = getLyraMarketContract(
       this.lyra,
       market.contractAddresses,
