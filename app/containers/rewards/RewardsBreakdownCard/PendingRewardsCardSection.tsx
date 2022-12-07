@@ -32,7 +32,9 @@ const PendingRewardsCardGridItems = withSuspense(
     const opVaultRewards = account?.totalVaultRewards.op ?? 0
     const opTradingRewards = account?.tradingRewards.op ?? 0
     const opShortCollatRewards = account?.shortCollateralRewards.op ?? 0
-    const opRewards = opStakingRewards + opVaultRewards + opTradingRewards + opShortCollatRewards
+    const wethLyraStakingRewards = account?.wethLyraStaking.opRewards ?? 0
+    const opRewards =
+      opStakingRewards + opVaultRewards + opTradingRewards + opShortCollatRewards + wethLyraStakingRewards
     return (
       <>
         <Box>
