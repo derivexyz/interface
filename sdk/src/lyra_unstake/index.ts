@@ -60,7 +60,7 @@ export class LyraUnstake {
     this.vaultTokenBalances = data.accountBalances.reduce(
       (lpTokenBalances, accountBalance) => ({
         ...lpTokenBalances,
-        [accountBalance.baseAsset.symbol]: accountBalance,
+        [accountBalance.baseAsset.symbol]: accountBalance.liquidityToken,
       }),
       {}
     )
