@@ -49,7 +49,7 @@ export default function PayoffChart({
   const spotPriceAtExpiry = tradeOrPosition instanceof Position ? tradeOrPosition.spotPriceAtExpiry : null
   const spotPrice = spotPriceAtExpiry ?? currSpotPrice // use spot at expiry
 
-  const marketName = tradeOrPosition.market().name
+  const marketName = tradeOrPosition.market().baseToken.symbol
 
   const textColor = useThemeColor('secondaryText')
 

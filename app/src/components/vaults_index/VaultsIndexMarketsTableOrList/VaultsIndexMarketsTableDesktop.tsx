@@ -151,12 +151,12 @@ const VaultsIndexMarketsTableDesktop = ({
         Header: '',
         width: 100,
         Cell: (props: TableCellProps<VaultsIndexMarketsTableData>) => {
-          const market = props.row.original.market
+          const market = props.row.original.marketBaseSymbol
           return (
             <Flex justifyContent={'flex-end'} width="100%">
               <Button
                 variant="primary"
-                label={market.toLowerCase() === 'sol' ? 'Vault' : 'Deposit'}
+                label={market.toLowerCase() === 'ssol' ? 'Vault' : 'Deposit'}
                 rightIcon={IconType.ArrowRight}
                 href={getPagePath({ page: PageId.Vaults, marketAddressOrName: market })}
                 minWidth={100}

@@ -46,7 +46,7 @@ export default function PositionShareSVG({ position, width, height }: Props) {
   // Formatted
   const formattedSize = formatNumber(position.size, { maxDps: 2 })
 
-  const capitalizedMarketName = market.name.toUpperCase()
+  const capitalizedMarketName = market.baseToken.symbol
   const longShortText = isLong ? 'LONG' : 'SHORT'
   const callPutText = isCall ? 'Call' : 'Put'
   const optionText = `${capitalizedMarketName} $${strikePrice} ${callPutText}`
