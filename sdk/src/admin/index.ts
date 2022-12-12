@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ContractInterface, PopulatedTransaction } from '@ethersproject/contracts'
 
-import Lyra, { Market, Version } from '..'
+import Lyra, { Market, MarketContractAddresses, Version } from '..'
 import { LyraContractId, LyraMarketContractId } from '../constants/contracts'
 import { PoolHedger } from '../contracts/avalon/typechain/ShortPoolHedger'
 import { LyraRegistry } from '../contracts/common/typechain'
@@ -12,6 +12,7 @@ import getLyraContract from '../utils/getLyraContract'
 import getLyraContractABI from '../utils/getLyraContractABI'
 import getLyraContractAddress from '../utils/getLyraContractAddress'
 import getLyraMarketContract from '../utils/getLyraMarketContract'
+import getLyraMarketContractForAddress from '../utils/getLyraMarketContractForAddress'
 import getMarketView from '../utils/getMarketView'
 
 export type MarketGlobalCache = {
@@ -145,6 +146,14 @@ export class Admin {
   }
   getLyraContract(contractId: LyraContractId) {
     return getLyraContract(this.lyra, contractId)
+  }
+
+  getLyraMarketContract(marketContractAddresses: MarketContractAddresses, contractId: LyraMarketContractId) {
+    return getLyraMarketContract(this.lyra, marketContractAddresses, contractId)
+  }
+
+  getLyraMarketContractForAddress(marketContractAddresses: MarketContractAddresses, contractAddress: string) {
+    return getLyraMarketContractForAddress(this.lyra, marketContractAddresses, contractAddress)
   }
 
   async globalOwner(): Promise<string> {

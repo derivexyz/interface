@@ -3,7 +3,6 @@ import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React from 'react'
 
-import NextLink from '../Link/NextLink'
 
 export type CardVariant = 'default' | 'elevated' | 'nested' | 'modal'
 
@@ -39,26 +38,23 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     const [isDarkMode] = useIsDarkMode()
     const isMobile = useIsMobile()
     return (
-      <NextLink href={href}>
-        <Flex
-          as={href ? 'a' : 'div'}
-          target={target}
-          href={href}
-          ref={ref}
-          onClick={onClick}
-          flexDirection="column"
-          {...styleProps}
-          sx={{
-            textDecoration: 'none',
-            color: 'text',
-            overflow: 'hidden',
-            ...(styleProps as any)?.sx,
-          }}
-          variant={getVariant(variant, isDarkMode, isMobile)}
-        >
-          {children}
-        </Flex>
-      </NextLink>
+      <Flex
+        target={target}
+        href={href}
+        ref={ref}
+        onClick={onClick}
+        flexDirection="column"
+        {...styleProps}
+        sx={{
+          textDecoration: 'none',
+          color: 'text',
+          overflow: 'hidden',
+          ...(styleProps as any)?.sx,
+        }}
+        variant={getVariant(variant, isDarkMode, isMobile)}
+      >
+        {children}
+      </Flex>
     )
   }
 )

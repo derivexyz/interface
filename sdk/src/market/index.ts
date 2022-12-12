@@ -27,6 +27,7 @@ import fetchLiquidityHistory from '../utils/fetchLiquidityHistory'
 import fetchNetGreeksHistory from '../utils/fetchNetGreeksHistory'
 import fetchSpotPriceHistory from '../utils/fetchSpotPriceHistory'
 import fetchTradingVolumeHistory from '../utils/fetchTradingVolumeHistory'
+import findMarket from '../utils/findMarket'
 import getBoardView from '../utils/getBoardView'
 import getBoardViewForStrikeId from '../utils/getBoardViewForStrikeId'
 import getMarketOwner from '../utils/getMaketOwner'
@@ -253,6 +254,13 @@ export class Market {
       lyra,
       marketAddresses.map(m => m.optionMarket)
     )
+  }
+
+  static find(markets: Market[], marketAddressOrName: string): Market | null {
+    if (markets.length === 0) {
+      return null
+    }
+    return findMarket(markets[0].lyra, markets, marketAddressOrName)
   }
 
   async refresh(): Promise<Market> {

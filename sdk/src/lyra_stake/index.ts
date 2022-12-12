@@ -162,7 +162,7 @@ export class LyraStake {
   // Dynamic Fields
 
   vaultApy(marketAddressOrName: string): GlobalRewardEpochAPY {
-    const market = findMarket(this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const currStakedLyraBalance = fromBigNumber(this.stakedLyraBalance)
     const currVaultTokenBalance = fromBigNumber(this.vaultTokenBalances[marketKey].balance)
@@ -174,7 +174,7 @@ export class LyraStake {
   }
 
   vaultApyMultiplier(marketAddressOrName: string): number {
-    const market = findMarket(this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const currStakedLyraBalance = fromBigNumber(this.stakedLyraBalance)
     const currVaultTokenBalance = fromBigNumber(this.vaultTokenBalances[marketKey].balance)
@@ -186,7 +186,7 @@ export class LyraStake {
   }
 
   newVaultApy(marketAddressOrName: string): GlobalRewardEpochAPY {
-    const market = findMarket(this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const newStakedLyraBalance = fromBigNumber(this.newStakedLyraBalance)
     const currVaultTokenBalance = fromBigNumber(this.vaultTokenBalances[marketKey].balance)
@@ -198,7 +198,7 @@ export class LyraStake {
   }
 
   newVaultApyMultiplier(marketAddressOrName: string): number {
-    const market = findMarket(this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const newStakedLyraBalance = fromBigNumber(this.newStakedLyraBalance)
     const currVaultTokenBalance = fromBigNumber(this.vaultTokenBalances[marketKey].balance)

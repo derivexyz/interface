@@ -8,7 +8,7 @@ import Center from '../Center'
 import Flex from '../Flex'
 import IconOrImage from '../Icon/IconOrImage'
 import { IconType } from '../Icon/IconSVG'
-import NextLink from '../Link/NextLink'
+import BaseLink from '../Link/BaseLink'
 import Spinner, { SpinnerSize, SpinnerVariant } from '../Spinner'
 import Text, { TextColor, TextVariant } from '../Text'
 
@@ -201,45 +201,43 @@ const Button = React.forwardRef(
     ) : null
 
     return (
-      <NextLink href={href}>
-        <RebassButton
-          ref={ref}
-          as={href != null ? 'a' : 'button'}
-          href={href}
-          target={target}
-          display="flex"
-          alignItems="center"
-          type={type}
-          justifyContent={getButtonJustify(justify)}
-          className={isDisabled || isLoading ? 'disabled' : undefined}
-          onClick={!isDisabled && !isLoading ? onClick : undefined}
-          {...styleProps}
-          variant={buttonVariant}
-          sx={{
-            ...sizeSx,
-            cursor: isDisabled ? 'not-allowed' : isLoading ? 'default' : 'pointer',
-          }}
-          opacity={isLoading ? 0.8 : 1.0}
-        >
-          {left}
-          {/* TODO: @dappbeast Fix this hack */}
-          <Box mx={showRightIconSeparator ? 'auto' : 'none'}>
-            {React.isValidElement(label) ? (
-              label
-            ) : textVariant ? (
-              <Text color={textColor ?? 'inherit'} variant={textVariant} textAlign={textAlign}>
-                {label}
-              </Text>
-            ) : (
-              label
-            )}
-          </Box>
-          {showRightIconSeparator ? (
-            <Box ml="auto" height={sizeSx.height} width="1px" bg={isOutline ? buttonSx.borderColor : 'background'} />
-          ) : null}
-          {right}
-        </RebassButton>
-      </NextLink>
+      <RebassButton
+        ref={ref}
+        as={href != null ? BaseLink : 'button'}
+        href={href}
+        target={target}
+        display="flex"
+        alignItems="center"
+        type={type}
+        justifyContent={getButtonJustify(justify)}
+        className={isDisabled || isLoading ? 'disabled' : undefined}
+        onClick={!isDisabled && !isLoading ? onClick : undefined}
+        {...styleProps}
+        variant={buttonVariant}
+        sx={{
+          ...sizeSx,
+          cursor: isDisabled ? 'not-allowed' : isLoading ? 'default' : 'pointer',
+        }}
+        opacity={isLoading ? 0.8 : 1.0}
+      >
+        {left}
+        {/* TODO: @dappbeast Fix this hack */}
+        <Box mx={showRightIconSeparator ? 'auto' : 'none'}>
+          {React.isValidElement(label) ? (
+            label
+          ) : textVariant ? (
+            <Text color={textColor ?? 'inherit'} variant={textVariant} textAlign={textAlign}>
+              {label}
+            </Text>
+          ) : (
+            label
+          )}
+        </Box>
+        {showRightIconSeparator ? (
+          <Box ml="auto" height={sizeSx.height} width="1px" bg={isOutline ? buttonSx.borderColor : 'background'} />
+        ) : null}
+        {right}
+      </RebassButton>
     )
   }
 )

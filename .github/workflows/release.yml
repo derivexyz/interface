@@ -44,19 +44,18 @@ jobs:
       - name: Build
         run: |
           rm -rf ./app/public/images
-          yarn app:build:static
+          yarn app:build
         env:
-          BUILD_INFURA_PROJECT_ID: ${{ secrets.BUILD_INFURA_PROJECT_ID }}
-          BUILD_ALCHEMY_PROJECT_ID: ${{ secrets.BUILD_ALCHEMY_PROJECT_ID }}
-          NEXT_PUBLIC_IPFS: true
-          NEXT_PUBLIC_RELEASE_TAG: ${{ needs.tag.outputs.new_tag }}
+          CI: false
+          REACT_APP_IPFS: true
+          REACT_APP_RELEASE_TAG: ${{ needs.tag.outputs.new_tag }}
 
       - name: Pin to IPFS
         id: pinata
         uses: anantaramdas/ipfs-pinata-deploy-action@39bbda1ce1fe24c69c6f57861b8038278d53688d
         with:
           pin-name: ${{ needs.tag.outputs.new_tag }}
-          path: "./app/out"
+          path: "./app/build"
           pinata-api-key: ${{ secrets.PINATA_API_KEY }}
           pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
 

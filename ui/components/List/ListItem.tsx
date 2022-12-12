@@ -6,7 +6,7 @@ import { Box, Flex, SxStyleProp } from 'rebass'
 import Center from '../Center'
 import { IconType } from '../Icon'
 import IconOrImage from '../Icon/IconOrImage'
-import NextLink from '../Link/NextLink'
+import BaseLink from '../Link/BaseLink'
 
 export type ListItemProps = {
   label: React.ReactNode | string
@@ -48,55 +48,53 @@ export default function ListItem({
         }}
         onClick={onClick}
       >
-        <NextLink href={href}>
-          <Flex
-            as={href ? 'a' : 'div'}
-            href={href}
-            target={target}
-            alignItems="center"
-            justifyContent="flex-start"
-            // TODO: @dappbeast set all mobile px to 3px
-            px={[6, 3]}
-            py={3}
-            height="100%"
-            sx={{
-              textDecoration: 'none',
+        <Flex
+          as={href ? BaseLink : 'div'}
+          href={href}
+          target={target}
+          alignItems="center"
+          justifyContent="flex-start"
+          // TODO: @dappbeast set all mobile px to 3px
+          px={[6, 3]}
+          py={3}
+          height="100%"
+          sx={{
+            textDecoration: 'none',
+            color: isDisabled ? 'disabledText' : 'text',
+            ':hover': {
               color: isDisabled ? 'disabledText' : 'text',
-              ':hover': {
-                color: isDisabled ? 'disabledText' : 'text',
-              },
-              ...sx,
-            }}
-          >
-            {icon ? (
-              <Center mr={2}>
-                {typeof icon === 'string' ? <IconOrImage src={icon} size={18} color="currentColor" /> : icon}
-              </Center>
-            ) : null}
-            <Flex flexGrow={1} flexDirection="column">
-              {typeof label === 'string' || typeof label === 'number' ? (
-                <Text variant={isMobile ? 'secondary' : 'body'} sx={{ transition: 'all 0.05s ease-out' }}>
-                  {label}
-                </Text>
+            },
+            ...sx,
+          }}
+        >
+          {icon ? (
+            <Center mr={2}>
+              {typeof icon === 'string' ? <IconOrImage src={icon} size={18} color="currentColor" /> : icon}
+            </Center>
+          ) : null}
+          <Flex flexGrow={1} flexDirection="column">
+            {typeof label === 'string' || typeof label === 'number' ? (
+              <Text variant={isMobile ? 'secondary' : 'body'} sx={{ transition: 'all 0.05s ease-out' }}>
+                {label}
+              </Text>
+            ) : (
+              label
+            )}
+            {sublabel != null &&
+              (typeof sublabel === 'string' || typeof sublabel === 'number' ? (
+                <Text variant="small">{sublabel}</Text>
               ) : (
-                label
-              )}
-              {sublabel != null &&
-                (typeof sublabel === 'string' || typeof sublabel === 'number' ? (
-                  <Text variant="small">{sublabel}</Text>
-                ) : (
-                  sublabel
-                ))}
-            </Flex>
-            {rightContent ? (
-              <Center height="100%" pl={8}>
-                <Box>
-                  {typeof rightContent === 'string' ? <IconOrImage src={rightContent} size={18} /> : rightContent}
-                </Box>
-              </Center>
-            ) : null}
+                sublabel
+              ))}
           </Flex>
-        </NextLink>
+          {rightContent ? (
+            <Center height="100%" pl={8}>
+              <Box>
+                {typeof rightContent === 'string' ? <IconOrImage src={rightContent} size={18} /> : rightContent}
+              </Box>
+            </Center>
+          ) : null}
+        </Flex>
       </Box>
       {children}
     </>

@@ -11,7 +11,7 @@ export type { OptionMarketWrapper } from "./OptionMarketWrapper";
 export type { OptionToken } from "./OptionToken";
 export type { PoolHedger } from "./PoolHedger";
 export type { ShortCollateral } from "./ShortCollateral";
-
+export * as factories from "./factories";
 export { GMXFuturesPoolHedger__factory } from "./factories/GMXFuturesPoolHedger__factory";
 export { LiquidityPool__factory } from "./factories/LiquidityPool__factory";
 export { OptionGreekCache__factory } from "./factories/OptionGreekCache__factory";

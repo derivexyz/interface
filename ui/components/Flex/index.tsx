@@ -2,6 +2,8 @@ import React from 'react'
 import { BaseProps, Flex as RebassFlex, SxProps } from 'rebass'
 import { ColorProps, FlexboxProps, LayoutProps, MarginProps, PaddingProps } from 'styled-system'
 
+import BaseLink from '../Link/BaseLink'
+
 export type FlexProps = {
   children?: React.ReactNode
   onClick?: React.ReactEventHandler
@@ -19,9 +21,9 @@ export type FlexElement = React.ReactElement<FlexProps>
 
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line react/display-name
-const Flex = React.forwardRef<HTMLDivElement, FlexProps>(({ children, ...props }, ref): FlexElement => {
+const Flex = React.forwardRef<HTMLDivElement, FlexProps>(({ children, href, ...props }, ref): FlexElement => {
   return (
-    <RebassFlex {...props} ref={ref}>
+    <RebassFlex {...props} ref={ref} as={href ? BaseLink : 'div'}>
       {children}
     </RebassFlex>
   )

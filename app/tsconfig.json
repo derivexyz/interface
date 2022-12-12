@@ -7,10 +7,10 @@
     "paths": {
       "@lyra/ui/*": ["../ui/*"],
       "@lyrafinance/lyra-js": ["../sdk/src/index.ts"],
-      "@/app/*": ["*"]
+      "@/app/*": ["src/*"]
     },
     "incremental": true
   },
   "exclude": ["node_modules"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "index.d.ts", "../ui/index.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../ui/index.d.ts"]
 }

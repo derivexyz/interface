@@ -8,7 +8,6 @@ import Lyra, { Version } from '../lyra'
 import getLyraContract from './getLyraContract'
 import parseBaseKeyBytes32 from './parseBaseKeyBytes32'
 import parseBaseSymbol from './parseBaseSymbol'
-import parseMarketName from './parseMarketName'
 
 export default async function getMarketView(
   lyra: Lyra,
@@ -18,13 +17,13 @@ export default async function getMarketView(
   if (isAddress(marketAddressOrName)) {
     return await _viewer.getMarket(marketAddressOrName)
   } else {
-    const { baseKey } = parseMarketName(marketAddressOrName)
+    const baseSymbol = parseBaseSymbol(lyra, marketAddressOrName)
     if (lyra.version === Version.Avalon) {
       const avalonViewer = _viewer as OptionMarketViewerAvalon
-      return avalonViewer.getMarketForBaseKey(parseBaseKeyBytes32(baseKey))
+      return avalonViewer.getMarketForBaseKey(parseBaseKeyBytes32(baseSymbol))
     }
     const viewer = _viewer as OptionMarketViewer
-    const baseKeyMarket = await viewer.getMarketForBase(parseBaseSymbol(baseKey))
+    const baseKeyMarket = await viewer.getMarketForBase(baseSymbol)
     return baseKeyMarket
   }
 }

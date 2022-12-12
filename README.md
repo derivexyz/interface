@@ -4,7 +4,7 @@ An open source interface for the Lyra Protocol, a decentralized options exchange
 
 ## Accessing the Lyra Interface
 
-To access the Lyra Interface, use an IPFS gateway link from the [latest release](https://github.com/Uniswap/uniswap-interface/releases/latest) or visit [app.lyra.finance](https://app.lyra.finance).
+To access the Lyra Interface, use an IPFS gateway link from the [latest release](https://github.com/lyra-finance/interface/releases/latest) or visit [app.lyra.finance](https://app.lyra.finance).
 
 ## Contributions
 
@@ -19,7 +19,7 @@ yarn install
 ### Run the interface locally
 
 ```
-yarn app:dev
+yarn app:start
 ```
 
 ### Create a production build

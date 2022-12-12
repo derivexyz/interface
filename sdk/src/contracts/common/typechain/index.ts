@@ -8,12 +8,12 @@ export type { LiquidityToken } from "./LiquidityToken";
 export type { LyraRegistry } from "./LyraRegistry";
 export type { LyraStakingModule } from "./LyraStakingModule";
 export type { LyraStakingModuleProxy } from "./LyraStakingModuleProxy";
-export type { Multicall3 } from "./Multicall3";
 export type { MultiDistributor } from "./MultiDistributor";
+export type { Multicall3 } from "./Multicall3";
 export type { OneInchOffChainOracle } from "./OneInchOffChainOracle";
 export type { StakingRewards } from "./StakingRewards";
 export type { TestFaucet } from "./TestFaucet";
-
+export * as factories from "./factories";
 export { ArrakisPool__factory } from "./factories/ArrakisPool__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
 export { ExchangeAdapter__factory } from "./factories/ExchangeAdapter__factory";

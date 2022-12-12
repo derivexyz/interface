@@ -522,18 +522,20 @@ const theme = {
     },
     link: {
       textDecoration: 'none',
-      transition: 'color 0.1s ease-out',
+      color: 'text',
     },
     primaryLink: {
-      variant: 'variants.link',
+      textDecoration: 'none',
       color: 'link',
+      transition: 'color 0.1s ease-out',
       ':hover': {
         color: 'linkHover',
       },
     },
     secondaryLink: {
-      variant: 'variants.link',
+      textDecoration: 'none',
       color: 'secondaryText',
+      transition: 'color 0.1s ease-out',
       ':hover': {
         color: 'text',
       },

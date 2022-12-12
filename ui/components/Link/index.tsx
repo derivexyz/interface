@@ -8,7 +8,7 @@ import { SxProps } from 'theme-ui'
 import { IconType } from '../Icon'
 import IconSVG from '../Icon/IconSVG'
 import { TextProps, TextVariant } from '../Text'
-import NextLink from './NextLink'
+import BaseLink from './BaseLink'
 
 type LinkVariant = 'primary' | 'secondary'
 
@@ -51,39 +51,38 @@ export default function Link({
     return null
   }
   return (
-    <NextLink href={href}>
-      <RebassLink
-        variant={getVariant(variant)}
-        href={href}
-        target={target}
-        {...props}
-        sx={{
-          ...textSx,
-          display: leftIcon ? 'flex' : null,
-          alignItems: leftIcon ? 'center' : null,
-          color,
-          cursor: 'pointer',
-          ...props.sx,
-        }}
-      >
-        {leftIcon ? (
-          <>
-            <IconSVG strokeWidth={3} size={lineHeightSize} icon={leftIcon} />
-            &nbsp;&nbsp;
-          </>
-        ) : null}
-        {children}
-        {showRightIcon ? (
-          <>
-            &nbsp;
-            <IconSVG
-              strokeWidth={3}
-              size={fontSize}
-              icon={target === '_blank' ? IconType.ArrowUpRight : IconType.ArrowRight}
-            />
-          </>
-        ) : null}
-      </RebassLink>
-    </NextLink>
+    <RebassLink
+      as={BaseLink}
+      variant={getVariant(variant)}
+      href={href}
+      target={target}
+      {...props}
+      sx={{
+        ...textSx,
+        display: leftIcon ? 'flex' : null,
+        alignItems: leftIcon ? 'center' : null,
+        color,
+        cursor: 'pointer',
+        ...props.sx,
+      }}
+    >
+      {leftIcon ? (
+        <>
+          <IconSVG strokeWidth={3} size={lineHeightSize} icon={leftIcon} />
+          &nbsp;&nbsp;
+        </>
+      ) : null}
+      {children}
+      {showRightIcon ? (
+        <>
+          &nbsp;
+          <IconSVG
+            strokeWidth={3}
+            size={fontSize}
+            icon={target === '_blank' ? IconType.ArrowUpRight : IconType.ArrowRight}
+          />
+        </>
+      ) : null}
+    </RebassLink>
   )
 }

@@ -183,7 +183,7 @@ export class GlobalRewardEpoch {
   // Dynamic Fields
 
   vaultApy(marketAddressOrName: string, stakedLyraBalance: number, vaultTokenBalance: number): GlobalRewardEpochAPY {
-    const market = findMarket(this.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
 
     const totalAvgVaultTokens = this.totalAverageVaultTokens(marketAddressOrName)
@@ -254,7 +254,7 @@ export class GlobalRewardEpoch {
   }
 
   maxVaultApy(marketAddressOrName: string): GlobalRewardEpochAPY {
-    const market = findMarket(this.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const scaledStkLyraDays = this.epoch.scaledStkLyraDays[marketKey]
     if (!scaledStkLyraDays) {
@@ -265,7 +265,7 @@ export class GlobalRewardEpoch {
   }
 
   totalVaultRewards(marketAddressOrName: string): GlobalRewardEpochTokens {
-    const market = findMarket(this.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     return {
       lyra: this.epoch.rewardedMMVRewards.LYRA[marketKey] ?? 0,
@@ -274,13 +274,13 @@ export class GlobalRewardEpoch {
   }
 
   totalAverageVaultTokens(marketAddressOrName: string): number {
-    const market = findMarket(this.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     return this.progressDays ? (this.epoch.totalLpTokenDays[marketKey] ?? 0) / this.progressDays : 0
   }
 
   totalAverageBoostedVaultTokens(marketAddressOrName: string): number {
-    const market = findMarket(this.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     return this.progressDays ? (this.epoch.totalBoostedLpTokenDays[marketKey] ?? 0) / this.progressDays : 0
   }

@@ -18,11 +18,12 @@ export default async function getBoardView(
   if (isAddress(marketAddressOrName)) {
     return await _viewer.getBoard(marketAddressOrName, boardId)
   } else {
+    const baseSymbol = parseBaseSymbol(lyra, marketAddressOrName)
     if (lyra.version === Version.Avalon) {
       const avalonViewer = _viewer as OptionMarketViewerAvalon
-      return await avalonViewer.getBoardForBaseKey(parseBaseKeyBytes32(marketAddressOrName), boardId)
+      return await avalonViewer.getBoardForBaseKey(parseBaseKeyBytes32(baseSymbol), boardId)
     }
     const viewer = _viewer as OptionMarketViewer
-    return await viewer.getBoardForBase(parseBaseSymbol(marketAddressOrName), boardId)
+    return await viewer.getBoardForBase(baseSymbol, boardId)
   }
 }

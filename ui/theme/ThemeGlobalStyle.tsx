@@ -21,9 +21,9 @@ export default function ThemeGlobalStyle(): JSX.Element {
 
       html,
       body,
-      body > div:first-child,
-      div#__next,
-      div#__next > div:first-child {
+      body,
+      div#root,
+      div#root > div:first-child {
         height: 100%;
       }
 

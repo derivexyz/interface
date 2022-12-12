@@ -1,5 +1,4 @@
 import { ModalContext } from '@lyra/ui/theme/ModalProvider'
-import isServer from '@lyra/ui/utils/isServer'
 import React, { useContext, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -50,10 +49,6 @@ export default function ModalMobile({ children, isFullscreen, isOpen, onClose, t
     // Causes infinite loop if onClose is not memoized
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModalId])
-
-  if (isServer()) {
-    return null
-  }
 
   return createPortal(
     isOpen ? (

@@ -1,5 +1,4 @@
 import { ResponsiveValue } from '@lyra/ui/types'
-import isServer from '@lyra/ui/utils/isServer'
 import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom'
 
@@ -31,9 +30,6 @@ export default function ModalDesktop({ isOpen, onClose, title, children, width =
     }
   }, [isOpen])
 
-  if (isServer()) {
-    return null
-  }
   return isOpen
     ? ReactDOM.createPortal(
         <Flex

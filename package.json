@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "app:dev": "yarn workspace @lyra/app dev",
+    "app:start": "yarn workspace @lyra/app start",
     "app:build": "yarn workspace @lyra/app build",
-    "app:build:static": "yarn workspace @lyra/app build:static",
-    "sdk:dev": "yarn workspace @lyrafinance/lyra-js dev",
+    "app:analyze": "yarn workspace @lyra/app analyze",
+    "sdk:watch": "yarn workspace @lyrafinance/lyra-js watch",
     "sdk:build": "yarn workspace @lyrafinance/lyra-js build",
-    "format": "yarn workspaces foreach run format",
-    "tsc": "yarn workspaces foreach run tsc",
-    "lint": "yarn workspaces foreach run lint",
-    "clean": "yarn workspaces foreach run clean && rimraf node_modules",
+    "format": "yarn workspaces run format",
+    "tsc": "yarn workspaces run tsc",
+    "lint": "yarn workspaces run lint",
+    "clean": "yarn workspaces run clean && rimraf node_modules",
     "postinstall": "husky install"
   },
   "workspaces": [
@@ -29,6 +29,5 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  },
-  "packageManager": "yarn@3.1.1"
+  }
 }

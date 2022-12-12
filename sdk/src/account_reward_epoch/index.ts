@@ -197,7 +197,7 @@ export class AccountRewardEpoch {
   }
 
   vaultTokenBalance(marketAddressOrName: string): number {
-    const market = findMarket(this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const boostedLpDays = this.accountEpoch.boostedLpDays
       ? this.accountEpoch.boostedLpDays[marketKey]
@@ -212,7 +212,7 @@ export class AccountRewardEpoch {
   }
 
   vaultRewards(marketAddressOrName: string): AccountRewardEpochTokens {
-    const market = findMarket(this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const mmvRewards = this.accountEpoch.MMVRewards
       ? this.accountEpoch.MMVRewards[marketKey]

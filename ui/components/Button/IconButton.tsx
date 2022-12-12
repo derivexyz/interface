@@ -4,7 +4,7 @@ import { Button as RebassButton } from 'rebass'
 import { LayoutProps, MarginProps } from '../../types'
 import IconOrImage from '../Icon/IconOrImage'
 import { IconType } from '../Icon/IconSVG'
-import NextLink from '../Link/NextLink'
+import BaseLink from '../Link/BaseLink'
 import { TextVariant } from '../Text'
 import { ButtonSize, ButtonVariant, getButtonIconSize, getButtonSizeSx, getButtonVariant } from '.'
 
@@ -45,27 +45,25 @@ const IconButton = React.forwardRef(
     const buttonVariant = getButtonVariant(variant, isOutline, isTransparent, isDisabled)
 
     return (
-      <NextLink href={href}>
-        <RebassButton
-          ref={ref}
-          as={href != null ? 'a' : 'button'}
-          disabled={isDisabled}
-          onClick={onClick}
-          href={href}
-          target={target}
-          type={type}
-          display={'flex'}
-          justifyContent="center"
-          alignItems={'center'}
-          variant={buttonVariant}
-          {...marginProps}
-          sx={{ ...sizeSx }}
-          p={0}
-          minWidth={sizeSx.height}
-        >
-          {typeof icon === 'string' ? <IconOrImage src={icon} size={getButtonIconSize(size)} /> : icon}
-        </RebassButton>
-      </NextLink>
+      <RebassButton
+        ref={ref}
+        as={href ? BaseLink : 'button'}
+        disabled={isDisabled}
+        onClick={onClick}
+        href={href}
+        target={target}
+        type={type}
+        display={'flex'}
+        justifyContent="center"
+        alignItems={'center'}
+        variant={buttonVariant}
+        {...marginProps}
+        sx={{ ...sizeSx }}
+        p={0}
+        minWidth={sizeSx.height}
+      >
+        {typeof icon === 'string' ? <IconOrImage src={icon} size={getButtonIconSize(size)} /> : icon}
+      </RebassButton>
     )
   }
 )
