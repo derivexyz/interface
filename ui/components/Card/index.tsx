@@ -3,7 +3,6 @@ import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React from 'react'
 
-
 export type CardVariant = 'default' | 'elevated' | 'nested' | 'modal'
 
 export type CardProps = {

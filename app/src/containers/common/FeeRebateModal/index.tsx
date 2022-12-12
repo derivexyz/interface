@@ -27,7 +27,7 @@ type Props = {
 
 const FeeRebateModalBody = withSuspense(
   ({ onClose }: { onClose: () => void }) => {
-    const epochs = useLatestRewardEpochs()
+    const epochs = useLatestRewardEpochs(true)
     const global = epochs?.global
     const account = epochs?.account
     const feeRebate = account?.tradingFeeRebate ?? global?.minTradingFeeRebate ?? 0

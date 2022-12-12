@@ -10,7 +10,10 @@ type LatestRewardEpochs = {
   account?: AccountRewardEpoch | null
 }
 
-export const fetchLatestRewardEpochs = async (address?: string): Promise<LatestRewardEpochs | null> => {
+export const fetchLatestRewardEpochs = async (
+  address?: string,
+  sortByDescending?: boolean
+): Promise<LatestRewardEpochs | null> => {
   const [globalRewardEpochs, accountRewardEpochs] = await Promise.all([
     lyra.deployment === Deployment.Mainnet ? lyra.globalRewardEpochs() : [],
     address ? fetchAccountRewardEpochs(address) : [],
@@ -22,12 +25,15 @@ export const fetchLatestRewardEpochs = async (address?: string): Promise<LatestR
           accountRewardEpochs.find(epoch => epoch.globalEpoch.startTimestamp === global.startTimestamp) ?? null
         return { account, global }
       })
+      .sort((a, b) =>
+        sortByDescending ? b.global.endTimestamp - a.global.endTimestamp : a.global.endTimestamp - b.global.endTimestamp
+      )
       .find(({ account, global }) => account?.isPendingRewards || global.isCurrent) ?? null
   )
 }
 
-export default function useLatestRewardEpochs(): LatestRewardEpochs | null {
+export default function useLatestRewardEpochs(sortByDescending?: boolean): LatestRewardEpochs | null {
   const account = useWalletAccount()
-  const [data] = useFetch('LatestRewardEpochs', account ? [account] : [], fetchLatestRewardEpochs)
+  const [data] = useFetch('LatestRewardEpochs', account ? [account, sortByDescending] : [], fetchLatestRewardEpochs)
   return data ?? null
 }
