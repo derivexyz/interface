@@ -23,7 +23,7 @@ export type FlexElement = React.ReactElement<FlexProps>
 // eslint-disable-next-line react/display-name
 const Flex = React.forwardRef<HTMLDivElement, FlexProps>(({ children, href, ...props }, ref): FlexElement => {
   return (
-    <RebassFlex {...props} ref={ref} as={href ? BaseLink : 'div'}>
+    <RebassFlex as={href ? BaseLink : 'div'} {...props} ref={ref}>
       {children}
     </RebassFlex>
   )
