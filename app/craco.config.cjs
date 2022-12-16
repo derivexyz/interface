@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 const { getLoader, loaderByName } = require('@craco/craco')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
@@ -22,6 +23,14 @@ module.exports = {
         webpackConfig.plugins.push(
           new BundleAnalyzerPlugin({ analyzerMode: process.env.REACT_APP_INTERACTIVE_ANALYZE ? 'server' : 'json' })
         )
+      }
+      webpackConfig.plugins.push(
+        new webpack.ProvidePlugin({
+          Buffer: ['buffer', 'Buffer'],
+        })
+      )
+      webpackConfig.resolve.fallback = {
+        buffer: require.resolve('buffer'),
       }
 
       return webpackConfig
