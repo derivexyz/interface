@@ -3,7 +3,17 @@ import Modal from '@lyra/ui/components/Modal'
 import ModalBody from '@lyra/ui/components/Modal/ModalBody'
 import Text from '@lyra/ui/components/Text'
 import { getThemePreset } from '@lyra/ui/theme'
-import { connectorsForWallets, lightTheme, RainbowKitProvider, wallet } from '@rainbow-me/rainbowkit'
+import { connectorsForWallets, lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import {
+  braveWallet,
+  coinbaseWallet,
+  imTokenWallet,
+  injectedWallet,
+  metaMaskWallet,
+  rainbowWallet,
+  trustWallet,
+  walletConnectWallet,
+} from '@rainbow-me/rainbowkit/wallets'
 import nullthrows from 'nullthrows'
 import React, { useEffect, useRef, useState } from 'react'
 import { chain as wagmiChain, configureChains, createClient, WagmiConfig } from 'wagmi'
@@ -37,16 +47,16 @@ const connectors = connectorsForWallets([
   {
     groupName: 'Best Support for Optimism',
     wallets: [
-      wallet.metaMask({ chains }),
-      wallet.coinbase({ chains, appName: 'Lyra' }),
-      wallet.walletConnect({ chains }),
-      wallet.rainbow({ chains }),
-      wallet.imToken({ chains }),
-      wallet.trust({ chains }),
-      wallet.brave({ chains }),
+      metaMaskWallet({ chains }),
+      coinbaseWallet({ chains, appName: 'Lyra' }),
+      walletConnectWallet({ chains }),
+      rainbowWallet({ chains }),
+      imTokenWallet({ chains }),
+      trustWallet({ chains }),
+      braveWallet({ chains }),
       qredo({ chains }),
       rabby({ chains }),
-      wallet.injected({ chains }),
+      injectedWallet({ chains }),
     ],
   },
 ])
