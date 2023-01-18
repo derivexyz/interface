@@ -27,12 +27,18 @@ export const IGNORE_STRIKE_LIST: IgnoreStrike[] = [
   },
 ]
 
-export const IGNORE_VAULTS_LIST: IgnoreVault[] = [
+export const IGNORE_VAULTS_LIST: IgnoreVault[] = filterNulls([
   {
     marketName: 'sSOL-sUSD',
     chain: Chain.Optimism,
   },
-]
+  isProd()
+    ? {
+        marketName: 'WBTC-USDC',
+        chain: Chain.Arbitrum,
+      }
+    : null,
+])
 
 export const IGNORE_MARKETS_LIST: IgnoreMarket[] = filterNulls([
   {
