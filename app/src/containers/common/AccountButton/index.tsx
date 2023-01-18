@@ -23,6 +23,7 @@ import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
 import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
 import { getNavPageFromPath } from '@/app/utils/getNavPageFromPath'
 import getPagePath from '@/app/utils/getPagePath'
+import isProd from '@/app/utils/isProd'
 
 import ConnectWalletButton from '../ConnectWalletButton'
 
@@ -77,7 +78,9 @@ const AccountButton = withSuspense(
 
     return (
       <Flex {...styleProps}>
-        <NetworkDropdownButton selectedNetwork={network} onSelectNetwork={handleSelectNetwork} mr={2} />
+        {!isProd() ? (
+          <NetworkDropdownButton selectedNetwork={network} onSelectNetwork={handleSelectNetwork} mr={2} />
+        ) : null}
         {account ? (
           <ConnectButton.Custom>
             {({ openAccountModal }) => {
