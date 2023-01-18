@@ -1,24 +1,22 @@
+import Lyra from '@lyrafinance/lyra-js'
+import { Market } from '@lyrafinance/lyra-js'
 import { Board } from '@lyrafinance/lyra-js'
-import { useCallback } from 'react'
 
-import lyra from '../../utils/lyra'
-import useFetch, { useMutate } from '../data/useFetch'
+import { useLyraFetch, useLyraMutate } from '../data/useLyraFetch'
 
-export const fetchBoard = async (marketAddressOrName: string, boardId: number): Promise<Board> =>
+export const fetchBoard = async (lyra: Lyra, marketAddressOrName: string, boardId: number): Promise<Board> =>
   await lyra.board(marketAddressOrName, boardId)
 
-export default function useBoard(marketAddressOrName: string | null, boardId: number | null): Board | null {
-  const [board] = useFetch('Board', marketAddressOrName && boardId ? [marketAddressOrName, boardId] : null, fetchBoard)
+export default function useBoard(market: Market | null, boardId: number | null): Board | null {
+  const [board] = useLyraFetch(
+    'Board',
+    market ? market.lyra : null,
+    market && boardId ? [market.address, boardId] : null,
+    fetchBoard
+  )
   return board
 }
 
-export const useMutateBoard = (
-  marketAddressOrName: string | null,
-  boardId: number | null
-): (() => Promise<Board | null>) => {
-  const mutate = useMutate('Board', fetchBoard)
-  return useCallback(
-    async () => (marketAddressOrName && boardId ? await mutate(marketAddressOrName, boardId) : null),
-    [mutate, marketAddressOrName, boardId]
-  )
+export const useMutateBoard = (lyra: Lyra) => {
+  return useLyraMutate('Board', lyra, fetchBoard)
 }

@@ -1,17 +1,18 @@
+import { Network } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
-import lyra from '@/app/utils/lyra'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 
 import useFetch, { useMutate } from '../data/useFetch'
 
-const fetcher = async () => await lyra.admin().isGlobalPaused()
+const fetcher = async (network: Network) => await getLyraSDK(network).admin().isGlobalPaused()
 
-export default function useIsGlobalPaused(): boolean | null {
-  const [isGlobalPaused] = useFetch('IsGlobalPaused', [], fetcher)
+export default function useIsGlobalPaused(network: Network): boolean | null {
+  const [isGlobalPaused] = useFetch('IsGlobalPaused', [network], fetcher)
   return isGlobalPaused
 }
 
-export const useMutateIsGlobalPaused = (): (() => Promise<boolean | null>) => {
+export const useMutateIsGlobalPaused = (network: Network): (() => Promise<boolean | null>) => {
   const mutate = useMutate('IsGlobalPaused', fetcher)
-  return useCallback(async () => await mutate(), [mutate])
+  return useCallback(async () => await mutate(network), [mutate, network])
 }

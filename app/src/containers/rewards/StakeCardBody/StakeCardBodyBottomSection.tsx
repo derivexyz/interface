@@ -2,7 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import ModalSection from '@lyra/ui/components/Modal/ModalSection'
 import Shimmer from '@lyra/ui/components/Shimmer'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
-import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import { LayoutProps } from '@lyra/ui/types'
@@ -40,12 +39,9 @@ const StakeCardBodyBottomSection = withSuspense(
     }, [markets, vault, setVault])
     const stake = useStake(amount)
     const newLyraStakingYieldPerDay = stake?.newStakingYieldPerDay.lyra ?? 0
-    const newOpStakingYieldPerDay = stake?.newStakingYieldPerDay.op ?? 0
     const newVaultApy = vault && stake ? stake.newVaultApy(vault.address).total : 0
     const newVaultApyMultiplier = vault && stake ? stake.newVaultApyMultiplier(vault.address) : 1
     const newTradingFeeRebate = stake ? stake.newTradingFeeRebate : 0
-    const minTradingFeeRebate = stake ? stake.globalEpoch.minTradingFeeRebate : 0
-    const newTradingFeeRebateDelta = newTradingFeeRebate - minTradingFeeRebate
     const newStakedLyraBalanceDelta = (stake?.newStakedLyraBalance ?? ZERO_BN).sub(stake?.stakedLyraBalance ?? ZERO_BN)
     return (
       <ModalSection {...styleProps}>
@@ -53,15 +49,8 @@ const StakeCardBodyBottomSection = withSuspense(
           <Text color="secondaryText">Staking Yield / Day</Text>
           <Flex>
             <TokenAmountText
-              tokenNameOrAddress="stkLyra"
+              tokenNameOrAddress="lyra"
               amount={newLyraStakingYieldPerDay}
-              color={newStakedLyraBalanceDelta.gt(0) ? 'primaryText' : 'text'}
-              isTruncated
-            />
-            <TokenAmountText
-              ml={3}
-              tokenNameOrAddress="OP"
-              amount={newOpStakingYieldPerDay}
               color={newStakedLyraBalanceDelta.gt(0) ? 'primaryText' : 'text'}
               isTruncated
             />
@@ -87,15 +76,21 @@ const StakeCardBodyBottomSection = withSuspense(
   ({ vault, amount, setVault, onClose, ...styleProps }: StakeCardBodyBottomSectionProps) => {
     return (
       <ModalSection {...styleProps}>
-        <Flex width="100%" my={4} alignItems="center" justifyContent="space-between">
+        <Flex mb={6} alignItems="center" justifyContent="space-between">
           <Text variant="body" color="secondaryText">
             Staking Yield / Day
           </Text>
-          <TokenAmountTextShimmer width={120} />
+          <TokenAmountTextShimmer width={100} />
         </Flex>
-        <Flex width="100%" mb={8} alignItems="center" justifyContent="space-between">
-          <Shimmer height={36} width={150} />
-          <TextShimmer />
+        <Flex mb={4} justifyContent="space-between">
+          <Text variant="body" color="secondaryText">
+            Fee Rebate
+          </Text>
+          <TokenAmountTextShimmer width={100} />
+        </Flex>
+        <Flex mb={6} justifyContent="space-between" alignItems="center">
+          <Shimmer height={32} width={150} />
+          <TokenAmountTextShimmer width={100} />
         </Flex>
         <ButtonShimmer width="100%" size="lg" />
       </ModalSection>

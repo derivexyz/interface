@@ -8,7 +8,6 @@ import React from 'react'
 import ClaimableRewardsCardSection from './ClaimableRewardsCardSection'
 import PendingRewardsCardSection from './PendingRewardsCardSection'
 import ShortCollateralRewardsCardSection from './ShortCollateralRewardsSection'
-import StakingRewardsCardSection from './StakingRewardsCardSection'
 import TradingRewardsCardSection from './TradingRewardsCardSection'
 import VaultsRewardsCardSection from './VaultsRewardsCardSection'
 import WethLyraStakingRewardsCardSection from './WethLyraStakingRewardsCardSection'
@@ -24,8 +23,6 @@ const RewardsBreakdownCard = ({ ...marginProps }: Props): CardElement => {
         <CardSeparator isHorizontal={isMobile} />
         <PendingRewardsCardSection />
       </Flex>
-      <CardSeparator />
-      <StakingRewardsCardSection />
       <CardSeparator />
       <VaultsRewardsCardSection />
       <CardSeparator />

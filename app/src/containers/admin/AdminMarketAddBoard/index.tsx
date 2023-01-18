@@ -45,12 +45,12 @@ type ListingWithIv = TableData<
 const AdminMarketAddBoard = withSuspense(
   ({ market, owner, onAddBoard }: Props) => {
     const { isConnected, account } = useWallet()
-    const admin = useAdmin()
+    const admin = useAdmin(market.lyra.network)
     const [isOpen, setIsOpen] = useState(false)
     const [expiry, setExpiry] = useState<string>('')
     const [baseIv, setBaseIv] = useState<BigNumber>(ZERO_BN)
     const [listings, setListings] = useState<Listing[]>([{ strike: ZERO_BN, skew: ZERO_BN }])
-    const execute = useAdminTransaction(owner)
+    const execute = useAdminTransaction(market.lyra.network, owner)
     const expiryPlaceholder = (Date.now() / 1000).toFixed(0)
     const isAddBoardDisabled =
       !expiry ||

@@ -15,7 +15,7 @@ const lightColors = {
   buttonBg: '#E8E8E899', // 60%
   buttonHover: '#E8E8E8CC', // 80%
   buttonActive: '#E8E8E8',
-  buttonDisabled: '#B5BECA88',
+  disabledButtonBg: '#E8E8E899',
 
   // primary button
   primaryButtonBg: '#56C3A9E6', // 90%
@@ -138,7 +138,7 @@ const darkColors = {
   buttonBg: '#3A445099', // 60%
   buttonHover: '#3A424BCC', // 80%
   buttonActive: '#3A424B', // 100%
-  buttonDisabled: '#2e3640CC',
+  disabledButtonBg: '#3A445099',
 
   // dark button
   elevatedButtonBg: '#1B252D',
@@ -262,7 +262,7 @@ const theme = {
   breakpoints: ['860px', '2000px'],
   radii: {
     token: '3px',
-    text: '4px',
+    text: '8px',
     alert: 18,
     list: 18,
     card: 28,
@@ -547,7 +547,6 @@ const theme = {
       borderStyle: 'solid',
       borderColor: 'buttonBg',
       cursor: 'pointer',
-      borderRadius: 'circle',
       ':focus': {
         outlineWidth: '0px',
       },
@@ -557,9 +556,9 @@ const theme = {
       borderColor: 'transparent',
       color: 'disabledText',
       cursor: 'not-allowed',
-      bg: 'buttonDisabled',
+      bg: 'disabledButtonBg',
       '&:not(.disabled):hover': {
-        bg: 'buttonDisabled',
+        bg: 'disabledButtonBg',
         borderColor: 'transparent',
       },
     },

@@ -8,17 +8,25 @@ type Props = {
   value: string | React.ReactNode
   valueColor?: TextColor
   valueTextVariant?: TextVariant
+  noPadding?: boolean
 }
 
-export default function LabelItem({ label, value, valueColor, valueTextVariant = 'secondary', ...styleProps }: Props) {
+export default function LabelItem({
+  label,
+  value,
+  valueColor,
+  noPadding,
+  valueTextVariant = 'secondary',
+  ...styleProps
+}: Props) {
   return (
     <Flex flexDirection="column" {...styleProps}>
       {typeof label === 'string' ? (
-        <Text variant="secondary" color="secondaryText" mb={2}>
+        <Text variant="secondary" color="secondaryText" mb={!noPadding ? 2 : 0}>
           {label}
         </Text>
       ) : (
-        <Box mb={2}>{label}</Box>
+        <Box mb={!noPadding ? 2 : 0}>{label}</Box>
       )}
       <Flex flexGrow={1} flexDirection="column" justifyContent="center" alignItems="baseline">
         {typeof value === 'string' ? (

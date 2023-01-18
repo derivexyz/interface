@@ -3,7 +3,7 @@ import { PartialBlock } from '../constants/blocks'
 import { UNIT, ZERO_BN } from '../constants/bn'
 import { SnapshotPeriod } from '../constants/queries'
 import Lyra from '../lyra'
-import { OptionPriceHistory } from '../option'
+import { OptionPriceSnapshot } from '../option'
 import { Position } from '../position'
 import fetchPositionPriceHistoryByIDs from '../utils/fetchPositionPriceHistoryByIDs'
 import filterNulls from '../utils/filterNulls'
@@ -23,7 +23,7 @@ export default async function fetchPositionHistory(
 
   const positionHistories = positions
     .map(position => {
-      const priceHistory: OptionPriceHistory[] = priceHistoryByIds[position.id] ?? []
+      const priceHistory: OptionPriceSnapshot[] = priceHistoryByIds[position.id] ?? []
       const tradeHistory = getPositionHistory(position, startTimestamp)
 
       const combinedHistory = [...priceHistory, ...tradeHistory]

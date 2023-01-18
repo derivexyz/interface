@@ -8,5 +8,5 @@ export default function useBoolLocalStorage(key: string): [boolean, React.Dispat
   return useMemo(() => {
     const bool = val === 'true'
     return [bool, setBoolItem]
-  }, [setBoolItem, val])
+  }, [val, setBoolItem])
 }

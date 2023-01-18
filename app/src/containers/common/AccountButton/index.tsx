@@ -1,42 +1,83 @@
-import Button, { ButtonSize } from '@lyra/ui/components/Button'
+import Button from '@lyra/ui/components/Button'
+import Flex from '@lyra/ui/components/Flex'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
+import useIsMobile from '@lyra/ui/hooks/useIsMobile'
+import { Network } from '@lyrafinance/lyra-js'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import React, { useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { LayoutProps, MarginProps } from 'styled-system'
 
 import Avatar from '@/app/components/common/Avatar'
+import NetworkDropdownButton from '@/app/components/common/NetworkDropdownButton/NetworkDropdownButton'
+import { getDefaultMarket } from '@/app/constants/defaults'
+import { LOCAL_STORAGE_DEFAULT_NETWORK_KEY } from '@/app/constants/localStorage'
+import { PageId } from '@/app/constants/pages'
 import useENS from '@/app/hooks/data/useENS'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useQueryParam from '@/app/hooks/url/useQueryParam'
+import useLocalStorage from '@/app/hooks/local_storage/useLocalStorage'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 import useWallet from '@/app/hooks/wallet/useWallet'
 import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
+import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
+import { getNavPageFromPath } from '@/app/utils/getNavPageFromPath'
+import getPagePath from '@/app/utils/getPagePath'
 
 import ConnectWalletButton from '../ConnectWalletButton'
 
-type Props = {
-  size?: ButtonSize
-} & LayoutProps &
-  MarginProps
+type Props = Omit<LayoutProps, 'size'> & MarginProps
 
 const AccountButton = withSuspense(
-  ({ size, ...styleProps }: Props) => {
+  ({ ...styleProps }: Props) => {
     const [isDarkMode] = useIsDarkMode()
-    const { account, isLoading, isOverride } = useWallet()
+    const { chainId, account, isLoading, isConnected, isOverride, removeSeeAddress, switchNetwork } = useWallet()
     const ens = useENS()
-    const [_, setSeeAddress] = useQueryParam('see')
+    const network = useNetwork()
+    const [_1, setDefaultNetwork] = useLocalStorage(LOCAL_STORAGE_DEFAULT_NETWORK_KEY)
+
+    const isMobile = useIsMobile()
 
     const getButtonLabel = useCallback(() => {
       const accountStr = account ? formatTruncatedAddress(account) : ''
       if (isOverride && account) {
-        return formatTruncatedAddress(account)
+        return formatTruncatedAddress(account, 4, isMobile ? 0 : 4, '...')
       } else {
         return ens?.name ?? accountStr
       }
-    }, [account, isOverride, ens])
+    }, [account, isOverride, ens, isMobile])
+
+    const { pathname } = useLocation()
+    const navigate = useNavigate()
+
+    const rootPage = getNavPageFromPath(pathname)
+
+    const handleSelectNetwork = useCallback(
+      async (newNetwork: Network) => {
+        const newChainId = getChainIdForNetwork(newNetwork)
+        if (newChainId !== chainId) {
+          if (isConnected && !isOverride) {
+            await switchNetwork(newChainId)
+          } else {
+            setDefaultNetwork(newNetwork)
+          }
+          if (rootPage === PageId.Trade) {
+            navigate(
+              getPagePath({
+                page: PageId.Trade,
+                network: newNetwork,
+                marketAddressOrName: getDefaultMarket(newNetwork),
+              })
+            )
+          }
+        }
+      },
+      [chainId, isConnected, isOverride, navigate, rootPage, setDefaultNetwork, switchNetwork]
+    )
 
     return (
-      <>
+      <Flex {...styleProps}>
+        <NetworkDropdownButton selectedNetwork={network} onSelectNetwork={handleSelectNetwork} mr={2} />
         {account ? (
           <ConnectButton.Custom>
             {({ openAccountModal }) => {
@@ -44,15 +85,13 @@ const AccountButton = withSuspense(
               const onClick = async () => {
                 if (isOverride) {
                   // Unset override
-                  setSeeAddress(null)
+                  removeSeeAddress()
                 } else if (account) {
                   openAccountModal()
                 }
               }
               return (
                 <Button
-                  {...styleProps}
-                  size={size}
                   rightIconSpacing={1}
                   rightIcon={<Avatar size={18} ensImage={ens?.avatarURL} address={account} />}
                   isLoading={isLoading}
@@ -64,12 +103,17 @@ const AccountButton = withSuspense(
             }}
           </ConnectButton.Custom>
         ) : (
-          <ConnectWalletButton size={size} {...styleProps} />
+          <ConnectWalletButton network={network} {...styleProps} />
         )}
-      </>
+      </Flex>
     )
   },
-  ({ size, ...styleProps }: Props) => <ButtonShimmer width={147} size={size} {...styleProps} />
+  ({ ...styleProps }: Props) => (
+    <Flex {...styleProps}>
+      <ButtonShimmer width={[62, 136.37]} mr={2} />
+      <ButtonShimmer width={138.84} />
+    </Flex>
+  )
 )
 
 export default AccountButton

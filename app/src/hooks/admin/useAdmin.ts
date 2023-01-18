@@ -1,10 +1,10 @@
-import { Admin } from '@lyrafinance/lyra-js'
+import { Admin, Network } from '@lyrafinance/lyra-js'
 
-import lyra from '@/app/utils/lyra'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 
 import useWalletAccount from '../wallet/useWalletAccount'
 
-export default function useAdmin(): Admin | null {
+export default function useAdmin(network: Network): Admin | null {
   const address = useWalletAccount()
-  return address ? lyra.admin() : null
+  return address ? getLyraSDK(network).admin() : null
 }

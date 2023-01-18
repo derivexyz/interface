@@ -40,7 +40,7 @@ const STATIC_CHART_OPTIONS: DeepPartial<ChartOptions> = {
     fixLeftEdge: true,
     fixRightEdge: true,
     borderVisible: false,
-    tickMarkFormatter: (time: UTCTimestamp) => formatDateTime(time, true, true),
+    tickMarkFormatter: (time: UTCTimestamp) => formatDateTime(time, { hideYear: true, hideMins: true }),
     barSpacing: 26,
   },
   rightPriceScale: {
@@ -99,7 +99,7 @@ const _CandleChart = ({ data, onHover, showTimeRange, ...styleProps }: Props) =>
           },
           localization: {
             priceFormatter: (price: number) => formatUSD(price),
-            timeFormatter: (time: number) => formatDateTime(time, true, true),
+            timeFormatter: (time: number) => formatDateTime(time, { hideYear: true, hideMins: true }),
           },
           ...STATIC_CHART_OPTIONS,
         })

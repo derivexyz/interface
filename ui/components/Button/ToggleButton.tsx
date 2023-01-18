@@ -1,7 +1,7 @@
-import Flex from '@lyra/ui/components/Flex'
 import React from 'react'
 import { LayoutProps, MarginProps } from 'styled-system'
 
+import Grid from '../Grid'
 import { ToggleButtonItemElement } from './ToggleButtonItem'
 
 export type ToggleButtonProps = {
@@ -13,8 +13,12 @@ export type ToggleButtonElement = React.ReactElement<ToggleButtonProps>
 
 export default function ToggleButton({ children, ...styleProps }: ToggleButtonProps): ToggleButtonElement {
   return (
-    <Flex alignSelf="baseline" alignItems="center" sx={{ borderRadius: 'circle' }} height={36} {...styleProps}>
+    <Grid
+      sx={{ borderRadius: 'circle', gridTemplateColumns: `repeat(${children.length}, 1fr)`, columnGap: 1 }}
+      height={36}
+      {...styleProps}
+    >
       {children}
-    </Flex>
+    </Grid>
   )
 }

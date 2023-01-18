@@ -1,42 +1,38 @@
 [
   {
-    "id": "btc-market",
-    "header": "New Market",
-    "title": "Trade Bitcoin options on Lyra.",
-    "cta": "Trade Bitcoin",
-    "linkHref": "/trade/btc",
-    "graphic": "images/bitcoin-logo.png",
-    "startTimestamp": 1661990400,
-    "expiryTimestamp": 1664546400
+    "id": "welcome",
+    "header": "Welcome to Lyra",
+    "title": "Buy and sell crypto options with low fees and subsecond transaction speeds.",
+    "cta": [
+      {
+        "label": "Start Trading",
+        "href": "/trade",
+        "variant": "primary"
+      }
+    ],
+    "graphic": "images/logo.png",
+    "startTimestamp": 0,
+    "expiryTimestamp": 10000000000
   },
   {
-    "id": "hop-bridge-giveaway",
-    "header": "Hop Giveaway",
-    "title": "Bridge via Hop Protocol and trade $100 for a chance to win 2000 OP.",
-    "cta": "View Details",
-    "linkHref": "/competition?pool=2",
-    "graphic": "images/hop_badge.png",
-    "startTimestamp": 1662508800,
-    "expiryTimestamp": 1665126000
-  },
-  {
-    "id": "trade-the-merge",
-    "header": "Trade the Merge",
-    "title": "Win up to 30k OP in Lyra's first mainnet trading competition.",
-    "cta": "View Details",
-    "linkHref": "/competition",
-    "graphic": "images/trade-the-merge.png",
-    "startTimestamp": 1662595200,
-    "expiryTimestamp": 1665126000
-  },
-  {
-    "id": "sol-market",
-    "header": "New Market",
-    "title": "Trade Solana options on Lyra.",
-    "cta": "Trade Now",
-    "linkHref": "/trade/sol",
-    "graphic": "images/solana-logo.png",
-    "startTimestamp": 1664323200,
-    "expiryTimestamp": 1666911600
+    "id": "migrate-stklyra",
+    "header": "Migrate Staked LYRA",
+    "title": "In anticipation of the Lyra Protocol's multichain future, LYRA staking is moving to Ethereum mainnet. Stakers need to migrate their staked LYRA from Optimism to Ethereum mainnet to continue to earn staking rewards and boosts on their vault and trading rewards.",
+    "cta": [
+      {
+        "label": "Migrate",
+        "href": "/rewards",
+        "variant": "primary"
+      },
+      {
+        "label": "Learn More",
+        "href": "https://blog.lyra.finance/lyra-staking-l1-migration/",
+        "target": "_blank",
+        "variant": "default"
+      }
+    ],
+    "graphic": "images/staked-lyra-token.png",
+    "startTimestamp": 1673993660,
+    "expiryTimestamp": 1675170000
   }
 ]

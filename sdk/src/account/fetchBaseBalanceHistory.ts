@@ -38,10 +38,12 @@ export default async function fetchBaseBalanceHistory(
     return []
   }
 
-  const spotHistory = await fetchSpotPriceHistory(lyra, marketAddress, {
-    startTimestamp: startTimestamp,
-    endTimestamp: endBlock.timestamp,
-  })
+  const spotHistory = (
+    await fetchSpotPriceHistory(lyra, base.market, {
+      startTimestamp: startTimestamp,
+      endTimestamp: endBlock.timestamp,
+    })
+  ).map(snapshot => ({ ...snapshot, blockNumber: snapshot.startBlockNumber, timestamp: snapshot.startTimestamp }))
 
   if (!spotHistory.length) {
     console.warn('Empty spot history')
@@ -80,7 +82,7 @@ export default async function fetchBaseBalanceHistory(
     const accountBalance = currAccountBalance?.balance ?? ZERO_BN
     const collateralBalance = currCollateralBalance?.balance ?? ZERO_BN
     const balance = accountBalance.add(collateralBalance)
-    const spotPrice = currSpot.spotPrice
+    const spotPrice = currSpot.close
     const accountValue = accountBalance.mul(spotPrice).div(UNIT)
     const collateralValue = collateralBalance.mul(spotPrice).div(UNIT)
     const value = accountValue.add(collateralValue)

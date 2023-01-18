@@ -88,7 +88,7 @@ export default function ListItem({
               ))}
           </Flex>
           {rightContent ? (
-            <Center height="100%" pl={8}>
+            <Center height="100%" pl={3}>
               <Box>
                 {typeof rightContent === 'string' ? <IconOrImage src={rightContent} size={18} /> : rightContent}
               </Box>

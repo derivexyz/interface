@@ -20,14 +20,14 @@ type Props = {
 export default function PositionItem({ position, customSize, hideSize }: Props): JSX.Element {
   return (
     <Flex alignItems="center">
-      <MarketImage mr={2} name={position.marketName} size={32} />
-      <Box>
+      <MarketImage market={position.market()} />
+      <Box ml={2}>
         <Text variant="secondary">
           {position.market().baseToken.symbol}&nbsp;${fromBigNumber(position.strikePrice)}&nbsp;
           {position.isCall ? 'Call' : 'Put'}
         </Text>
         <Text variant="small" color="secondaryText">
-          <Text variant="smallMedium" as="span" color={position.isLong ? 'primaryText' : 'errorText'}>
+          <Text variant="small" as="span" color={position.isLong ? 'primaryText' : 'errorText'}>
             {position.isLong ? 'LONG' : 'SHORT'}
             {!hideSize ? ` ${formatNumber(customSize ?? position.size)}` : ''}
           </Text>

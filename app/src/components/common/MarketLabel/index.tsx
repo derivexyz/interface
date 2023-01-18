@@ -2,6 +2,7 @@ import Box from '@lyra/ui/components/Box'
 import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
+import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
@@ -9,17 +10,17 @@ import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import MarketImage from '../MarketImage'
 
 type Props = {
-  marketName: string
+  market: Market
 } & MarginProps
 
-export default function MarketLabel({ marketName, ...marginProps }: Props) {
+export default function MarketLabel({ market, ...marginProps }: Props) {
   return (
     <Flex {...marginProps} alignItems="center">
-      <MarketImage size={32} name={marketName} />
+      <MarketImage market={market} />
       <Box ml={2}>
-        <Text variant="secondaryMedium">{getMarketDisplayName(marketName)}</Text>
+        <Text variant="secondaryMedium">{getMarketDisplayName(market)}</Text>
         <Text variant="small" color="secondaryText">
-          {marketName}
+          {market.name}
         </Text>
       </Box>
     </Flex>

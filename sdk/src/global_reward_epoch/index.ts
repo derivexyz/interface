@@ -1,6 +1,6 @@
 import { Block } from '@ethersproject/providers'
 
-import { Market } from '..'
+import { Market, MarketLiquiditySnapshot, Network } from '..'
 import { AccountRewardEpoch } from '../account_reward_epoch'
 import { Deployment } from '../constants/contracts'
 import { SECONDS_IN_DAY, SECONDS_IN_WEEK, SECONDS_IN_YEAR } from '../constants/time'
@@ -11,9 +11,8 @@ import fetchLyraTokenSpotPrice from '../utils/fetchLyraTokenSpotPrice'
 import fetchOpTokenSpotPrice from '../utils/fetchOpTokenSpotPrice'
 import findMarket from '../utils/findMarket'
 import fromBigNumber from '../utils/fromBigNumber'
-import getEffectiveLiquidityTokens from '../utils/getEffectiveLiquidityTokens'
+import getEffectiveLiquidityTokens, { getMinimumStakedLyra } from '../utils/getEffectiveLiquidityTokens'
 import getEffectiveTradingFeeRebate from '../utils/getEffectiveTradingFeeRebate'
-import getMarketsLiquidity, { MarketAddressToLiquidity } from '../utils/getMarketsLiquidity'
 
 export type GlobalRewardEpochAPY = {
   lyra: number
@@ -37,7 +36,7 @@ export class GlobalRewardEpoch {
   id: number
   progressDays: number
   markets: Market[]
-  marketsLiquidity: MarketAddressToLiquidity
+  marketsLiquidity: MarketLiquiditySnapshot[]
   staking: LyraStaking
   blockTimestamp: number
   startTimestamp: number
@@ -61,7 +60,7 @@ export class GlobalRewardEpoch {
     epoch: GlobalRewardEpochData,
     prices: GlobalRewardEpochTokens,
     markets: Market[],
-    marketsLiquidity: MarketAddressToLiquidity,
+    marketsLiquidity: MarketLiquiditySnapshot[],
     staking: LyraStaking,
     block: Block
   ) {
@@ -112,7 +111,7 @@ export class GlobalRewardEpoch {
 
     this.totalStakingRewards = {
       lyra: this.epoch.stakingRewardConfig.totalRewards.LYRA,
-      op: this.epoch.stakingRewardConfig.totalRewards.OP,
+      op: 0,
     }
 
     this.minTradingFeeRebate = this.tradingFeeRebate(0)
@@ -133,9 +132,6 @@ export class GlobalRewardEpoch {
   // Getters
 
   static async getAll(lyra: Lyra): Promise<GlobalRewardEpoch[]> {
-    if (lyra.deployment !== Deployment.Mainnet) {
-      throw Error('Reward epochs only supported on mainnet')
-    }
     const block = await lyra.provider.getBlock('latest')
     const [epochs, lyraPrice, opPrice, markets, staking] = await Promise.all([
       fetchGlobalRewardEpochData(lyra, block.timestamp),
@@ -144,10 +140,7 @@ export class GlobalRewardEpoch {
       lyra.markets(),
       lyra.lyraStaking(),
     ])
-    const marketsLiquidity = await getMarketsLiquidity(
-      lyra,
-      markets.map(market => market.address)
-    )
+    const marketsLiquidity = await Promise.all(markets.map(market => market.liquidity()))
     const prices = { lyra: lyraPrice, op: opPrice }
     return epochs
       .map(
@@ -156,42 +149,39 @@ export class GlobalRewardEpoch {
       .sort((a, b) => a.endTimestamp - b.endTimestamp)
   }
 
-  static async getLatest(lyra: Lyra): Promise<GlobalRewardEpoch> {
-    if (lyra.deployment !== Deployment.Mainnet) {
-      throw Error('Reward epochs only supported on mainnet')
+  static async getLatest(lyra: Lyra): Promise<GlobalRewardEpoch | null> {
+    // TODO: @dillon remove optimism check
+    if (lyra.deployment !== Deployment.Mainnet || lyra.network !== Network.Optimism) {
+      return null
     }
     const epochs = await this.getAll(lyra)
     const latestEpoch = epochs.find(r => !r.isComplete) ?? epochs[epochs.length - 1]
-    if (!latestEpoch) {
-      throw new Error('Failed to find latest global reward epoch')
-    }
-    return latestEpoch
+    return latestEpoch ?? null
   }
 
-  static async getByStartTimestamp(lyra: Lyra, startTimestamp: number): Promise<GlobalRewardEpoch> {
-    if (lyra.deployment !== Deployment.Mainnet) {
-      throw Error('Reward epochs only supported on mainnet')
+  static async getByStartTimestamp(lyra: Lyra, startTimestamp: number): Promise<GlobalRewardEpoch | null> {
+    // TODO: @dillon remove optimism check
+    if (lyra.deployment !== Deployment.Mainnet || lyra.network !== Network.Optimism) {
+      return null
     }
     const epochs = await this.getAll(lyra)
     const epoch = epochs.find(epoch => epoch.startTimestamp === startTimestamp)
-    if (!epoch) {
-      throw new Error('Failed to find epoch for startTimestamp')
-    }
-    return epoch
+    return epoch ?? null
   }
 
   // Dynamic Fields
 
-  vaultApy(marketAddressOrName: string, stakedLyraBalance: number, vaultTokenBalance: number): GlobalRewardEpochAPY {
+  vaultApy(marketAddressOrName: string, stakedLyraBalance: number, _vaultTokenBalance: number): GlobalRewardEpochAPY {
     const market = findMarket(this.lyra, this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
+
+    const vaultTokenBalance = _vaultTokenBalance
 
     const totalAvgVaultTokens = this.totalAverageVaultTokens(marketAddressOrName)
     const mmvConfig = this.epoch.MMVConfig[marketKey]
     const scaledStkLyraDays = this.epoch.scaledStkLyraDays[marketKey]
 
     if (!mmvConfig || !scaledStkLyraDays) {
-      console.warn('Missing APY data for vault', marketKey)
       return {
         lyra: 0,
         op: 0,
@@ -220,9 +210,10 @@ export class GlobalRewardEpoch {
     const apyMultiplier = basePortionOfLiquidity > 0 ? boostedPortionOfLiquidity / basePortionOfLiquidity : 0
 
     // Calculate total vault token balance, including pending deposits
-    const tokenPrice = fromBigNumber(this.marketsLiquidity[market.address].tokenPrice)
+    const marketIdx = this.markets.findIndex(m => m.address === market.address)
+    const tokenPrice = fromBigNumber(this.marketsLiquidity[marketIdx].tokenPrice)
     const totalQueuedVaultTokens =
-      tokenPrice > 0 ? fromBigNumber(this.marketsLiquidity[market.address].totalQueuedDeposits) / tokenPrice : 0
+      tokenPrice > 0 ? fromBigNumber(this.marketsLiquidity[marketIdx].pendingDeposits) / tokenPrice : 0
     const totalAvgAndQueuedVaultTokens = totalAvgVaultTokens + totalQueuedVaultTokens
 
     const vaultTokensPerDollar = tokenPrice > 0 ? 1 / tokenPrice : 0
@@ -241,6 +232,15 @@ export class GlobalRewardEpoch {
       op: opApy,
       total: lyraApy + opApy,
     }
+  }
+
+  vaultMaxBoost(marketAddressOrName: string, vaultTokenBalance: number): number {
+    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
+    const marketKey = market.baseToken.symbol
+    const totalAvgVaultTokens = this.totalAverageVaultTokens(marketAddressOrName)
+    const scaledStkLyraDays = this.epoch.scaledStkLyraDays[marketKey]
+    const totalAvgScaledStkLyra = this.progressDays ? scaledStkLyraDays / this.progressDays : 0
+    return getMinimumStakedLyra(totalAvgScaledStkLyra, vaultTokenBalance, totalAvgVaultTokens)
   }
 
   vaultApyMultiplier(marketAddressOrName: string, stakedLyraBalance: number, vaultTokenBalance: number): number {
@@ -342,6 +342,17 @@ export class GlobalRewardEpoch {
     marketBaseSymbol: string
   ): GlobalRewardEpochTokens {
     const timeToExpiry = Math.max(0, expiryTimestamp - this.blockTimestamp)
+
+    if (
+      !this.epoch.tradingRewardConfig.shortCollatRewards ||
+      !this.epoch.tradingRewardConfig.shortCollatRewards[marketBaseSymbol]
+    ) {
+      return {
+        lyra: 0,
+        op: 0,
+      }
+    }
+
     const { longDatedPenalty, tenDeltaRebatePerOptionDay, ninetyDeltaRebatePerOptionDay } =
       this.epoch.tradingRewardConfig.shortCollatRewards[marketBaseSymbol]
     const { lyraPortion, floorTokenPriceLyra, floorTokenPriceOP } = this.epoch.tradingRewardConfig.rewards

@@ -9,14 +9,14 @@ import getAssetSrc from '@/app/utils/getAssetSrc'
 
 type Props = {
   nameOrAddress: string
+  uri?: string
   size?: ResponsiveValue
-  color?: string
 } & LayoutProps &
   MarginProps
 
-export default function TokenImage({ nameOrAddress, size = 24, color, ...styleProps }: Props) {
+export default function TokenImage({ nameOrAddress, size = 32, uri = '', ...styleProps }: Props) {
   const trueSize = parseInt(String(useThemeValue(size)))
-  const logoURI = useOptimismTokenLogoURI(nameOrAddress) ?? ''
+  const logoURI = useOptimismTokenLogoURI(nameOrAddress) ?? uri
   return (
     <Image
       sx={{

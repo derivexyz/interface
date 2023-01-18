@@ -22,6 +22,8 @@ export enum TransactionType {
   VaultDeposit = 'VaultDeposit',
   VaultWithdraw = 'VaultWithdraw',
   ClaimRewards = 'ClaimRewards',
+  ClaimStakedLyraRewards = 'ClaimStakedLyraRewards',
+  MigrateStakedLyra = 'MigrateStakedLyra',
   StakeLyra = 'StakeLyra',
   UnstakeLyra = 'UnstakeLyra',
   StakeWethLyra = 'StakeWethLyra',

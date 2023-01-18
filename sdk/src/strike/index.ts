@@ -35,10 +35,10 @@ export type StrikeQuotes = {
 }
 
 export class Strike {
-  private lyra: Lyra
   private __board: Board
   __strikeData: OptionMarketViewer.StrikeViewStructOutput
   __source = DataSource.ContractCall
+  lyra: Lyra
   block: Block
   id: number
   strikePrice: BigNumber

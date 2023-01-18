@@ -55,6 +55,7 @@ import {
   PieChart,
   Plus,
   PlusCircle,
+  RefreshCcw,
   Settings,
   Share2,
   Shield,
@@ -362,6 +363,8 @@ const getFeatherIcon = (icon: IconType) => {
       return Link2
     case IconType.GitCommit:
       return GitCommit
+    case IconType.Refresh:
+      return RefreshCcw
     default:
       return null
   }

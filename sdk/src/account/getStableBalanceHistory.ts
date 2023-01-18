@@ -15,12 +15,8 @@ export default function getStableBalanceHistory(
   stableBalances: AccountPortfolioBalance['stableAccountBalances'],
   startTimestamp: number
 ): StableBalanceSnapshot[] {
-  const sUSDBalance = stableBalances.find(b => b.symbol === 'sUSD')
-  if (!sUSDBalance) {
-    throw new Error('Missing sUSD balance')
-  }
-
-  const stableAccountHistories = [sUSDBalance]
+  // TODO @michaelxuwu check this is valid
+  const stableAccountHistories = stableBalances
     .map(stable =>
       getTokenBalanceHistory(stable.address, stable.balance, startTimestamp, tokenTransfers).map(snap => ({
         ...snap,

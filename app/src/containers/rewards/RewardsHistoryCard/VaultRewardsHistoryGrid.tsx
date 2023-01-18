@@ -24,10 +24,11 @@ type RowProps = {
 
 const VaultRewardsHistoryMarketRow = ({ accountRewardEpoch, market }: RowProps) => {
   const marketName = market.name
-  const vaultTokens = accountRewardEpoch ? accountRewardEpoch.vaultTokenBalance(marketName) : 0
-  const { op: opRewards, lyra: lyraRewards } = accountRewardEpoch.vaultRewards(marketName)
-  const { op: opApy, lyra: lyraApy } = accountRewardEpoch.vaultApy(marketName)
-  const apyMultiplier = accountRewardEpoch.vaultApyMultiplier(marketName)
+  const marketAddress = market.address
+  const vaultTokens = accountRewardEpoch ? accountRewardEpoch.vaultTokenBalance(marketAddress) : 0
+  const { op: opRewards, lyra: lyraRewards } = accountRewardEpoch.vaultRewards(marketAddress)
+  const { op: opApy, lyra: lyraApy } = accountRewardEpoch.vaultApy(marketAddress)
+  const apyMultiplier = accountRewardEpoch.vaultApyMultiplier(marketAddress)
   const stakedLyraBalance = accountRewardEpoch.stakedLyraBalance
 
   return (
@@ -37,7 +38,7 @@ const VaultRewardsHistoryMarketRow = ({ accountRewardEpoch, market }: RowProps) 
           Vault
         </Text>
         <Flex alignItems="flex-end">
-          <MarketImage name={marketName} size={24} />
+          <MarketImage market={market} />
           <Text variant="secondary" ml={2} color="secondaryText">
             {market.baseToken.symbol}
           </Text>
@@ -94,7 +95,7 @@ const VaultRewardsHistoryGrid = ({ accountRewardEpoch, ...marginProps }: Props) 
   const markets = accountRewardEpoch.globalEpoch.markets
   const marketsWithRewards = useMemo(() => {
     return markets.filter(market => {
-      const vaultRewards = accountRewardEpoch.vaultRewards(market.name)
+      const vaultRewards = accountRewardEpoch.vaultRewards(market.address)
       return vaultRewards.lyra > 0 || vaultRewards.op > 0
     })
   }, [accountRewardEpoch, markets])

@@ -7,9 +7,9 @@ import { IconType } from '@lyra/ui/components/Icon'
 import Link from '@lyra/ui/components/Link'
 import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
-import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
+import { Market } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
@@ -17,29 +17,29 @@ import VaultsFormSizeInput from '@/app/components/vaults/VaultsFormSizeInput'
 import { ZERO_BN } from '@/app/constants/bn'
 import { WITHDRAW_WARNING_DOC_URL } from '@/app/constants/links'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useMarket from '@/app/hooks/market/useMarket'
-import useMarketBalances from '@/app/hooks/market/useMarketBalances'
-import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
+import useVaultBalance from '@/app/hooks/vaults/useVaultBalance'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import VaultsDepositFormButton from './VaultsDepositFormButton'
 
+const CARD_SECTION_HEIGHT = 350
+
 type Props = {
-  marketAddressOrName: string
-} & MarginProps &
-  LayoutProps
+  market: Market
+  onClose: () => void
+}
 
 const VaultsDepositForm = withSuspense(
-  ({ marketAddressOrName }: Props) => {
-    const market = useMarket(marketAddressOrName)
-    const marketBalances = useMarketBalances(marketAddressOrName)
-    const marketLiquidity = useMarketLiquidity(marketAddressOrName)
-    const quoteBalance = marketBalances.quoteAsset.balance
+  ({ market, onClose }: Props) => {
+    const vaultBalance = useVaultBalance(market)
     const [amount, setAmount] = useState(ZERO_BN)
 
-    if (!market) {
+    if (!vaultBalance) {
       return null
     }
+
+    const { utilization, marketBalances } = vaultBalance
+    const quoteBalance = marketBalances.quoteAsset.balance
 
     return (
       <>
@@ -54,7 +54,7 @@ const VaultsDepositForm = withSuspense(
             </Text>
             <AmountUpdateText
               variant="secondary"
-              symbol="sUSD"
+              symbol={market.quoteToken.symbol}
               isUSDFormat
               prevAmount={quoteBalance}
               newAmount={quoteBalance.sub(amount)}
@@ -77,11 +77,7 @@ const VaultsDepositForm = withSuspense(
             <Text variant="secondary" color="secondaryText">
               Withdrawal Delay
             </Text>
-            <Text variant="secondary">
-              {market.liveBoards().length === 0 || market.withdrawalDelay === 0
-                ? 'None'
-                : formatTruncatedDuration(market.withdrawalDelay)}
-            </Text>
+            <Text variant="secondary">{formatTruncatedDuration(market.withdrawalDelay)}</Text>
           </Flex>
           <Flex alignItems="center" justifyContent="space-between" mb={4}>
             <Text variant="secondary" color="secondaryText">
@@ -91,7 +87,7 @@ const VaultsDepositForm = withSuspense(
               {formatPercentage(fromBigNumber(market.__marketData.marketParameters.lpParams.withdrawalFee), true)}
             </Text>
           </Flex>
-          {marketLiquidity && marketLiquidity.utilization > 0.9 ? (
+          {utilization > 0.9 ? (
             <Alert
               mb={3}
               icon={IconType.AlertTriangle}
@@ -114,14 +110,14 @@ const VaultsDepositForm = withSuspense(
               }
             />
           ) : null}
-          <VaultsDepositFormButton mt={2} market={market} amount={amount} />
+          <VaultsDepositFormButton mt={2} vaultBalance={vaultBalance} amount={amount} onDeposit={onClose} />
         </CardSection>
       </>
     )
   },
-  ({ marketAddressOrName, ...styleProps }: Props) => (
-    <CardSection>
-      <Center {...styleProps}>
+  () => (
+    <CardSection height={CARD_SECTION_HEIGHT}>
+      <Center height="100%" width="100%">
         <Spinner />
       </Center>
     </CardSection>

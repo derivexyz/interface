@@ -1,17 +1,21 @@
-import { MarketLiquidity } from '@lyrafinance/lyra-js'
+import { Market, MarketLiquiditySnapshot } from '@lyrafinance/lyra-js'
+import Lyra from '@lyrafinance/lyra-js'
 
-import lyra from '../../utils/lyra'
-import useFetch from '../data/useFetch'
+import { useLyraFetch } from '../data/useLyraFetch'
 
-export const fetchMarketLiquidity = async (marketAddressOrName: string): Promise<MarketLiquidity> => {
+export const fetchMarketLiquidity = async (
+  lyra: Lyra,
+  marketAddressOrName: string
+): Promise<MarketLiquiditySnapshot> => {
   const market = await lyra.market(marketAddressOrName)
   return await market.liquidity()
 }
 
-export default function useMarketLiquidity(marketAddressOrName: string | null): MarketLiquidity | null {
-  const [marketLiquidity] = useFetch(
+export default function useMarketLiquidity(market: Market | null): MarketLiquiditySnapshot | null {
+  const [marketLiquidity] = useLyraFetch(
     'MarketLiquidity',
-    marketAddressOrName ? [marketAddressOrName] : null,
+    market ? market.lyra : null,
+    market ? [market.address] : null,
     fetchMarketLiquidity
   )
   return marketLiquidity

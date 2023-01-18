@@ -1,20 +1,19 @@
+import { Market } from '@lyrafinance/lyra-js'
+
 import getAssetSrc from '@/app/utils/getAssetSrc'
 
-export default function getMarketLogoURI(marketName: string): string {
-  switch (marketName.toLowerCase()) {
-    case 'lylp':
+export default function getMarketLogoURI(market: Market): string {
+  switch (market.baseToken.symbol.toLowerCase()) {
     case 'seth':
     case 'eth':
-    case 'seth-susd':
+    case 'weth':
       return getAssetSrc('/images/ethereum-logo.png')
     case 'btc':
     case 'sbtc':
-    case 'sbtc-susd':
-    case 'wbtc-usdc':
+    case 'wbtc':
       return getAssetSrc('/images/bitcoin-logo.png')
     case 'sol':
     case 'ssol':
-    case 'ssol-susd':
       return getAssetSrc('/images/solana-logo.png')
     default:
       return ''

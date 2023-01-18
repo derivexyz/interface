@@ -14,8 +14,9 @@ import {
   trustWallet,
   walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets'
+import { isAddress } from 'ethers/lib/utils.js'
 import nullthrows from 'nullthrows'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { chain as wagmiChain, configureChains, createClient, WagmiConfig } from 'wagmi'
 import { infuraProvider } from 'wagmi/providers/infura'
 import { publicProvider } from 'wagmi/providers/public'
@@ -26,12 +27,18 @@ import { qredo, rabby } from '../constants/wallets'
 import useQueryParam from '../hooks/url/useQueryParam'
 import useAutoConnect from '../hooks/wallet/useAutoConnect'
 import useWallet from '../hooks/wallet/useWallet'
+import emptyFunction from '../utils/emptyFunction'
 import fetchScreenWallet from '../utils/fetchScreenWallet'
-import isOptimismMainnet from '../utils/isOptimismMainnet'
+import isMainnet from '../utils/isMainnet'
 import isScreeningEnabled from '../utils/isScreeningEnabled'
 import mergeDeep from '../utils/mergeDeep'
 
-const SUPPORTED_CHAINS = [wagmiChain.optimism, wagmiChain.optimismGoerli]
+const SUPPORTED_CHAINS = [
+  wagmiChain.optimism,
+  wagmiChain.optimismGoerli,
+  wagmiChain.arbitrum,
+  wagmiChain.arbitrumGoerli,
+]
 
 const INFURA_PROJECT_ID = nullthrows(
   process.env.REACT_APP_INFURA_PROJECT_ID,
@@ -39,7 +46,7 @@ const INFURA_PROJECT_ID = nullthrows(
 )
 
 const { chains, provider } = configureChains(
-  [wagmiChain.mainnet, ...SUPPORTED_CHAINS],
+  [{ ...wagmiChain.mainnet }, ...SUPPORTED_CHAINS],
   [infuraProvider({ apiKey: INFURA_PROJECT_ID }), publicProvider()]
 )
 
@@ -69,7 +76,6 @@ const wagmiClient = createClient({
 
 const WalletScreenModal = (): JSX.Element => {
   const { connectedAccount, disconnect } = useWallet()
-  const [_, setSeeAddress] = useQueryParam('see')
 
   const [blockData, setBlockData] = useState<ScreenWalletData | null>(null)
 
@@ -77,7 +83,7 @@ const WalletScreenModal = (): JSX.Element => {
   const prevAccountRef = useRef(connectedAccount)
 
   useEffect(() => {
-    if (connectedAccount && isOptimismMainnet() && isScreeningEnabled()) {
+    if (connectedAccount && isMainnet() && isScreeningEnabled()) {
       const isConnect = !prevAccountRef.current || prevAccountRef.current !== connectedAccount
       fetchScreenWallet(connectedAccount, isConnect).then(setBlockData)
     } else {
@@ -101,6 +107,11 @@ const WalletScreenModal = (): JSX.Element => {
     </>
   )
 }
+
+export const WalletSeeContext = createContext<{ seeAddress: string | null; removeSeeAddress: () => void }>({
+  seeAddress: null,
+  removeSeeAddress: emptyFunction,
+})
 
 // Store selected walletType in local browser storage
 export function WalletProvider({ children }: { children: React.ReactNode }): JSX.Element {
@@ -160,7 +171,20 @@ export function WalletProvider({ children }: { children: React.ReactNode }): JSX
     },
   })
 
-  const initialChain = isOptimismMainnet() ? wagmiChain.optimism : wagmiChain.optimismGoerli
+  const initialChain = isMainnet() ? wagmiChain.optimism : wagmiChain.optimismGoerli
+
+  // Grab initial see arg from query parameters
+  const [rawQuerySeeAddress] = useQueryParam('see')
+  const querySeeAddress = rawQuerySeeAddress && isAddress(rawQuerySeeAddress) ? rawQuerySeeAddress : null
+  const [seeAddress, setSeeAddress] = useState<string | null>(querySeeAddress)
+  useEffect(() => {
+    // Update context from ?see= param
+    if (querySeeAddress) {
+      setSeeAddress(querySeeAddress)
+    }
+  }, [querySeeAddress])
+  const removeSeeAddress = useCallback(() => setSeeAddress(null), [])
+  const value = useMemo(() => ({ seeAddress, removeSeeAddress }), [seeAddress, removeSeeAddress])
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -172,10 +196,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }): JSX
         avatar={Avatar}
         theme={theme}
         chains={chains}
-        initialChain={initialChain}
       >
-        <WalletScreenModal />
-        {children}
+        <WalletSeeContext.Provider value={value}>
+          <WalletScreenModal />
+          {children}
+        </WalletSeeContext.Provider>
       </RainbowKitProvider>
     </WagmiConfig>
   )

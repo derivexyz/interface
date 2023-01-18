@@ -1,7 +1,6 @@
 import { BigNumberish } from '@ethersproject/bignumber'
 import IconButton from '@lyra/ui/components/Button/IconButton'
 import Icon, { IconType } from '@lyra/ui/components/Icon'
-import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Cell, CellProps, Column, Row, useFlexLayout, useRowState, useSortBy, useTable } from 'react-table'
 import { Box, Flex } from 'rebass'
@@ -11,8 +10,9 @@ import Collapsible from '../Collapsible'
 import Text from '../Text'
 import TableRowMarker, { TableRowMarkerProps } from './TableRowMarker'
 
-const DEFAULT_CELL_PX = 3
-const DEFAULT_EDGE_CELL_PX = 6
+const DEFAULT_CELL_PX = [1, 2]
+const DEFAULT_EDGE_CELL_PX = [2, 4]
+const DEFAULT_CELL_PY = [2, 3]
 
 export type TableRecordType = Record<string, boolean | BigNumberish | { [key: string]: any } | null>
 
@@ -66,11 +66,9 @@ export default function Table<T extends TableRecordType>({
   pageSize,
   isOutline,
   hideHeader = false,
-  columnOptions,
   tableRowMarker: tableMarker,
   ...styleProps
 }: TableProps<T>): TableElement<T> {
-  const isMobile = useIsMobile()
   const { getTableProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
@@ -101,22 +99,20 @@ export default function Table<T extends TableRecordType>({
     }
   }, [rows, page, pageSize])
 
-  const cellPy = isMobile ? 2 : 4
-
   return (
     <Box {...styleProps}>
       <Box
         // TODO: @dappbeast Remove px
-        px={isMobile ? 3 : 0}
+        px={[3, 0]}
         overflowX="auto"
         overflowY="hidden"
       >
         <Box width="100%" height="100%" as="table" {...(getTableProps() as any)} sx={{ borderCollapse: 'collapse' }}>
           {!hideHeader ? (
-            <Flex as="thead" pt={4} pb={2}>
+            <Flex as="thead" pt={4} pb={2} px={DEFAULT_EDGE_CELL_PX}>
               {headerGroups.map((headerGroup, idx) => (
                 <Box key={idx} as="tr" {...(headerGroup.getHeaderGroupProps() as any)}>
-                  {headerGroup.headers.map((column, colIdx) => {
+                  {headerGroup.headers.map(column => {
                     const header = column.render('Header')
                     const headerProps = column.getHeaderProps()
                     const sortByToggleProps = (column as any)?.getSortByToggleProps()
@@ -124,27 +120,16 @@ export default function Table<T extends TableRecordType>({
                     const isSorted = !!(column as any).isSorted
                     const isSortedDesc = !!(column as any).isSortedDesc
                     const headerAlign = (column as any).headerAlign
-                    const colPx = columnOptions && columnOptions[colIdx] ? columnOptions[colIdx].px : null
-                    const colPl = columnOptions && columnOptions[colIdx] ? columnOptions[colIdx].pl : null
-                    const colPr = columnOptions && columnOptions[colIdx] ? columnOptions[colIdx].pr : null
                     return (
                       <Flex
                         justifyContent={headerAlign ?? 'flex-start'}
                         alignItems="center"
                         as="th"
-                        px={colPx ?? DEFAULT_CELL_PX}
-                        pl={colPl ?? colPx ?? (colIdx === 0 ? DEFAULT_EDGE_CELL_PX : DEFAULT_CELL_PX)}
-                        pr={
-                          colPr ??
-                          colPx ??
-                          (colIdx === headerGroup.headers.length - 1 ? DEFAULT_EDGE_CELL_PX : DEFAULT_CELL_PX)
-                        }
+                        px={DEFAULT_CELL_PX}
                         {...headerProps}
                         key={column.id}
                       >
-                        {React.isValidElement(header) ? (
-                          <Box key={column.id}>{header}</Box>
-                        ) : (
+                        {typeof header === 'string' || typeof header === 'number' ? (
                           <Text
                             key={column.id}
                             variant="secondary"
@@ -160,6 +145,8 @@ export default function Table<T extends TableRecordType>({
                           >
                             {header}
                           </Text>
+                        ) : (
+                          header
                         )}
                         {isSorted ? (
                           <Icon
@@ -233,6 +220,7 @@ export default function Table<T extends TableRecordType>({
                 ) : null}
                 <Box
                   as="tr"
+                  px={DEFAULT_EDGE_CELL_PX}
                   sx={{
                     cursor: !isClickable && !isExpandedContentClickable ? 'inherit' : 'pointer',
                     bg: isClickable && !isExpandedContentClickable && isExpanded ? 'hover' : 'transparent',
@@ -247,9 +235,6 @@ export default function Table<T extends TableRecordType>({
                   {...(prepareRowProps(row) as any)}
                 >
                   {row.cells.map((cell: any, cellIdx) => {
-                    const cellPx = columnOptions && columnOptions[cellIdx] ? columnOptions[cellIdx].px : null
-                    const cellPl = columnOptions && columnOptions[cellIdx] ? columnOptions[cellIdx].pl : null
-                    const cellPr = columnOptions && columnOptions[cellIdx] ? columnOptions[cellIdx].pr : null
                     return (
                       <Flex
                         onClick={() => {
@@ -263,14 +248,8 @@ export default function Table<T extends TableRecordType>({
                         as="td"
                         key={cellIdx}
                         alignItems="center"
-                        px={cellPx ?? DEFAULT_CELL_PX}
-                        pl={cellPl ?? cellPx ?? (cellIdx === 0 ? DEFAULT_EDGE_CELL_PX : DEFAULT_CELL_PX)}
-                        pr={
-                          cellPr ??
-                          cellPx ??
-                          (cellIdx === row.cells.length - 1 ? DEFAULT_EDGE_CELL_PX : DEFAULT_CELL_PX)
-                        }
-                        py={cellPy}
+                        px={DEFAULT_CELL_PX}
+                        py={DEFAULT_CELL_PY}
                         {...(prepareCellProps(cell) as any)}
                       >
                         {cell.render('Cell')}
@@ -301,7 +280,7 @@ export default function Table<T extends TableRecordType>({
                   >
                     <Box as="td">
                       <Collapsible noPadding isExpanded={isExpanded}>
-                        <Box px={noExpandedPadding ? 0 : DEFAULT_CELL_PX} py={noExpandedPadding ? 0 : cellPy}>
+                        <Box px={noExpandedPadding ? 0 : DEFAULT_CELL_PX} py={noExpandedPadding ? 0 : DEFAULT_CELL_PY}>
                           {expandedContent}
                         </Box>
                       </Collapsible>

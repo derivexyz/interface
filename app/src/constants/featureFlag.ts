@@ -17,9 +17,11 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
     VaultDeposit: false,
     VaultWithdraw: false,
     ClaimRewards: false,
+    MigrateStakedLyra: false,
     StakeLyra: false,
     UnstakeLyra: false,
     StakeWethLyra: false,
     UnstakeWethLyra: false,
+    ClaimStakedLyraRewards: false,
   },
 }

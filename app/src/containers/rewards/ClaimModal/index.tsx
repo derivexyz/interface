@@ -13,27 +13,28 @@ type Props = {
 }
 
 const ClaimModal = withSuspense(({ isOpen, onClose }: Props): JSX.Element => {
-  const [isStkLyraChecked, setIsStkLyraChecked] = useState(false)
+  const [isNewStkLyraChecked, setIsNewStkLyraChecked] = useState(false)
+  const [isOldStkLyraChecked, setIsOldStkLyraChecked] = useState(false)
   const [isOpChecked, setIsOpChecked] = useState(false)
-  const [isLyraChecked, setIsLyraChecked] = useState(false)
   const [isWethLyraChecked, setIsWethLyraChecked] = useState(false)
 
-  const handleClickStkLyra = () => {
-    setIsStkLyraChecked(!isStkLyraChecked)
+  const handleClickNewStkLyra = () => {
+    setIsNewStkLyraChecked(!isNewStkLyraChecked)
     setIsWethLyraChecked(false)
   }
   const handleClickOp = () => {
     setIsOpChecked(!isOpChecked)
     setIsWethLyraChecked(false)
   }
-  const handleClickLyra = () => {
-    setIsLyraChecked(!isLyraChecked)
+  const handleClickOldStkLyra = () => {
+    setIsOldStkLyraChecked(!isOldStkLyraChecked)
     setIsWethLyraChecked(false)
   }
+
   const handleClickWethLyra = () => {
     setIsWethLyraChecked(!isWethLyraChecked)
     setIsOpChecked(false)
-    setIsStkLyraChecked(false)
+    setIsNewStkLyraChecked(false)
   }
 
   return (
@@ -41,18 +42,18 @@ const ClaimModal = withSuspense(({ isOpen, onClose }: Props): JSX.Element => {
       <ModalBody>
         <ClaimModalContent
           isOpChecked={isOpChecked}
-          isStkLyraChecked={isStkLyraChecked}
+          isNewStkLyraChecked={isNewStkLyraChecked}
+          isOldStkLyraChecked={isOldStkLyraChecked}
           isWethLyraChecked={isWethLyraChecked}
-          isLyraChecked={isLyraChecked}
           onClickOp={handleClickOp}
-          onClickStkLyra={handleClickStkLyra}
+          onClickNewStkLyra={handleClickNewStkLyra}
           onClickWethLyra={handleClickWethLyra}
-          onClickLyra={handleClickLyra}
+          onClickOldStkLyra={handleClickOldStkLyra}
         />
         <ClaimButton
-          isLyraChecked={isLyraChecked}
           isOpChecked={isOpChecked}
-          isStkLyraChecked={isStkLyraChecked}
+          isNewStkLyraChecked={isNewStkLyraChecked}
+          isOldStkLyraChecked={isOldStkLyraChecked}
           isWethLyraChecked={isWethLyraChecked}
           onClaim={onClose}
         />

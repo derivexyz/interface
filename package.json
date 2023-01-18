@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "app:start": "yarn workspace @lyra/app start",
-    "app:build": "yarn workspace @lyra/app build",
-    "app:analyze": "yarn workspace @lyra/app analyze",
+    "start": "yarn workspace @lyra/app start",
+    "build": "yarn workspace @lyra/app build",
+    "analyze": "yarn workspace @lyra/app analyze",
     "sdk:watch": "yarn workspace @lyrafinance/lyra-js watch",
     "sdk:build": "yarn workspace @lyrafinance/lyra-js build",
     "format": "yarn workspaces run format",

@@ -7,12 +7,12 @@ import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
+import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
 import useSpotPriceHistory from '@/app/hooks/data/useSpotPriceHistory'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useMarket from '@/app/hooks/market/useMarket'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 const getOhlcWidthForToken = (token: string) => {
@@ -29,8 +29,8 @@ const getOhlcWidthForToken = (token: string) => {
 }
 
 type Props = {
+  market: Market
   textVariant?: TextVariant
-  marketAddressOrName: string
   hoverSpotPrice: number | null
   period: ChartPeriod
   isCandleChart?: boolean
@@ -39,8 +39,8 @@ type Props = {
 
 const SpotPriceChartTitle = withSuspense(
   ({
+    market,
     textVariant = 'title',
-    marketAddressOrName,
     hoverSpotPrice,
     period,
     hoverCandle,
@@ -48,8 +48,7 @@ const SpotPriceChartTitle = withSuspense(
     ...styleProps
   }: Props) => {
     const isMobile = useIsMobile()
-    const market = useMarket(marketAddressOrName)
-    const history = useSpotPriceHistory(market?.name ?? null, period)
+    const history = useSpotPriceHistory(market, period)
     const latestSpotPrice = market?.spotPrice
     const spotPrice = hoverSpotPrice ?? (latestSpotPrice ? fromBigNumber(latestSpotPrice) : null)
     const prevSpotPrice = history.length > 0 ? history[0].price : null
@@ -109,7 +108,7 @@ const SpotPriceChartTitle = withSuspense(
       </Box>
     )
   },
-  ({ textVariant = 'title', marketAddressOrName, hoverSpotPrice, period, hoverCandle, ...styleProps }: Props) => (
+  ({ textVariant = 'title', market, hoverSpotPrice, period, hoverCandle, ...styleProps }: Props) => (
     <Box {...styleProps}>
       <TextShimmer variant={textVariant} width={200} />
       <TextShimmer variant="smallMedium" width={50} />

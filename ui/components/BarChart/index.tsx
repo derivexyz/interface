@@ -13,6 +13,7 @@ import {
 import { AxisDomain as RechartsAxisDomain, Margin } from 'recharts/types/util/types'
 import { LayoutProps, MarginProps } from 'styled-system'
 
+import Center from '../Center'
 import Text from '../Text'
 
 export type ReferenceLineProps = RechartsReferenceLineProps
@@ -46,6 +47,7 @@ type Props<T extends DataPoint> = {
   referenceLinesProps?: ReferenceLineProps[]
   chartMargin?: Margin
   color?: BarChartColor
+  fallback?: string
 } & LayoutProps &
   MarginProps
 
@@ -69,11 +71,23 @@ export default function BarChart<T extends DataPoint>({
   referenceLinesProps,
   color = 'primary',
   chartMargin = { top: 24, bottom: 8, left: 16, right: 16 },
+  fallback = 'Not enough data',
   ...styleProps
 }: Props<T>): JSX.Element {
   const label = useThemeColor('secondaryText')
   const hover = useThemeColor('hover')
   const fillColor = useThemeColor(getFillColor(color))
+
+  if (data.length <= 1) {
+    return (
+      <Center {...styleProps}>
+        <Text variant="secondary" color="secondaryText">
+          {fallback}
+        </Text>
+      </Center>
+    )
+  }
+
   return (
     <Box {...styleProps}>
       <ResponsiveContainer width="100%" height="100%" minWidth={undefined}>

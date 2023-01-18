@@ -26,7 +26,7 @@ type Props = {
 const AdminBoardStrikes = withSuspense(({ board, owner, onUpdateStrike }: Props) => {
   const { account, isConnected } = useWallet()
   const strikes = board.strikes()
-  const execute = useAdminTransaction(owner)
+  const execute = useAdminTransaction(board.lyra.network, owner)
   const [skewForStrike, setSkewForStrike] = useState<Record<string, BigNumber>>({})
   const [skewLoading, setSkewLoading] = useState<Record<string, boolean>>({})
   return (

@@ -18,6 +18,8 @@ import useMultiSigTransactionCount, {
 } from '@/app/hooks/admin/useMultiSigTransactionCount'
 import useMultiSigTransactionIds, { useMutateMultiSigTransactionIds } from '@/app/hooks/admin/useMultiSigTransactionIds'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
+import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 
 export const NUM_TRANSACTIONS = 20
 
@@ -27,12 +29,14 @@ const AdminTransactionCard = withSuspense(
   ({ isCollapsible = false, ...styleProps }: Props) => {
     const [isLoading, setIsLoading] = useState(false)
     const [isExpanded, setIsExpanded] = useState(true)
-    const globalOwner = useAdminGlobalOwner()
-    const transactionCount = useMultiSigTransactionCount(globalOwner)
-    const mutateTransactionCount = useMutateMultiSigTransactionCount(globalOwner)
+    const network = useNetwork()
+    const globalOwner = useAdminGlobalOwner(network)
+    const transactionCount = useMultiSigTransactionCount(network, globalOwner)
+    const mutateTransactionCount = useMutateMultiSigTransactionCount(network, globalOwner)
     const from = transactionCount?.sub(NUM_TRANSACTIONS) ?? ZERO_BN
-    const transactionIds = useMultiSigTransactionIds(globalOwner, from, transactionCount ?? ZERO_BN) ?? []
+    const transactionIds = useMultiSigTransactionIds(network, globalOwner, from, transactionCount ?? ZERO_BN) ?? []
     const mutateTransactionIds = useMutateMultiSigTransactionIds(
+      network,
       globalOwner,
       from.lt(ZERO_BN) ? ZERO_BN : from,
       transactionCount ?? ZERO_BN
@@ -43,7 +47,9 @@ const AdminTransactionCard = withSuspense(
           isExpanded={isExpanded}
           header={
             <Flex width="100%" alignItems="center">
-              <Text variant="heading">Transactions ({transactionCount?.toNumber() ?? 0})</Text>
+              <Text variant="heading">
+                {getNetworkDisplayName(network)} Transactions ({transactionCount?.toNumber() ?? 0})
+              </Text>
               {isLoading ? <Spinner ml={2} size="sm" /> : null}
               <IconButton
                 ml="auto"

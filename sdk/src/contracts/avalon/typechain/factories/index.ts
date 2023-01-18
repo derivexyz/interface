@@ -2,12 +2,14 @@
 /* tslint:disable */
 /* eslint-disable */
 export { LiquidityPool__factory } from "./LiquidityPool__factory";
+export { LiquidityToken__factory } from "./LiquidityToken__factory";
+export { LyraRegistry__factory } from "./LyraRegistry__factory";
 export { OptionGreekCache__factory } from "./OptionGreekCache__factory";
 export { OptionMarket__factory } from "./OptionMarket__factory";
 export { OptionMarketPricer__factory } from "./OptionMarketPricer__factory";
 export { OptionMarketViewer__factory } from "./OptionMarketViewer__factory";
-export { OptionMarketWrapper__factory } from "./OptionMarketWrapper__factory";
 export { OptionToken__factory } from "./OptionToken__factory";
 export { ShortCollateral__factory } from "./ShortCollateral__factory";
 export { ShortPoolHedger__factory } from "./ShortPoolHedger__factory";
 export { SynthetixAdapter__factory } from "./SynthetixAdapter__factory";
+export { TestFaucet__factory } from "./TestFaucet__factory";

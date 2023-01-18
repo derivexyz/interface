@@ -20,8 +20,8 @@ type Props = {
 
 const AdminBoardInfo = withSuspense(({ board, market, owner, onUpdateBoard }: Props) => {
   const { account, isConnected } = useWallet()
-  const admin = useAdmin()
-  const execute = useAdminTransaction(owner)
+  const admin = useAdmin(market.lyra.network)
+  const execute = useAdminTransaction(market.lyra.network, owner)
   const [isLoading, setIsLoading] = useState(false)
   return (
     <Box px={8}>

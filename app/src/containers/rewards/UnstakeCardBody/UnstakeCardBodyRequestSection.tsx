@@ -21,9 +21,10 @@ type Props = LayoutProps & MarginProps
 const UnstakeCardBodyRequestUnstakeSectionBalance = withSuspense(
   () => {
     const lyraAccountStaking = useLyraAccountStaking()
-    return (
-      <TokenAmountText tokenNameOrAddress={'stkLyra'} amount={lyraAccountStaking?.stakedLyraBalance.balance ?? 0} />
+    const amount = lyraAccountStaking?.lyraBalances.ethereumStkLyra.add(
+      lyraAccountStaking?.lyraBalances.optimismStkLyra
     )
+    return <TokenAmountText tokenNameOrAddress={'stkLyra'} amount={amount ?? 0} />
   },
   () => <TokenAmountTextShimmer />
 )
@@ -42,8 +43,8 @@ const UnstakeCardBodyRequestUnstakeSection = ({ ...styleProps }: Props) => {
   return (
     <ModalSection {...styleProps}>
       <Text variant="body" color="secondaryText" width="100%" mb={4}>
-        Staked LYRA has a 14 day unstaking period. During this period you will not receive any staking LYRA and OP
-        rewards and boosts for vault and trading rewards will be disabled.
+        Staked LYRA has a 14 day unstaking period. During this period you will not receive any rewards. Boosts for vault
+        and trading rewards will also be disabled.
       </Text>
       <Flex width="100%" my={4} alignItems="center" justifyContent="space-between">
         <Text variant="body" color="secondaryText">

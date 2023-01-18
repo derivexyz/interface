@@ -1,11 +1,12 @@
+import { ApolloClient, gql, HttpLink, InMemoryCache } from '@apollo/client'
 import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
-import { gql, GraphQLClient } from 'graphql-request'
+import fetch from 'cross-fetch'
 
 import { TokenTransfer, TokenTransferResult } from '../constants/queries'
 import Lyra, { Deployment } from '../lyra'
 
-const TOKEN_TRANSFER_QUERY = gql`
+const TOKEN_TRANSFER_QUERY = `
   amount
   timestamp
   blockNumber
@@ -39,7 +40,10 @@ const transfersQuery = gql`
   }
 `
 
-const transfersSubgraph = new GraphQLClient('https://api.thegraph.com/subgraphs/name/paulvaden/transfers-test')
+const transfersSubgraph = new ApolloClient({
+  link: new HttpLink({ uri: 'https://api.thegraph.com/subgraphs/name/paulvaden/transfers-test', fetch }),
+  cache: new InMemoryCache(),
+})
 
 export default async function fetchTokenTransfers(
   lyra: Lyra,
@@ -56,7 +60,7 @@ export default async function fetchTokenTransfers(
       to: [],
     }
   }
-  const res = await transfersSubgraph.request<
+  const { data } = await transfersSubgraph.query<
     {
       fromTokenTransfers: TokenTransferResult[]
       toTokenTransfers: TokenTransferResult[]
@@ -65,12 +69,15 @@ export default async function fetchTokenTransfers(
       owner: string
       startTimestamp: number
     }
-  >(transfersQuery, {
-    owner: owner.toLowerCase(),
-    startTimestamp,
+  >({
+    query: transfersQuery,
+    variables: {
+      owner: owner.toLowerCase(),
+      startTimestamp,
+    },
   })
 
-  const from = res.fromTokenTransfers.map(token => ({
+  const from = data.fromTokenTransfers.map(token => ({
     amount: BigNumber.from(token.amount),
     timestamp: token.timestamp,
     blockNumber: token.blockNumber,
@@ -79,7 +86,7 @@ export default async function fetchTokenTransfers(
     tokenAddress: getAddress(token.token.id),
   }))
 
-  const to = res.toTokenTransfers.map(token => ({
+  const to = data.toTokenTransfers.map(token => ({
     amount: BigNumber.from(token.amount),
     timestamp: token.timestamp,
     blockNumber: token.blockNumber,

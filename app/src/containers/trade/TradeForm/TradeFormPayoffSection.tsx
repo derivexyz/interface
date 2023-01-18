@@ -37,14 +37,9 @@ const TradeFormPayoffSection = ({ trade }: Props) => {
         showLiquidationPrice
         mb={6}
       />
-      <RowItem
-        mb={3}
-        label="Max Profit"
-        value={maxProfit.eq(MAX_BN) ? 'Infinity' : formatUSD(maxProfit)}
-        textVariant="small"
-      />
-      <RowItem mb={3} label="Break Even" value={formatUSD(breakEven)} textVariant="small" />
-      <RowItem label="Max Loss" value={maxLoss.eq(MAX_BN) ? 'Infinity' : formatUSD(maxLoss)} textVariant="small" />
+      <RowItem mb={3} label="Max Profit" value={maxProfit.eq(MAX_BN) ? 'Infinity' : formatUSD(maxProfit)} />
+      <RowItem mb={3} label="Break Even" value={formatUSD(breakEven)} />
+      <RowItem label="Max Loss" value={maxLoss.eq(MAX_BN) ? 'Infinity' : formatUSD(maxLoss)} />
     </CardSection>
   )
 }

@@ -32,14 +32,14 @@ const zeroDecimalKeys: (keyof VarianceFeeParams)[] = []
 const AdminMarketVarianceFeeParams = withSuspense(
   ({ market, isExpanded, onClickExpand, onParamUpdate }: Props) => {
     const { account, isConnected } = useWallet()
-    const admin = useAdmin()
-    const owner = useMarketOwner(market.name)
+    const admin = useAdmin(market.lyra.network)
+    const owner = useMarketOwner(market)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
     const [params, setParams] = useState<Partial<VarianceFeeParams>>({})
     const [newParams, setNewParams] = useState<Partial<VarianceFeeParams>>({})
     const [tx, setTx] = useState<PopulatedTransaction | null>(null)
     const [isLoading, setIsLoading] = useState(false)
-    const execute = useAdminTransaction(owner)
+    const execute = useAdminTransaction(market.lyra.network, owner)
     if (!market) {
       return null
     }

@@ -8,13 +8,13 @@ import { OptionToken } from '../contracts/newport/typechain'
 import { PositionUpdatedEvent } from '../contracts/newport/typechain/OptionToken'
 import { Version } from '../lyra'
 import filterNulls from './filterNulls'
-import getLyraContractABI from './getLyraContractABI'
+import { getMarketContractABI } from './getLyraMarketContract'
 
 export default function parsePartialPositionUpdatedEventsFromLogs(logs: Log[]): PartialPositionUpdatedEvent[] {
   const optionToken = new Contract(
     ZERO_ADDRESS,
     // Hard-coded version as these ABI events are functionally the same
-    getLyraContractABI(Version.Newport, LyraMarketContractId.OptionToken)
+    getMarketContractABI(Version.Newport, LyraMarketContractId.OptionToken)
   ) as OptionToken
   const events = filterNulls(
     logs.map(log => {

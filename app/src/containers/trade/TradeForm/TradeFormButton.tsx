@@ -1,45 +1,24 @@
-import Box from '@lyra/ui/components/Box'
-import Button, { ButtonVariant } from '@lyra/ui/components/Button'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
-import {
-  AccountBaseBalance,
-  AccountOptionTokenBalance,
-  AccountQuoteBalance,
-  Market,
-  MarketTradeOptions,
-  Network,
-  Trade,
-  TradeDisabledReason,
-} from '@lyrafinance/lyra-js'
-import React, { useCallback, useMemo, useState } from 'react'
+import { Market, MarketTradeOptions, Trade, TradeDisabledReason } from '@lyrafinance/lyra-js'
+import React, { useCallback } from 'react'
 
-import { MAX_BN, UNIT, ZERO_BN } from '@/app/constants/bn'
+import { MAX_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
-import OnboardingModal, { OnboardingModalStep } from '@/app/containers/common/OnboardingModal'
-import useOptimismToken from '@/app/hooks/data/useOptimismToken'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useEthBalance from '@/app/hooks/erc20/useEthBalance'
 import useAccount from '@/app/hooks/market/useAccount'
 import { useMutateBalances } from '@/app/hooks/market/useBalances'
 import useMarketBalances from '@/app/hooks/market/useMarketBalances'
-import useTradeWithSwap from '@/app/hooks/market/useTradeWithSwap'
 import { useMutateOpenPositions } from '@/app/hooks/position/useOpenPositions'
 import { useMutatePosition } from '@/app/hooks/position/usePosition'
 import useTransaction from '@/app/hooks/transaction/useTransaction'
-import { to18DecimalBN } from '@/app/utils/convertBNDecimals'
 import filterNulls from '@/app/utils/filterNulls'
-import fromBigNumber from '@/app/utils/fromBigNumber'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 import getTradeLogData from '@/app/utils/getTradeLogData'
-import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
 import logEvent from '@/app/utils/logEvent'
-import lyra from '@/app/utils/lyra'
 
-import TestFaucetModal from '../../common/TestFaucetModal'
 import TransactionButton from '../../common/TransactionButton'
-
-const MAX_PRICE_IMPACT_WITH_SWAP = 0.05
 
 type Props = {
   trade: Trade
@@ -69,7 +48,7 @@ const getTradeDisabledMessage = (disabledReason: TradeDisabledReason): string =>
       return 'Position closed'
     case TradeDisabledReason.PositionNotLargeEnough:
       return 'Position not large enough'
-    case TradeDisabledReason.PositionWrongOwner:
+    case TradeDisabledReason.IncorrectOwner:
       return 'You are not the owner'
     case TradeDisabledReason.PositionClosedLeftoverCollateral:
       return 'Set collateral to zero'
@@ -82,147 +61,49 @@ const getTradeDisabledMessage = (disabledReason: TradeDisabledReason): string =>
       return 'Price impact too high'
     case TradeDisabledReason.EmptyPremium:
       return 'Option is worthless'
+    case TradeDisabledReason.InsufficientBaseAllowance:
+    case TradeDisabledReason.InsufficientQuoteAllowance:
+      return 'Insufficient Allowance'
+    case TradeDisabledReason.InsufficientBaseBalance:
+    case TradeDisabledReason.InsufficientQuoteBalance:
+      return 'Insufficient Balance'
+    case TradeDisabledReason.Unknown:
+      return 'Unavailable'
   }
 }
 
-const getTradeButtonProps = (
-  trade: Trade,
-  quoteToken: AccountQuoteBalance,
-  baseToken: AccountBaseBalance,
-  optionToken: AccountOptionTokenBalance,
-  priceImpactWithSwap: number
-): {
-  label: string
-  variant: ButtonVariant
-  isOutline: boolean
-  isDisabled: boolean
-} => {
+const getTradeButtonLabel = (trade: Trade): string => {
   const position = trade.position()
   const option = trade.option()
   const isBuy = trade.isBuy
   const isClose = !!position && position.isLong !== isBuy && !trade.size.isZero()
 
-  const quoteTokenBalance =
-    quoteToken.decimals !== 18 ? to18DecimalBN(quoteToken.balance, quoteToken.decimals) : quoteToken.balance
-  const baseTokenBalance = baseToken.balance
-
-  const isInsufficientBalance =
-    quoteTokenBalance.lt(trade.quoteToken.transfer) || baseTokenBalance.lt(trade.baseToken.transfer)
-
-  const priceImpactTooHigh = priceImpactWithSwap > MAX_PRICE_IMPACT_WITH_SWAP
-
-  if (isInsufficientBalance) {
-    return {
-      label: 'Insufficient Balance',
-      variant: 'default',
-      isOutline: false,
-      isDisabled: true,
-    }
-  } else if (priceImpactTooHigh) {
-    return {
-      label: 'Price impact too high',
-      variant: 'default',
-      isOutline: false,
-      isDisabled: true,
-    }
-  } else if (trade.isDisabled) {
-    return {
-      label: trade.disabledReason ? getTradeDisabledMessage(trade.disabledReason) : 'Something went wrong',
-      variant: 'default',
-      isOutline: false,
-      isDisabled: true,
-    }
-  }
-
-  // For approvals, render disabled label text
-  const isInsufficientQuoteAllowance = quoteToken.tradeAllowance.lt(trade.quoteToken.transfer)
-  const isInsufficientBaseAllowance = baseToken.tradeAllowance.lt(trade.baseToken.transfer)
-  const isOptionTokenApprovalRequired = !!position && !optionToken.isApprovedForAll
-  const isApprovalRequired =
-    isInsufficientQuoteAllowance || isInsufficientBaseAllowance || isOptionTokenApprovalRequired
-
-  if (position?.collateral && trade.collateral && trade.isCollateralUpdate) {
+  if (trade.isDisabled && trade.disabledReason) {
+    return getTradeDisabledMessage(trade.disabledReason)
+  } else if (position?.collateral && trade.collateral && trade.isCollateralUpdate) {
     const isAdd = trade.collateral.amount.gt(position.collateral.amount)
-    return {
-      label: isAdd ? 'Add Collateral' : 'Remove Collateral',
-      variant: isAdd ? 'primary' : 'error',
-      isOutline: false,
-      isDisabled: isApprovalRequired,
-    }
+    return isAdd ? 'Add Collateral' : 'Remove Collateral'
   } else if (isClose) {
-    return {
-      label: 'Close Position',
-      variant: 'error',
-      isOutline: true,
-      isDisabled: isApprovalRequired,
-    }
+    return 'Close Position'
   } else {
-    return {
-      label: `${isBuy ? 'Buy' : 'Sell'} ${option.isCall ? 'Call' : 'Put'}`,
-      variant: isBuy ? 'primary' : 'error',
-      isOutline: false,
-      isDisabled: isApprovalRequired,
-    }
+    return `${isBuy ? 'Buy' : 'Sell'} ${option.isCall ? 'Call' : 'Put'}`
   }
 }
 
 const TradeFormButton = withSuspense(
   ({ onTrade, trade, ...styleProps }: Props) => {
-    const [isLoading, setIsLoading] = useState(false)
-    const [isApproveLoading, setIsApproveLoading] = useState(false)
-    const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false)
-    const [isFaucetOpen, setIsFaucetOpen] = useState(false)
     const option = trade.option()
     const position = trade.position()
     const market = option.market()
+    const network = trade.lyra.network
     const mutateOpenPositions = useMutateOpenPositions()
-    const optimismQuoteToken = useOptimismToken(trade.quoteToken.address)
-    const optimismBaseToken = useOptimismToken(trade.baseToken.address)
-    const ethBalance = useEthBalance(Network.Optimism)
-    const balances = useMarketBalances(market.address)
-    const account = useAccount()
-    const mutateAccount = useMutateBalances()
-    const mutatePosition = useMutatePosition()
+    const balances = useMarketBalances(trade.market())
+    const account = useAccount(network)
+    const mutateAccount = useMutateBalances(network)
+    const mutatePosition = useMutatePosition(market.lyra)
+    const quoteToken = balances.quoteAsset
 
-    const quoteToken =
-      balances.quoteSwapAssets.find(quote => quote.address === trade.quoteToken.address) ?? balances.quoteAsset
-    const baseToken = balances.baseAsset
-    const optionToken = balances.optionToken
-    const quoteTokenBalance =
-      quoteToken.decimals !== 18 ? to18DecimalBN(quoteToken.balance, quoteToken.decimals) : quoteToken.balance
-
-    const tradeWithSwap = useTradeWithSwap(trade, quoteToken.address, quoteToken.decimals)
-
-    // TODO: @dappbeast Fix this logic
-    const priceImpactWithSwap = useMemo(() => {
-      const divisor = trade.quoteToken.transfer.gt(0) ? trade.quoteToken.transfer : trade.quoteToken.receive
-      return quoteToken.address !== trade.market().quoteToken.address &&
-        tradeWithSwap &&
-        tradeWithSwap.premium.gt(ZERO_BN) &&
-        !divisor.isZero()
-        ? Math.abs(
-            1 -
-              fromBigNumber(
-                (tradeWithSwap.quoteToken.transfer.gt(0)
-                  ? tradeWithSwap.quoteToken.transfer
-                  : tradeWithSwap.quoteToken.receive
-                )
-                  .mul(UNIT)
-                  .div(divisor)
-              )
-          )
-        : 0
-    }, [tradeWithSwap, trade, quoteToken])
-
-    const isInsufficientQuoteAllowance = quoteToken.tradeAllowance.lt(trade.quoteToken.transfer)
-    const isInsufficientBaseAllowance = baseToken.tradeAllowance.lt(trade.baseToken.transfer)
-    const isOptionTokenApprovalRequired = !!position && !optionToken.isApprovedForAll
-
-    const isInsufficientQuoteBalance = quoteTokenBalance.lt(trade.quoteToken.transfer)
-    const isInsufficientBaseBalance = baseToken.balance.lt(trade.baseToken.transfer)
-    const isInsufficientBalance = isInsufficientQuoteBalance || isInsufficientBaseBalance
-
-    const execute = useTransaction()
+    const execute = useTransaction(network)
 
     const handleClickApproveQuote = useCallback(async () => {
       logEvent(LogEvent.TradeApproveSubmit, { isBase: false })
@@ -230,8 +111,7 @@ const TradeFormButton = withSuspense(
         console.warn('Account or quote token does not exist')
         return null
       }
-      setIsApproveLoading(true)
-      const tx = await account.approveStableToken(quoteToken.address, MAX_BN)
+      const tx = await trade.approveQuote(account.address, MAX_BN)
       await execute(tx, {
         onComplete: () => {
           mutateAccount()
@@ -241,8 +121,7 @@ const TradeFormButton = withSuspense(
         },
         onError: () => logEvent(LogEvent.TradeApproveError, { isBase: false }),
       })
-      setIsApproveLoading(false)
-    }, [account, quoteToken, execute, mutateAccount])
+    }, [account, quoteToken, trade, execute, mutateAccount])
 
     const handleClickApproveBase = useCallback(async () => {
       logEvent(LogEvent.TradeApproveSubmit, { isBase: true })
@@ -250,8 +129,7 @@ const TradeFormButton = withSuspense(
         console.warn('Account or market does not exist')
         return null
       }
-      setIsApproveLoading(true)
-      const tx = await account.approveBaseToken(market.baseToken.address, MAX_BN)
+      const tx = await trade.approveBase(account.address, MAX_BN)
       await execute(tx, {
         onComplete: () => {
           mutateAccount()
@@ -259,28 +137,13 @@ const TradeFormButton = withSuspense(
         },
         onError: () => logEvent(LogEvent.TradeApproveError, { isBase: true }),
       })
-      setIsApproveLoading(false)
-    }, [account, market, execute, mutateAccount])
-
-    const handleClickApproveOptionToken = useCallback(async () => {
-      if (!account) {
-        console.warn('Account does not exist')
-        return null
-      }
-      setIsApproveLoading(true)
-      const tx = await account.approveOptionToken(market.address, true)
-      await execute(tx, {
-        onComplete: mutateAccount,
-      })
-      setIsApproveLoading(false)
-    }, [account, market.address, execute, mutateAccount])
+    }, [account, market, trade, execute, mutateAccount])
 
     const handleClickTrade = useCallback(async () => {
       if (!trade || !account) {
         console.warn('Account or market does not exist')
         return
       }
-      setIsLoading(true)
 
       logEvent(LogEvent.TradeSubmit, getTradeLogData(trade))
 
@@ -288,10 +151,6 @@ const TradeFormButton = withSuspense(
         const options: MarketTradeOptions = {
           setToCollateral: trade.collateral?.amount,
           isBaseCollateral: trade.collateral?.isBase,
-          inputAsset: {
-            address: quoteToken?.address,
-            decimals: quoteToken?.decimals,
-          },
         }
         const { tx, disabledReason } = !position
           ? await market.trade(
@@ -303,16 +162,9 @@ const TradeFormButton = withSuspense(
               trade.slippage,
               options
             )
-          : await position.trade(trade.isBuy, trade.size, trade.slippage, {
-              ...options,
-              inputAsset: {
-                address: quoteToken?.address,
-                decimals: quoteToken?.decimals,
-              },
-            })
+          : await position.trade(trade.isBuy, trade.size, trade.slippage, options)
 
         if (!tx) {
-          setIsLoading(false)
           throw new Error(disabledReason ? getTradeDisabledMessage(disabledReason) : 'Something went wrong')
         }
         return tx
@@ -322,11 +174,12 @@ const TradeFormButton = withSuspense(
           const mutatePromise = Promise.all(
             filterNulls([
               mutateOpenPositions(),
-              mutateAccount(),
               position ? mutatePosition(market.name, position.id) : null,
+              position ? mutatePosition(market.address, position.id) : null,
+              mutateAccount(),
             ])
           )
-          const [events] = await Promise.all([lyra.events(receipt), mutatePromise])
+          const [events] = await Promise.all([getLyraSDK(network).events(receipt), mutatePromise])
           const { trades, collateralUpdates } = events
           trades.forEach(trade => logEvent(LogEvent.TradeSuccess, getTradeLogData(trade)))
           collateralUpdates
@@ -345,14 +198,12 @@ const TradeFormButton = withSuspense(
           onTrade(market, positionId)
         }
       }
-      setIsLoading(false)
     }, [
       trade,
+      network,
       account,
       execute,
       onTrade,
-      quoteToken?.address,
-      quoteToken?.decimals,
       position,
       market,
       mutateOpenPositions,
@@ -366,106 +217,28 @@ const TradeFormButton = withSuspense(
       ? TransactionType.TradeOpenPosition
       : TransactionType.TradeClosePosition
 
-    const isApprovalRequired =
-      isInsufficientQuoteAllowance || isInsufficientBaseAllowance || isOptionTokenApprovalRequired
-
-    const swapButton = (
-      <>
-        {isOptimismMainnet() ? (
-          <TransactionButton
-            transactionType={transactionType}
-            hideIfNotReady
-            sx={{ width: '100%' }}
-            variant="primary"
-            size="lg"
-            label={`Swap to ${isInsufficientQuoteBalance ? 'Stables' : 'Synths'}`}
-            onClick={() => setIsOnboardingModalOpen(true)}
-          />
-        ) : (
-          <TransactionButton
-            transactionType={transactionType}
-            hideIfNotReady
-            sx={{ width: '100%' }}
-            size="lg"
-            variant="primary"
-            label={`Drip ${isInsufficientQuoteBalance ? 'Stables' : 'Synths'}`}
-            onClick={() => setIsFaucetOpen(true)}
-          />
-        )}
-        {/* Disabled trading button */}
-        <Button
-          mt={3}
-          size="lg"
-          width="100%"
-          {...getTradeButtonProps(trade, quoteToken, baseToken, optionToken, priceImpactWithSwap)}
-          isDisabled
-        />
-      </>
-    )
-
-    const approveButton = (
-      <>
-        <TransactionButton
-          transactionType={transactionType}
-          hideIfNotReady
-          size="lg"
-          sx={{ width: '100%' }}
-          isLoading={isApproveLoading}
-          variant="primary"
-          onClick={
-            isInsufficientQuoteAllowance
-              ? handleClickApproveQuote
-              : isInsufficientBaseAllowance
-              ? handleClickApproveBase
-              : isOptionTokenApprovalRequired
-              ? handleClickApproveOptionToken
-              : undefined
-          }
-          label={
-            isInsufficientQuoteAllowance
-              ? `Allow Lyra to use your ${quoteToken.symbol}`
-              : isInsufficientBaseAllowance
-              ? `Allow Lyra to use your ${market.baseToken.symbol}`
-              : isOptionTokenApprovalRequired
-              ? `Allow Lyra to ${trade.newSize.isZero() ? 'close' : 'modify'} your position`
-              : 'Something went wrong'
-          }
-        />
-        {/* Disabled trading button */}
-        <Button
-          mt={3}
-          size="lg"
-          width="100%"
-          {...getTradeButtonProps(trade, quoteToken, baseToken, optionToken, priceImpactWithSwap)}
-          isDisabled
-        />
-      </>
-    )
-
-    const tradeButton = (
-      <TransactionButton
-        transactionType={transactionType}
-        size="lg"
-        sx={{ width: '100%' }}
-        isLoading={isLoading}
-        onClick={handleClickTrade}
-        {...getTradeButtonProps(trade, quoteToken, baseToken, optionToken, priceImpactWithSwap)}
-      />
-    )
-
     return (
-      <Box {...styleProps}>
-        {isInsufficientBalance ? swapButton : isApprovalRequired ? approveButton : tradeButton}
-        <TestFaucetModal isOpen={isFaucetOpen} onClose={() => setIsFaucetOpen(false)} />
-        <OnboardingModal
-          isOpen={isOnboardingModalOpen}
-          onClose={() => setIsOnboardingModalOpen(false)}
-          step={ethBalance.eq(0) ? OnboardingModalStep.GetETH : OnboardingModalStep.GetTokens}
-          toToken={
-            isInsufficientQuoteBalance ? optimismQuoteToken : isInsufficientBaseBalance ? optimismBaseToken : null
-          }
-        />
-      </Box>
+      <TransactionButton
+        requireAllowance={
+          trade.disabledReason === TradeDisabledReason.InsufficientQuoteAllowance
+            ? {
+                ...trade.quoteToken,
+                onClick: handleClickApproveQuote,
+              }
+            : trade.disabledReason === TradeDisabledReason.InsufficientBaseAllowance
+            ? {
+                ...trade.baseToken,
+                onClick: handleClickApproveBase,
+              }
+            : undefined
+        }
+        network={trade.lyra.network}
+        transactionType={transactionType}
+        onClick={handleClickTrade}
+        isDisabled={trade.isDisabled}
+        label={getTradeButtonLabel(trade)}
+        {...styleProps}
+      />
     )
   },
   ({ trade, onTrade, ...styleProps }) => <ButtonShimmer size="lg" width="100%" {...styleProps} />

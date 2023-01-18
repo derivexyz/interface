@@ -1,6 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { PopulatedTransaction } from '@ethersproject/contracts'
 import { TransactionReceipt } from '@ethersproject/providers'
+import { Network } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
@@ -11,9 +12,10 @@ import useWallet from '../wallet/useWallet'
 import useTransaction, { TransactionOptions } from './useTransaction'
 
 export default function useAdminTransaction(
+  network: Network,
   owner: string | null
 ): (tx: PopulatedTransaction, options?: TransactionOptions) => Promise<TransactionReceipt | null> {
-  const execute = useTransaction()
+  const execute = useTransaction(network)
   const { signer } = useWallet()
   return useCallback(
     async (tx: PopulatedTransaction, options?: TransactionOptions) => {
@@ -22,12 +24,12 @@ export default function useAdminTransaction(
         return null
       }
       // Check if owner is Multisig
-      const isOwnerMultisig = await getIsOwnerMultiSig(owner)
+      const isOwnerMultisig = await getIsOwnerMultiSig(network, owner)
       if (!isOwnerMultisig) {
         return execute(tx, options)
       }
 
-      const multiSigWalletContract = getMultiSigWalletContract(owner, signer)
+      const multiSigWalletContract = getMultiSigWalletContract(network, owner, signer)
       // Encode the multisig submitTransaction data
       const multisigData = multiSigWalletContract.interface.encodeFunctionData('submitTransaction', [
         // Destination - actual contract (e.g. OptionMarket)

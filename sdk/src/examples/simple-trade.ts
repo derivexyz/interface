@@ -22,16 +22,16 @@ export default async function simpleTrade() {
     throw new Error('No strike in delta range')
   }
 
+  // Prepare trade (Open 1.0 Long ETH Call)
+  const trade = await Trade.get(lyra, account.address, 'eth', strike.id, true, true, ONE_BN.div(100), {
+    slippage: 0.1 / 100, // 0.1%
+  })
+
   // Approve
-  const approveTx = await account.approveStableToken(market.quoteToken.address, MAX_BN)
+  const approveTx = await trade.approveQuote(account.address, MAX_BN)
   const approveResponse = await signer.sendTransaction(approveTx)
   await approveResponse.wait()
   console.log('Approved sUSD')
-
-  // Prepare trade (Open 1.0 Long ETH Call)
-  const trade = await Trade.get(lyra, account.address, 'eth', strike.id, true, true, ONE_BN.div(100), {
-    premiumSlippage: 0.1 / 100, // 0.1%
-  })
 
   // Check if trade is disabled
   if (trade.disabledReason) {

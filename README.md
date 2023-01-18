@@ -19,11 +19,11 @@ yarn install
 ### Run the interface locally
 
 ```
-yarn app:start
+yarn start
 ```
 
 ### Create a production build
 
 ```
-yarn app:build
+yarn build
 ```

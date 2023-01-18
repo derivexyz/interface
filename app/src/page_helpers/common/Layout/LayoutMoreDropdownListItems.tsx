@@ -1,15 +1,13 @@
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import { IconType } from '@lyra/ui/components/Icon'
 import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
-import { Chain } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { DISCORD_URL, DOCS_URL, GITHUB_URL, STATS_URL, V1_DAPP_URL } from '@/app/constants/links'
 import { LogEvent } from '@/app/constants/logEvents'
-import getNetworkConfig from '@/app/utils/getNetworkConfig'
-import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
+import isMainnet from '@/app/utils/isMainnet'
 import logEvent from '@/app/utils/logEvent'
-import setOptimismChainId from '@/app/utils/setOptimismChainId'
+import setIsMainnet from '@/app/utils/setIsTestnet'
 
 type Props = {
   onClose: () => void
@@ -79,18 +77,16 @@ const LayoutMoreDropdownListItems = ({ onClose, onClickPrivacy }: Props): JSX.El
         icon={IconType.ExternalLink}
       />
       <DropdownButtonListItem
-        label={isOptimismMainnet() ? 'Testnet' : 'Mainnet'}
+        label={isMainnet() ? 'Testnet' : 'Mainnet'}
         onClick={() => {
-          const toChainId = isOptimismMainnet()
-            ? getNetworkConfig(Chain.OptimismGoerli).chainId
-            : getNetworkConfig(Chain.Optimism).chainId
+          const newIsMainnet = !isMainnet()
           logEvent(LogEvent.NavNetworkToggle, {
-            toChainId,
+            isMainnet: newIsMainnet,
           })
-          setOptimismChainId(toChainId)
+          setIsMainnet(newIsMainnet)
           onClose()
         }}
-        icon={isOptimismMainnet() ? IconType.ToggleLeft : IconType.ToggleRight}
+        icon={isMainnet() ? IconType.ToggleLeft : IconType.ToggleRight}
       />
       <DropdownButtonListItem
         onClick={() => {

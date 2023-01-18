@@ -2,13 +2,15 @@ import Box from '@lyra/ui/components/Box'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text, { TextVariant } from '@lyra/ui/components/Text'
 import Tooltip from '@lyra/ui/components/Tooltip'
+import filterNulls from '@lyra/ui/utils/filterNulls'
 import formatBalance from '@lyra/ui/utils/formatBalance'
+import formatTruncatedBalance from '@lyra/ui/utils/formatTruncatedBalance'
 import { Option, Position, Trade } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { SHORT_COLLATERAL_REWARDS_DOC_URL } from '@/app/constants/links'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useLatestGlobalRewardEpoch from '@/app/hooks/rewards/useLatestGlobalRewardEpoch'
+import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = {
@@ -19,21 +21,28 @@ type Props = {
 
 const ShortYieldValue = withSuspense(
   ({ option, tradeOrPosition, textVariant }: Props) => {
-    const globalEpoch = useLatestGlobalRewardEpoch()
+    const epochs = useLatestRewardEpoch(option.lyra.network)
 
     const size = tradeOrPosition instanceof Trade ? tradeOrPosition.newSize : tradeOrPosition.size
     const delta = fromBigNumber(tradeOrPosition instanceof Trade ? tradeOrPosition.greeks.delta : option.delta)
     const expiryTimestamp = option.board().expiryTimestamp
     const isLong = tradeOrPosition.isLong
     const market = option.market()
-    const yieldPerDay = globalEpoch?.shortCollateralYieldPerDay(
+    const yieldPerDay = epochs?.global?.shortCollateralYieldPerDay(
       fromBigNumber(size),
       delta,
       expiryTimestamp,
       market.baseToken.symbol
     )
-    const isEnabled = !isLong && size.gt(0) && yieldPerDay
+    const isEnabled = !isLong && size.gt(0) && !!yieldPerDay
     const isEarning = yieldPerDay && yieldPerDay.lyra + yieldPerDay.op > 0
+
+    const rewardsStr = yieldPerDay
+      ? filterNulls([
+          yieldPerDay.lyra ? formatTruncatedBalance(yieldPerDay.lyra, 'LYRA') : null,
+          yieldPerDay.op ? formatTruncatedBalance(yieldPerDay.op, 'OP') : null,
+        ]).join(', ')
+      : null
 
     return (
       <Tooltip
@@ -66,12 +75,8 @@ const ShortYieldValue = withSuspense(
         target="_blank"
         placement="top-end"
       >
-        <Text variant={textVariant} color={isEnabled && isEarning ? 'primaryText' : 'text'}>
-          {isEnabled
-            ? `${formatBalance(yieldPerDay.lyra, 'LYRA', { maxDps: 2 })} · ${formatBalance(yieldPerDay.op, 'OP', {
-                maxDps: 2,
-              })}`
-            : '-'}
+        <Text variant={textVariant} color={isEnabled && isEarning ? 'primaryText' : 'secondaryText'}>
+          {rewardsStr ? rewardsStr : '-'}
         </Text>
       </Tooltip>
     )

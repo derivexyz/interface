@@ -48,6 +48,7 @@ export declare namespace OptionMarket {
   };
 
   export type TradeEventDataStruct = {
+    strikeId: PromiseOrValue<BigNumberish>;
     expiry: PromiseOrValue<BigNumberish>;
     strikePrice: PromiseOrValue<BigNumberish>;
     optionType: PromiseOrValue<BigNumberish>;
@@ -63,6 +64,7 @@ export declare namespace OptionMarket {
   export type TradeEventDataStructOutput = [
     BigNumber,
     BigNumber,
+    BigNumber,
     number,
     number,
     BigNumber,
@@ -72,6 +74,7 @@ export declare namespace OptionMarket {
     BigNumber,
     BigNumber
   ] & {
+    strikeId: BigNumber;
     expiry: BigNumber;
     strikePrice: BigNumber;
     optionType: number;
@@ -124,6 +127,7 @@ export declare namespace OptionMarket {
     setCollateralTo: PromiseOrValue<BigNumberish>;
     minTotalCost: PromiseOrValue<BigNumberish>;
     maxTotalCost: PromiseOrValue<BigNumberish>;
+    referrer: PromiseOrValue<string>;
   };
 
   export type TradeInputParametersStructOutput = [
@@ -134,7 +138,8 @@ export declare namespace OptionMarket {
     BigNumber,
     BigNumber,
     BigNumber,
-    BigNumber
+    BigNumber,
+    string
   ] & {
     strikeId: BigNumber;
     positionId: BigNumber;
@@ -144,6 +149,7 @@ export declare namespace OptionMarket {
     setCollateralTo: BigNumber;
     minTotalCost: BigNumber;
     maxTotalCost: BigNumber;
+    referrer: string;
   };
 
   export type ResultStruct = {
@@ -320,9 +326,9 @@ export interface OptionMarketInterface extends utils.Interface {
     "addStrikeToBoard(uint256,uint256,uint256)": FunctionFragment;
     "baseAsset()": FunctionFragment;
     "boardToPriceAtExpiry(uint256)": FunctionFragment;
-    "closePosition((uint256,uint256,uint256,uint8,uint256,uint256,uint256,uint256))": FunctionFragment;
+    "closePosition((uint256,uint256,uint256,uint8,uint256,uint256,uint256,uint256,address))": FunctionFragment;
     "createOptionBoard(uint256,uint256,uint256[],uint256[],bool)": FunctionFragment;
-    "forceClosePosition((uint256,uint256,uint256,uint8,uint256,uint256,uint256,uint256))": FunctionFragment;
+    "forceClosePosition((uint256,uint256,uint256,uint8,uint256,uint256,uint256,uint256,address))": FunctionFragment;
     "forceSettleBoard(uint256)": FunctionFragment;
     "getBoardAndStrikeDetails(uint256)": FunctionFragment;
     "getBoardStrikes(uint256)": FunctionFragment;
@@ -338,9 +344,10 @@ export interface OptionMarketInterface extends utils.Interface {
     "liquidatePosition(uint256,address)": FunctionFragment;
     "nominateNewOwner(address)": FunctionFragment;
     "nominatedOwner()": FunctionFragment;
-    "openPosition((uint256,uint256,uint256,uint8,uint256,uint256,uint256,uint256))": FunctionFragment;
+    "openPosition((uint256,uint256,uint256,uint8,uint256,uint256,uint256,uint256,address))": FunctionFragment;
     "owner()": FunctionFragment;
     "quoteAsset()": FunctionFragment;
+    "recoverFunds(address,address)": FunctionFragment;
     "scaledLongsForBoard(uint256)": FunctionFragment;
     "setBoardBaseIv(uint256,uint256)": FunctionFragment;
     "setBoardFrozen(uint256,bool)": FunctionFragment;
@@ -378,6 +385,7 @@ export interface OptionMarketInterface extends utils.Interface {
       | "openPosition"
       | "owner"
       | "quoteAsset"
+      | "recoverFunds"
       | "scaledLongsForBoard"
       | "setBoardBaseIv"
       | "setBoardFrozen"
@@ -505,6 +513,10 @@ export interface OptionMarketInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "recoverFunds",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "scaledLongsForBoard",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -620,6 +632,10 @@ export interface OptionMarketInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "quoteAsset", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "recoverFunds",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "scaledLongsForBoard",
     data: BytesLike
   ): Result;
@@ -653,10 +669,10 @@ export interface OptionMarketInterface extends utils.Interface {
     "OptionMarketParamsSet(tuple)": EventFragment;
     "OwnerChanged(address,address)": EventFragment;
     "OwnerNominated(address)": EventFragment;
-    "SMClaimed(address,uint256,uint256)": EventFragment;
+    "SMClaimed(address,uint256)": EventFragment;
     "StrikeAdded(uint256,uint256,uint256,uint256)": EventFragment;
     "StrikeSkewSet(uint256,uint256)": EventFragment;
-    "Trade(address,uint256,uint256,tuple,tuple[],tuple,uint256,uint256)": EventFragment;
+    "Trade(address,uint256,address,tuple,tuple[],tuple,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BoardBaseIvSet"): EventFragment;
@@ -770,10 +786,9 @@ export type OwnerNominatedEventFilter = TypedEventFilter<OwnerNominatedEvent>;
 export interface SMClaimedEventObject {
   securityModule: string;
   quoteAmount: BigNumber;
-  baseAmount: BigNumber;
 }
 export type SMClaimedEvent = TypedEvent<
-  [string, BigNumber, BigNumber],
+  [string, BigNumber],
   SMClaimedEventObject
 >;
 
@@ -805,8 +820,8 @@ export type StrikeSkewSetEventFilter = TypedEventFilter<StrikeSkewSetEvent>;
 
 export interface TradeEventObject {
   trader: string;
-  strikeId: BigNumber;
   positionId: BigNumber;
+  referrer: string;
   trade: OptionMarket.TradeEventDataStructOutput;
   tradeResults: OptionMarketPricer.TradeResultStructOutput[];
   liquidation: OptionMarket.LiquidationEventDataStructOutput;
@@ -817,7 +832,7 @@ export type TradeEvent = TypedEvent<
   [
     string,
     BigNumber,
-    BigNumber,
+    string,
     OptionMarket.TradeEventDataStructOutput,
     OptionMarketPricer.TradeResultStructOutput[],
     OptionMarket.LiquidationEventDataStructOutput,
@@ -1004,6 +1019,12 @@ export interface OptionMarket extends BaseContract {
 
     quoteAsset(overrides?: CallOverrides): Promise<[string]>;
 
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     scaledLongsForBoard(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1186,6 +1207,12 @@ export interface OptionMarket extends BaseContract {
 
   quoteAsset(overrides?: CallOverrides): Promise<string>;
 
+  recoverFunds(
+    token: PromiseOrValue<string>,
+    recipient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   scaledLongsForBoard(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -1366,6 +1393,12 @@ export interface OptionMarket extends BaseContract {
 
     quoteAsset(overrides?: CallOverrides): Promise<string>;
 
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     scaledLongsForBoard(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1473,16 +1506,11 @@ export interface OptionMarket extends BaseContract {
     "OwnerNominated(address)"(newOwner?: null): OwnerNominatedEventFilter;
     OwnerNominated(newOwner?: null): OwnerNominatedEventFilter;
 
-    "SMClaimed(address,uint256,uint256)"(
+    "SMClaimed(address,uint256)"(
       securityModule?: null,
-      quoteAmount?: null,
-      baseAmount?: null
+      quoteAmount?: null
     ): SMClaimedEventFilter;
-    SMClaimed(
-      securityModule?: null,
-      quoteAmount?: null,
-      baseAmount?: null
-    ): SMClaimedEventFilter;
+    SMClaimed(securityModule?: null, quoteAmount?: null): SMClaimedEventFilter;
 
     "StrikeAdded(uint256,uint256,uint256,uint256)"(
       boardId?: PromiseOrValue<BigNumberish> | null,
@@ -1506,10 +1534,10 @@ export interface OptionMarket extends BaseContract {
       skew?: null
     ): StrikeSkewSetEventFilter;
 
-    "Trade(address,uint256,uint256,tuple,tuple[],tuple,uint256,uint256)"(
+    "Trade(address,uint256,address,tuple,tuple[],tuple,uint256,uint256)"(
       trader?: PromiseOrValue<string> | null,
-      strikeId?: PromiseOrValue<BigNumberish> | null,
       positionId?: PromiseOrValue<BigNumberish> | null,
+      referrer?: PromiseOrValue<string> | null,
       trade?: null,
       tradeResults?: null,
       liquidation?: null,
@@ -1518,8 +1546,8 @@ export interface OptionMarket extends BaseContract {
     ): TradeEventFilter;
     Trade(
       trader?: PromiseOrValue<string> | null,
-      strikeId?: PromiseOrValue<BigNumberish> | null,
       positionId?: PromiseOrValue<BigNumberish> | null,
+      referrer?: PromiseOrValue<string> | null,
       trade?: null,
       tradeResults?: null,
       liquidation?: null,
@@ -1651,6 +1679,12 @@ export interface OptionMarket extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     quoteAsset(overrides?: CallOverrides): Promise<BigNumber>;
+
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     scaledLongsForBoard(
       arg0: PromiseOrValue<BigNumberish>,
@@ -1815,6 +1849,12 @@ export interface OptionMarket extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     quoteAsset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     scaledLongsForBoard(
       arg0: PromiseOrValue<BigNumberish>,

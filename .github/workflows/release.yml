@@ -44,7 +44,7 @@ jobs:
       - name: Build
         run: |
           rm -rf ./app/public/images
-          yarn app:build
+          yarn build
         env:
           CI: false
           REACT_APP_IPFS: true

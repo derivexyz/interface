@@ -23,7 +23,6 @@ export default async function trade(argv: string[]) {
     buy: { type: 'boolean', alias: 'b', require: true },
     market: { type: 'string', alias: 'm', require: true },
     strike: { type: 'number', alias: 's', require: true },
-    quote: { type: 'string', alias: 'q', require: false },
     collat: { type: 'number', require: false },
     base: { type: 'boolean', require: false },
     stable: { type: 'string', require: false },
@@ -31,9 +30,7 @@ export default async function trade(argv: string[]) {
 
   const marketAddressOrName = args.market
   const marketBalance = await lyra.account(signer.address).marketBalances(marketAddressOrName)
-  const quoteToken = args.quote
-    ? await lyra.account(signer.address).quoteAsset(marketAddressOrName, args.quote)
-    : marketBalance.quoteAsset
+  const quoteToken = marketBalance.quoteAsset
   const size = toBigNumber(args.amount)
   const isCall = !!args.call
   const isBuy = !!args.buy
@@ -51,18 +48,13 @@ export default async function trade(argv: string[]) {
     )} strike, ${option.board().expiryTimestamp} expiry`
   )
 
-  // TODO: @michaelxuwu Update to include multiple stables
-  await approve(market, market.quoteToken.address)
-
   const trade = await Trade.get(lyra, owner, market.address, option.strike().id, option.isCall, isBuy, size, {
     setToCollateral,
     isBaseCollateral,
-    premiumSlippage: SLIPPAGE,
-    inputAsset: {
-      address: quoteToken.address,
-      decimals: quoteToken.decimals,
-    },
+    slippage: SLIPPAGE,
   })
+
+  await approve(trade)
 
   printObject('Quote', {
     timestamp: trade.board().block.timestamp,

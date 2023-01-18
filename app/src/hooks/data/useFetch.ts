@@ -17,7 +17,7 @@ export type FetchConfig<Data, Args extends FetchArg[]> = Omit<
   'fetcher'
 >
 
-const getFetchKey = <Args extends FetchArg[]>(queryId: string, params: Args): [string, ...Args] => [
+export const getFetchKey = <Args extends FetchArg[]>(queryId: string, params: Args): [string, ...Args] => [
   queryId,
   ...(getCacheKey(params) as Args),
 ]

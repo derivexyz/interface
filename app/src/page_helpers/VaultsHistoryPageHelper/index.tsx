@@ -15,19 +15,19 @@ import { useNavigate } from 'react-router-dom'
 import VaultEventsTable from '@/app/components/common/VaultEventsTable'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useVaultsHistory from '@/app/hooks/vaults/useVaultsHistory'
+import useVaultsTableData from '@/app/hooks/vaults/useVaultsTableData'
 import getPagePath from '@/app/utils/getPagePath'
 import { getVaultsHistoryCSV } from '@/app/utils/getVaultsHistoryCSV'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
 
 type Props = MarginProps & LayoutProps & PaddingProps
 
 const DownloadVaultsHistory = withSuspense(
   () => {
-    const vaultBalances = useVaultsHistory()
-    const { headers, data } = useMemo(() => getVaultsHistoryCSV(vaultBalances), [vaultBalances])
+    const rows = useVaultsTableData()
+    const { headers, data } = useMemo(() => getVaultsHistoryCSV(rows), [rows])
     return data.length > 0 ? (
       <Flex ml="auto">
         <CSVLink data={data} headers={headers} filename={'lyra_vault_history.csv'}>
@@ -41,13 +41,24 @@ const DownloadVaultsHistory = withSuspense(
 
 const VaultsHistory = withSuspense(
   ({ ...styleProps }: Props) => {
-    const vaultBalances = useVaultsHistory()
+    const rows = useVaultsTableData()
     const navigate = useNavigate()
-    return vaultBalances.deposits.length > 0 || vaultBalances.withdrawals.length > 0 ? (
+    const depositsAndWithdrawals = useMemo(() => {
+      return [...rows.flatMap(r => r.allDeposits), ...rows.flatMap(r => r.allWithdrawals)]
+    }, [rows])
+    return depositsAndWithdrawals.length > 0 ? (
       <VaultEventsTable
-        events={[...vaultBalances.deposits, ...vaultBalances.withdrawals]}
+        events={depositsAndWithdrawals}
         pageSize={10}
-        onClick={event => navigate(getPagePath({ page: PageId.Vaults, marketAddressOrName: event.market().name }))}
+        onClick={event =>
+          navigate(
+            getPagePath({
+              page: PageId.Vaults,
+              network: event.market().lyra.network,
+              marketAddressOrName: event.market().name,
+            })
+          )
+        }
         {...styleProps}
       />
     ) : (
@@ -65,8 +76,8 @@ const VaultsHistory = withSuspense(
 
 export default function VaultsHistoryPageHelper(): JSX.Element {
   return (
-    <Layout mobileHeader="History" desktopHeader="History" showBackButton mobileCollapsedHeader="History">
-      <LayoutGrid>
+    <Page header="History" showBackButton>
+      <PageGrid>
         <Card overflow="hidden">
           <CardBody noPadding>
             <Flex p={4}>
@@ -75,7 +86,7 @@ export default function VaultsHistoryPageHelper(): JSX.Element {
             <VaultsHistory />
           </CardBody>
         </Card>
-      </LayoutGrid>
-    </Layout>
+      </PageGrid>
+    </Page>
   )
 }

@@ -8,13 +8,15 @@ import {
   updatePendingToast,
   updateToast,
 } from '@lyra/ui/components/Toast'
+import { Network } from '@lyrafinance/lyra-js'
 import { ContractReceipt, PopulatedTransaction } from 'ethers'
 import { useCallback } from 'react'
 
-import getOptimismExplorerUrl from '@/app/utils/getOptimismExplorerUrl'
-import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
+import getExplorerUrl from '@/app/utils/getExplorerUrl'
+import getLyraSDK from '@/app/utils/getLyraSDK'
+import isMainnet from '@/app/utils/isMainnet'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
-import lyra from '@/app/utils/lyra'
+import mainnetProvider from '@/app/utils/mainnetProvider'
 import postTransaction from '@/app/utils/postTransaction'
 
 import emptyFunction from '../../utils/emptyFunction'
@@ -31,6 +33,7 @@ enum TransactionStatus {
 }
 
 const reportError = (
+  network: Network | 'ethereum',
   error: any,
   toastId: string | null,
   skipToast?: boolean,
@@ -58,7 +61,7 @@ const reportError = (
     variant: 'error',
     description: message,
     icon: IconType.AlertTriangle,
-    href: transactionReceipt ? getOptimismExplorerUrl(transactionReceipt.transactionHash) : undefined,
+    href: transactionReceipt ? getExplorerUrl(network, transactionReceipt.transactionHash) : undefined,
     autoClose: false,
   }
   if (toastId) {
@@ -78,7 +81,9 @@ export type TransactionOptions = {
   onError?: (error: Error) => any
 }
 
-export default function useTransaction(): (
+export default function useTransaction(
+  network: Network | 'ethereum'
+): (
   populatedTx: PopulatedTransaction | Promise<PopulatedTransaction>,
   options?: TransactionOptions
 ) => Promise<ContractReceipt | null> {
@@ -90,7 +95,7 @@ export default function useTransaction(): (
       options?: TransactionOptions
     ): Promise<ContractReceipt | null> => {
       // TODO: Use custom provider for transactions
-      const provider = lyra.provider
+      const provider = network === 'ethereum' ? mainnetProvider : getLyraSDK(network).provider
 
       if (!walletType) {
         console.warn('No wallet type')
@@ -126,7 +131,7 @@ export default function useTransaction(): (
         console.timeEnd('tx')
         console.error(e)
         setTimeout(() => {
-          reportError(e, toastId)
+          reportError(network, e, toastId)
           onError(e as Error)
         }, 200)
         return null
@@ -139,7 +144,7 @@ export default function useTransaction(): (
       const defaultTimeout = DEFAULT_OPTIMISM_TRANSACTION_TIMEOUT
       const transactionTimeout = options?.timeout ?? defaultTimeout
       const autoClose = transactionTimeout + POLL_INTERVAL // add buffer
-      const txHref = getOptimismExplorerUrl(tx.hash)
+      const txHref = getExplorerUrl(network, tx.hash)
 
       // TODO: Pending spinner on top of wallet icon
       if (toastId) {
@@ -177,7 +182,7 @@ export default function useTransaction(): (
             const transaction = await provider.getTransaction(tx.hash)
             await provider.call(transaction as any, tx.blockNumber)
           } catch (e) {
-            reportError(e, toastId)
+            reportError(network, e, toastId)
           }
           return null
         }
@@ -191,7 +196,7 @@ export default function useTransaction(): (
             console.timeEnd('onComplete')
           }
 
-          if (isOptimismMainnet() && isScreeningEnabled()) {
+          if (isMainnet() && isScreeningEnabled()) {
             await postTransaction(receipt.transactionHash)
           }
 
@@ -233,17 +238,17 @@ export default function useTransaction(): (
             await provider.call(transaction as any, receipt.blockNumber)
             return null // Should never happen
           } catch (e) {
-            reportError(e, toastId)
+            reportError(network, e, toastId)
             onError(e as Error)
             return null
           }
         } catch (e) {
-          reportError(new Error('Failed to fetch transaction receipt'), toastId)
+          reportError(network, new Error('Failed to fetch transaction receipt'), toastId)
           onError(e as Error)
           return null
         }
       }
     },
-    [walletType, signer]
+    [walletType, signer, network]
   )
 }

@@ -6,7 +6,8 @@ import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import React, { useCallback, useState } from 'react'
+import { Network } from '@lyrafinance/lyra-js'
+import React, { useCallback } from 'react'
 import { Flex } from 'rebass'
 
 import { ARRAKIS_LIQUIDITY_URL } from '@/app/constants/links'
@@ -17,7 +18,7 @@ import useAccountWethLyraStaking, {
 } from '@/app/hooks/rewards/useAccountWethLyraStaking'
 import useTransaction from '@/app/hooks/transaction/useTransaction'
 import useWalletAccount from '@/app/hooks/wallet/useWalletAccount'
-import lyra from '@/app/utils/lyra'
+import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -30,25 +31,19 @@ type Props = {
 const WethLyraStakeModalContent = withSuspense(
   ({ amount, onChange, onStake }: Props) => {
     const accountWethLyraStaking = useAccountWethLyraStaking()
-    const [isLoading, setIsLoading] = useState(false)
     const mutateAccountWethLyraStaking = useMutateAccountWethLyraStaking()
-    const execute = useTransaction()
+    const execute = useTransaction(Network.Optimism)
     const account = useWalletAccount()
     const isApprove =
       accountWethLyraStaking?.unstakedLPTokenBalance.gt(0) && accountWethLyraStaking?.allowance.lt(amount)
     const isDisabled = amount.lte(0) || accountWethLyraStaking?.unstakedLPTokenBalance.eq(0)
     const handleClickStake = useCallback(async () => {
       if (account) {
-        setIsLoading(true)
-        const tx = await lyra.account(account).stakeWethLyra(amount)
+        const tx = await lyraOptimism.account(account).stakeWethLyra(amount)
         await execute(tx, {
           onComplete: async () => {
             await mutateAccountWethLyraStaking()
-            setIsLoading(false)
             onStake()
-          },
-          onError: () => {
-            setIsLoading(false)
           },
         })
       }
@@ -56,15 +51,10 @@ const WethLyraStakeModalContent = withSuspense(
 
     const handleClickApprove = useCallback(async () => {
       if (account) {
-        setIsLoading(true)
-        const tx = await lyra.account(account).approveWethLyraTokens()
+        const tx = await lyraOptimism.account(account).approveWethLyraTokens()
         execute(tx, {
           onComplete: async () => {
             await mutateAccountWethLyraStaking()
-            setIsLoading(false)
-          },
-          onError: () => {
-            setIsLoading(false)
           },
         })
       }
@@ -88,24 +78,21 @@ const WethLyraStakeModalContent = withSuspense(
             showMaxButton
           />
         </Flex>
-        <TransactionButton
-          transactionType={TransactionType.StakeWethLyra}
-          helperButton={
-            <Button
-              width="100%"
-              label="Add Liquidity"
-              rightIcon={IconType.ArrowUpRight}
-              size="lg"
-              variant={accountWethLyraStaking?.unstakedLPTokenBalance.gt(0) ? 'default' : 'primary'}
-              href={ARRAKIS_LIQUIDITY_URL + '/add'}
-              target="_blank"
-            />
-          }
-          sx={{ width: '100%' }}
-          variant={accountWethLyraStaking?.unstakedLPTokenBalance.gt(0) ? 'primary' : 'default'}
+        <Button
+          width="100%"
+          label="Add Liquidity"
+          rightIcon={IconType.ArrowUpRight}
           size="lg"
+          variant={accountWethLyraStaking?.unstakedLPTokenBalance.gt(0) ? 'default' : 'primary'}
+          href={ARRAKIS_LIQUIDITY_URL + '/add'}
+          target="_blank"
+          mb={3}
+        />
+        <TransactionButton
+          network="ethereum"
+          transactionType={TransactionType.StakeWethLyra}
+          width="100%"
           isDisabled={!isApprove && isDisabled}
-          isLoading={isLoading}
           label={isApprove ? 'Allow Lyra to stake your LP Tokens' : 'Stake'}
           onClick={async () => {
             if (isApprove) {

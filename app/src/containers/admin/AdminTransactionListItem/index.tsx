@@ -10,7 +10,6 @@ import React, { useCallback } from 'react'
 
 import AdminAddStrikeToBoardTransactionListItem from '@/app/components/admin/AdminAddStrikeToBoardTransactionListItem'
 import AdminCreateOptionBoardTransactionListItem from '@/app/components/admin/AdminCreateOptionBoardTransactionListItem'
-import useAdmin from '@/app/hooks/admin/useAdmin'
 import useAdminGlobalOwner from '@/app/hooks/admin/useAdminGlobalOwner'
 import useMultiSigTransaction, {
   AddStrikeToBoardTransaction,
@@ -19,6 +18,7 @@ import useMultiSigTransaction, {
 } from '@/app/hooks/admin/useMultiSigTransaction'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useTransaction from '@/app/hooks/transaction/useTransaction'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 import useWallet from '@/app/hooks/wallet/useWallet'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getMultiSigWalletContract from '@/app/utils/getMultiSigWalletContract'
@@ -29,24 +29,25 @@ const BN_CONVERSION_THRESHOLD = 10 ** 8
 const AdminTransactionListItem = withSuspense(
   ({ transactionId, onConfirm }: { transactionId: BigNumber; onConfirm: () => void }) => {
     const { account, isConnected, signer } = useWallet()
-    const admin = useAdmin()
-    const owner = useAdminGlobalOwner()
-    const transaction = useMultiSigTransaction(owner, transactionId)
-    const mutateTransaction = useMutateMultiSigTransaction(owner, transactionId)
-    const execute = useTransaction()
+    const network = useNetwork()
+    const owner = useAdminGlobalOwner(network)
+    // TODO @michaelxuwu update to dynamic network
+    const transaction = useMultiSigTransaction(network, owner, transactionId)
+    const mutateTransaction = useMutateMultiSigTransaction(network, owner, transactionId)
+    const execute = useTransaction(network)
     const confirmTransaction = useCallback(
       async (transactionId: BigNumber) => {
-        if (!admin || !owner || !account) {
+        if (!owner || !account) {
           return
         }
-        const multiSigWallet = getMultiSigWalletContract(owner, signer)
+        const multiSigWallet = getMultiSigWalletContract(network, owner, signer)
         const calldata = multiSigWallet.interface.encodeFunctionData('confirmTransaction', [transactionId])
         execute(
           { to: owner, from: account, data: calldata, gasLimit: BigNumber.from(10_000_000) },
           { onComplete: onConfirm }
         )
       },
-      [admin, owner, account, execute, onConfirm, signer]
+      [owner, network, account, execute, onConfirm, signer]
     )
 
     if (!transaction) {

@@ -8,6 +8,7 @@ import useIsMarketPaused, { useMutateIsMarketPaused } from '@/app/hooks/admin/us
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
 import useWallet from '@/app/hooks/wallet/useWallet'
+import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 
 type Props = {
   market: Market
@@ -15,19 +16,21 @@ type Props = {
 }
 
 const AdminMarketPauseButton = withSuspense(({ market, owner }: Props) => {
-  const admin = useAdmin()
+  const admin = useAdmin(market.lyra.network)
   const { isConnected, account } = useWallet()
   const [isLoading, setIsLoading] = useState(false)
-  const isPaused = useIsMarketPaused(market.address)
-  const mutateIsPaused = useMutateIsMarketPaused(market.address)
-  const execute = useAdminTransaction(owner)
+  const isPaused = useIsMarketPaused(market)
+  const mutateIsPaused = useMutateIsMarketPaused(market)
+  const execute = useAdminTransaction(market.lyra.network, owner)
   return (
     <Flex mx={8} mt={4}>
       <Button
         isDisabled={!isConnected}
         isLoading={isLoading}
         variant={isPaused ? 'primary' : 'error'}
-        label={isPaused ? `Unpause ${market.name} market` : `Pause ${market.name} market`}
+        label={
+          isPaused ? `Unpause ${getMarketDisplayName(market)} market` : `Pause ${getMarketDisplayName(market)} market`
+        }
         onClick={async () => {
           if (!owner || !account || !admin) {
             return

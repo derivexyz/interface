@@ -8,26 +8,30 @@ import getMultiSigWalletContract from '@/app/utils/getMultiSigWalletContract'
 import useBlockFetch from '../data/useBlockFetch'
 import { useMutate } from '../data/useFetch'
 
-const fetcher = async (owner: string) => {
-  const isOwnerMultiSig = await getIsOwnerMultiSig(owner)
+const fetcher = async (network: Network, owner: string) => {
+  const isOwnerMultiSig = await getIsOwnerMultiSig(network, owner)
   if (!isOwnerMultiSig) {
     return null
   }
-  const multiSigWallet = getMultiSigWalletContract(owner)
+  const multiSigWallet = getMultiSigWalletContract(network, owner)
   return await multiSigWallet.getTransactionCount(true, true)
 }
 
-export default function useMultiSigTransactionCount(owner: string | null): BigNumber | null {
+// TODO @michaelxuwu add Network support
+export default function useMultiSigTransactionCount(network: Network, owner: string | null): BigNumber | null {
   const [transactionCount] = useBlockFetch(
     Network.Optimism,
     'MultiSigTransactionCount',
-    owner ? [owner] : null,
+    owner ? [network, owner] : null,
     fetcher
   )
   return transactionCount
 }
 
-export function useMutateMultiSigTransactionCount(owner: string | null): () => Promise<BigNumber | null> {
+export function useMutateMultiSigTransactionCount(
+  network: Network,
+  owner: string | null
+): () => Promise<BigNumber | null> {
   const mutate = useMutate('MultiSigTransactionCount', fetcher)
-  return useCallback(async () => (owner ? await mutate(owner) : null), [mutate, owner])
+  return useCallback(async () => (owner ? await mutate(network, owner) : null), [mutate, owner])
 }

@@ -124,7 +124,7 @@ const TradeSimpleBoardCard = ({
             boards.length === 0
               ? 'No Expiries'
               : selectedBoard
-              ? `Expires ${formatDateTime(selectedBoard.expiryTimestamp, true)}`
+              ? `Expires ${formatDateTime(selectedBoard.expiryTimestamp, { hideYear: true })}`
               : 'Expiry does not exist'
           }
           isOpen={isOpen}
@@ -148,7 +148,7 @@ const TradeSimpleBoardCard = ({
                 })
                 onClose()
               }}
-              label={formatDateTime(board.expiryTimestamp, true)}
+              label={formatDateTime(board.expiryTimestamp, { hideYear: true })}
             />
           ))}
         </DropdownButton>

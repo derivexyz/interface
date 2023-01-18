@@ -12,5 +12,5 @@
     "incremental": true
   },
   "exclude": ["node_modules"],
-  "include": ["src/**/*.ts", "src/**/*.tsx", "../ui/index.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../ui/index.d.ts", "src/containers/rewards/MigrateModal/index.tss"]
 }

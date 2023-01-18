@@ -1,6 +1,7 @@
-import { AccountPortfolioBalance } from '@lyrafinance/lyra-js'
+import { AccountPortfolioBalance, Network } from '@lyrafinance/lyra-js'
 
-import lyra from '../../utils/lyra'
+import getLyraSDK from '@/app/utils/getLyraSDK'
+
 import useFetch from '../data/useFetch'
 import useWalletAccount from '../wallet/useWalletAccount'
 
@@ -17,12 +18,10 @@ const EMPTY: AccountPortfolioBalance = {
   stableAccountBalances: [],
 }
 
-const fetcher = async (owner: string) => {
-  return await lyra.account(owner).portfolioBalance()
-}
+const fetcher = async (network: Network, owner: string) => await getLyraSDK(network).account(owner).portfolioBalance()
 
-export default function usePortfolioBalance(): AccountPortfolioBalance {
+export default function usePortfolioBalance(network: Network): AccountPortfolioBalance {
   const owner = useWalletAccount()
-  const [market] = useFetch('PortfolioBalance', owner ? [owner] : null, fetcher)
+  const [market] = useFetch('PortfolioBalance', owner ? [network, owner] : null, fetcher)
   return market ?? EMPTY
 }

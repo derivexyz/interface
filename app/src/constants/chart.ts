@@ -10,11 +10,14 @@ export enum ChartPeriod {
   AllTime = 'AllTime',
 }
 
-export enum CandlePeriod {
-  FifteenMinutes = 15 * 60,
-  OneHour = 60 * 60,
-  FourHours = 4 * 60 * 60,
-  EightHours = 8 * 60 * 60,
-  OneDay = 24 * 60 * 60,
-  SevenDays = 7 * 24 * 60 * 60,
+export enum VaultIndexChart {
+  TVL = 'TVL',
+  Volume = 'Volume',
+}
+
+export enum VaultChart {
+  TVL = 'TVL',
+  Volume = 'Volume',
+  Performance = 'Performance',
+  NetDelta = 'NetDelta',
 }

@@ -1,4 +1,3 @@
-import Box from '@lyra/ui/components/Box'
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import { ToggleButtonItemProps } from '@lyra/ui/components/Button/ToggleButtonItem'
@@ -6,7 +5,6 @@ import Card, { CardElement } from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Flex from '@lyra/ui/components/Flex'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { MarginProps } from '@lyra/ui/types'
 import { Option } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo, useState } from 'react'
 
@@ -22,7 +20,7 @@ import PositionPriceChartTitle from './PositionPriceChartTitle'
 
 type Props = {
   option: Option
-} & MarginProps
+}
 
 enum PositionChart {
   OptionPrice = 'OptionPrice',
@@ -45,8 +43,10 @@ const CHARTS: Pick<ToggleButtonItemProps<PositionChart>, 'id' | 'label'>[] = [
   },
 ]
 
-const PositionChartCard = ({ option, ...marginProps }: Props): CardElement => {
-  const [period, setPeriod] = useState(ChartPeriod.OneDay)
+const CHART_PERIODS = [ChartPeriod.OneWeek, ChartPeriod.TwoWeeks, ChartPeriod.OneMonth, ChartPeriod.AllTime]
+
+const PositionChartCard = ({ option }: Props): CardElement => {
+  const [period, setPeriod] = useState(CHART_PERIODS[0])
   const [hoverOptionPrice, setHoverOptionPrice] = useState<number | null>(null)
   const [hoverImpliedVolatility, setHoverImpliedVolatility] = useState<number | null>(null)
   const [hoverSpotPrice, setHoverSpotPrice] = useState<number | null>(null)
@@ -56,47 +56,19 @@ const PositionChartCard = ({ option, ...marginProps }: Props): CardElement => {
   const chartName = useMemo(() => CHARTS.find(c => c.id === chart), [chart])?.label ?? ''
   const isMobile = useIsMobile()
 
-  const titleComponent = (
-    <Box>
-      <DropdownButton
-        ml={-3}
-        isTransparent
-        label={chartName}
-        isOpen={isOpen}
-        onClose={onClose}
+  const chartTitleComponent =
+    chart === PositionChart.OptionPrice ? (
+      <PositionPriceChartTitle option={option} period={period} hoverOptionPrice={hoverOptionPrice} />
+    ) : chart === PositionChart.ImpliedVolatility ? (
+      <PositionIVChartTitle strike={option.strike()} period={period} hoverImpliedVolatility={hoverImpliedVolatility} />
+    ) : chart === PositionChart.SpotPrice ? (
+      <SpotPriceChartTitle
         textVariant="heading"
-        onClick={() => setIsOpen(true)}
-      >
-        {CHARTS.map(({ id, label }) => (
-          <DropdownButtonListItem
-            key={id}
-            isSelected={id === chart}
-            label={label}
-            onClick={() => {
-              setChart(id)
-              onClose()
-            }}
-          />
-        ))}
-      </DropdownButton>
-      {chart === PositionChart.OptionPrice ? (
-        <PositionPriceChartTitle option={option} period={period} hoverOptionPrice={hoverOptionPrice} />
-      ) : chart === PositionChart.ImpliedVolatility ? (
-        <PositionIVChartTitle
-          strike={option.strike()}
-          period={period}
-          hoverImpliedVolatility={hoverImpliedVolatility}
-        />
-      ) : chart === PositionChart.SpotPrice ? (
-        <SpotPriceChartTitle
-          textVariant="heading"
-          marketAddressOrName={option.market().address}
-          period={period}
-          hoverSpotPrice={hoverSpotPrice}
-        />
-      ) : null}
-    </Box>
-  )
+        market={option.market()}
+        period={period}
+        hoverSpotPrice={hoverSpotPrice}
+      />
+    ) : null
 
   const chartComponent =
     chart === PositionChart.OptionPrice ? (
@@ -117,7 +89,7 @@ const PositionChartCard = ({ option, ...marginProps }: Props): CardElement => {
       />
     ) : chart === PositionChart.SpotPrice ? (
       <SpotPriceLineChart
-        marketAddressOrName={option.market().address}
+        market={option.market()}
         height={[120, 170]}
         period={period}
         hoverSpotPrice={hoverSpotPrice}
@@ -125,29 +97,32 @@ const PositionChartCard = ({ option, ...marginProps }: Props): CardElement => {
       />
     ) : null
 
-  if (!isMobile) {
-    return (
-      <Card {...marginProps}>
-        <CardBody>
-          <Flex>
-            {titleComponent}
-            <ChartPeriodSelector ml="auto" selectedPeriod={period} onChangePeriod={setPeriod} />
+  return (
+    <Card>
+      <CardBody>
+        <Flex>
+          {chartTitleComponent}
+          <Flex ml="auto" alignItems="flex-start">
+            <DropdownButton mr={2} label={chartName} isOpen={isOpen} onClose={onClose} onClick={() => setIsOpen(true)}>
+              {CHARTS.map(({ id, label }) => (
+                <DropdownButtonListItem
+                  key={id}
+                  isSelected={id === chart}
+                  label={label}
+                  onClick={() => {
+                    setChart(id)
+                    onClose()
+                  }}
+                />
+              ))}
+            </DropdownButton>
+            <ChartPeriodSelector periods={CHART_PERIODS} selectedPeriod={period} onChangePeriod={setPeriod} />
           </Flex>
-          {chartComponent}
-        </CardBody>
-      </Card>
-    )
-  } else {
-    return (
-      <Card {...marginProps}>
-        <CardBody>
-          {titleComponent}
-          {chartComponent}
-          <ChartPeriodSelector selectedPeriod={period} onChangePeriod={setPeriod} />
-        </CardBody>
-      </Card>
-    )
-  }
+        </Flex>
+        {chartComponent}
+      </CardBody>
+    </Card>
+  )
 }
 
 export default PositionChartCard

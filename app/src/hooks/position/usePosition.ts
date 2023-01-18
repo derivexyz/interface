@@ -1,11 +1,13 @@
-import { Option, Position } from '@lyrafinance/lyra-js'
+import { Network, Option, Position } from '@lyrafinance/lyra-js'
+import Lyra from '@lyrafinance/lyra-js'
 import { useMemo } from 'react'
 
-import lyra from '@/app/utils/lyra'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 
-import useFetch, { useMutate } from '../data/useFetch'
+import { useLyraFetch, useLyraMutate } from '../data/useLyraFetch'
 
 export const fetchPosition = async (
+  lyra: Lyra,
   marketAddressOrName: string,
   positionId: number
 ): Promise<{ position: Position; option: Option }> => {
@@ -14,16 +16,18 @@ export const fetchPosition = async (
   return { position, option }
 }
 
-export const useMutatePosition = () => {
-  return useMutate('Position', fetchPosition)
+export const useMutatePosition = (lyra: Lyra) => {
+  return useLyraMutate('Position', lyra, fetchPosition)
 }
 
 export default function usePosition(
+  network: Network | null,
   marketAddressOrName: string | null,
   positionId: number | null
 ): { position: Position | null; option: Option | null } {
-  const [positionAndOption] = useFetch(
+  const [positionAndOption] = useLyraFetch(
     'Position',
+    network ? getLyraSDK(network) : null,
     marketAddressOrName && positionId ? [marketAddressOrName, positionId] : null,
     fetchPosition
   )

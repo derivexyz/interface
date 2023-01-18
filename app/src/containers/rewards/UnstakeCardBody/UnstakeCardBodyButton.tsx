@@ -2,8 +2,8 @@ import { BigNumber } from '@ethersproject/bignumber'
 import Box from '@lyra/ui/components/Box'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import { MarginProps } from '@lyra/ui/types'
-import { UnstakeDisabledReason } from '@lyrafinance/lyra-js'
-import React, { useCallback, useMemo, useState } from 'react'
+import { Network, UnstakeDisabledReason } from '@lyrafinance/lyra-js'
+import React, { useCallback, useMemo } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
@@ -24,12 +24,10 @@ type Props = {
 
 const UnstakeCardBodyButton = withSuspense(
   ({ amount, onClose, ...styleProps }: Props) => {
-    const [isLoading, setIsLoading] = useState(false)
-    const [isRequestUnstakeLoading, setIsApprovalLoading] = useState(false)
     const lyraAccountStaking = useLyraAccountStaking()
     const unstake = useUnstake(amount ?? ZERO_BN)
-    const account = useAccount()
-    const execute = useTransaction()
+    const account = useAccount(Network.Optimism)
+    const execute = useTransaction(Network.Optimism)
     const { insufficientBalance } = useMemo(() => {
       const insufficientBalance = unstake?.disabledReason === UnstakeDisabledReason.InsufficientBalance
       const notInUnstakeWindow = unstake?.disabledReason === UnstakeDisabledReason.NotInUnstakeWindow
@@ -44,10 +42,9 @@ const UnstakeCardBodyButton = withSuspense(
     const handleClickRequestUnstake = useCallback(async () => {
       if (!account || !unstake) {
         console.warn('Account or unstake does not exist')
-        return null
+        return
       }
       logEvent(LogEvent.UnstakeLyraSubmit, { unstakeAmount: unstake.amount })
-      setIsApprovalLoading(true)
       const tx = await account.requestUnstake()
       await execute(tx, {
         onComplete: async () => {
@@ -58,47 +55,39 @@ const UnstakeCardBodyButton = withSuspense(
           logEvent(LogEvent.UnstakeLyraError, { unstakeAmount: unstake.amount, error: error?.message })
         },
       })
-      setIsApprovalLoading(false)
     }, [account, execute, mutateAccountStaking, mutateUnstake, unstake])
 
     const handleClickUnstake = useCallback(async () => {
       if (!account) {
         console.warn('Account does not exist')
-        return null
+        return
       }
-      setIsLoading(true)
       if (unstake?.tx) {
         await execute(unstake.tx, {
           onComplete: async () => await Promise.all([mutateAccountStaking(), mutateUnstake()]),
         })
       }
-      setIsLoading(false)
       onClose && onClose()
     }, [account, execute, unstake, onClose, mutateAccountStaking, mutateUnstake])
     const isCooldown = !!lyraAccountStaking?.isInCooldown
-    const hasUnstakeableBalance = (lyraAccountStaking?.stakedLyraBalance.balance ?? 0) <= 0
-
+    const hasUnstakeableBalance = (lyraAccountStaking?.lyraBalances.ethereumStkLyra ?? 0) <= 0
     return (
       <Box {...styleProps}>
         {!lyraAccountStaking?.isInUnstakeWindow ? (
           <TransactionButton
+            network={'ethereum'}
             transactionType={TransactionType.UnstakeLyra}
-            sx={{ width: '100%' }}
-            variant="primary"
-            size="lg"
+            width="100%"
             isDisabled={hasUnstakeableBalance || isCooldown}
-            isLoading={isRequestUnstakeLoading}
             onClick={handleClickRequestUnstake}
             label={isCooldown ? `Requested Unstake` : `Request Unstake`}
           />
         ) : (
           <TransactionButton
+            network={'ethereum'}
             transactionType={TransactionType.UnstakeLyra}
-            size="lg"
-            sx={{ width: '100%' }}
-            variant="primary"
+            width="100%"
             isDisabled={insufficientBalance || amount?.lte(0)}
-            isLoading={isLoading}
             label={amount?.lte(0) ? 'Enter Amount' : insufficientBalance ? 'Insufficient Balance' : 'Unstake'}
             onClick={handleClickUnstake}
           />

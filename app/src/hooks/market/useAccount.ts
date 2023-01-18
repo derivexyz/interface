@@ -1,10 +1,10 @@
-import { Account } from '@lyrafinance/lyra-js'
+import { Account, Network } from '@lyrafinance/lyra-js'
 
-import lyra from '@/app/utils/lyra'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 
 import useWalletAccount from '../wallet/useWalletAccount'
 
-export default function useAccount(): Account | null {
+export default function useAccount(network: Network): Account | null {
   const address = useWalletAccount()
-  return address ? lyra.account(address) : null
+  return address ? getLyraSDK(network).account(address) : null
 }

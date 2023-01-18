@@ -1,17 +1,18 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
+import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import CardSection from '@lyra/ui/components/Card/CardSection'
+import Icon, { IconType } from '@lyra/ui/components/Icon'
 import BigNumberInput from '@lyra/ui/components/Input/BigNumberInput'
 import Slider from '@lyra/ui/components/Slider'
-import Toggle from '@lyra/ui/components/Toggle'
+import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatBalance from '@lyra/ui/utils/formatBalance'
-import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedBalance from '@lyra/ui/utils/formatTruncatedBalance'
 import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
-import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Trade, TradeCollateral } from '@lyrafinance/lyra-js'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import RowItem from '@/app/components/common/RowItem'
 import { ZERO_BN } from '@/app/constants/bn'
@@ -24,6 +25,8 @@ import getSoftMinCollateral from '@/app/utils/getSoftMinCollateral'
 import getTradeLogData from '@/app/utils/getTradeLogData'
 import logEvent from '@/app/utils/logEvent'
 import toBigNumber from '@/app/utils/toBigNumber'
+
+import TokenImage from '../../common/TokenImage'
 
 type Props = {
   trade: Trade
@@ -77,27 +80,66 @@ const TradeFormCollateralSection = ({
     }
   }, [collateralAmount, isFullClose, onChangeCollateralAmount])
 
+  const [isOpen, setIsOpen] = useState(false)
+  const onClose = useCallback(() => setIsOpen(false), [])
+  const onOpen = useCallback(() => setIsOpen(true), [])
+  const onSelectCollateral = useCallback(
+    (isCoveredCall: boolean) => {
+      onToggleCoveredCall(isCoveredCall)
+      onClose()
+    },
+    [onClose, onToggleCoveredCall]
+  )
+
   if (trade.isLong) {
     // Skip rendering when trade is long or when trader is closing position
     return null
   }
+
+  const collateralToken = isBaseCollateral ? trade.baseToken : trade.quoteToken
 
   return (
     <CardSection {...styleProps}>
       {isCall && !position ? (
         <RowItem
           mb={5}
-          label="Covered Call"
-          value={<Toggle isChecked={isBaseCollateral} onChange={e => onToggleCoveredCall(e.target.checked)} />}
+          label="Sell With"
+          value={
+            <DropdownButton
+              label={collateralToken.symbol}
+              leftIcon={<TokenImage size={24} nameOrAddress={collateralToken.symbol} />}
+              isOpen={isOpen}
+              onClick={onOpen}
+              onClose={onClose}
+            >
+              <DropdownButtonListItem
+                label={trade.quoteToken.symbol}
+                icon={<TokenImage size={24} nameOrAddress={trade.quoteToken.symbol} />}
+                onClick={() => onSelectCollateral(false)}
+                rightContent={!isBaseCollateral ? <Icon icon={IconType.Check} size={16} /> : null}
+              />
+              <DropdownButtonListItem
+                label={trade.baseToken.symbol}
+                icon={<TokenImage size={24} nameOrAddress={trade.baseToken.symbol} />}
+                onClick={() => onSelectCollateral(true)}
+                rightContent={isBaseCollateral ? <Icon icon={IconType.Check} size={16} /> : null}
+              />
+            </DropdownButton>
+          }
         />
       ) : null}
       {!isFullClose ? (
         <RowItem
-          mb={isRange ? 3 : 0}
+          mb={isRange ? 5 : 0}
           label="Collateral"
           value={
             isRange ? (
               <BigNumberInput
+                rightContent={
+                  <Text color="secondaryText">
+                    {isBaseCollateral ? trade.baseToken.symbol : trade.quoteToken.symbol}
+                  </Text>
+                }
                 value={collateralAmount}
                 onChange={onChangeCollateralAmount}
                 onBlur={() => {
@@ -106,22 +148,18 @@ const TradeFormCollateralSection = ({
                     setToCollateral: collateralAmount,
                   })
                 }}
-                width="50%"
-                placeholder={
-                  !isBaseCollateral
-                    ? `${formatTruncatedUSD(min)} - ${formatTruncatedUSD(max)}`
-                    : `${formatTruncatedNumber(min)} - ${formatTruncatedNumber(max)} ${trade.market().baseToken.symbol}`
-                }
+                width="60%"
+                placeholder={`${formatTruncatedNumber(min)} - ${formatTruncatedNumber(max)}`}
                 isDisabled={isFullClose}
                 max={max}
                 // Don't throw input warning on empty input
                 min={collateralAmount.isZero() ? undefined : min}
                 textAlign="right"
               />
-            ) : !isBaseCollateral ? (
-              formatUSD(collateralAmount)
             ) : (
-              formatBalance(collateralAmount, trade.market().baseToken.symbol)
+              formatBalance(collateralAmount, isBaseCollateral ? trade.baseToken.symbol : trade.quoteToken.symbol, {
+                showDollars: !isBaseCollateral,
+              })
             )
           }
         />
@@ -144,12 +182,20 @@ const TradeFormCollateralSection = ({
           min={fromBigNumber(min)}
           onClickMax={() => onChangeCollateralAmount(max)}
           onClickMin={() => onChangeCollateralAmount(min)}
-          minButtonLabel={`Min: ${
-            isBaseCollateral ? formatTruncatedBalance(min, trade.market().baseToken.symbol) : formatTruncatedUSD(min)
-          }`}
-          maxButtonLabel={`Max: ${
-            isBaseCollateral ? formatTruncatedBalance(max, trade.market().baseToken.symbol) : formatTruncatedUSD(max)
-          }`}
+          minButtonLabel={`Min: ${formatTruncatedBalance(
+            min,
+            !isBaseCollateral ? trade.quoteToken.symbol : trade.baseToken.symbol,
+            {
+              showDollars: !isBaseCollateral,
+            }
+          )}`}
+          maxButtonLabel={`Max: ${formatTruncatedBalance(
+            max,
+            !isBaseCollateral ? trade.quoteToken.symbol : trade.baseToken.symbol,
+            {
+              showDollars: !isBaseCollateral,
+            }
+          )}`}
           step={step}
           onChange={_value => {
             const value = toBigNumber(_value.toFixed(2))
@@ -173,10 +219,8 @@ const TradeFormCollateralSection = ({
             !tradeOrPositionCollateral || tradeOrPositionCollateral.amount.lt(tradeOrPositionCollateral.min)
               ? '-'
               : !tradeOrPositionCollateral.liquidationPrice
-              ? 'None'
-              : `${formatUSD(tradeOrPositionCollateral.liquidationPrice)} (${formatPercentage(
-                  liqDistToSpot ?? 0 // Always defined
-                )})`
+              ? 'Not Liquidatable'
+              : `${trade.baseToken.symbol} at ${formatUSD(tradeOrPositionCollateral.liquidationPrice)}`
           }
           valueColor={
             absLiqDistToSpot

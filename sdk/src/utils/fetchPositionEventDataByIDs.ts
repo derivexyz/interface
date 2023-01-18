@@ -1,4 +1,4 @@
-import { gql } from 'graphql-request'
+import { gql } from '@apollo/client'
 
 import { PositionEventData } from '../constants/events'
 import {
@@ -44,7 +44,7 @@ export default async function fetchPositionEventDataByIDs(
   positionIds: number[]
 ): Promise<Record<number, PositionEventData>> {
   const [subgraphDataResult, recentContractEventsResult] = await Promise.allSettled([
-    lyra.subgraphClient.request<
+    lyra.subgraphClient.query<
       {
         trades: TradeQueryResult[]
         collateralUpdates: CollateralUpdateQueryResult[]
@@ -54,8 +54,11 @@ export default async function fetchPositionEventDataByIDs(
       {
         positionIds: string[]
       }
-    >(positionEventsQuery, {
-      positionIds: positionIds.map(pid => `${market.address.toLowerCase()}-${pid}`),
+    >({
+      query: positionEventsQuery,
+      variables: {
+        positionIds: positionIds.map(pid => `${market.address.toLowerCase()}-${pid}`),
+      },
     }),
     fetchRecentPositionEventsByIDs(lyra, market, positionIds),
   ])
@@ -70,10 +73,10 @@ export default async function fetchPositionEventDataByIDs(
 
   if (subgraphDataResult.status === 'fulfilled') {
     // Initialise with subgraph values
-    const trades = subgraphDataResult.value.trades.map(getTradeDataFromSubgraph)
-    const collateralUpdates = subgraphDataResult.value.collateralUpdates.map(getCollateralUpdateDataFromSubgraph)
-    const transfers = subgraphDataResult.value.optionTransfers.map(getTransferDataFromSubgraph)
-    const settles = subgraphDataResult.value.settles.map(getSettleDataFromSubgraph)
+    const trades = subgraphDataResult.value.data.trades.map(getTradeDataFromSubgraph)
+    const collateralUpdates = subgraphDataResult.value.data.collateralUpdates.map(getCollateralUpdateDataFromSubgraph)
+    const transfers = subgraphDataResult.value.data.optionTransfers.map(getTransferDataFromSubgraph)
+    const settles = subgraphDataResult.value.data.settles.map(getSettleDataFromSubgraph)
     trades.forEach(trade => {
       eventsByPositionID[trade.positionId].trades.push(trade)
     })

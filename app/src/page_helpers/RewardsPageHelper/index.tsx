@@ -4,18 +4,18 @@ import RewardsLastUpdatedAlert from '@/app/containers/common/RewardsLastUpdatedA
 import RewardsBreakdownCard from '@/app/containers/rewards/RewardsBreakdownCard'
 import RewardsStakingCard from '@/app/containers/rewards/RewardsStakingCard'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
 
 const RewardsPageHelper = () => {
   return (
-    <Layout header="Rewards">
-      <LayoutGrid>
+    <Page header="Rewards">
+      <PageGrid>
         <RewardsLastUpdatedAlert />
         <RewardsStakingCard />
         <RewardsBreakdownCard />
-      </LayoutGrid>
-    </Layout>
+      </PageGrid>
+    </Page>
   )
 }
 

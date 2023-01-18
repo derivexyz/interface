@@ -7,25 +7,25 @@ import AdminMarketsInfo from '@/app/containers/admin/AdminMarketsInfo'
 import AdminTransactionCard from '@/app/containers/admin/AdminTransactionCard'
 import withSuspense from '@/app/hooks/data/withSuspense'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
-import LayoutPageLoading from '../common/Layout/LayoutPageLoading'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
+import PageLoading from '../common/Page/PageLoading'
 
 const AdminPageHelper = withSuspense(
   () => {
     return (
-      <Layout>
-        <LayoutGrid>
+      <Page>
+        <PageGrid>
           <AdminMarketSelect marketAddressOrName={null} />
           <AdminGlobalInfo />
           <AdminMarketsInfo />
           <AdminTransactionCard mt={4} mx={8} isCollapsible />
           <AdminAddMarket />
-        </LayoutGrid>
-      </Layout>
+        </PageGrid>
+      </Page>
     )
   },
-  () => <LayoutPageLoading />
+  () => <PageLoading />
 )
 
 export default AdminPageHelper

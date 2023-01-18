@@ -13,21 +13,25 @@ import Text from '@lyra/ui/components/Text'
 import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
+import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
+import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 import getPagePath from '@/app/utils/getPagePath'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
+  network?: Network
 }
 
 const FeeRebateModalBody = withSuspense(
-  ({ onClose }: { onClose: () => void }) => {
-    const epochs = useLatestRewardEpochs(true)
+  ({ onClose, network }: Props) => {
+    const walletNetwork = useNetwork()
+    const epochs = useLatestRewardEpoch(network ?? walletNetwork)
     const global = epochs?.global
     const account = epochs?.account
     const feeRebate = account?.tradingFeeRebate ?? global?.minTradingFeeRebate ?? 0
@@ -108,10 +112,10 @@ const FeeRebateModalBody = withSuspense(
   )
 )
 
-export default function FeeRebateModal({ isOpen, onClose }: Props) {
+export default function FeeRebateModal({ isOpen, onClose, network }: Props) {
   return (
     <Modal isMobileFullscreen width={500} isOpen={isOpen} onClose={onClose} title="Fee Tiers">
-      <FeeRebateModalBody onClose={onClose} />
+      <FeeRebateModalBody network={network} onClose={onClose} isOpen={isOpen} />
     </Modal>
   )
 }

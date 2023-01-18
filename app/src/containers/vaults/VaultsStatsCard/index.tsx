@@ -1,136 +1,71 @@
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Center from '@lyra/ui/components/Center'
-import Flex from '@lyra/ui/components/Flex'
 import Grid from '@lyra/ui/components/Grid'
 import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
+import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
-import MMVPerfTooltip from '@/app/components/common/MMVPerfTooltip'
-import TokenAPYRangeText from '@/app/components/common/TokenAPYRangeText'
-import VaultAPYTooltip from '@/app/components/common/VaultAPYTooltip'
+import { SECONDS_IN_MONTH } from '@/app/constants/time'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useVault from '@/app/hooks/vaults/useVault'
-import fromBigNumber from '@/app/utils/fromBigNumber'
+import useVaultStats from '@/app/hooks/vaults/useVaultStats'
 
 type Props = {
-  marketAddressOrName: string
-} & MarginProps &
-  LayoutProps
+  market: Market
+}
 
 const VaultsStatsCard = withSuspense(
-  ({ marketAddressOrName, ...styleProps }: Props) => {
-    const vault = useVault(marketAddressOrName)
+  ({ market }: Props) => {
+    const vault = useVaultStats(market, SECONDS_IN_MONTH)
     const isMobile = useIsMobile()
     if (!vault) {
       return null
     }
-    const {
-      market,
-      tvl,
-      utilization,
-      tokenPrice90DChange,
-      tokenPrice90DChangeAnnualized,
-      pendingDeposits,
-      tradingVolume90D,
-      openInterest,
-      netDelta,
-      minApy,
-      minOpApy,
-      minLyraApy,
-      maxApy,
-    } = vault
+
+    const isLiquidityData15DOld = market.block.timestamp - vault.liquidityHistory[0].timestamp > SECONDS_IN_MONTH / 2
+    const isBoardsLive = vault.market.liveBoards().length > 0
+
+    const { netStdVega, netDelta } = vault.netGreeks
+    const { pendingWithdrawals, pendingDeposits, utilization } = vault.liquidity
+    const { tokenPriceChangeAnnualized } = vault
+
     return (
-      <Card {...styleProps}>
+      <Card>
         <CardBody>
           <Text mb={6} variant="heading">
             Stats
           </Text>
           <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gridColumnGap: 6, gridRowGap: 6 }}>
             <LabelItem
-              label="90D Perf. (Annualized)"
-              value={
-                <MMVPerfTooltip
-                  mt="auto"
-                  marketName={market.name}
-                  tokenPrice90DChange={tokenPrice90DChange}
-                  tokenPrice90DChangeAnnualized={tokenPrice90DChangeAnnualized}
-                  alignItems="center"
-                >
-                  <Text variant="secondary" color={tokenPrice90DChange >= 0 ? 'primaryText' : 'errorText'}>
-                    {formatPercentage(tokenPrice90DChangeAnnualized, tokenPrice90DChange === 0)}
-                  </Text>
-                </MMVPerfTooltip>
-              }
+              label="30D Perf (Annualized)"
+              value={isLiquidityData15DOld ? formatPercentage(tokenPriceChangeAnnualized) : '-'}
+              valueColor="text"
             />
             <LabelItem
-              label="Rewards APY"
-              value={
-                minApy > 0 && market.name.toLowerCase() !== 'sol' ? (
-                  <VaultAPYTooltip
-                    mt="auto"
-                    alignItems="center"
-                    marketName={market.name}
-                    opApy={minOpApy}
-                    lyraApy={minLyraApy}
-                  >
-                    <TokenAPYRangeText
-                      variant="secondary"
-                      color="primaryText"
-                      tokenNameOrAddress={['stkLyra', 'OP']}
-                      leftValue={formatPercentage(minApy, true)}
-                      rightValue={formatPercentage(maxApy, true)}
-                    />
-                  </VaultAPYTooltip>
-                ) : (
-                  '-'
-                )
-              }
-              valueColor={minApy > 0 ? 'text' : 'secondaryText'}
+              label="Pool Utilization"
+              value={isBoardsLive ? formatPercentage(utilization, true) : '-'}
+              valueColor="text"
             />
+            <LabelItem label="Pending Deposits" value={formatTruncatedUSD(pendingDeposits)} valueColor="text" />
+            <LabelItem label="Pending Withdrawals" value={formatTruncatedUSD(pendingWithdrawals)} valueColor="text" />
+            <LabelItem label="Net Delta" value={`${netDelta.gt(0) ? '+' : ''}${formatNumber(netDelta, { dps: 3 })}`} />
             <LabelItem
-              label="TVL"
-              value={tvl > 0 ? formatTruncatedUSD(tvl) : '-'}
-              valueColor={tvl > 0 ? 'text' : 'secondaryText'}
+              label="Net Vega"
+              value={`${netStdVega.gt(0) ? '+' : ''}${formatNumber(netStdVega, { dps: 3 })}`}
             />
-            <Flex flexDirection="column">
-              <Text variant="secondary" color="secondaryText" mb={2}>
-                Pending Deposits
-              </Text>
-              <Text mt="auto" variant="secondary">
-                {formatTruncatedUSD(pendingDeposits)}
-              </Text>
-            </Flex>
-            <LabelItem
-              label="Utilization"
-              value={utilization > 0 ? formatPercentage(utilization, true) : '-'}
-              valueColor={utilization > 0 ? 'text' : 'secondaryText'}
-            />
-            <LabelItem
-              label="90D Volume"
-              value={tradingVolume90D > 0 ? formatTruncatedUSD(tradingVolume90D) : '-'}
-              valueColor={tradingVolume90D > 0 ? 'text' : 'secondaryText'}
-            />
-            <LabelItem
-              label="Open Interest"
-              value={openInterest > 0 ? formatTruncatedUSD(openInterest * fromBigNumber(market.spotPrice)) : '-'}
-              valueColor={openInterest > 0 ? 'text' : 'secondaryText'}
-            />
-            <LabelItem label="Net Delta" value={`${netDelta > 0 ? '+' : ''}${formatNumber(netDelta, { dps: 3 })}`} />
           </Grid>
         </CardBody>
       </Card>
     )
   },
-  ({ ...styleProps }) => (
-    <Card {...styleProps}>
+  () => (
+    <Card>
       <CardBody>
         <Text mb={6} variant="heading">
           Stats

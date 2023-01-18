@@ -3,7 +3,7 @@ import { PopulatedTransaction } from '@ethersproject/contracts'
 
 import { Account, AccountBalances, AccountLiquidityTokenBalance, AccountLyraStaking } from '..'
 import { ZERO_BN } from '../constants/bn'
-import { LyraContractId } from '../constants/contracts'
+import { LyraGlobalContractId } from '../constants/contracts'
 import { SECONDS_IN_DAY } from '../constants/time'
 import { GlobalRewardEpoch, GlobalRewardEpochAPY, GlobalRewardEpochTokens } from '../global_reward_epoch'
 import Lyra from '../lyra'
@@ -11,7 +11,7 @@ import buildTx from '../utils/buildTx'
 import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
 import findMarket from '../utils/findMarket'
 import fromBigNumber from '../utils/fromBigNumber'
-import getLyraContract from '../utils/getLyraContract'
+import getGlobalContract from '../utils/getGlobalContract'
 import insertTxGasEstimate from '../utils/insertTxGasEstimate'
 
 export enum UnstakeDisabledReason {
@@ -21,7 +21,7 @@ export enum UnstakeDisabledReason {
 }
 
 type UnstakeData = {
-  globalEpoch: GlobalRewardEpoch
+  globalEpoch: GlobalRewardEpoch | null
   account: Account
   accountStaking: AccountLyraStaking
   accountBalances: AccountBalances[]
@@ -29,9 +29,9 @@ type UnstakeData = {
 }
 
 export class LyraUnstake {
-  private lyra: Lyra
+  lyra: Lyra
   private vaultTokenBalances: Record<string, AccountLiquidityTokenBalance>
-  globalEpoch: GlobalRewardEpoch
+  globalEpoch: GlobalRewardEpoch | null
   accountStaking: AccountLyraStaking
   account: Account
   amount: BigNumber
@@ -51,7 +51,7 @@ export class LyraUnstake {
     this.accountStaking = data.accountStaking
     this.account = data.account
     this.amount = data.amount
-    this.stakedLyraBalance = data.accountStaking.stakedLyraBalance.balance
+    this.stakedLyraBalance = data.accountStaking.lyraBalances.ethereumStkLyra
     this.newStakedLyraBalance = this.stakedLyraBalance.sub(this.amount)
     if (this.newStakedLyraBalance.lt(0)) {
       this.newStakedLyraBalance = ZERO_BN
@@ -72,14 +72,14 @@ export class LyraUnstake {
       totalStakedLyraSupply > 0 ? fromBigNumber(this.newStakedLyraBalance) / totalStakedLyraSupply : 0
 
     const totalLyraPerDay =
-      this.globalEpoch.duration > 0
+      this.globalEpoch && this.globalEpoch.duration > 0
         ? (this.globalEpoch.totalStakingRewards.lyra / this.globalEpoch.duration) * SECONDS_IN_DAY
         : 0
     const lyraPerDay = totalLyraPerDay * stakedLyraPctShare
     const newLyraPerDay = totalLyraPerDay * newStakedLyraPctShare
 
     const totalOpPerDay =
-      this.globalEpoch.duration > 0
+      this.globalEpoch && this.globalEpoch.duration > 0
         ? (this.globalEpoch.totalStakingRewards.op / this.globalEpoch.duration) * SECONDS_IN_DAY
         : 0
     const opPerDay = totalOpPerDay * stakedLyraPctShare
@@ -94,8 +94,8 @@ export class LyraUnstake {
       op: newOpPerDay,
     }
 
-    this.tradingFeeRebate = this.globalEpoch.tradingFeeRebate(fromBigNumber(this.stakedLyraBalance))
-    this.newTradingFeeRebate = this.globalEpoch.tradingFeeRebate(fromBigNumber(this.newStakedLyraBalance))
+    this.tradingFeeRebate = this.globalEpoch?.tradingFeeRebate(fromBigNumber(this.stakedLyraBalance)) ?? 0
+    this.newTradingFeeRebate = this.globalEpoch?.tradingFeeRebate(fromBigNumber(this.newStakedLyraBalance)) ?? 0
 
     // Determine disabled reason
     if (!data.accountStaking.isInUnstakeWindow) {
@@ -110,12 +110,22 @@ export class LyraUnstake {
 
     // Build transaction
     if (!this.disabledReason) {
-      const lyraStakingModuleProxyContract = getLyraContract(lyra, LyraContractId.LyraStakingModuleProxy)
+      const lyraStakingModuleProxyContract = getGlobalContract(
+        lyra,
+        LyraGlobalContractId.LyraStakingModule,
+        lyra.ethereumProvider
+      )
       const txData = lyraStakingModuleProxyContract.interface.encodeFunctionData('redeem', [
         this.account.address,
         this.amount,
       ])
-      this.tx = buildTx(lyra, lyraStakingModuleProxyContract.address, this.account.address, txData)
+      this.tx = buildTx(
+        lyra.ethereumProvider ?? lyra.provider,
+        1,
+        lyraStakingModuleProxyContract.address,
+        this.account.address,
+        txData
+      )
     } else {
       this.tx = null
     }
@@ -138,7 +148,7 @@ export class LyraUnstake {
       accountBalances,
     })
     if (unstake?.tx) {
-      unstake.tx = await insertTxGasEstimate(lyra, unstake.tx)
+      unstake.tx = await insertTxGasEstimate(lyra.ethereumProvider ?? lyra.provider, unstake.tx)
     }
     return unstake
   }
@@ -146,15 +156,32 @@ export class LyraUnstake {
   // Transactions
 
   static async requestUnstake(lyra: Lyra, address: string): Promise<PopulatedTransaction> {
-    const lyraStakingModuleProxyContract = getLyraContract(lyra, LyraContractId.LyraStakingModuleProxy)
+    const lyraStakingModuleProxyContract = getGlobalContract(
+      lyra,
+      LyraGlobalContractId.LyraStakingModule,
+      lyra.ethereumProvider
+    )
     const data = lyraStakingModuleProxyContract.interface.encodeFunctionData('cooldown')
-    const tx = await buildTxWithGasEstimate(lyra, lyraStakingModuleProxyContract.address, address, data)
+    const tx = await buildTxWithGasEstimate(
+      lyra.ethereumProvider ?? lyra.provider,
+      1,
+      lyraStakingModuleProxyContract.address,
+      address,
+      data
+    )
     return tx
   }
 
   // Dynamic Fields
 
   vaultApy(marketAddressOrName: string): GlobalRewardEpochAPY {
+    if (!this.globalEpoch) {
+      return {
+        total: 0,
+        lyra: 0,
+        op: 0,
+      }
+    }
     const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const currStakedLyraBalance = fromBigNumber(this.stakedLyraBalance)
@@ -163,6 +190,13 @@ export class LyraUnstake {
   }
 
   newVaultApy(marketAddressOrName: string): GlobalRewardEpochAPY {
+    if (!this.globalEpoch) {
+      return {
+        total: 0,
+        lyra: 0,
+        op: 0,
+      }
+    }
     const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const newStakedLyraBalance = fromBigNumber(this.newStakedLyraBalance)

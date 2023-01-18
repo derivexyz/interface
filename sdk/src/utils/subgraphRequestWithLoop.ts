@@ -1,3 +1,5 @@
+import { DocumentNode } from '@apollo/client'
+
 import Lyra from '..'
 import { SNAPSHOT_RESULT_LIMIT } from '../constants/queries'
 
@@ -8,7 +10,7 @@ export default async function subgraphRequestWithLoop<
   Variables extends Record<string, any> = Record<string, any>
 >(
   lyra: Lyra,
-  query: string,
+  query: DocumentNode,
   variables: Variables & IteratorVariables,
   iteratorKey: keyof Snapshot,
   batchOptions?: {
@@ -42,9 +44,16 @@ export default async function subgraphRequestWithLoop<
     }
     const batches = (
       await Promise.all(
-        varArr.map(vars =>
-          lyra.subgraphClient.request<{ [key: string]: Snapshot[] }, Variables & IteratorVariables>(query, vars)
-        )
+        varArr.map(async variables => {
+          const { data } = await lyra.subgraphClient.query<
+            { [key: string]: Snapshot[] },
+            Variables & IteratorVariables
+          >({
+            query,
+            variables,
+          })
+          return data
+        })
       )
     ).map(res => Object.values(res)[0])
     const lastBatch = batches[batches.length - 1]

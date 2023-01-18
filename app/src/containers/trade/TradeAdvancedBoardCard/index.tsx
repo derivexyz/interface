@@ -13,7 +13,7 @@ import formatDate from '@lyra/ui/utils/formatDate'
 import { Market, Option, Quote, Strike } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
 
-import TradeChainTable, { getButtonWidthForMarket } from '@/app/components/trade/TradeChainTable'
+import TradeChainTable from '@/app/components/trade/TradeChainTable'
 import { TRADE_BOARD_MIN_HEIGHT } from '@/app/constants/layout'
 import { LogEvent } from '@/app/constants/logEvents'
 import useIsGlobalPaused from '@/app/hooks/admin/useIsGlobalPaused'
@@ -21,6 +21,7 @@ import withSuspense from '@/app/hooks/data/withSuspense'
 import useTraderSettings, { CustomColumnOption } from '@/app/hooks/local_storage/useTraderSettings'
 import useLiveBoards from '@/app/hooks/market/useLiveBoards'
 import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
+import getPriceColumnWidth from '@/app/utils/getPriceColumnWidth'
 import logEvent from '@/app/utils/logEvent'
 
 type Props = {
@@ -60,25 +61,19 @@ const getCustomColumnLabel = (columnOption: CustomColumnOption) => {
   }
 }
 
-export const getCustomColumnWidth = (columnOption: CustomColumnOption) => {
-  switch (columnOption) {
-    case CustomColumnOption.IV:
-      return 124
-    default:
-      return 96
-  }
-}
-
 const TradeAdvancedBoardCard = withSuspense(
   ({ market, selectedOption, onSelectOption, isBuy }: Props) => {
     const [expandedExpiries, setExpandedExpiries] = useState<Record<string, boolean>>({})
-    const boards = useLiveBoards(market.name)
+    const boards = useLiveBoards(market)
     const defaultExpandedBoardId = useMemo(() => {
+      if (!boards.length) {
+        return null
+      }
       const now = boards[0].block.timestamp
       return boards.find(board => board.tradingCutoffTimestamp > now)?.id ?? boards[0].id
     }, [boards])
-    const isGlobalPaused = useIsGlobalPaused()
-    const marketLiquidity = useMarketLiquidity(market.address)
+    const isGlobalPaused = useIsGlobalPaused(market.lyra.network)
+    const marketLiquidity = useMarketLiquidity(market)
     const [isCustomCol1LeftOpen, setIsCustomCol1LeftOpen] = useState(false)
     const [isCustomCol1RightOpen, setIsCustomCol1RightOpen] = useState(false)
     const [isCustomCol2LeftOpen, setIsCustomCol2LeftOpen] = useState(false)
@@ -126,13 +121,15 @@ const TradeAdvancedBoardCard = withSuspense(
         {
           accessor: 'strike',
           id: `custom-col-1-selector-left`,
-          width: getCustomColumnWidth(customCol1),
+          width: 88,
           Header: (
             <DropdownButton
               variant="light"
               textVariant="secondary"
+              size="small"
               textAlign="left"
               isTransparent
+              noPadding
               label={getCustomColumnLabel(customCol1)}
               isOpen={isCustomCol1LeftOpen}
               onClick={() => {
@@ -149,14 +146,15 @@ const TradeAdvancedBoardCard = withSuspense(
         {
           accessor: 'strike',
           id: `custom-col-2-selector-left`,
-          width: getCustomColumnWidth(customCol2),
-          px: 0,
+          width: 88,
           Header: (
             <DropdownButton
               variant="light"
               textAlign="left"
               textVariant="secondary"
+              size="small"
               isTransparent
+              noPadding
               label={getCustomColumnLabel(customCol2)}
               isOpen={isCustomCol2LeftOpen}
               onClick={() => {
@@ -174,13 +172,13 @@ const TradeAdvancedBoardCard = withSuspense(
           accessor: 'callBid',
           Header: 'Bid',
           disableSortBy: true,
-          width: getButtonWidthForMarket(market.name),
+          width: getPriceColumnWidth(market),
         },
         {
           accessor: 'callAsk',
           Header: 'Ask',
           disableSortBy: true,
-          width: getButtonWidthForMarket(market.name),
+          width: getPriceColumnWidth(market),
           Cell: (props: TableCellProps<OptionChainTableData>) => {
             const { isExpanded } = props.row.original
             return isExpanded ? (
@@ -208,7 +206,7 @@ const TradeAdvancedBoardCard = withSuspense(
           accessor: 'putBid',
           Header: 'Bid',
           disableSortBy: true,
-          width: getButtonWidthForMarket(market.name),
+          width: getPriceColumnWidth(market),
           Cell: (props: TableCellProps<OptionChainTableData>) => {
             const { isExpanded } = props.row.original
             return isExpanded ? <Text variant="secondary">Puts</Text> : null
@@ -218,19 +216,21 @@ const TradeAdvancedBoardCard = withSuspense(
           accessor: 'putAsk',
           Header: 'Ask',
           disableSortBy: true,
-          width: getButtonWidthForMarket(market.name),
+          width: getPriceColumnWidth(market),
           Cell: () => null,
         },
         {
           accessor: 'strike',
           id: `custom-col-2-selector-right`,
-          width: getCustomColumnWidth(customCol2),
+          width: 88,
           Header: (
             <DropdownButton
               variant="light"
               textAlign="left"
               textVariant="secondary"
+              size="small"
               isTransparent
+              noPadding
               label={getCustomColumnLabel(customCol2)}
               isOpen={isCustomCol2RightOpen}
               onClick={() => setIsCustomCol2RightOpen(!isCustomCol2RightOpen)}
@@ -245,13 +245,15 @@ const TradeAdvancedBoardCard = withSuspense(
         {
           accessor: 'strike',
           id: `custom-col-1-selector-right`,
-          width: getCustomColumnWidth(customCol1),
+          width: 88,
           Header: (
             <DropdownButton
               variant="light"
               textAlign="left"
               textVariant="secondary"
+              size="small"
               isTransparent
+              noPadding
               label={getCustomColumnLabel(customCol1)}
               isOpen={isCustomCol1RightOpen}
               onClick={() => {
@@ -275,32 +277,15 @@ const TradeAdvancedBoardCard = withSuspense(
       ],
       [
         customCol1,
-        customCol2,
-        isCustomCol1RightOpen,
         isCustomCol1LeftOpen,
-        isCustomCol2LeftOpen,
-        isCustomCol2RightOpen,
         col1DropdownButtonListItems,
+        customCol2,
+        isCustomCol2LeftOpen,
         col2DropdownButtonListItems,
-        market.name,
+        market,
+        isCustomCol2RightOpen,
+        isCustomCol1RightOpen,
       ]
-    )
-
-    const columnOptions = useMemo(
-      () => [
-        {
-          px: 3,
-        },
-        { px: 0 },
-        {},
-        {},
-        {},
-        {},
-        {},
-        { px: 0 },
-        { pr: 6, pl: 0 },
-      ],
-      []
     )
 
     const rows: OptionChainTableData[] = useMemo(
@@ -358,7 +343,7 @@ const TradeAdvancedBoardCard = withSuspense(
     return (
       <Card>
         <CardSection noPadding>
-          <Table columns={columns} data={rows} columnOptions={columnOptions} />
+          <Table columns={columns} data={rows} />
         </CardSection>
       </Card>
     )

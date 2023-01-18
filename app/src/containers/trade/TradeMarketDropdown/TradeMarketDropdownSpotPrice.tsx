@@ -3,7 +3,7 @@ import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Market } from '@lyrafinance/lyra-js'
+import { Market, SnapshotPeriod } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
@@ -16,14 +16,17 @@ type Props = {
 
 const TradeMarketDropdownSpotPrice = withSuspense(
   ({ market }: Props) => {
-    const history = useSpotPriceHistory(market.address, ChartPeriod.OneDay)
+    const history = useSpotPriceHistory(market, ChartPeriod.OneDay, SnapshotPeriod.EightHours)
     const latestSnapshot = history[history.length - 1]
-    const color = latestSnapshot.change >= 0 ? 'primaryText' : 'errorText'
+    const latestPrice = latestSnapshot.close
+    const startPrice = history[0].close
+    const change = startPrice ? (latestPrice - startPrice) / startPrice : 0
+    const color = change >= 0 ? 'primaryText' : 'errorText'
     return (
       <Flex width={80} flexDirection="column" alignItems="flex-end">
-        <Text variant="secondary">{formatUSD(latestSnapshot.price)}</Text>
+        <Text variant="secondary">{formatUSD(latestPrice)}</Text>
         <Text color={color} variant="small">
-          {formatPercentage(latestSnapshot.change)}
+          {formatPercentage(change)}
         </Text>
       </Flex>
     )

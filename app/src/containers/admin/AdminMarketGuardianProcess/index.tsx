@@ -31,13 +31,13 @@ const QUEUE_LIMIT = 100
 const AdminMarketGuardianProcess = withSuspense(
   ({ market, isExpanded, onClickExpand, onParamUpdate }: Props) => {
     const account = useWalletAccount()
-    const admin = useAdmin()
-    const owner = useMarketOwner(market.name)
-    const globalCache = useGlobalCache(market.address)
-    const mutateGlobalCache = useMutateGlobalCache(market.address)
+    const admin = useAdmin(market.lyra.network)
+    const owner = useMarketOwner(market)
+    const globalCache = useGlobalCache(market)
+    const mutateGlobalCache = useMutateGlobalCache(market)
     const [isDepositsLoading, setIsDespositsLoading] = useState(false)
     const [isWithdrawalsLoading, setIsWithdrawalsLoading] = useState(false)
-    const execute = useAdminTransaction(owner)
+    const execute = useAdminTransaction(market.lyra.network, owner)
     if (!market) {
       return null
     }
@@ -63,7 +63,8 @@ const AdminMarketGuardianProcess = withSuspense(
                     </Text>
                   </Text>
                   <Text variant="secondary" color="secondaryText">
-                    Last updated at: {formatDateTime(globalCache?.minUpdatedAt.toNumber() ?? 0, false, false)}
+                    Last updated at:{' '}
+                    {formatDateTime(globalCache?.minUpdatedAt.toNumber() ?? 0, { hideYear: true, hideMins: false })}
                   </Text>
                   <Text variant="secondary" color="secondaryText">
                     Current spot price: {formatUSD(market.spotPrice)}

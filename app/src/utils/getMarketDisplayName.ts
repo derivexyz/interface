@@ -1,17 +1,17 @@
-export default function getMarketDisplayName(baseTokenSymbol: string | null): string {
-  switch (baseTokenSymbol?.toLowerCase()) {
-    case 'lylp':
+import { Market } from '@lyrafinance/lyra-js'
+
+export default function getMarketDisplayName(market: Market): string {
+  switch (market.baseToken.symbol.toLowerCase()) {
     case 'eth':
     case 'seth':
-    case 'seth-susd':
+    case 'weth':
       return 'Ethereum'
     case 'btc':
     case 'sbtc':
-    case 'sbtc-susd':
+    case 'wbtc':
       return 'Bitcoin'
     case 'sol':
     case 'ssol':
-    case 'ssol-susd':
       return 'Solana'
     default:
       return ''

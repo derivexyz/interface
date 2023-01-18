@@ -29,6 +29,37 @@ import type {
 } from "./common";
 
 export declare namespace GMXFuturesPoolHedger {
+  export type FuturesPoolHedgerParametersStruct = {
+    acceptableSpotSlippage: PromiseOrValue<BigNumberish>;
+    deltaThreshold: PromiseOrValue<BigNumberish>;
+    marketDepthBuffer: PromiseOrValue<BigNumberish>;
+    targetLeverage: PromiseOrValue<BigNumberish>;
+    maxLeverage: PromiseOrValue<BigNumberish>;
+    leverageBuffer: PromiseOrValue<BigNumberish>;
+    minCancelDelay: PromiseOrValue<BigNumberish>;
+    vaultLiquidityCheckEnabled: PromiseOrValue<boolean>;
+  };
+
+  export type FuturesPoolHedgerParametersStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    boolean
+  ] & {
+    acceptableSpotSlippage: BigNumber;
+    deltaThreshold: BigNumber;
+    marketDepthBuffer: BigNumber;
+    targetLeverage: BigNumber;
+    maxLeverage: BigNumber;
+    leverageBuffer: BigNumber;
+    minCancelDelay: BigNumber;
+    vaultLiquidityCheckEnabled: boolean;
+  };
+
   export type PositionDetailsStruct = {
     size: PromiseOrValue<BigNumberish>;
     collateral: PromiseOrValue<BigNumberish>;
@@ -76,32 +107,103 @@ export declare namespace GMXFuturesPoolHedger {
     isLong: boolean;
   };
 
-  export type FuturesPoolHedgerParametersStruct = {
-    acceptableSpotSlippage: PromiseOrValue<BigNumberish>;
-    deltaThreshold: PromiseOrValue<BigNumberish>;
-    marketDepthBuffer: PromiseOrValue<BigNumberish>;
-    targetLeverage: PromiseOrValue<BigNumberish>;
-    leverageBuffer: PromiseOrValue<BigNumberish>;
-    minCancelDelay: PromiseOrValue<BigNumberish>;
-    vaultLiquidityCheckEnabled: PromiseOrValue<boolean>;
+  export type HedgerAddressesStruct = {
+    router: PromiseOrValue<string>;
+    positionRouter: PromiseOrValue<string>;
+    vault: PromiseOrValue<string>;
+    quoteAsset: PromiseOrValue<string>;
+    baseAsset: PromiseOrValue<string>;
+    weth: PromiseOrValue<string>;
   };
 
-  export type FuturesPoolHedgerParametersStructOutput = [
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    boolean
+  export type HedgerAddressesStructOutput = [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string
   ] & {
-    acceptableSpotSlippage: BigNumber;
-    deltaThreshold: BigNumber;
-    marketDepthBuffer: BigNumber;
-    targetLeverage: BigNumber;
-    leverageBuffer: BigNumber;
-    minCancelDelay: BigNumber;
-    vaultLiquidityCheckEnabled: boolean;
+    router: string;
+    positionRouter: string;
+    vault: string;
+    quoteAsset: string;
+    baseAsset: string;
+    weth: string;
+  };
+
+  export type GMXViewStruct = {
+    basePoolAmount: PromiseOrValue<BigNumberish>;
+    baseReservedAmount: PromiseOrValue<BigNumberish>;
+    quotePoolAmount: PromiseOrValue<BigNumberish>;
+    quoteReservedAmount: PromiseOrValue<BigNumberish>;
+    minExecutionFee: PromiseOrValue<BigNumberish>;
+  };
+
+  export type GMXViewStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber
+  ] & {
+    basePoolAmount: BigNumber;
+    baseReservedAmount: BigNumber;
+    quotePoolAmount: BigNumber;
+    quoteReservedAmount: BigNumber;
+    minExecutionFee: BigNumber;
+  };
+
+  export type GMXFuturesPoolHedgerViewStruct = {
+    currentPositions: GMXFuturesPoolHedger.CurrentPositionsStruct;
+    futuresPoolHedgerParams: GMXFuturesPoolHedger.FuturesPoolHedgerParametersStruct;
+    hedgerAddresses: GMXFuturesPoolHedger.HedgerAddressesStruct;
+    gmxView: GMXFuturesPoolHedger.GMXViewStruct;
+    referralCode: PromiseOrValue<BytesLike>;
+    pendingOrderKey: PromiseOrValue<BytesLike>;
+    lastOrderTimestamp: PromiseOrValue<BigNumberish>;
+    spotPrice: PromiseOrValue<BigNumberish>;
+    expectedHedge: PromiseOrValue<BigNumberish>;
+    currentHedge: PromiseOrValue<BigNumberish>;
+    currentLeverage: PromiseOrValue<BigNumberish>;
+    pendingCollateralDelta: PromiseOrValue<BigNumberish>;
+    baseBal: PromiseOrValue<BigNumberish>;
+    quoteBal: PromiseOrValue<BigNumberish>;
+    wethBal: PromiseOrValue<BigNumberish>;
+  };
+
+  export type GMXFuturesPoolHedgerViewStructOutput = [
+    GMXFuturesPoolHedger.CurrentPositionsStructOutput,
+    GMXFuturesPoolHedger.FuturesPoolHedgerParametersStructOutput,
+    GMXFuturesPoolHedger.HedgerAddressesStructOutput,
+    GMXFuturesPoolHedger.GMXViewStructOutput,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber
+  ] & {
+    currentPositions: GMXFuturesPoolHedger.CurrentPositionsStructOutput;
+    futuresPoolHedgerParams: GMXFuturesPoolHedger.FuturesPoolHedgerParametersStructOutput;
+    hedgerAddresses: GMXFuturesPoolHedger.HedgerAddressesStructOutput;
+    gmxView: GMXFuturesPoolHedger.GMXViewStructOutput;
+    referralCode: string;
+    pendingOrderKey: string;
+    lastOrderTimestamp: BigNumber;
+    spotPrice: BigNumber;
+    expectedHedge: BigNumber;
+    currentHedge: BigNumber;
+    currentLeverage: BigNumber;
+    pendingCollateralDelta: BigNumber;
+    baseBal: BigNumber;
+    quoteBal: BigNumber;
+    wethBal: BigNumber;
   };
 }
 
@@ -119,6 +221,7 @@ export declare namespace PoolHedger {
 
 export interface PoolHedgerInterface extends utils.Interface {
   functions: {
+    "BASIS_POINTS_DIVISOR()": FunctionFragment;
     "GMX_PRICE_PRECISION()": FunctionFragment;
     "acceptOwnership()": FunctionFragment;
     "baseAsset()": FunctionFragment;
@@ -130,15 +233,17 @@ export interface PoolHedgerInterface extends utils.Interface {
     "getCappedExpectedHedge()": FunctionFragment;
     "getCurrentHedgedNetDelta()": FunctionFragment;
     "getCurrentLeverage()": FunctionFragment;
+    "getHedgerState()": FunctionFragment;
     "getHedgingLiquidity(uint256)": FunctionFragment;
     "getPoolHedgerParams()": FunctionFragment;
     "getPositions()": FunctionFragment;
+    "getSwapFeeBP(bool,bool,uint256)": FunctionFragment;
     "gmxPositionCallback(bytes32,bool,bool)": FunctionFragment;
     "greekCache()": FunctionFragment;
     "hasPendingDecrease()": FunctionFragment;
     "hasPendingIncrease()": FunctionFragment;
     "hedgeDelta()": FunctionFragment;
-    "init(address,address,address,address,address,address,address,address)": FunctionFragment;
+    "init(address,address,address,address,address,address,address,address,address)": FunctionFragment;
     "lastInteraction()": FunctionFragment;
     "lastOrderTimestamp()": FunctionFragment;
     "nominateNewOwner(address)": FunctionFragment;
@@ -149,19 +254,23 @@ export interface PoolHedgerInterface extends utils.Interface {
     "positionRouter()": FunctionFragment;
     "quoteAsset()": FunctionFragment;
     "recoverEth(address)": FunctionFragment;
+    "recoverFunds(address,address)": FunctionFragment;
     "referralCode()": FunctionFragment;
     "resetInteractionDelay()": FunctionFragment;
     "router()": FunctionFragment;
     "sendAllFundsToLP()": FunctionFragment;
-    "setFuturesPoolHedgerParams((uint256,uint256,uint256,uint256,uint256,uint256,bool))": FunctionFragment;
+    "setFuturesPoolHedgerParams((uint256,uint256,uint256,uint256,uint256,uint256,uint256,bool))": FunctionFragment;
     "setPoolHedgerParams((uint256,uint256))": FunctionFragment;
+    "setPositionRouter(address)": FunctionFragment;
     "setReferralCode(bytes32)": FunctionFragment;
     "updateCollateral()": FunctionFragment;
     "vault()": FunctionFragment;
+    "weth()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "BASIS_POINTS_DIVISOR"
       | "GMX_PRICE_PRECISION"
       | "acceptOwnership"
       | "baseAsset"
@@ -173,9 +282,11 @@ export interface PoolHedgerInterface extends utils.Interface {
       | "getCappedExpectedHedge"
       | "getCurrentHedgedNetDelta"
       | "getCurrentLeverage"
+      | "getHedgerState"
       | "getHedgingLiquidity"
       | "getPoolHedgerParams"
       | "getPositions"
+      | "getSwapFeeBP"
       | "gmxPositionCallback"
       | "greekCache"
       | "hasPendingDecrease"
@@ -192,17 +303,24 @@ export interface PoolHedgerInterface extends utils.Interface {
       | "positionRouter"
       | "quoteAsset"
       | "recoverEth"
+      | "recoverFunds"
       | "referralCode"
       | "resetInteractionDelay"
       | "router"
       | "sendAllFundsToLP"
       | "setFuturesPoolHedgerParams"
       | "setPoolHedgerParams"
+      | "setPositionRouter"
       | "setReferralCode"
       | "updateCollateral"
       | "vault"
+      | "weth"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "BASIS_POINTS_DIVISOR",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "GMX_PRICE_PRECISION",
     values?: undefined
@@ -245,6 +363,10 @@ export interface PoolHedgerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getHedgerState",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getHedgingLiquidity",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -255,6 +377,14 @@ export interface PoolHedgerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getPositions",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSwapFeeBP",
+    values: [
+      PromiseOrValue<boolean>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "gmxPositionCallback",
@@ -283,6 +413,7 @@ export interface PoolHedgerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "init",
     values: [
+      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -331,6 +462,10 @@ export interface PoolHedgerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "recoverFunds",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "referralCode",
     values?: undefined
   ): string;
@@ -352,6 +487,10 @@ export interface PoolHedgerInterface extends utils.Interface {
     values: [PoolHedger.PoolHedgerParametersStruct]
   ): string;
   encodeFunctionData(
+    functionFragment: "setPositionRouter",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setReferralCode",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -360,7 +499,12 @@ export interface PoolHedgerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "vault", values?: undefined): string;
+  encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
+  decodeFunctionResult(
+    functionFragment: "BASIS_POINTS_DIVISOR",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "GMX_PRICE_PRECISION",
     data: BytesLike
@@ -400,6 +544,10 @@ export interface PoolHedgerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getHedgerState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getHedgingLiquidity",
     data: BytesLike
   ): Result;
@@ -409,6 +557,10 @@ export interface PoolHedgerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getPositions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSwapFeeBP",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -458,6 +610,10 @@ export interface PoolHedgerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "quoteAsset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "recoverEth", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "recoverFunds",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "referralCode",
     data: BytesLike
   ): Result;
@@ -479,6 +635,10 @@ export interface PoolHedgerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setPositionRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setReferralCode",
     data: BytesLike
   ): Result;
@@ -487,34 +647,39 @@ export interface PoolHedgerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "vault", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
 
   events: {
     "BaseReturnedToLP(uint256)": EventFragment;
     "CollateralOrderPosted(bytes32,bool,int256)": EventFragment;
+    "FuturesPoolHedgerParamsSet(tuple)": EventFragment;
     "GMXPositionCallback(bytes32,bool,bool,tuple)": EventFragment;
     "HedgerPosition(tuple)": EventFragment;
-    "MaxLeverageSet(uint256)": EventFragment;
     "OrderCanceled(bytes32,bool)": EventFragment;
     "OrderPosted(bytes32,uint256,uint256,bool,bool)": EventFragment;
     "OwnerChanged(address,address)": EventFragment;
     "OwnerNominated(address)": EventFragment;
     "PoolHedgerParametersSet(tuple)": EventFragment;
-    "PositionUpdated(int256,int256,uint256,bool)": EventFragment;
+    "PositionRouterSet(address)": EventFragment;
+    "PositionUpdated(address,int256,int256,uint256,bool)": EventFragment;
     "QuoteReturnedToLP(uint256)": EventFragment;
+    "WETHSold(uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BaseReturnedToLP"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CollateralOrderPosted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FuturesPoolHedgerParamsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GMXPositionCallback"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "HedgerPosition"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MaxLeverageSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OrderCanceled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OrderPosted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnerChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnerNominated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PoolHedgerParametersSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PositionRouterSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PositionUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "QuoteReturnedToLP"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "WETHSold"): EventFragment;
 }
 
 export interface BaseReturnedToLPEventObject {
@@ -541,6 +706,17 @@ export type CollateralOrderPostedEvent = TypedEvent<
 export type CollateralOrderPostedEventFilter =
   TypedEventFilter<CollateralOrderPostedEvent>;
 
+export interface FuturesPoolHedgerParamsSetEventObject {
+  futuresPoolHedgerParams: GMXFuturesPoolHedger.FuturesPoolHedgerParametersStructOutput;
+}
+export type FuturesPoolHedgerParamsSetEvent = TypedEvent<
+  [GMXFuturesPoolHedger.FuturesPoolHedgerParametersStructOutput],
+  FuturesPoolHedgerParamsSetEventObject
+>;
+
+export type FuturesPoolHedgerParamsSetEventFilter =
+  TypedEventFilter<FuturesPoolHedgerParamsSetEvent>;
+
 export interface GMXPositionCallbackEventObject {
   positionKey: string;
   isExecuted: boolean;
@@ -564,16 +740,6 @@ export type HedgerPositionEvent = TypedEvent<
 >;
 
 export type HedgerPositionEventFilter = TypedEventFilter<HedgerPositionEvent>;
-
-export interface MaxLeverageSetEventObject {
-  targetLeverage: BigNumber;
-}
-export type MaxLeverageSetEvent = TypedEvent<
-  [BigNumber],
-  MaxLeverageSetEventObject
->;
-
-export type MaxLeverageSetEventFilter = TypedEventFilter<MaxLeverageSetEvent>;
 
 export interface OrderCanceledEventObject {
   pendingOrderKey: string;
@@ -632,14 +798,26 @@ export type PoolHedgerParametersSetEvent = TypedEvent<
 export type PoolHedgerParametersSetEventFilter =
   TypedEventFilter<PoolHedgerParametersSetEvent>;
 
+export interface PositionRouterSetEventObject {
+  positionRouter: string;
+}
+export type PositionRouterSetEvent = TypedEvent<
+  [string],
+  PositionRouterSetEventObject
+>;
+
+export type PositionRouterSetEventFilter =
+  TypedEventFilter<PositionRouterSetEvent>;
+
 export interface PositionUpdatedEventObject {
+  thrower: string;
   currentNetDelta: BigNumber;
   expectedNetDelta: BigNumber;
   modifiedDelta: BigNumber;
   isIncrease: boolean;
 }
 export type PositionUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber, BigNumber, boolean],
+  [string, BigNumber, BigNumber, BigNumber, boolean],
   PositionUpdatedEventObject
 >;
 
@@ -655,6 +833,17 @@ export type QuoteReturnedToLPEvent = TypedEvent<
 
 export type QuoteReturnedToLPEventFilter =
   TypedEventFilter<QuoteReturnedToLPEvent>;
+
+export interface WETHSoldEventObject {
+  amountWeth: BigNumber;
+  quoteReceived: BigNumber;
+}
+export type WETHSoldEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  WETHSoldEventObject
+>;
+
+export type WETHSoldEventFilter = TypedEventFilter<WETHSoldEvent>;
 
 export interface PoolHedger extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -683,6 +872,8 @@ export interface PoolHedger extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    BASIS_POINTS_DIVISOR(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     GMX_PRICE_PRECISION(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     acceptOwnership(
@@ -693,7 +884,7 @@ export interface PoolHedger extends BaseContract {
 
     canHedge(
       arg0: PromiseOrValue<BigNumberish>,
-      deltaIncreasing: PromiseOrValue<boolean>,
+      increasesPoolDelta: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -713,12 +904,14 @@ export interface PoolHedger extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
         boolean
       ] & {
         acceptableSpotSlippage: BigNumber;
         deltaThreshold: BigNumber;
         marketDepthBuffer: BigNumber;
         targetLeverage: BigNumber;
+        maxLeverage: BigNumber;
         leverageBuffer: BigNumber;
         minCancelDelay: BigNumber;
         vaultLiquidityCheckEnabled: boolean;
@@ -742,6 +935,10 @@ export interface PoolHedger extends BaseContract {
       }
     >;
 
+    getHedgerState(
+      overrides?: CallOverrides
+    ): Promise<[GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput]>;
+
     getHedgingLiquidity(
       spotPrice: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -763,6 +960,13 @@ export interface PoolHedger extends BaseContract {
         positions: GMXFuturesPoolHedger.CurrentPositionsStructOutput;
       }
     >;
+
+    getSwapFeeBP(
+      isLong: PromiseOrValue<boolean>,
+      isIncrease: PromiseOrValue<boolean>,
+      amountIn18: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { feeBP: BigNumber }>;
 
     gmxPositionCallback(
       positionKey: PromiseOrValue<BytesLike>,
@@ -790,6 +994,7 @@ export interface PoolHedger extends BaseContract {
       _router: PromiseOrValue<string>,
       _quoteAsset: PromiseOrValue<string>,
       _baseAsset: PromiseOrValue<string>,
+      _weth: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -819,6 +1024,12 @@ export interface PoolHedger extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     referralCode(overrides?: CallOverrides): Promise<[string]>;
 
     resetInteractionDelay(
@@ -841,6 +1052,11 @@ export interface PoolHedger extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setPositionRouter(
+      _positionRouter: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setReferralCode(
       _referralCode: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -851,7 +1067,11 @@ export interface PoolHedger extends BaseContract {
     ): Promise<ContractTransaction>;
 
     vault(overrides?: CallOverrides): Promise<[string]>;
+
+    weth(overrides?: CallOverrides): Promise<[string]>;
   };
+
+  BASIS_POINTS_DIVISOR(overrides?: CallOverrides): Promise<BigNumber>;
 
   GMX_PRICE_PRECISION(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -863,7 +1083,7 @@ export interface PoolHedger extends BaseContract {
 
   canHedge(
     arg0: PromiseOrValue<BigNumberish>,
-    deltaIncreasing: PromiseOrValue<boolean>,
+    increasesPoolDelta: PromiseOrValue<boolean>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -883,12 +1103,14 @@ export interface PoolHedger extends BaseContract {
       BigNumber,
       BigNumber,
       BigNumber,
+      BigNumber,
       boolean
     ] & {
       acceptableSpotSlippage: BigNumber;
       deltaThreshold: BigNumber;
       marketDepthBuffer: BigNumber;
       targetLeverage: BigNumber;
+      maxLeverage: BigNumber;
       leverageBuffer: BigNumber;
       minCancelDelay: BigNumber;
       vaultLiquidityCheckEnabled: boolean;
@@ -912,6 +1134,10 @@ export interface PoolHedger extends BaseContract {
     }
   >;
 
+  getHedgerState(
+    overrides?: CallOverrides
+  ): Promise<GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput>;
+
   getHedgingLiquidity(
     spotPrice: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -929,6 +1155,13 @@ export interface PoolHedger extends BaseContract {
   getPositions(
     overrides?: CallOverrides
   ): Promise<GMXFuturesPoolHedger.CurrentPositionsStructOutput>;
+
+  getSwapFeeBP(
+    isLong: PromiseOrValue<boolean>,
+    isIncrease: PromiseOrValue<boolean>,
+    amountIn18: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   gmxPositionCallback(
     positionKey: PromiseOrValue<BytesLike>,
@@ -956,6 +1189,7 @@ export interface PoolHedger extends BaseContract {
     _router: PromiseOrValue<string>,
     _quoteAsset: PromiseOrValue<string>,
     _baseAsset: PromiseOrValue<string>,
+    _weth: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -985,6 +1219,12 @@ export interface PoolHedger extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  recoverFunds(
+    token: PromiseOrValue<string>,
+    recipient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   referralCode(overrides?: CallOverrides): Promise<string>;
 
   resetInteractionDelay(
@@ -1007,6 +1247,11 @@ export interface PoolHedger extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setPositionRouter(
+    _positionRouter: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setReferralCode(
     _referralCode: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1018,7 +1263,11 @@ export interface PoolHedger extends BaseContract {
 
   vault(overrides?: CallOverrides): Promise<string>;
 
+  weth(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
+    BASIS_POINTS_DIVISOR(overrides?: CallOverrides): Promise<BigNumber>;
+
     GMX_PRICE_PRECISION(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptOwnership(overrides?: CallOverrides): Promise<void>;
@@ -1027,7 +1276,7 @@ export interface PoolHedger extends BaseContract {
 
     canHedge(
       arg0: PromiseOrValue<BigNumberish>,
-      deltaIncreasing: PromiseOrValue<boolean>,
+      increasesPoolDelta: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1045,12 +1294,14 @@ export interface PoolHedger extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
         boolean
       ] & {
         acceptableSpotSlippage: BigNumber;
         deltaThreshold: BigNumber;
         marketDepthBuffer: BigNumber;
         targetLeverage: BigNumber;
+        maxLeverage: BigNumber;
         leverageBuffer: BigNumber;
         minCancelDelay: BigNumber;
         vaultLiquidityCheckEnabled: boolean;
@@ -1074,6 +1325,10 @@ export interface PoolHedger extends BaseContract {
       }
     >;
 
+    getHedgerState(
+      overrides?: CallOverrides
+    ): Promise<GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput>;
+
     getHedgingLiquidity(
       spotPrice: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1091,6 +1346,13 @@ export interface PoolHedger extends BaseContract {
     getPositions(
       overrides?: CallOverrides
     ): Promise<GMXFuturesPoolHedger.CurrentPositionsStructOutput>;
+
+    getSwapFeeBP(
+      isLong: PromiseOrValue<boolean>,
+      isIncrease: PromiseOrValue<boolean>,
+      amountIn18: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     gmxPositionCallback(
       positionKey: PromiseOrValue<BytesLike>,
@@ -1116,6 +1378,7 @@ export interface PoolHedger extends BaseContract {
       _router: PromiseOrValue<string>,
       _quoteAsset: PromiseOrValue<string>,
       _baseAsset: PromiseOrValue<string>,
+      _weth: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1145,6 +1408,12 @@ export interface PoolHedger extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     referralCode(overrides?: CallOverrides): Promise<string>;
 
     resetInteractionDelay(overrides?: CallOverrides): Promise<void>;
@@ -1163,6 +1432,11 @@ export interface PoolHedger extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setPositionRouter(
+      _positionRouter: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setReferralCode(
       _referralCode: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1171,6 +1445,8 @@ export interface PoolHedger extends BaseContract {
     updateCollateral(overrides?: CallOverrides): Promise<void>;
 
     vault(overrides?: CallOverrides): Promise<string>;
+
+    weth(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -1188,6 +1464,13 @@ export interface PoolHedger extends BaseContract {
       collateralDelta?: null
     ): CollateralOrderPostedEventFilter;
 
+    "FuturesPoolHedgerParamsSet(tuple)"(
+      futuresPoolHedgerParams?: null
+    ): FuturesPoolHedgerParamsSetEventFilter;
+    FuturesPoolHedgerParamsSet(
+      futuresPoolHedgerParams?: null
+    ): FuturesPoolHedgerParamsSetEventFilter;
+
     "GMXPositionCallback(bytes32,bool,bool,tuple)"(
       positionKey?: null,
       isExecuted?: null,
@@ -1203,9 +1486,6 @@ export interface PoolHedger extends BaseContract {
 
     "HedgerPosition(tuple)"(position?: null): HedgerPositionEventFilter;
     HedgerPosition(position?: null): HedgerPositionEventFilter;
-
-    "MaxLeverageSet(uint256)"(targetLeverage?: null): MaxLeverageSetEventFilter;
-    MaxLeverageSet(targetLeverage?: null): MaxLeverageSetEventFilter;
 
     "OrderCanceled(bytes32,bool)"(
       pendingOrderKey?: null,
@@ -1247,13 +1527,20 @@ export interface PoolHedger extends BaseContract {
       poolHedgerParams?: null
     ): PoolHedgerParametersSetEventFilter;
 
-    "PositionUpdated(int256,int256,uint256,bool)"(
+    "PositionRouterSet(address)"(
+      positionRouter?: null
+    ): PositionRouterSetEventFilter;
+    PositionRouterSet(positionRouter?: null): PositionRouterSetEventFilter;
+
+    "PositionUpdated(address,int256,int256,uint256,bool)"(
+      thrower?: null,
       currentNetDelta?: null,
       expectedNetDelta?: null,
       modifiedDelta?: null,
       isIncrease?: null
     ): PositionUpdatedEventFilter;
     PositionUpdated(
+      thrower?: null,
       currentNetDelta?: null,
       expectedNetDelta?: null,
       modifiedDelta?: null,
@@ -1264,9 +1551,17 @@ export interface PoolHedger extends BaseContract {
       amountQuote?: null
     ): QuoteReturnedToLPEventFilter;
     QuoteReturnedToLP(amountQuote?: null): QuoteReturnedToLPEventFilter;
+
+    "WETHSold(uint256,uint256)"(
+      amountWeth?: null,
+      quoteReceived?: null
+    ): WETHSoldEventFilter;
+    WETHSold(amountWeth?: null, quoteReceived?: null): WETHSoldEventFilter;
   };
 
   estimateGas: {
+    BASIS_POINTS_DIVISOR(overrides?: CallOverrides): Promise<BigNumber>;
+
     GMX_PRICE_PRECISION(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptOwnership(
@@ -1277,7 +1572,7 @@ export interface PoolHedger extends BaseContract {
 
     canHedge(
       arg0: PromiseOrValue<BigNumberish>,
-      deltaIncreasing: PromiseOrValue<boolean>,
+      increasesPoolDelta: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1297,6 +1592,8 @@ export interface PoolHedger extends BaseContract {
 
     getCurrentLeverage(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getHedgerState(overrides?: CallOverrides): Promise<BigNumber>;
+
     getHedgingLiquidity(
       spotPrice: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1305,6 +1602,13 @@ export interface PoolHedger extends BaseContract {
     getPoolHedgerParams(overrides?: CallOverrides): Promise<BigNumber>;
 
     getPositions(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getSwapFeeBP(
+      isLong: PromiseOrValue<boolean>,
+      isIncrease: PromiseOrValue<boolean>,
+      amountIn18: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     gmxPositionCallback(
       positionKey: PromiseOrValue<BytesLike>,
@@ -1332,6 +1636,7 @@ export interface PoolHedger extends BaseContract {
       _router: PromiseOrValue<string>,
       _quoteAsset: PromiseOrValue<string>,
       _baseAsset: PromiseOrValue<string>,
+      _weth: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1361,6 +1666,12 @@ export interface PoolHedger extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     referralCode(overrides?: CallOverrides): Promise<BigNumber>;
 
     resetInteractionDelay(
@@ -1383,6 +1694,11 @@ export interface PoolHedger extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setPositionRouter(
+      _positionRouter: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setReferralCode(
       _referralCode: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1393,9 +1709,15 @@ export interface PoolHedger extends BaseContract {
     ): Promise<BigNumber>;
 
     vault(overrides?: CallOverrides): Promise<BigNumber>;
+
+    weth(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    BASIS_POINTS_DIVISOR(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     GMX_PRICE_PRECISION(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1408,7 +1730,7 @@ export interface PoolHedger extends BaseContract {
 
     canHedge(
       arg0: PromiseOrValue<BigNumberish>,
-      deltaIncreasing: PromiseOrValue<boolean>,
+      increasesPoolDelta: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1438,6 +1760,8 @@ export interface PoolHedger extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getHedgerState(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     getHedgingLiquidity(
       spotPrice: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1448,6 +1772,13 @@ export interface PoolHedger extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getPositions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getSwapFeeBP(
+      isLong: PromiseOrValue<boolean>,
+      isIncrease: PromiseOrValue<boolean>,
+      amountIn18: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     gmxPositionCallback(
       positionKey: PromiseOrValue<BytesLike>,
@@ -1479,6 +1810,7 @@ export interface PoolHedger extends BaseContract {
       _router: PromiseOrValue<string>,
       _quoteAsset: PromiseOrValue<string>,
       _baseAsset: PromiseOrValue<string>,
+      _weth: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1510,6 +1842,12 @@ export interface PoolHedger extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     referralCode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     resetInteractionDelay(
@@ -1532,6 +1870,11 @@ export interface PoolHedger extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setPositionRouter(
+      _positionRouter: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setReferralCode(
       _referralCode: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1542,5 +1885,7 @@ export interface PoolHedger extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     vault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    weth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

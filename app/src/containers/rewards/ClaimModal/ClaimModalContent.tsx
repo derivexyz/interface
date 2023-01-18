@@ -14,37 +14,37 @@ import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
 
 type Props = {
   isOpChecked: boolean
-  isStkLyraChecked: boolean
+  isOldStkLyraChecked: boolean
+  isNewStkLyraChecked: boolean
   isWethLyraChecked: boolean
-  isLyraChecked: boolean
   onClickOp: () => void
-  onClickStkLyra: () => void
+  onClickNewStkLyra: () => void
   onClickWethLyra: () => void
-  onClickLyra: () => void
+  onClickOldStkLyra: () => void
 }
 
 const ClaimModalContent = withSuspense(
   ({
     isOpChecked,
-    isLyraChecked,
-    isStkLyraChecked,
+    isOldStkLyraChecked,
+    isNewStkLyraChecked,
     isWethLyraChecked,
-    onClickStkLyra,
+    onClickNewStkLyra,
     onClickOp,
-    onClickLyra,
+    onClickOldStkLyra,
     onClickWethLyra,
   }: Props) => {
     const claimableBalances = useClaimableBalances()
     const wethLyraAccount = useAccountWethLyraStaking()
     const isDistributorRewardsDisabled = isWethLyraChecked
-    const isWethLyraDisabled = isOpChecked || isStkLyraChecked || isLyraChecked
+    const isWethLyraDisabled = isOpChecked || isNewStkLyraChecked || isOldStkLyraChecked
     return (
       <Box>
-        {claimableBalances.lyra.gt(0) ? (
+        {claimableBalances.oldStkLyra.gt(0) ? (
           <Card
             variant="nested"
             mb={6}
-            onClick={onClickLyra}
+            onClick={onClickOldStkLyra}
             sx={{
               cursor: !isDistributorRewardsDisabled ? 'pointer' : null,
               ':hover': { bg: !isDistributorRewardsDisabled ? 'active' : null },
@@ -56,20 +56,24 @@ const ClaimModalContent = withSuspense(
               <Flex alignItems="center" justifyContent="space-between">
                 <Box>
                   <Text variant="secondary" color="secondaryText">
-                    Lyra Rewards
+                    Old stkLyra Rewards
                   </Text>
-                  <TokenAmountText tokenNameOrAddress="lyra" amount={claimableBalances.lyra} mt={4} />
+                  <TokenAmountText tokenNameOrAddress="lyra" amount={claimableBalances.oldStkLyra} mt={4} />
                 </Box>
-                <Checkbox isDisabled={isDistributorRewardsDisabled} checked={isLyraChecked} onToggle={onClickLyra} />
+                <Checkbox
+                  isDisabled={isDistributorRewardsDisabled}
+                  checked={isOldStkLyraChecked}
+                  onToggle={onClickOldStkLyra}
+                />
               </Flex>
             </CardBody>
           </Card>
         ) : null}
-        {claimableBalances.stkLyra.gt(0) ? (
+        {claimableBalances.newStkLyra.gt(0) ? (
           <Card
             variant="nested"
             mb={6}
-            onClick={onClickStkLyra}
+            onClick={onClickNewStkLyra}
             sx={{
               cursor: !isDistributorRewardsDisabled ? 'pointer' : null,
               ':hover': { bg: !isDistributorRewardsDisabled ? 'active' : null },
@@ -81,14 +85,14 @@ const ClaimModalContent = withSuspense(
               <Flex alignItems="center" justifyContent="space-between">
                 <Box>
                   <Text variant="secondary" color="secondaryText">
-                    stkLyra Rewards
+                    New stkLyra Rewards
                   </Text>
-                  <TokenAmountText tokenNameOrAddress="stkLyra" amount={claimableBalances.stkLyra} mt={4} />
+                  <TokenAmountText tokenNameOrAddress="stkLyra" amount={claimableBalances.newStkLyra} mt={4} />
                 </Box>
                 <Checkbox
                   isDisabled={isDistributorRewardsDisabled}
-                  checked={isStkLyraChecked}
-                  onToggle={onClickStkLyra}
+                  checked={isNewStkLyraChecked}
+                  onToggle={onClickNewStkLyra}
                 />
               </Flex>
             </CardBody>

@@ -1,9 +1,8 @@
-import Button from '@lyra/ui/components/Button'
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import { DropdownIconButtonElement } from '@lyra/ui/components/Button/DropdownIconButton'
-import Spinner from '@lyra/ui/components/Spinner'
 import { Market } from '@lyrafinance/lyra-js'
+import { getAddress } from 'ethers/lib/utils'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import MarketImage from '@/app/components/common/MarketImage'
@@ -12,6 +11,7 @@ import { LogEvent } from '@/app/constants/logEvents'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarkets from '@/app/hooks/market/useMarkets'
+import emptyFunction from '@/app/utils/emptyFunction'
 import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 import logEvent from '@/app/utils/logEvent'
@@ -39,8 +39,8 @@ const TradeMarketDropdown = withSuspense(
         textVariant="title"
         ml={-3} // Hack to offset button border radius
         isTransparent
-        label={getMarketDisplayName(selectedMarket.name)}
-        leftIcon={<MarketImage size={32} name={selectedMarket.name} />}
+        label={getMarketDisplayName(selectedMarket)}
+        leftIcon={<MarketImage market={selectedMarket} />}
       >
         {filteredMarkets.map(market => (
           <DropdownButtonListItem
@@ -50,9 +50,9 @@ const TradeMarketDropdown = withSuspense(
               onClose()
             }}
             key={market.address}
-            isSelected={market.address === selectedMarket.address}
-            label={<MarketLabel marketName={market.name} />}
-            href={getPagePath({ page: PageId.Trade, marketAddressOrName: market.name })}
+            isSelected={market.address === getAddress(selectedMarket.address)}
+            label={<MarketLabel market={market} />}
+            href={getPagePath({ page: PageId.Trade, network: market.lyra.network, marketAddressOrName: market.name })}
             rightContent={<TradeMarketDropdownSpotPrice market={market} />}
           />
         ))}
@@ -60,15 +60,17 @@ const TradeMarketDropdown = withSuspense(
     )
   },
   ({ selectedMarket, onChangeMarket, ...styleProps }) => (
-    <Button
+    <DropdownButton
       {...styleProps}
+      isOpen={false}
+      onClose={emptyFunction}
+      onClick={emptyFunction}
       size="lg"
       textVariant="title"
       ml={-3} // Hack to offset button border radius
       isTransparent
-      rightIcon={<Spinner size="sm" />}
-      label={getMarketDisplayName(selectedMarket.name)}
-      leftIcon={<MarketImage size={32} name={selectedMarket.name} />}
+      label={getMarketDisplayName(selectedMarket)}
+      leftIcon={<MarketImage market={selectedMarket} />}
     />
   )
 )

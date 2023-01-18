@@ -1,7 +1,7 @@
 import Box from '@lyra/ui/components/Box'
 import Button, { ButtonElement } from '@lyra/ui/components/Button'
+import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
-import useFontSize from '@lyra/ui/hooks/useFontSize'
 import { MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
@@ -10,10 +10,10 @@ import React from 'react'
 
 import emptyFunction from '@/app/utils/emptyFunction'
 import fromBigNumber from '@/app/utils/fromBigNumber'
+import getIsQuoteHidden from '@/app/utils/getIsQuoteHidden'
 
 type Props = {
-  quote: Quote
-  isBid: boolean
+  quote: Quote | null // Renders empty button for invalid quotes
   isSelected: boolean
   onSelected: (isSelected: boolean) => void
 } & MarginProps
@@ -21,41 +21,31 @@ type Props = {
 export default function TradeChainPriceButton({
   quote,
   isSelected,
-  isBid,
   onSelected = emptyFunction,
   ...styleProps
 }: Props): ButtonElement {
-  const secondaryLineHeight = useFontSize('secondary')
-  const smallLineHeight = useFontSize('small')
   return (
     <Button
-      minHeight={42}
-      variant={isBid ? 'error' : 'primary'}
+      width="100%"
+      variant={quote?.isBuy ? 'primary' : 'error'}
       textVariant="secondary"
-      isTransparent={!isSelected}
-      isDisabled={quote.isDisabled}
+      size="small"
+      isOutline={!isSelected}
+      isDisabled={!quote ? true : quote.disabledReason ? getIsQuoteHidden(quote.disabledReason) : false}
       label={
         <Box>
-          <Text variant="secondary" sx={{ lineHeight: `${secondaryLineHeight}px` }}>
-            {formatUSD(quote.premium)} {!isSelected ? '+' : '✓'}
+          <Text textAlign="left" variant="secondary">
+            {quote ? formatUSD(quote.premium) : 'Disabled'}
           </Text>
-          <Text
-            mt={1}
-            textAlign="left"
-            variant="small"
-            color={isSelected ? 'inherit' : 'secondaryText'}
-            sx={{ lineHeight: `${smallLineHeight}px` }}
-          >
-            {formatPercentage(fromBigNumber(quote.iv), true)}
+          <Text textAlign="left" variant="small" color={!quote || isSelected ? 'inherit' : 'secondaryText'}>
+            {quote ? formatPercentage(fromBigNumber(quote.iv), true) : 'N/A'}
           </Text>
         </Box>
       }
-      onClick={e => {
-        e.preventDefault()
-        e.stopPropagation()
-        e.nativeEvent.stopPropagation()
-        onSelected(!isSelected)
-      }}
+      rightIcon={!isSelected ? IconType.Plus : IconType.Check}
+      rightIconSpacing={1}
+      showRightIconSeparator
+      onClick={() => onSelected(!isSelected)}
       {...styleProps}
     />
   )

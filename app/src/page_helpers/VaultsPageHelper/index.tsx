@@ -1,53 +1,40 @@
-import Card from '@lyra/ui/components/Card'
 import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import { Market } from '@lyrafinance/lyra-js'
-import React, { useState } from 'react'
+import React from 'react'
 
 import MarketImage from '@/app/components/common/MarketImage'
 import VaultInfoCardRow from '@/app/components/common/VaultInfoCardRow'
-import VaultsDepositAndWithdrawForm from '@/app/containers/vaults/VaultsDepositAndWithdrawForm'
+import VaultsChartCard from '@/app/containers/vaults/VaultsChartCard'
 import VaultsMarketDropdown from '@/app/containers/vaults/VaultsMarketDropdown'
 import VaultsMyLiquidityCard from '@/app/containers/vaults/VaultsMyLiquidityCard'
 import VaultsStatsCard from '@/app/containers/vaults/VaultsStatsCard'
-import VaultsStatsChartCard from '@/app/containers/vaults/VaultsStatsChartCard'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
 
 type Props = {
   market: Market
 }
 
 const VaultsPageHelper = ({ market }: Props) => {
-  const [isDeposit, setIsDeposit] = useState(true)
-
   return (
-    <Layout
+    <Page
       header={<VaultsMarketDropdown selectedMarket={market} />}
-      desktopRightColumn={
-        <Card overflowY="auto" overflowX="hidden">
-          <VaultsDepositAndWithdrawForm
-            marketAddressOrName={market.name}
-            isDeposit={isDeposit}
-            onToggleDeposit={setIsDeposit}
-          />
-        </Card>
-      }
       mobileCollapsedHeader={
         <Flex alignItems="center">
-          <MarketImage mr={2} name={market.name} size={18} />
+          <MarketImage mr={2} market={market} size={18} />
           <Text>{market.name.toUpperCase()} Vault</Text>
         </Flex>
       }
     >
-      <LayoutGrid>
-        <VaultsStatsChartCard marketAddressOrName={market.address} />
-        <VaultsMyLiquidityCard marketAddressOrName={market.address} />
-        <VaultsStatsCard marketAddressOrName={market.address} />
+      <PageGrid>
+        <VaultsChartCard market={market} />
+        <VaultsMyLiquidityCard market={market} />
+        <VaultsStatsCard market={market} />
         <VaultInfoCardRow />
-      </LayoutGrid>
-    </Layout>
+      </PageGrid>
+    </Page>
   )
 }
 

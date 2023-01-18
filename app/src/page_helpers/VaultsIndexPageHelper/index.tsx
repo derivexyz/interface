@@ -1,25 +1,21 @@
 import React from 'react'
 
 import VaultInfoCardRow from '@/app/components/common/VaultInfoCardRow'
-import RewardsLastUpdatedAlert from '@/app/containers/common/RewardsLastUpdatedAlert'
-import VaultsIndexMarketsCard from '@/app/containers/vaults_index/VaultsIndexMarketsCard'
-import VaultsIndexMyLiquidityCard from '@/app/containers/vaults_index/VaultsIndexMyLiquidityCard'
-import VaultsIndexTVLChartCard from '@/app/containers/vaults_index/VaultsIndexTVLChartCard'
+import VaultsIndexChartCard from '@/app/containers/vaults_index/VaultsIndexChartCard'
+import VaultsIndexTableCard from '@/app/containers/vaults_index/VaultsIndexTableCard'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
 
 const VaultsIndexPageHelper = () => {
   return (
-    <Layout desktopHeader="Vaults" mobileHeader="Vaults" mobileCollapsedHeader="Vaults">
-      <LayoutGrid>
-        <RewardsLastUpdatedAlert />
-        <VaultsIndexTVLChartCard />
-        <VaultsIndexMyLiquidityCard />
-        <VaultsIndexMarketsCard />
+    <Page header="Vaults">
+      <PageGrid>
+        <VaultsIndexChartCard />
+        <VaultsIndexTableCard />
         <VaultInfoCardRow />
-      </LayoutGrid>
-    </Layout>
+      </PageGrid>
+    </Page>
   )
 }
 

@@ -28,7 +28,7 @@ export default function CircularProgress({
 
   return (
     <Box width={outerRadius * 2} height={outerRadius * 2} {...styleProps}>
-      <svg width={outerRadius * 2} height={outerRadius * 2} style={{ transform: 'scale(-1,1) rotate(-90deg)' }}>
+      <svg width={outerRadius * 2} height={outerRadius * 2} style={{ transform: 'scale(1,1) rotate(-90deg)' }}>
         <circle
           id="donut"
           cx={outerRadius}

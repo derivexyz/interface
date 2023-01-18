@@ -1,11 +1,6 @@
-import Button from '@lyra/ui/components/Button'
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import { DropdownIconButtonElement } from '@lyra/ui/components/Button/DropdownIconButton'
-import Flex from '@lyra/ui/components/Flex'
-import Spinner from '@lyra/ui/components/Spinner'
-import Text from '@lyra/ui/components/Text'
-import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import { Market } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo, useState } from 'react'
 
@@ -13,7 +8,7 @@ import MarketImage from '@/app/components/common/MarketImage'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarkets from '@/app/hooks/market/useMarkets'
-import useMarketsLiquidity from '@/app/hooks/market/useMarketsLiquidity'
+import emptyFunction from '@/app/utils/emptyFunction'
 import getPagePath from '@/app/utils/getPagePath'
 
 type Props = {
@@ -25,7 +20,6 @@ const VaultsMarketDropdown = withSuspense(
     const [isOpen, setIsOpen] = useState(false)
     const onClose = useCallback(() => setIsOpen(false), [])
     const markets = useMarkets()
-    const marketsLiquidity = useMarketsLiquidity()
     const filteredMarkets = useMemo(() => markets.filter(market => market.liveBoards().length > 0), [markets])
     return (
       <DropdownButton
@@ -37,43 +31,34 @@ const VaultsMarketDropdown = withSuspense(
         textVariant="title"
         ml={-3} // Hack to offset button border radius
         isTransparent
-        label={
-          <Flex alignItems="flex-start" flexDirection="column">
-            <Text variant="title">{`${selectedMarket.baseToken.symbol} Vault`}</Text>
-          </Flex>
-        }
-        leftIcon={<MarketImage size={32} name={selectedMarket.name} />}
+        label={`${selectedMarket.baseToken.symbol} Vault`}
+        leftIcon={<MarketImage market={selectedMarket} />}
       >
         {filteredMarkets.map(market => (
           <DropdownButtonListItem
             key={market.address}
             isSelected={market.address === selectedMarket.address}
             label={`${market.baseToken.symbol} Vault`}
-            href={getPagePath({ page: PageId.Vaults, marketAddressOrName: market.name })}
+            href={getPagePath({ page: PageId.Vaults, network: market.lyra.network, marketAddressOrName: market.name })}
             onClick={onClose}
-            icon={<MarketImage size={32} name={market.name} />}
-            rightContent={
-              <Flex width={80} flexDirection="column" alignItems="flex-end">
-                <Text variant="secondary">
-                  {formatTruncatedUSD(marketsLiquidity ? marketsLiquidity[market.address].nav : 0)}
-                </Text>
-              </Flex>
-            }
+            icon={<MarketImage market={market} />}
           />
         ))}
       </DropdownButton>
     )
   },
   ({ selectedMarket, ...styleProps }) => (
-    <Button
+    <DropdownButton
       {...styleProps}
+      isOpen={false}
+      onClose={emptyFunction}
+      onClick={emptyFunction}
       size="lg"
       textVariant="title"
       ml={-3} // Hack to offset button border radius
       isTransparent
-      rightIcon={<Spinner size="sm" />}
-      label={`${selectedMarket.name} Vault`}
-      leftIcon={<MarketImage size={32} name={selectedMarket.name} />}
+      label={`${selectedMarket.baseToken.symbol} Vault`}
+      leftIcon={<MarketImage market={selectedMarket} />}
     />
   )
 )

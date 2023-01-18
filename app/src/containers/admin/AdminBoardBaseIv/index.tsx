@@ -23,10 +23,10 @@ type Props = {
 
 export default function AdminBoardBaseIv({ market, board, owner, onUpdateBoard }: Props) {
   const { account, isConnected } = useWallet()
-  const admin = useAdmin()
+  const admin = useAdmin(market.lyra.network)
   const [baseIv, setBaseIv] = useState(ZERO_BN)
   const [isLoading, setIsLoading] = useState(false)
-  const execute = useAdminTransaction(owner)
+  const execute = useAdminTransaction(market.lyra.network, owner)
 
   return (
     <Card mx={8} mt={4}>

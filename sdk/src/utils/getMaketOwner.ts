@@ -7,6 +7,11 @@ export default async function getMarketOwner(
   lyra: Lyra,
   marketContractAddresses: MarketContractAddresses
 ): Promise<string> {
-  const optionMarket = getLyraMarketContract(lyra, marketContractAddresses, LyraMarketContractId.OptionMarket)
+  const optionMarket = getLyraMarketContract(
+    lyra,
+    marketContractAddresses,
+    lyra.version,
+    LyraMarketContractId.OptionMarket
+  )
   return await optionMarket.owner()
 }

@@ -18,7 +18,7 @@ type Props = { market: Market }
 
 const AdminMarketBoardsInfo = withSuspense(
   ({ market }: Props) => {
-    const boards = useLiveBoards(market.address)
+    const boards = useLiveBoards(market)
     if (!boards) {
       return (
         <Card mx={8} mt={4} p={4}>
@@ -36,7 +36,12 @@ const AdminMarketBoardsInfo = withSuspense(
             {boards.map(board => (
               <ListItem
                 key={board.id}
-                href={getPagePath({ page: PageId.AdminBoard, marketAddressOrName: market.name, boardId: board.id })}
+                href={getPagePath({
+                  page: PageId.AdminBoard,
+                  network: market.lyra.network,
+                  marketAddressOrName: market.name,
+                  boardId: board.id,
+                })}
                 label={
                   <Box>
                     <Text>Board #{board.id}</Text>

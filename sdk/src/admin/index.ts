@@ -1,19 +1,19 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { ContractInterface, PopulatedTransaction } from '@ethersproject/contracts'
+import { PopulatedTransaction } from '@ethersproject/contracts'
 
 import Lyra, { Market, MarketContractAddresses, Version } from '..'
-import { LyraContractId, LyraMarketContractId } from '../constants/contracts'
+import { LyraContractId, LyraGlobalContractId, LyraMarketContractId } from '../constants/contracts'
+import { LyraContractMap, LyraMarketContractMap } from '../constants/mappings'
 import { PoolHedger } from '../contracts/avalon/typechain/ShortPoolHedger'
-import { LyraRegistry } from '../contracts/common/typechain'
+import { LyraRegistry } from '../contracts/newport/typechain'
 import { OptionGreekCache, OptionMarketPricer, OptionMarketViewer, OptionToken } from '../contracts/newport/typechain'
 import buildTx from '../utils/buildTx'
+import fetchMarketView from '../utils/fetchMarketView'
+import getGlobalContract from '../utils/getGlobalContract'
 import getGlobalOwner from '../utils/getGlobalOwner'
 import getLyraContract from '../utils/getLyraContract'
-import getLyraContractABI from '../utils/getLyraContractABI'
-import getLyraContractAddress from '../utils/getLyraContractAddress'
 import getLyraMarketContract from '../utils/getLyraMarketContract'
 import getLyraMarketContractForAddress from '../utils/getLyraMarketContractForAddress'
-import getMarketView from '../utils/getMarketView'
 
 export type MarketGlobalCache = {
   minUpdatedAt: BigNumber
@@ -138,42 +138,41 @@ export class Admin {
     return new Admin(lyra)
   }
 
-  getLyraContractABI(contractId: LyraContractId | LyraMarketContractId): ContractInterface {
-    return getLyraContractABI(this.lyra.version, contractId)
-  }
-  getLyraContractAddress(contractId: LyraContractId): ContractInterface {
-    return getLyraContractAddress(this.lyra, contractId)
-  }
-  getLyraContract(contractId: LyraContractId) {
-    return getLyraContract(this.lyra, contractId)
+  getLyraContract<V extends Version, C extends LyraContractId>(version: V, contractId: C): LyraContractMap<V, C> {
+    return getLyraContract(this.lyra, version, contractId) as LyraContractMap<V, C>
   }
 
-  getLyraMarketContract(marketContractAddresses: MarketContractAddresses, contractId: LyraMarketContractId) {
-    return getLyraMarketContract(this.lyra, marketContractAddresses, contractId)
+  getGlobalContract(contractId: LyraGlobalContractId) {
+    return getGlobalContract(this.lyra, contractId)
   }
 
-  getLyraMarketContractForAddress(marketContractAddresses: MarketContractAddresses, contractAddress: string) {
-    return getLyraMarketContractForAddress(this.lyra, marketContractAddresses, contractAddress)
+  getMarketContract<V extends Version, C extends LyraMarketContractId>(
+    marketContractAddresses: MarketContractAddresses,
+    version: V,
+    contractId: C
+  ): LyraMarketContractMap<V, C> {
+    return getLyraMarketContract(this.lyra, marketContractAddresses, version, contractId)
+  }
+
+  getMarketContractForAddress<V extends Version>(
+    marketContractAddresses: MarketContractAddresses,
+    version: V,
+    contractAddress: string
+  ) {
+    return getLyraMarketContractForAddress(this.lyra, version, marketContractAddresses, contractAddress)
   }
 
   async globalOwner(): Promise<string> {
     return await getGlobalOwner(this.lyra)
   }
 
-  getExchangeAdapter() {
-    if (this.lyra.version === Version.Avalon) {
-      return getLyraContract(this.lyra, LyraContractId.SynthetixAdapter)
-    }
-    return getLyraContract(this.lyra, LyraContractId.ExchangeAdapter)
-  }
-
   async isMarketPaused(marketAddress: string): Promise<boolean> {
-    const exchangeAdapter = this.getExchangeAdapter()
+    const exchangeAdapter = this.getLyraContract(this.lyra.version, LyraContractId.ExchangeAdapter)
     return await exchangeAdapter.isMarketPaused(marketAddress)
   }
 
   async isGlobalPaused(): Promise<boolean> {
-    const exchangeAdapter = this.getExchangeAdapter()
+    const exchangeAdapter = this.getLyraContract(this.lyra.version, LyraContractId.ExchangeAdapter)
     return await exchangeAdapter.isGlobalPaused()
   }
 
@@ -182,6 +181,7 @@ export class Admin {
     const optionGreekCache = getLyraMarketContract(
       this.lyra,
       market.contractAddresses,
+      this.lyra.version,
       LyraMarketContractId.OptionGreekCache
     )
     const [isGlobalCacheStale, globalCache] = await Promise.all([
@@ -192,9 +192,15 @@ export class Admin {
   }
 
   setGlobalPaused(account: string, isPaused: boolean): PopulatedTransaction {
-    const exchangeAdapter = this.getExchangeAdapter()
+    const exchangeAdapter = this.getLyraContract(this.lyra.version, LyraContractId.ExchangeAdapter)
     const calldata = exchangeAdapter.interface.encodeFunctionData('setGlobalPaused', [isPaused])
-    const tx = buildTx(this.lyra, exchangeAdapter.address, account, calldata)
+    const tx = buildTx(
+      this.lyra.provider,
+      this.lyra.provider.network.chainId,
+      exchangeAdapter.address,
+      account,
+      calldata
+    )
     return {
       ...tx,
       gasLimit: BigNumber.from(10_000_000),
@@ -202,28 +208,15 @@ export class Admin {
   }
 
   setMarketPaused(account: string, marketAddress: string, isPaused: boolean): PopulatedTransaction {
-    const exchangeAdapter = this.getExchangeAdapter()
+    const exchangeAdapter = this.getLyraContract(this.lyra.version, LyraContractId.ExchangeAdapter)
     const calldata = exchangeAdapter.interface.encodeFunctionData('setMarketPaused', [marketAddress, isPaused])
-    const tx = buildTx(this.lyra, exchangeAdapter.address, account, calldata)
-    return {
-      ...tx,
-      gasLimit: BigNumber.from(10_000_000),
-    }
-  }
-
-  addMarketToWrapper(
-    account: string,
-    id: number,
-    newMarketAddresses: OptionMarketViewer.OptionMarketAddressesStruct
-  ): PopulatedTransaction {
-    const { optionMarket, quoteAsset, baseAsset, optionToken, liquidityPool, liquidityToken } = newMarketAddresses
-    const wrapper = getLyraContract(this.lyra, LyraContractId.OptionMarketWrapper)
-    const calldata = wrapper.interface.encodeFunctionData('addMarket', [
-      optionMarket,
-      id,
-      { quoteAsset, baseAsset, optionToken, liquidityPool, liquidityToken },
-    ])
-    const tx = buildTx(this.lyra, wrapper.address, account, calldata)
+    const tx = buildTx(
+      this.lyra.provider,
+      this.lyra.provider.network.chainId,
+      exchangeAdapter.address,
+      account,
+      calldata
+    )
     return {
       ...tx,
       gasLimit: BigNumber.from(10_000_000),
@@ -234,9 +227,9 @@ export class Admin {
     account: string,
     newMarketAddresses: OptionMarketViewer.OptionMarketAddressesStruct
   ): PopulatedTransaction {
-    const viewer = getLyraContract(this.lyra, LyraContractId.OptionMarketViewer)
+    const viewer = this.getLyraContract(this.lyra.version, LyraContractId.OptionMarketViewer)
     const calldata = viewer.interface.encodeFunctionData('addMarket', [newMarketAddresses])
-    const tx = buildTx(this.lyra, viewer.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, viewer.address, account, calldata)
     return {
       ...tx,
       gasLimit: BigNumber.from(10_000_000),
@@ -247,9 +240,9 @@ export class Admin {
     account: string,
     newMarketAddresses: LyraRegistry.OptionMarketAddressesStruct
   ): PopulatedTransaction {
-    const registry = getLyraContract(this.lyra, LyraContractId.LyraRegistry)
+    const registry = this.getLyraContract(this.lyra.version, LyraContractId.LyraRegistry)
     const calldata = registry.interface.encodeFunctionData('addMarket', [newMarketAddresses])
-    const tx = buildTx(this.lyra, registry.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, registry.address, account, calldata)
     return {
       ...tx,
       gasLimit: BigNumber.from(10_000_000),
@@ -267,7 +260,12 @@ export class Admin {
     frozen: boolean = false
   ): Promise<AddBoardReturn> {
     const market = await this.lyra.market(marketAddressOrName)
-    const optionMarket = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.OptionMarket)
+    const optionMarket = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.OptionMarket
+    )
     const calldata = optionMarket.interface.encodeFunctionData('createOptionBoard', [
       expiry,
       baseIV,
@@ -275,7 +273,7 @@ export class Admin {
       skews,
       frozen,
     ])
-    const tx = buildTx(this.lyra, optionMarket.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, optionMarket.address, account, calldata)
     tx.gasLimit = BigNumber.from(10_000_000)
     return { tx, board: { expiry, baseIV, strikePrices, skews, frozen } }
   }
@@ -288,9 +286,14 @@ export class Admin {
     skew: BigNumber
   ): Promise<AddStrikeReturn> {
     const market = await this.lyra.market(marketAddresOrName)
-    const optionMarket = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.OptionMarket)
+    const optionMarket = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.OptionMarket
+    )
     const calldata = optionMarket.interface.encodeFunctionData('addStrikeToBoard', [boardId, strike, skew])
-    const tx = buildTx(this.lyra, optionMarket.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, optionMarket.address, account, calldata)
     tx.gasLimit = BigNumber.from(10_000_000)
     return {
       tx,
@@ -303,9 +306,14 @@ export class Admin {
   }
 
   setBoardPaused(market: Market, account: string, boardId: BigNumber, isPaused: boolean): PopulatedTransaction {
-    const optionMarket = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.OptionMarket)
+    const optionMarket = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.OptionMarket
+    )
     const calldata = optionMarket.interface.encodeFunctionData('setBoardFrozen', [boardId, isPaused])
-    const tx = buildTx(this.lyra, optionMarket.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, optionMarket.address, account, calldata)
     return {
       ...tx,
       gasLimit: BigNumber.from(10_000_000),
@@ -313,9 +321,14 @@ export class Admin {
   }
 
   setBoardBaseIv(market: Market, account: string, boardId: BigNumber, baseIv: BigNumber): PopulatedTransaction {
-    const optionMarket = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.OptionMarket)
+    const optionMarket = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.OptionMarket
+    )
     const calldata = optionMarket.interface.encodeFunctionData('setBoardBaseIv', [boardId, baseIv])
-    const tx = buildTx(this.lyra, optionMarket.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, optionMarket.address, account, calldata)
     return {
       ...tx,
       gasLimit: BigNumber.from(10_000_000),
@@ -327,7 +340,7 @@ export class Admin {
     account: string,
     greekCacheParams: Partial<GreekCacheParams>
   ): Promise<SetMarketParamsReturn<GreekCacheParams>> {
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toGreekCacheParams = {
       ...currMarketView.marketParameters.greekCacheParams,
       ...greekCacheParams,
@@ -335,10 +348,18 @@ export class Admin {
     const optionGreekCache = getLyraMarketContract(
       this.lyra,
       market.contractAddresses,
+      // TODO: @dappbeast Don't hardcode this version
+      Version.Newport,
       LyraMarketContractId.OptionGreekCache
     )
     const calldata = optionGreekCache.interface.encodeFunctionData('setGreekCacheParameters', [toGreekCacheParams])
-    const tx = buildTx(this.lyra, optionGreekCache.address, account, calldata)
+    const tx = buildTx(
+      this.lyra.provider,
+      this.lyra.provider.network.chainId,
+      optionGreekCache.address,
+      account,
+      calldata
+    )
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toGreekCacheParams, tx }
   }
@@ -348,7 +369,7 @@ export class Admin {
     account: string,
     forceCloseParams: Partial<ForceCloseParams>
   ): Promise<SetMarketParamsReturn<ForceCloseParams>> {
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toForceCloseParams = {
       ...currMarketView.marketParameters.forceCloseParams,
       ...forceCloseParams,
@@ -356,10 +377,17 @@ export class Admin {
     const optionGreekCache = getLyraMarketContract(
       this.lyra,
       market.contractAddresses,
+      this.lyra.version,
       LyraMarketContractId.OptionGreekCache
     )
     const calldata = optionGreekCache.interface.encodeFunctionData('setForceCloseParameters', [toForceCloseParams])
-    const tx = buildTx(this.lyra, optionGreekCache.address, account, calldata)
+    const tx = buildTx(
+      this.lyra.provider,
+      this.lyra.provider.network.chainId,
+      optionGreekCache.address,
+      account,
+      calldata
+    )
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toForceCloseParams, tx }
   }
@@ -369,7 +397,7 @@ export class Admin {
     account: string,
     minCollateralParams: Partial<MinCollateralParams>
   ): Promise<SetMarketParamsReturn<MinCollateralParams>> {
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toMinCollateralParams = {
       ...currMarketView.marketParameters.minCollatParams,
       ...minCollateralParams,
@@ -377,12 +405,19 @@ export class Admin {
     const optionGreekCache = getLyraMarketContract(
       this.lyra,
       market.contractAddresses,
+      this.lyra.version,
       LyraMarketContractId.OptionGreekCache
     )
     const calldata = optionGreekCache.interface.encodeFunctionData('setMinCollateralParameters', [
       toMinCollateralParams,
     ])
-    const tx = buildTx(this.lyra, optionGreekCache.address, account, calldata)
+    const tx = buildTx(
+      this.lyra.provider,
+      this.lyra.provider.network.chainId,
+      optionGreekCache.address,
+      account,
+      calldata
+    )
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toMinCollateralParams, tx }
   }
@@ -395,15 +430,20 @@ export class Admin {
     if (this.lyra.version !== Version.Newport) {
       throw Error('Incorrect SDK version')
     }
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toLPParams = {
       ...currMarketView.marketParameters.lpParams,
       ...lpParams,
     } as LpParams
 
-    const liquidityPool = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.LiquidityPool)
+    const liquidityPool = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.LiquidityPool
+    )
     const calldata = liquidityPool.interface.encodeFunctionData('setLiquidityPoolParameters', [toLPParams])
-    const tx = buildTx(this.lyra, liquidityPool.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, liquidityPool.address, account, calldata)
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toLPParams, tx }
   }
@@ -412,15 +452,20 @@ export class Admin {
     if (this.lyra.version !== Version.Avalon) {
       throw Error('Incorrect SDK version')
     }
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toLPParams = {
       ...currMarketView.marketParameters.lpParams,
       ...lpParams,
     } as AvalonLpParams
 
-    const liquidityPool = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.LiquidityPool)
+    const liquidityPool = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.LiquidityPool
+    )
     const calldata = liquidityPool.interface.encodeFunctionData('setLiquidityPoolParameters', [toLPParams])
-    const tx = buildTx(this.lyra, liquidityPool.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, liquidityPool.address, account, calldata)
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toLPParams, tx }
   }
@@ -430,7 +475,7 @@ export class Admin {
     account: string,
     pricingParams: Partial<PricingParams>
   ): Promise<SetMarketParamsReturn<PricingParams>> {
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toPricingParams = {
       ...currMarketView.marketParameters.pricingParams,
       ...pricingParams,
@@ -438,10 +483,17 @@ export class Admin {
     const optionMarketPricer = getLyraMarketContract(
       this.lyra,
       market.contractAddresses,
+      this.lyra.version,
       LyraMarketContractId.OptionMarketPricer
     )
     const calldata = optionMarketPricer.interface.encodeFunctionData('setPricingParams', [toPricingParams])
-    const tx = buildTx(this.lyra, optionMarketPricer.address, account, calldata)
+    const tx = buildTx(
+      this.lyra.provider,
+      this.lyra.provider.network.chainId,
+      optionMarketPricer.address,
+      account,
+      calldata
+    )
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toPricingParams, tx }
   }
@@ -451,7 +503,7 @@ export class Admin {
     account: string,
     tradeLimitParams: Partial<TradeLimitParams>
   ): Promise<SetMarketParamsReturn<TradeLimitParams>> {
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toTradeLimitParams = {
       ...currMarketView.marketParameters.tradeLimitParams,
       ...tradeLimitParams,
@@ -459,10 +511,17 @@ export class Admin {
     const optionMarketPricer = getLyraMarketContract(
       this.lyra,
       market.contractAddresses,
+      this.lyra.version,
       LyraMarketContractId.OptionMarketPricer
     )
     const calldata = optionMarketPricer.interface.encodeFunctionData('setTradeLimitParams', [toTradeLimitParams])
-    const tx = buildTx(this.lyra, optionMarketPricer.address, account, calldata)
+    const tx = buildTx(
+      this.lyra.provider,
+      this.lyra.provider.network.chainId,
+      optionMarketPricer.address,
+      account,
+      calldata
+    )
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toTradeLimitParams, tx }
   }
@@ -472,7 +531,7 @@ export class Admin {
     account: string,
     params: Partial<VarianceFeeParams>
   ): Promise<SetMarketParamsReturn<VarianceFeeParams>> {
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toParams = {
       ...currMarketView.marketParameters.varianceFeeParams,
       ...params,
@@ -480,10 +539,17 @@ export class Admin {
     const optionMarketPricer = getLyraMarketContract(
       this.lyra,
       market.contractAddresses,
+      this.lyra.version,
       LyraMarketContractId.OptionMarketPricer
     )
     const calldata = optionMarketPricer.interface.encodeFunctionData('setVarianceFeeParams', [toParams])
-    const tx = buildTx(this.lyra, optionMarketPricer.address, account, calldata)
+    const tx = buildTx(
+      this.lyra.provider,
+      this.lyra.provider.network.chainId,
+      optionMarketPricer.address,
+      account,
+      calldata
+    )
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toParams, tx }
   }
@@ -493,14 +559,19 @@ export class Admin {
     account: string,
     params: Partial<PartialCollatParams>
   ): Promise<SetMarketParamsReturn<PartialCollatParams>> {
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toParams = {
       ...currMarketView.marketParameters.partialCollatParams,
       ...params,
     }
-    const optionToken = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.OptionToken)
+    const optionToken = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.OptionToken
+    )
     const calldata = optionToken.interface.encodeFunctionData('setPartialCollateralParams', [toParams])
-    const tx = buildTx(this.lyra, optionToken.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, optionToken.address, account, calldata)
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toParams, tx }
   }
@@ -510,14 +581,19 @@ export class Admin {
     account: string,
     params: Partial<OptionMarketParams>
   ): Promise<SetMarketParamsReturn<OptionMarketParams>> {
-    const currMarketView = await getMarketView(this.lyra, market.address)
+    const currMarketView = await fetchMarketView(this.lyra, market.address)
     const toParams = {
       ...currMarketView.marketParameters.optionMarketParams,
       ...params,
     }
-    const optionMarket = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.OptionMarket)
+    const optionMarket = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.OptionMarket
+    )
     const calldata = optionMarket.interface.encodeFunctionData('setOptionMarketParams', [toParams])
-    const tx = buildTx(this.lyra, optionMarket.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, optionMarket.address, account, calldata)
     tx.gasLimit = BigNumber.from(10_000_000)
     return { params: toParams, tx }
   }
@@ -525,17 +601,27 @@ export class Admin {
   // TODO @michaelxuwu pool hedger param fns
 
   processDepositQueue(market: Market, account: string, limit: number): PopulatedTransaction {
-    const liquidityPool = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.LiquidityPool)
+    const liquidityPool = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.LiquidityPool
+    )
     const calldata = liquidityPool.interface.encodeFunctionData('processDepositQueue', [limit])
-    const tx = buildTx(this.lyra, liquidityPool.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, liquidityPool.address, account, calldata)
     tx.gasLimit = BigNumber.from(10_000_000)
     return tx
   }
 
   processWithdrawalQueue(market: Market, account: string, limit: number): PopulatedTransaction {
-    const liquidityPool = getLyraMarketContract(this.lyra, market.contractAddresses, LyraMarketContractId.LiquidityPool)
+    const liquidityPool = getLyraMarketContract(
+      this.lyra,
+      market.contractAddresses,
+      this.lyra.version,
+      LyraMarketContractId.LiquidityPool
+    )
     const calldata = liquidityPool.interface.encodeFunctionData('processWithdrawalQueue', [limit])
-    const tx = buildTx(this.lyra, liquidityPool.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, liquidityPool.address, account, calldata)
     tx.gasLimit = BigNumber.from(10_000_000)
     return tx
   }

@@ -88,7 +88,6 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
       {
         accessor: 'equity',
         Header: 'Equity',
-        width: 150,
         Cell: (props: TableCellProps<PositionTableData>) => {
           const equity = props.cell.value
           const { position } = props.row.original
@@ -101,7 +100,9 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
                   {liquidationPrice ? `Liq ${formatTruncatedUSD(liquidationPrice)}` : null}
                   {liquidationPrice && isBase ? ' · ' : ''}
                   {isBase
-                    ? `${formatTruncatedNumber(position.collateral?.amount ?? ZERO_BN)} s${position.marketName}`
+                    ? `${formatTruncatedNumber(position.collateral?.amount ?? ZERO_BN)} ${
+                        position.market().baseToken.symbol
+                      }`
                     : ''}
                 </Text>
               ) : null}
@@ -112,7 +113,6 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
       {
         accessor: 'averageCostPerOption',
         Header: 'Average Cost',
-        width: 150,
         Cell: (props: TableCellProps<PositionTableData>) => {
           return <Text variant="secondary">{props.cell.value === 0 ? '-' : formatUSD(props.cell.value)}</Text>
         },
@@ -120,7 +120,6 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
       {
         accessor: 'pricePerOption',
         Header: 'Current Price',
-        width: 150,
         Cell: (props: TableCellProps<PositionTableData>) => {
           return <Text variant="secondary">{props.cell.value === 0 ? '-' : formatUSD(props.cell.value)}</Text>
         },
@@ -128,7 +127,6 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
       {
         accessor: 'pnl',
         Header: 'Profit / Loss',
-        width: 150,
         Cell: (props: TableCellProps<PositionTableData>) => {
           const { equity, pnlPercentage } = props.row.original
           if (equity === 0) {

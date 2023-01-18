@@ -53,11 +53,31 @@ export enum LogEvent {
   PortfolioMarketClick = 'PortfolioMarketClick',
 
   // Vault
+  VaultDepositApproveSubmit = 'VaultDepositApproveSubmit',
+  VaultDepositApproveSuccess = 'VaultDepositApproveSuccess',
+  VaultDepositApproveError = 'VaultDepositApproveError',
+  VaultDepositSuccess = 'VaultDepositSuccess',
+  VaultDepositError = 'VaultDepositError',
+  VaultWithdrawApproveSubmit = 'VaultWithdrawApproveSubmit',
+  VaultWithdrawApproveSuccess = 'VaultWithdrawApproveSuccess',
+  VaultWithdrawApproveError = 'VaultWithdrawApproveError',
+  VaultWithdrawSuccess = 'VaultWithdrawSuccess',
+  VaultWithdrawError = 'VaultWithdrawError',
   VaultChartTypeSelect = 'VaultChartTypeSelect',
   VaultChartPeriodSelect = 'VaultChartPeriodSelect',
   VaultRewardsLearnMoreClick = 'VaultRewardsLearnMoreClick',
   VaultRisksLearnMoreClick = 'VaultRisksLearnMoreClick',
   VaultAboutLearnMoreClick = 'VaultAboutLearnMoreClick',
+
+  // Migrate Staked Lyra
+  MigrateStakeLyraApproveSubmit = 'MigrateStakeLyraApproveSubmit',
+  MigrateStakeLyraApproveSuccess = 'MigrateStakeLyraApproveSuccess',
+  MigrateStakeLyraApproveError = 'MigrateStakeLyraApproveError',
+  MigrateStakeLyraModalOpen = 'MigrateStakeLyraModalOpen',
+  MigrateStakeLyraModalClose = 'MigrateStakeLyraModalClose',
+  MigrateStakeLyraSubmit = 'MigrateStakeLyraSubmit',
+  MigrateStakeLyraSuccess = 'MigrateStakeLyraSuccess',
+  MigrateStakeLyraError = 'MigrateStakeLyraError',
 
   // Staking
   StakeLyraApproveSubmit = 'StakeLyraApproveSubmit',

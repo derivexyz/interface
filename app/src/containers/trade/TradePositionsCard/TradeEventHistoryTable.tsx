@@ -38,6 +38,7 @@ const TradeEventHistoryTable = withSuspense(
           navigate(
             getPagePath({
               page: PageId.Position,
+              network: tradeEvent.lyra.network,
               positionId: tradeEvent.positionId,
               marketAddressOrName: tradeEvent.marketName,
             })

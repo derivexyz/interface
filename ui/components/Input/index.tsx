@@ -1,5 +1,5 @@
 import { Input as RebassInput } from '@rebass/forms'
-import React, { ChangeEventHandler, FocusEventHandler, useEffect, useState } from 'react'
+import React, { ChangeEventHandler, FocusEventHandler, useEffect, useRef, useState } from 'react'
 import { FlexGrowProps, LayoutProps, MarginProps } from 'styled-system'
 
 import Box from '../Box'
@@ -70,6 +70,7 @@ export default function Input({
       onError(error ?? null)
     }
   }, [error, onError])
+  const inputRef = useRef<HTMLInputElement>(null)
   return (
     <Box {...styleProps} sx={{ position: 'relative' }}>
       {label != null && (
@@ -85,6 +86,9 @@ export default function Input({
           borderColor: error ? 'inputError' : success ? 'inputSuccess' : _isFocused && !!value ? 'outline' : undefined,
           cursor: isDisabled ? 'not-allowed' : 'text',
         }}
+        onClick={() => {
+          inputRef.current?.focus()
+        }}
       >
         {icon != null && (
           <Flex alignItems="center" px={3}>
@@ -92,6 +96,7 @@ export default function Input({
           </Flex>
         )}
         <RebassInput
+          ref={inputRef}
           onBlur={handleBlur}
           onFocus={handleFocus}
           flex={1}
@@ -108,7 +113,7 @@ export default function Input({
           sx={{ textAlign }}
         />
         {rightContent != null && (
-          <Flex alignItems="center" mr={3}>
+          <Flex ml={1} alignItems="center" mr={3}>
             {typeof rightContent === 'string' ? <Text variant="secondary">{rightContent}</Text> : rightContent}
           </Flex>
         )}

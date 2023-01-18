@@ -71,10 +71,10 @@ export type TradeEventListenerOptions = {
 }
 
 export class TradeEvent {
-  private lyra: Lyra
   private __tradeData: TradeEventData
   private __collateralUpdateData?: CollateralUpdateData
   __source: DataSource
+  lyra: Lyra
   positionId: number
   marketName: string
   marketAddress: string

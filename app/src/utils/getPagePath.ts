@@ -2,23 +2,23 @@ import { PageArgsMap, PageId, PagePathArgs } from '../constants/pages'
 import getHostname from './getHostname'
 
 const getAdminMarketPath = (args: PageArgsMap[PageId.AdminMarket]): string => {
-  return `/admin/${args.marketAddressOrName}`.toLowerCase()
+  return `/admin/${args.network}/${args.marketAddressOrName}`.toLowerCase()
 }
 
 const getAdminBoardPath = (args: PageArgsMap[PageId.AdminBoard]): string => {
-  return `/admin/${args.marketAddressOrName}/${args.boardId}`.toLowerCase()
+  return `/admin/${args.network}/${args.marketAddressOrName}/${args.boardId}`.toLowerCase()
 }
 
 const getTradePath = (args: PageArgsMap[PageId.Trade]): string => {
-  return `/trade/${args.marketAddressOrName}`.toLowerCase()
+  return `/trade/${args.network}/${args.marketAddressOrName}`.toLowerCase()
 }
 
 const getVaultPath = (args: PageArgsMap[PageId.Vaults]): string => {
-  return `/vaults/${args.marketAddressOrName}`.toLowerCase()
+  return `/vaults/${args.network}/${args.marketAddressOrName}`.toLowerCase()
 }
 
 const getPositionPath = (args: PageArgsMap[PageId.Position]): string => {
-  return `/position/${args.marketAddressOrName}/${args.positionId}`.toLowerCase()
+  return `/position/${args.network}/${args.marketAddressOrName}/${args.positionId}`.toLowerCase()
 }
 
 // TODO: @dappbeast Fix page path typescript in switch statement

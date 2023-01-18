@@ -1,11 +1,10 @@
-import Box from '@lyra/ui/components/Box'
 import Flex from '@lyra/ui/components/Flex'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
-import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
+import { Market, Network } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -18,7 +17,9 @@ import MarketLabel from '../../common/MarketLabel'
 import { PortfolioMarketsTableOrListProps } from '.'
 
 type PortfolioMarketsData = TableData<{
-  market: string
+  market: Market
+  marketName: string
+  network: Network
   price: number
   pricePctChange: number
   openInterest: number
@@ -30,21 +31,29 @@ type PortfolioMarketsData = TableData<{
 const PortfolioMarketsTableDesktop = ({ markets }: PortfolioMarketsTableOrListProps) => {
   const navigate = useNavigate()
   const rows: PortfolioMarketsData[] = useMemo(() => {
-    return markets.map(({ market, spotPrice, spotPriceChange, openInterest, tradingVolume30D }) => {
+    return markets.map(({ market, spotPrice, spotPrice24HChange, openInterest, totalNotionalVolume30D }) => {
       return {
-        market: market.name,
+        market,
+        marketName: market.name,
+        network: market.lyra.network,
         price: spotPrice,
-        pricePctChange: spotPriceChange,
+        pricePctChange: spotPrice24HChange,
         openInterest,
-        openInterestDollar: openInterest * spotPrice,
+        openInterestDollar: openInterest,
         symbol: market.baseToken.symbol,
-        tradingVolume30D,
+        tradingVolume30D: totalNotionalVolume30D,
         onClick: () => {
           logEvent(LogEvent.PortfolioMarketClick, {
             marketName: market.name,
             marketAddress: market.address,
           })
-          navigate(getPagePath({ page: PageId.Trade, marketAddressOrName: market.name }))
+          navigate(
+            getPagePath({
+              page: PageId.Trade,
+              network: market.lyra.network,
+              marketAddressOrName: market.name,
+            })
+          )
         },
       }
     })
@@ -52,10 +61,11 @@ const PortfolioMarketsTableDesktop = ({ markets }: PortfolioMarketsTableOrListPr
   const columns = useMemo<TableColumn<PortfolioMarketsData>[]>(
     () => [
       {
-        accessor: 'market',
+        accessor: 'marketName',
         Header: 'Market',
         Cell: (props: TableCellProps<PortfolioMarketsData>) => {
-          return <MarketLabel marketName={props.cell.value} />
+          const { market } = props.cell.row.original
+          return <MarketLabel market={market} />
         },
       },
       {
@@ -75,24 +85,21 @@ const PortfolioMarketsTableDesktop = ({ markets }: PortfolioMarketsTableOrListPr
         },
       },
       {
-        accessor: 'openInterestDollar',
-        Header: 'Open Interest',
+        accessor: 'tradingVolume30D',
+        Header: '30D Volume',
         Cell: (props: TableCellProps<PortfolioMarketsData>) => {
           return (
-            <Box>
-              <Text variant="secondary">{formatTruncatedUSD(props.cell.value)}</Text>
-              <Text variant="small" color="secondaryText">
-                {formatTruncatedNumber(props.row.original.openInterest)} {props.row.original.symbol}
-              </Text>
-            </Box>
+            <Text variant="secondary" color={props.cell.value !== 0 ? 'text' : 'secondaryText'}>
+              {props.cell.value !== 0 ? formatTruncatedUSD(props.cell.value) : '-'}
+            </Text>
           )
         },
       },
       {
-        accessor: 'tradingVolume30D',
-        Header: '30D Volume',
+        accessor: 'openInterestDollar',
+        Header: 'Open Interest',
         Cell: (props: TableCellProps<PortfolioMarketsData>) => {
-          return <Text variant="secondary">{props.cell.value !== 0 ? formatTruncatedUSD(props.cell.value) : '-'}</Text>
+          return <Text variant="secondary">{formatTruncatedUSD(props.cell.value)}</Text>
         },
       },
     ],

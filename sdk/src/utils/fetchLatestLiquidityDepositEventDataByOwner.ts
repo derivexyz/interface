@@ -18,6 +18,7 @@ export default async function fetchLatestLiquidityDepositEventDataByOwner(
   const liquidityPoolContract = getLyraMarketContract(
     lyra,
     market.__marketData.marketAddresses,
+    lyra.version,
     LyraMarketContractId.LiquidityPool
   )
 

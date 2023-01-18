@@ -5,34 +5,32 @@ import Center from '@lyra/ui/components/Center'
 import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
 import Token from '@lyra/ui/components/Token'
+import filterNulls from '@lyra/ui/utils/filterNulls'
 import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatNumber from '@lyra/ui/utils/formatNumber'
+import formatTruncatedBalance from '@lyra/ui/utils/formatTruncatedBalance'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Market, Option } from '@lyrafinance/lyra-js'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import RowItem from '@/app/components/common/RowItem'
 import { ZERO_BN } from '@/app/constants/bn'
 import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
 import TradeFormSizeInput from '@/app/containers/trade/TradeForm/TradeFormSizeInput'
-import TradeFormStableSelector from '@/app/containers/trade/TradeForm/TradeFormStableSelector'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarketBalances from '@/app/hooks/market/useMarketBalances'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
 import useOpenPositions from '@/app/hooks/position/useOpenPositions'
+import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
-import getDefaultStableAddress from '@/app/utils/getDefaultStable'
-import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
-import isTokenEqual from '@/app/utils/isTokenEqual'
 
+import FeeRebateModal from '../../common/FeeRebateModal'
 import ShortYieldValue from '../../common/ShortYieldValue'
 import TradeFormButton from './TradeFormButton'
 import TradeFormCollateralSection from './TradeFormCollateralSection'
-import TradeFormFeeRebateValue from './TradeFormFeeRebateValue'
 import TradeFormPayoffSection from './TradeFormPayoffSection'
-import TradeFormSwapValue from './TradeFormSwapValue'
-import TradeFormTotalCostValue from './TradeFormTotalCostValue'
 
 type Props = {
   isBuy: boolean
@@ -47,33 +45,26 @@ const SLIPPAGE = 0.5 / 100 // 0.5%
 const TradeForm = withSuspense(
   ({ isBuy, option, positionId, onTrade, hideTitle }: Props) => {
     const openPositions = useOpenPositions()
+    const balances = useMarketBalances(option.market())
+    const epochs = useLatestRewardEpoch(option.lyra.network, false)
+
+    const market = option.market()
     const position = useMemo(() => {
       if (positionId) {
         return openPositions.find(p => p.id === positionId)
       } else {
         return openPositions.find(
-          p =>
-            p.marketAddress === option.market().address &&
-            p.strikeId === option.strike().id &&
-            p.isCall === option.isCall
+          p => p.marketAddress === market.address && p.strikeId === option.strike().id && p.isCall === option.isCall
         )
       }
-    }, [positionId, openPositions, option])
-
-    const balances = useMarketBalances(option.market().address)
-    const market = option.market()
+    }, [positionId, openPositions, option, market])
     const isLong = position ? position.isLong : isBuy
 
     // TODO - @michaelxuwu re-enable default stable
-    const defaultStableAddress = useMemo(
-      () => (isOptimismMainnet() ? option.market().quoteToken : getDefaultStableAddress(balances)),
-      [balances, option]
-    )
 
     const [isCoveredCall, setIsCoveredCall] = useState(position ? !!position.collateral?.isBase : false)
-    const [stableAddress, setStableAddress] = useState<string>(defaultStableAddress.address)
 
-    const quoteBalance = balances.quoteSwapAssets.find(quoteAsset => isTokenEqual(quoteAsset, stableAddress))
+    const quoteBalance = balances.quoteAsset
     const baseBalance = balances.baseAsset
     const isBaseCollateral = isCoveredCall
 
@@ -114,18 +105,26 @@ const TradeForm = withSuspense(
     const trade = useTradeSync({
       option,
       position,
+      balances,
       isBuy,
       size: sizeWithDefaults,
       setToCollateral: collateralAmount,
       isBaseCollateral,
       slippage: SLIPPAGE,
-      stableAddress,
-      stableDecimals: quoteBalance?.decimals ?? 18,
     })
 
-    const stableBalance = quoteBalance
-
     const pnl = useMemo(() => trade.pnl(), [trade])
+
+    const global = epochs?.global
+    const stakedLyraBalance = epochs?.account?.stakedLyraBalance ?? 0
+    const tradingRewards = global?.tradingRewards(fromBigNumber(trade.fee), stakedLyraBalance)
+    const [isFeeRebateOpen, setIsFeeRebateOpen] = useState(false)
+    const feeRewardsStr = tradingRewards
+      ? filterNulls([
+          tradingRewards.lyra ? formatTruncatedBalance(tradingRewards.lyra, 'LYRA') : null,
+          tradingRewards.op ? formatTruncatedBalance(tradingRewards.op, 'OP') : null,
+        ]).join(', ')
+      : null
 
     return (
       <>
@@ -150,20 +149,8 @@ const TradeForm = withSuspense(
           ) : null}
           <RowItem
             label="Contracts"
-            value={<TradeFormSizeInput width="50%" trade={trade} size={size} onChangeSize={setSize} />}
+            value={<TradeFormSizeInput width="60%" trade={trade} size={size} onChangeSize={setSize} />}
             mb={5}
-          />
-          <RowItem
-            label={isBuy ? 'Buy With' : 'Sell With'}
-            value={
-              <TradeFormStableSelector
-                balances={balances.quoteSwapAssets}
-                stableAddress={stableAddress}
-                onChangeStableAddress={setStableAddress}
-                width="50%"
-              />
-            }
-            mb={6}
           />
           <RowItem
             label="Price Per Option"
@@ -186,69 +173,85 @@ const TradeForm = withSuspense(
         ) : null}
         <CardSection>
           <RowItem
-            mb={6}
-            textVariant="body"
+            mb={5}
+            textVariant="secondary"
             label={trade.isBuy ? 'Max Cost' : 'Min Received'}
-            value={<TradeFormTotalCostValue trade={trade} />}
+            valueColor={trade.premium.gt(0) ? 'text' : 'secondaryText'}
+            value={
+              trade.premium.gt(0) ? formatBalance(trade.premium, trade.quoteToken.symbol, { showDollars: true }) : '-'
+            }
           />
-          {stableAddress !== market.quoteToken.address ? (
-            <RowItem mb={2} label="Swap" value={<TradeFormSwapValue trade={trade} />} textVariant="small" />
-          ) : null}
           {trade.forceClosePenalty.gt(0) ? (
             <RowItem
-              textVariant="small"
+              textVariant="secondary"
               label="Force Close Penalty"
               valueColor="warningText"
               value={formatUSD(trade.forceClosePenalty)}
-              mb={2}
+              mb={5}
             />
           ) : null}
           <RowItem
-            textVariant="small"
-            label="Fees"
-            valueColor={trade.fee.isZero() ? 'secondaryText' : 'text'}
-            value={trade.fee.isZero() ? '-' : formatUSD(trade.fee)}
-            mb={2}
+            mb={5}
+            label="Balance"
+            value={
+              <AmountUpdateText
+                variant="secondary"
+                prevAmount={
+                  isBaseCollateral
+                    ? fromBigNumber(baseBalance.balance, baseBalance.decimals)
+                    : fromBigNumber(quoteBalance.balance, quoteBalance.decimals)
+                }
+                newAmount={
+                  isBaseCollateral
+                    ? fromBigNumber(baseBalance.balance.sub(trade.baseToken.transfer), baseBalance.decimals)
+                    : fromBigNumber(quoteBalance.balance.sub(trade.quoteToken.transfer), quoteBalance.decimals)
+                }
+                isUSDFormat={!isBaseCollateral}
+                symbol={isBaseCollateral ? trade.baseToken.symbol : trade.quoteToken.symbol}
+              />
+            }
+            valueColor="text"
+            textVariant="secondary"
           />
-          <RowItem textVariant="small" label="Fee Rebate" value={<TradeFormFeeRebateValue />} mb={2} />
-          {!trade.isLong ? (
+          {epochs ? (
             <RowItem
-              mb={2}
-              textVariant="small"
+              label="Est. Rewards"
+              value={
+                <>
+                  <Text
+                    variant="secondary"
+                    color={feeRewardsStr ? 'primaryText' : 'secondaryText'}
+                    onClick={() => setIsFeeRebateOpen(true)}
+                    sx={{ ':hover': { opacity: 0.5, cursor: 'pointer' } }}
+                  >
+                    {feeRewardsStr ? feeRewardsStr : '-'}
+                  </Text>
+                  <FeeRebateModal
+                    network={trade.lyra.network}
+                    isOpen={isFeeRebateOpen}
+                    onClose={() => setIsFeeRebateOpen(false)}
+                  />
+                </>
+              }
+              mb={5}
+            />
+          ) : null}
+          {epochs && !trade.isLong ? (
+            <RowItem
+              mb={5}
               label="Short Yield / Day"
-              value={<ShortYieldValue textVariant="small" tradeOrPosition={trade} option={option} />}
+              value={<ShortYieldValue textVariant="secondary" tradeOrPosition={trade} option={option} />}
             />
           ) : null}
           {!trade.isOpen ? (
             <RowItem
-              mb={2}
+              mb={5}
               label="Profit / Loss"
               value={pnl.isZero() ? '-' : formatUSD(pnl, { showSign: true })}
               valueColor={pnl.isZero() ? 'secondaryText' : pnl.gt(0) ? 'primaryText' : 'errorText'}
-              textVariant="small"
             />
           ) : null}
-          <RowItem
-            mb={6}
-            label="Balance"
-            value={
-              isBaseCollateral
-                ? formatBalance(
-                    fromBigNumber(baseBalance?.balance ?? ZERO_BN, baseBalance?.decimals),
-                    baseBalance?.symbol ?? ''
-                  )
-                : formatBalance(
-                    fromBigNumber(stableBalance?.balance ?? ZERO_BN, stableBalance?.decimals),
-                    stableBalance?.symbol ?? '',
-                    {
-                      showDollars: true,
-                    }
-                  )
-            }
-            valueColor={'text'}
-            textVariant="small"
-          />
-          <TradeFormButton width="100%" trade={trade} onTrade={handleTrade} />
+          <TradeFormButton mt={3} width="100%" trade={trade} onTrade={handleTrade} />
         </CardSection>
         {!position && (
           <>

@@ -39,9 +39,10 @@ export type BaseButtonProps = {
   isLoading?: boolean
   textColor?: TextColor
   justify?: ButtonJustify
+  noPadding?: boolean
 }
 
-export type ButtonProps = BaseButtonProps & PaddingProps & Omit<MarginProps & LayoutProps, 'height' | 'h' | 'size'>
+export type ButtonProps = BaseButtonProps & PaddingProps & Omit<MarginProps & LayoutProps, 'size'>
 
 export type ButtonElement = React.ReactElement<ButtonProps>
 
@@ -53,9 +54,10 @@ export const getButtonSizeSx = (size: ButtonSize): Record<string, string | numbe
         fontFamily: 'body',
         fontWeight: 'medium',
         fontSize: '11px',
-        height: '24px',
-        textTransform: 'uppercase',
-        px: 2,
+        lineHeight: '11px',
+        minHeight: '22px',
+        borderRadius: 'text',
+        p: 0,
       }
     case 'medium':
     case 'md':
@@ -63,8 +65,10 @@ export const getButtonSizeSx = (size: ButtonSize): Record<string, string | numbe
         fontFamily: 'body',
         fontWeight: 'medium',
         fontSize: '15px',
-        height: '36px',
-        px: 3,
+        lineHeight: '15px',
+        minHeight: '36px',
+        borderRadius: '18px',
+        p: 0,
       }
     case 'large':
     case 'lg':
@@ -72,8 +76,35 @@ export const getButtonSizeSx = (size: ButtonSize): Record<string, string | numbe
         fontFamily: 'heading',
         fontWeight: 'medium',
         fontSize: '16px',
-        height: '58px',
+        lineHeight: '16px',
+        minHeight: '56px',
+        borderRadius: '28px',
+        p: 0,
+      }
+  }
+}
+
+const EMPTY_PADDING = { px: 0, py: 0 }
+
+export const getButtonPaddingSx = (size: ButtonSize): Record<string, string | number> => {
+  switch (size) {
+    case 'small':
+    case 'sm':
+      return {
+        px: 1,
+        py: 0,
+      }
+    case 'medium':
+    case 'md':
+      return {
+        px: 2,
+        py: 1,
+      }
+    case 'large':
+    case 'lg':
+      return {
         px: 3,
+        py: 2,
       }
   }
 }
@@ -169,19 +200,27 @@ const Button = React.forwardRef(
       textVariant,
       textColor,
       showRightIconSeparator = false,
+      noPadding,
       ...styleProps
     }: ButtonProps,
     ref
   ): ButtonElement => {
     const buttonVariant = getButtonVariant(variant, isOutline, isTransparent, isDisabled)
     const sizeSx = getButtonSizeSx(size)
+    const paddingSx = !noPadding ? getButtonPaddingSx(size) : EMPTY_PADDING
     const buttonSx = getVariantSX(buttonVariant)
 
     // HACK: Ensure fontSize in theme always refers to direct value
     const iconSize = getButtonIconSize(size)
     const left =
       leftIcon || isLoading ? (
-        <Flex justifyContent={'flex-start'} pr={2} flexGrow={leftIconSpacing}>
+        <Flex
+          justifyContent={'flex-start'}
+          alignItems="center"
+          flexGrow={leftIconSpacing}
+          py={paddingSx.py}
+          pl={paddingSx.px}
+        >
           {leftIcon ? (
             typeof leftIcon === 'string' ? (
               <IconOrImage src={leftIcon} size={iconSize} />
@@ -195,8 +234,19 @@ const Button = React.forwardRef(
       ) : null
 
     const right = rightIcon ? (
-      <Flex justifyContent={'flex-end'} flexGrow={rightIconSpacing} pl={2}>
-        {typeof rightIcon === 'string' ? <IconOrImage src={rightIcon} size={iconSize} /> : rightIcon}
+      <Flex flexGrow={rightIconSpacing} justifyContent={'flex-end'} alignItems="center" pr={paddingSx.px}>
+        {showRightIconSeparator ? (
+          <Box
+            mr={paddingSx.px}
+            ml="auto"
+            height="100%"
+            minWidth="1px"
+            bg={isOutline ? buttonSx.borderColor : 'background'}
+          />
+        ) : null}
+        <Flex py={paddingSx.py} justifyContent={'flex-end'} alignItems="center">
+          {typeof rightIcon === 'string' ? <IconOrImage src={rightIcon} size={iconSize} /> : rightIcon}
+        </Flex>
       </Flex>
     ) : null
 
@@ -207,35 +257,29 @@ const Button = React.forwardRef(
         href={href}
         target={target}
         display="flex"
-        alignItems="center"
         type={type}
         justifyContent={getButtonJustify(justify)}
         className={isDisabled || isLoading ? 'disabled' : undefined}
         onClick={!isDisabled && !isLoading ? onClick : undefined}
-        {...styleProps}
         variant={buttonVariant}
+        {...styleProps}
         sx={{
           ...sizeSx,
           cursor: isDisabled ? 'not-allowed' : isLoading ? 'default' : 'pointer',
+          alignItems: 'stretch',
         }}
         opacity={isLoading ? 0.8 : 1.0}
       >
         {left}
-        {/* TODO: @dappbeast Fix this hack */}
-        <Box mx={showRightIconSeparator ? 'auto' : 'none'}>
+        <Flex sx={paddingSx} alignItems="center" mx={showRightIconSeparator ? 'auto' : 'none'}>
           {React.isValidElement(label) ? (
             label
-          ) : textVariant ? (
+          ) : (
             <Text color={textColor ?? 'inherit'} variant={textVariant} textAlign={textAlign}>
               {label}
             </Text>
-          ) : (
-            label
           )}
-        </Box>
-        {showRightIconSeparator ? (
-          <Box ml="auto" height={sizeSx.height} width="1px" bg={isOutline ? buttonSx.borderColor : 'background'} />
-        ) : null}
+        </Flex>
         {right}
       </RebassButton>
     )

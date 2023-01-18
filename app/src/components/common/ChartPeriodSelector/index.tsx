@@ -4,7 +4,7 @@ import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import React from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
-import getPeriodStr from '@/app/utils/getPeriodStr'
+import formatPeriod from '@/app/utils/formatPeriod'
 
 const CHART_PERIOD_DEFAULT = [ChartPeriod.OneDay, ChartPeriod.OneWeek, ChartPeriod.OneMonth, ChartPeriod.SixMonths]
 
@@ -27,7 +27,7 @@ const ChartPeriodSelector = ({
         <ToggleButtonItem
           key={period}
           id={period}
-          label={getPeriodStr(period)}
+          label={formatPeriod(period)}
           isSelected={period === selectedPeriod}
           onSelect={onChangePeriod}
           textVariant="secondaryMedium"

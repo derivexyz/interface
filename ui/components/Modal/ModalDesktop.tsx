@@ -1,5 +1,5 @@
 import { ResponsiveValue } from '@lyra/ui/types'
-import React, { useEffect } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom'
 
 import Box from '../Box'
@@ -22,20 +22,17 @@ export type Props = {
 }
 
 export default function ModalDesktop({ isOpen, onClose, title, children, width = DESKTOP_MODAL_WIDTH }: Props) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'auto'
-    }
-  }, [isOpen])
-
   return isOpen
     ? ReactDOM.createPortal(
         <Flex
           justifyContent="center"
           sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, bg: 'modalOverlayBg', zIndex: 'modal' }}
-          onClick={onClose}
+          onClick={e => {
+            if (onClose) {
+              onClose()
+            }
+            e.stopPropagation()
+          }}
         >
           <Box pt={100} pb={8} overflow="auto">
             <Card
@@ -49,7 +46,17 @@ export default function ModalDesktop({ isOpen, onClose, title, children, width =
               <ModalSection noPadding variant="elevated" noSpacing>
                 <Flex px={6} pt={4} width="100%" bg="modalBg" alignItems="center">
                   {typeof title === 'string' ? <Text variant="heading">{title}</Text> : title}
-                  {onClose ? <IconButton ml="auto" variant="light" icon={IconType.X} onClick={onClose} /> : null}
+                  {onClose ? (
+                    <IconButton
+                      ml="auto"
+                      variant="light"
+                      icon={IconType.X}
+                      onClick={e => {
+                        onClose()
+                        e.stopPropagation()
+                      }}
+                    />
+                  ) : null}
                 </Flex>
               </ModalSection>
               {children}

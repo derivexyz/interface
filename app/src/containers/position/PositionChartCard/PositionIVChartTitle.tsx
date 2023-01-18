@@ -8,7 +8,7 @@ import React from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useIVHistory from '@/app/hooks/gql/useIVHistory'
+import useIVHistory from '@/app/hooks/position/useIVHistory'
 
 type Props = {
   strike: Strike

@@ -1,9 +1,11 @@
+import Box from '@lyra/ui/components/Box'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
 import formatDateTime from '@lyra/ui/utils/formatDateTime'
+import formatDuration from '@lyra/ui/utils/formatDuration'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
-import { LiquidityDelayReason } from '@lyrafinance/lyra-js'
+import { LiquidityDelayReason, Network } from '@lyrafinance/lyra-js'
+import { Market } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import fromBigNumber from '@/app/utils/fromBigNumber'
@@ -13,16 +15,18 @@ import VaultsCircuitBreakerToken from '../VaultsCircuitBreakerToken'
 import { VaultsPendingWithdrawalsTableOrListProps } from '.'
 
 type VaultsPendingWithdrawalsTableData = TableData<{
-  market: string
-  baseSymbol: string
+  market: Market
+  baseTokenSymbol: string
+  network: Network
   balance: number
   requestedDate: number
   timeToExit: number
   timeToExitPercentage: number
   delayReason: LiquidityDelayReason | null
+  vaultQuoteSymbol: string
 }>
 
-const VaultsWithdrawalsTableDesktop = ({
+const VaultsPendingWithdrawalsTableDesktop = ({
   withdrawals,
   onClick,
   ...styleProps
@@ -37,12 +41,16 @@ const VaultsWithdrawalsTableDesktop = ({
       const progressPct = duration > 0 ? progressDuration / duration : 0
       const timeToExit = duration - progressDuration
       const delayReason = withdrawal.delayReason
+      const baseTokenSymbol = market.baseToken.symbol
+      const network = market.lyra.network
       return {
-        market: market.name,
-        baseSymbol: market.baseToken.symbol,
+        market: market,
+        baseTokenSymbol: baseTokenSymbol,
+        network: network,
         delayReason,
         balance: fromBigNumber(withdrawal.balance),
         requestedDate: startTimestamp,
+        vaultQuoteSymbol: withdrawal.market().quoteToken.symbol,
         timeToExit,
         timeToExitPercentage: progressPct,
         onClick: onClick ? () => onClick(withdrawal) : undefined,
@@ -53,38 +61,50 @@ const VaultsWithdrawalsTableDesktop = ({
     const columns: TableColumn<VaultsPendingWithdrawalsTableData>[] = [
       {
         accessor: 'market',
-        Header: 'Market',
+        Header: 'Vault',
         Cell: (props: TableCellProps<VaultsPendingWithdrawalsTableData>) => {
-          const { timeToExitPercentage, baseSymbol } = props.row.original
-          return <MarketLabelProgress marketName={baseSymbol} progress={timeToExitPercentage} color="errorText" />
+          const { timeToExitPercentage, market } = props.row.original
+          return <MarketLabelProgress market={market} progress={timeToExitPercentage} color="errorText" size={30} />
         },
       },
       {
         accessor: 'balance',
         Header: 'Withdrawing',
         Cell: (props: TableCellProps<VaultsPendingWithdrawalsTableData>) => {
-          return <Text variant="secondary">{formatNumber(props.cell.value)} Tokens</Text>
+          const { market } = props.row.original
+          return (
+            <Box>
+              <Text variant={'secondary'}>{formatNumber(props.cell.value, { minDps: 1 })}</Text>
+              <Text variant="small" color="secondaryText">
+                {market.liquidityToken.symbol}
+              </Text>
+            </Box>
+          )
         },
       },
       {
         accessor: 'requestedDate',
-        Header: 'Request Date',
+        Header: 'Requested',
         Cell: (props: TableCellProps<VaultsPendingWithdrawalsTableData>) => {
-          return <Text variant="secondary">{formatDateTime(props.cell.value, true)}</Text>
+          return (
+            <Text variant="secondary">
+              {formatDateTime(props.cell.value, { hideYear: true, hideMins: false, includeTimezone: true })}
+            </Text>
+          )
         },
       },
       {
         accessor: 'timeToExit',
-        Header: 'Time to Exit',
+        Header: 'Time to Withdraw',
         Cell: (props: TableCellProps<VaultsPendingWithdrawalsTableData>) => {
-          const showDuration = props.cell.value > 0
           const delayReason = props.row.original.delayReason
           return (
             <>
-              {showDuration && !delayReason ? (
-                <Text variant="secondary">{formatTruncatedDuration(props.cell.value)}</Text>
-              ) : null}
-              {delayReason ? <VaultsCircuitBreakerToken delayReason={delayReason} /> : null}
+              {!delayReason ? (
+                <Text variant="secondary">{formatDuration(props.cell.value)}</Text>
+              ) : (
+                <VaultsCircuitBreakerToken delayReason={delayReason} />
+              )}
             </>
           )
         },
@@ -95,4 +115,4 @@ const VaultsWithdrawalsTableDesktop = ({
   return <Table width="100%" data={rows} columns={columns} {...styleProps} />
 }
 
-export default VaultsWithdrawalsTableDesktop
+export default VaultsPendingWithdrawalsTableDesktop

@@ -36,6 +36,7 @@ export enum OnboardingModalStep {
 }
 
 type Props = {
+  network: Network
   isOpen: boolean
   onClose: () => void
   toToken?: TokenInfo | null
@@ -45,6 +46,7 @@ type Props = {
 }
 
 type OnboardingModalCallToActionProps = {
+  network: Network
   toToken?: TokenInfo | null
   onboardingStep?: OnboardingModalStep
   onClickOnboardingStep: (step: OnboardingModalStep) => void
@@ -52,9 +54,11 @@ type OnboardingModalCallToActionProps = {
 }
 
 const OnboardingModalTitle = ({
+  network,
   step,
   toToken,
 }: {
+  network: Network
   step?: OnboardingModalStep
   toToken?: TokenInfo | null
 }): JSX.Element => {
@@ -64,7 +68,7 @@ const OnboardingModalTitle = ({
         <Text variant="secondary" color="secondaryText">
           Step 1 of 2
         </Text>
-        <Text variant="heading">Deposit ETH to Optimism</Text>
+        <Text variant="heading">Deposit ETH to {network}</Text>
       </Flex>
     )
   } else if (step === OnboardingModalStep.GetTokens) {
@@ -85,18 +89,16 @@ const OnboardingModalTitle = ({
 }
 
 const OnboardingModalCallToAction = withSuspense(
-  ({ toToken, onboardingStep, onClickOnboardingStep, onClose }: OnboardingModalCallToActionProps) => {
+  ({ network, toToken, onboardingStep, onClickOnboardingStep, onClose }: OnboardingModalCallToActionProps) => {
     const isStepOne = onboardingStep === OnboardingModalStep.GetETH
-    const balances = useBalances()
+    const balances = useBalances(network)
     const hasToTokenBalance = useMemo(() => {
       return balances.some(balance => {
-        const quoteToken = balance.quoteSwapAssets.find(
-          quoteAsset => quoteAsset.address.toLowerCase() === toToken?.address.toLowerCase()
-        )
+        const quoteToken = balance.quoteAsset
         return (
           (balance.baseAsset.address.toLowerCase() === toToken?.address.toLowerCase() &&
             balance.baseAsset.balance.gt(0)) ||
-          (quoteToken && quoteToken.balance.gt(0))
+          quoteToken.balance.gt(0)
         )
       })
     }, [balances, toToken])
@@ -148,6 +150,7 @@ const OnboardingModalCallToAction = withSuspense(
 )
 
 export default function OnboardingModal({
+  network,
   isOpen,
   onClose,
   toToken,
@@ -165,7 +168,7 @@ export default function OnboardingModal({
         setOnboardingStep(step)
         onClose()
       }}
-      title={<OnboardingModalTitle step={onboardingStep} toToken={toToken} />}
+      title={<OnboardingModalTitle network={network} step={onboardingStep} toToken={toToken} />}
       width={ONBOARDING_MODAL_WIDTH}
       isMobileFullscreen
     >
@@ -174,6 +177,7 @@ export default function OnboardingModal({
       ) : null}
       {isStepTwo ? <OnboardingModalStepTwo toToken={toToken} /> : null}
       <OnboardingModalCallToAction
+        network={network}
         toToken={toToken}
         onboardingStep={onboardingStep}
         onClickOnboardingStep={setOnboardingStep}

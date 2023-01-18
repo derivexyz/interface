@@ -1,12 +1,5 @@
-import { getAddress } from '@ethersproject/address'
-import { get, query, ref } from 'firebase/database'
-
-import { FirebaseCollections } from '../constants/collections'
+import { LYRA_API_URL } from '../constants/links'
 import Lyra, { Deployment } from '../lyra'
-import connectToFirebaseDatabase from './connectToFirebaseDatabase'
-
-const ACCOUNT_EPOCH_CACHE_LIFE = 60
-const ACCOUNT_EPOCH_CACHE: Record<string, { epoch: Promise<AccountRewardEpochData[]>; lastUpdated: number }> = {}
 
 export type AccountRewardEpochData = {
   account: string //indexed,
@@ -51,19 +44,11 @@ export default async function fetchAccountRewardEpochData(
   if (lyra.deployment !== Deployment.Mainnet) {
     throw new Error('GlobalRewardEpoch only supported on mainnet')
   }
-  const key = getAddress(account as string)
-  if (!ACCOUNT_EPOCH_CACHE[key] || blockTimestamp > ACCOUNT_EPOCH_CACHE[key].lastUpdated + ACCOUNT_EPOCH_CACHE_LIFE) {
-    const database = connectToFirebaseDatabase()
-    const collectionReference = ref(database, `${FirebaseCollections.AvalonAccountRewardsEpoch}/${key}`)
-    const queryReference = query(collectionReference)
-    const epochPromise = async (): Promise<AccountRewardEpochData[]> => {
-      const snapshot = await get(queryReference)
-      return snapshot.val() ? Object.values(snapshot.val()) : []
+  const res = await fetch(
+    `${LYRA_API_URL}/globalRewards?account=${account}&blockTimestamp=${blockTimestamp}&network=${lyra.network}`,
+    {
+      method: 'GET',
     }
-    ACCOUNT_EPOCH_CACHE[key] = {
-      epoch: epochPromise(),
-      lastUpdated: blockTimestamp,
-    }
-  }
-  return await ACCOUNT_EPOCH_CACHE[key].epoch
+  )
+  return await res.json()
 }

@@ -1,5 +1,6 @@
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
-import React, { useState } from 'react'
+import { Network } from '@lyrafinance/lyra-js'
+import React from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { TransactionType } from '@/app/constants/screen'
@@ -9,55 +10,46 @@ import useAccountWethLyraStaking, {
   useMutateAccountWethLyraStaking,
 } from '@/app/hooks/rewards/useAccountWethLyraStaking'
 import useClaimableBalances, { useMutateClaimableBalances } from '@/app/hooks/rewards/useClaimableBalance'
-import { useCoolMode } from '@/app/hooks/rewards/useCoolMode'
 import useTransaction from '@/app/hooks/transaction/useTransaction'
 import useWalletAccount from '@/app/hooks/wallet/useWalletAccount'
 import filterNulls from '@/app/utils/filterNulls'
-import lyra from '@/app/utils/lyra'
+import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'
 
 type Props = {
   isOpChecked: boolean
-  isLyraChecked: boolean
-  isStkLyraChecked: boolean
+  isOldStkLyraChecked: boolean
+  isNewStkLyraChecked: boolean
   isWethLyraChecked: boolean
   onClaim?: () => void
 }
 
 const ClaimButton = withSuspense(
-  ({ isOpChecked, isLyraChecked, isStkLyraChecked, isWethLyraChecked, onClaim }: Props) => {
-    const [isLoading, setIsLoading] = useState(false)
+  ({ isOpChecked, isOldStkLyraChecked, isNewStkLyraChecked, isWethLyraChecked, onClaim }: Props) => {
     const owner = useWalletAccount()
-    const account = lyra.account(owner ?? '')
+    const account = lyraOptimism.account(owner ?? '')
     const op = useOptimismToken('op')
-    const lyraToken = useOptimismToken('lyra')
     const stkLyra = useOptimismToken('stkLyra')
-    const execute = useTransaction()
+    const execute = useTransaction(Network.Optimism)
     const mutateClaimableBalance = useMutateClaimableBalances()
     const claimableBalances = useClaimableBalances()
     const wethLyraAccount = useAccountWethLyraStaking()
     const mutateWethLyraAccount = useMutateAccountWethLyraStaking()
-    const ref = useCoolMode([stkLyra?.logoURI ?? '', op?.logoURI ?? ''])
     const isSelectedBalanceZero = ZERO_BN.add(isOpChecked ? claimableBalances.op : ZERO_BN)
-      .add(isStkLyraChecked ? claimableBalances.stkLyra : ZERO_BN)
-      .add(isLyraChecked ? claimableBalances.lyra : ZERO_BN)
+      .add(isNewStkLyraChecked ? claimableBalances.newStkLyra : ZERO_BN)
+      .add(isOldStkLyraChecked ? claimableBalances.oldStkLyra : ZERO_BN)
       .add(isWethLyraChecked && wethLyraAccount?.rewards.gt(0) ? wethLyraAccount?.rewards : ZERO_BN)
       .isZero()
 
     const handleWethLyraClaim = async () => {
       const tx = await account.claimWethLyraRewards()
-      setIsLoading(true)
-      execute(tx, {
+      await execute(tx, {
         onComplete: () => {
           mutateWethLyraAccount()
           if (onClaim) {
             onClaim()
           }
-          setIsLoading(false)
-        },
-        onError: () => {
-          setIsLoading(false)
         },
       })
     }
@@ -65,34 +57,31 @@ const ClaimButton = withSuspense(
     const handleDistributorClaim = async () => {
       const tokens = filterNulls([
         isOpChecked ? op?.address : null,
-        isStkLyraChecked ? stkLyra?.address : null,
-        isLyraChecked ? lyraToken?.address : null,
+        isNewStkLyraChecked ? stkLyra?.address : null,
+        isOldStkLyraChecked ? '0xdE48b1B5853cc63B1D05e507414D3E02831722F8' : null,
       ])
       const tx = await account.claim(tokens)
-      setIsLoading(true)
-      execute(tx, {
+      await execute(tx, {
         onComplete: () => {
           mutateClaimableBalance()
           if (onClaim) {
             onClaim()
           }
-          setIsLoading(false)
-        },
-        onError: () => {
-          setIsLoading(false)
         },
       })
     }
 
     return (
       <TransactionButton
+        network={Network.Optimism}
         transactionType={TransactionType.ClaimRewards}
-        size="lg"
-        ref={ref}
-        label={!isOpChecked && !isStkLyraChecked && !isLyraChecked && !isWethLyraChecked ? 'Select Rewards' : 'Claim'}
-        variant="primary"
+        width="100%"
+        label={
+          !isOpChecked && !isNewStkLyraChecked && !isOldStkLyraChecked && !isWethLyraChecked
+            ? 'Select Rewards'
+            : 'Claim'
+        }
         isDisabled={isSelectedBalanceZero}
-        isLoading={isLoading}
         onClick={async () => {
           if (isWethLyraChecked) {
             await handleWethLyraClaim()

@@ -1,7 +1,8 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { Chain } from '@lyrafinance/lyra-js'
 import { useAccountModal, useConnectModal } from '@rainbow-me/rainbowkit'
 import { Signer } from 'ethers'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import {
   Connector,
   useAccount,
@@ -14,14 +15,15 @@ import {
 } from 'wagmi'
 
 import { WalletType } from '@/app/constants/networks'
-
-import useQueryParam from '../url/useQueryParam'
+import { WalletSeeContext } from '@/app/providers/WalletProvider'
+import getChainForChainId from '@/app/utils/getChainForChainId'
 
 type Wallet = {
   isConnected: boolean
   account: string | undefined
   connectedAccount: string | undefined
   chainId: number | undefined
+  chain?: Chain
   isLoading: boolean
   walletType: WalletType | null
   connector: Connector | undefined
@@ -32,6 +34,7 @@ type Wallet = {
   disconnect: () => void
   openConnectModal: () => void
   openAccountModal: () => void
+  removeSeeAddress: () => void
 }
 
 function getWalletType(connectorId?: string): WalletType | null {
@@ -62,6 +65,14 @@ export const getNameForWalletType = (walletType: WalletType): string => {
   }
 }
 
+const getChainForChainIdCatch = (chainId: number) => {
+  try {
+    return getChainForChainId(chainId)
+  } catch {
+    return
+  }
+}
+
 export default function useWallet(): Wallet {
   const { address, connector } = useAccount()
   const { isLoading } = useConnect()
@@ -71,21 +82,18 @@ export default function useWallet(): Wallet {
   const { disconnect } = useDisconnect()
   const provider = useProvider<JsonRpcProvider>()
   const walletType = getWalletType(connector?.id)
+  const lyraChain = chain ? getChainForChainIdCatch(chain.id) : undefined
 
   const { openConnectModal } = useConnectModal()
   const { openAccountModal } = useAccountModal()
 
-  const [seeAddress] = useQueryParam('see')
+  const { seeAddress, removeSeeAddress } = useContext(WalletSeeContext)
 
   const switchNetwork = useCallback(
     async (chainId: number) => {
       if (switchNetworkAsync) {
-        try {
-          const chain = await switchNetworkAsync(chainId)
-          return chain.id
-        } catch (e) {
-          console.warn(e)
-        }
+        const chain = await switchNetworkAsync(chainId)
+        return chain.id
       }
       return null
     },
@@ -104,20 +112,19 @@ export default function useWallet(): Wallet {
     }
   }, [openConnectModal])
 
-  useEffect(() => {
-    const w = window as any
-    w.__APP_CONTEXT__ = {
-      address,
-      seeAddress,
-      chainId: chain?.id,
-    }
-  }, [seeAddress, address, chain])
+  const w = window as any
+  w.__APP_CONTEXT__ = {
+    address,
+    seeAddress,
+    chainId: chain?.id,
+  }
 
   return useMemo(
     () => ({
       account: seeAddress ?? address,
       connectedAccount: address,
       chainId: chain?.id,
+      chain: lyraChain,
       connector,
       isConnected: !!address && !!connector,
       isLoading,
@@ -129,11 +136,13 @@ export default function useWallet(): Wallet {
       switchNetwork,
       openAccountModal: openAccountModalSafe,
       openConnectModal: openConnectModalSafe,
+      removeSeeAddress,
     }),
     [
       address,
       connector,
       chain,
+      lyraChain,
       isLoading,
       seeAddress,
       signer,
@@ -143,6 +152,7 @@ export default function useWallet(): Wallet {
       switchNetwork,
       openAccountModalSafe,
       openConnectModalSafe,
+      removeSeeAddress,
     ]
   )
 }

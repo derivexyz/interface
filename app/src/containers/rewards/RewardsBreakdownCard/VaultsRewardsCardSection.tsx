@@ -19,7 +19,8 @@ import VaultAPYTooltip from '@/app/components/common/VaultAPYTooltip'
 import { ONE_BN } from '@/app/constants/bn'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
-import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
+import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = MarginProps
@@ -33,9 +34,8 @@ type RowProps = {
 const VaultRewardsMyLiquidity = withSuspense(
   ({ accountRewardEpoch, market }: { market: Market; accountRewardEpoch?: AccountRewardEpoch | null }) => {
     const vaultTokens = accountRewardEpoch ? accountRewardEpoch.vaultTokenBalance(market.address) : 0
-    const marketLiquidity = useMarketLiquidity(market.address)
+    const marketLiquidity = useMarketLiquidity(market)
     const vaultLiquidity = vaultTokens * fromBigNumber(marketLiquidity?.tokenPrice ?? ONE_BN)
-
     return <Text variant="secondary">{formatUSD(vaultLiquidity)}</Text>
   },
   () => <TextShimmer variant="secondary" width={50} />
@@ -43,14 +43,15 @@ const VaultRewardsMyLiquidity = withSuspense(
 
 const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }: RowProps) => {
   const marketName = market.name
+  const marketAddress = market.address
   const { op: opRewards, lyra: lyraRewards } = accountRewardEpoch
-    ? accountRewardEpoch.vaultRewards(marketName)
+    ? accountRewardEpoch.vaultRewards(marketAddress)
     : { op: 0, lyra: 0 }
   const { op: opApy, lyra: lyraApy } = accountRewardEpoch
-    ? accountRewardEpoch.vaultApy(marketName)
-    : globalRewardEpoch.minVaultApy(marketName)
-  const maxApy = globalRewardEpoch.maxVaultApy(marketName).total
-  const apyMultiplier = accountRewardEpoch ? accountRewardEpoch.vaultApyMultiplier(marketName) : 1
+    ? accountRewardEpoch.vaultApy(marketAddress)
+    : globalRewardEpoch.minVaultApy(marketAddress)
+  const maxApy = globalRewardEpoch.maxVaultApy(marketAddress).total
+  const apyMultiplier = accountRewardEpoch ? accountRewardEpoch.vaultApyMultiplier(marketAddress) : 1
   const stakedLyraBalance = accountRewardEpoch ? accountRewardEpoch.stakedLyraBalance : 0
 
   return (
@@ -60,7 +61,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
           Vault
         </Text>
         <Flex alignItems="flex-end">
-          <MarketImage name={marketName} size={24} />
+          <MarketImage market={market} />
           <Text variant="secondary" ml={2}>
             {market.baseToken.symbol}
           </Text>
@@ -68,7 +69,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
       </Flex>
       <Flex flexDirection="column" justifyContent="space-between">
         <Text variant="secondary" color="secondaryText" mb={2}>
-          My Liquidity
+          Your Liquidity
         </Text>
         <VaultRewardsMyLiquidity market={market} accountRewardEpoch={accountRewardEpoch} />
       </Flex>
@@ -118,13 +119,14 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
 
 const VaultRewardsMarketRows = withSuspense(
   () => {
-    const epochs = useLatestRewardEpochs()
+    const network = useNetwork()
+    const epochs = useLatestRewardEpoch(network, true)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account
     const markets = useMemo(() => {
       return globalRewardEpoch
         ? globalRewardEpoch.markets.filter(market => {
-            const { lyra, op } = globalRewardEpoch.totalVaultRewards(market.name)
+            const { lyra, op } = globalRewardEpoch.totalVaultRewards(market.address)
             return lyra > 0 || op > 0
           })
         : []

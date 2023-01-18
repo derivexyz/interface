@@ -1,7 +1,6 @@
 import '@rainbow-me/rainbowkit/styles.css'
 
 import ThemeProvider from '@lyra/ui/theme/ThemeProvider'
-import { Network } from '@lyrafinance/lyra-js'
 import posthog from 'posthog-js'
 import React, { useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -9,7 +8,7 @@ import { SWRConfig } from 'swr'
 
 import { getDefaultMarket } from './constants/defaults'
 import { LogEvent } from './constants/logEvents'
-import AppLayout from './page_helpers/common/AppLayout'
+import Layout from './page_helpers/common/Layout'
 import PortfolioHistoryPageHelper from './page_helpers/PortfolioHistoryPageHelper'
 import AdminBoardPage from './pages/AdminBoardPage'
 import AdminMarketPage from './pages/AdminMarketPage'
@@ -29,6 +28,7 @@ import { WalletProvider } from './providers/WalletProvider'
 import compare from './utils/compare'
 import isProd from './utils/isProd'
 import logEvent from './utils/logEvent'
+import useDefaultNetwork from './utils/useDefaultNetwork'
 
 const POST_HOG_API_KEY = process.env.REACT_APP_POST_HOG_API_KEY
 
@@ -48,21 +48,30 @@ function App(): JSX.Element {
 
   const navigate = useNavigate()
 
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
 
-  // Redirect /:pathname to /#/:pathname for old links
+  // Redirect /:pathname to /#/:pathname for backwards compatibility
   useEffect(() => {
     const basePathSearch = (location.pathname + location.search).substring(1)
-    if (basePathSearch != '' && pathname === '/') {
+    if (!basePathSearch.startsWith('#') && pathname === '/') {
       navigate(basePathSearch, { replace: true })
     }
+    // Remove /:pathname# prefix from url path
+    const timeout = setTimeout(() => {
+      if (!basePathSearch.startsWith('#')) {
+        window.history.replaceState({}, '', '/#' + pathname + search)
+      }
+    }, 200)
+    return () => clearTimeout(timeout)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [pathname])
 
   // Log page views to PostHog
   useEffect(() => {
     logEvent(LogEvent.PageView)
   }, [pathname])
+
+  const defaultNetwork = useDefaultNetwork()
 
   return (
     <LocalStorageProvider>
@@ -80,26 +89,29 @@ function App(): JSX.Element {
       >
         <ThemeProvider>
           <WalletProvider>
-            <AppLayout>
+            <Layout>
               <Routes>
                 <Route index element={<Navigate to="/portfolio" />} />
                 <Route path="/portfolio" element={<PortfolioPage />} />
                 <Route path="/portfolio/history" element={<PortfolioHistoryPageHelper />} />
-                <Route path="/trade" element={<Navigate to={`/trade/${getDefaultMarket(Network.Optimism)}`} />} />
-                <Route path="/trade/:marketAddressOrName" element={<TradePage />} />
+                <Route
+                  path="/trade"
+                  element={<Navigate to={`/trade/${defaultNetwork}/${getDefaultMarket(defaultNetwork)}`} />}
+                />
+                <Route path="/trade/:network/:marketAddressOrName" element={<TradePage />} />
                 <Route path="/vaults" element={<VaultsIndexPage />} />
-                <Route path="/vaults/:marketAddressOrName" element={<VaultsPage />} />
+                <Route path="/vaults/:network/:marketAddressOrName" element={<VaultsPage />} />
                 <Route path="/vaults/history" element={<VaultsHistoryPage />} />
-                <Route path="/position/:marketAddressOrName/:positionId" element={<PositionPage />} />
+                <Route path="/position/:network/:marketAddressOrName/:positionId" element={<PositionPage />} />
                 <Route path="/rewards" element={<RewardsPage />} />
                 <Route path="/rewards/history" element={<RewardsHistoryPage />} />
                 <Route path="/storybook" element={<StoryBookPage />} />
                 <Route path="/admin" element={<AdminPage />} />
-                <Route path="/admin/:marketAddressOrName" element={<AdminMarketPage />} />
-                <Route path="/admin/:marketAddressOrName/:boardId" element={<AdminBoardPage />} />
+                <Route path="/admin/:network/:marketAddressOrName" element={<AdminMarketPage />} />
+                <Route path="/admin/:network/:marketAddressOrName/:boardId" element={<AdminBoardPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
-            </AppLayout>
+            </Layout>
           </WalletProvider>
         </ThemeProvider>
       </SWRConfig>

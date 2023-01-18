@@ -90,11 +90,11 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
   }
   async call(
     transaction: Deferrable<TransactionRequest>,
-    blockTag?: BlockTag | Promise<BlockTag> | undefined
+    blockTag: BlockTag | Promise<BlockTag> | undefined = 'latest'
   ): Promise<string> {
-    const { number: blockNumber } = await this.getBlock('latest')
+    const { number: blockNumber } = await this.getBlock(blockTag)
     const key = [blockNumber, JSON.stringify(transaction)].join()
-    this.callPromiseCache[key] = this.callPromiseCache[key] ?? super.call(transaction, blockTag)
+    this.callPromiseCache[key] = this.callPromiseCache[key] ?? super.call(transaction, blockNumber)
     return this.callPromiseCache[key]
   }
   async getBlock(_blockHashOrBlockTag: BlockTag | Promise<BlockTag>, skipLatestBlockCache?: boolean): Promise<Block> {

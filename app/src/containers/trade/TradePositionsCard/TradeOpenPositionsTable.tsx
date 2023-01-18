@@ -32,7 +32,12 @@ const TradeOpenPositionsTable = withSuspense(
         positions={openPositions}
         onClick={position =>
           navigate(
-            getPagePath({ page: PageId.Position, positionId: position.id, marketAddressOrName: position.marketName })
+            getPagePath({
+              page: PageId.Position,
+              network: position.lyra.network,
+              positionId: position.id,
+              marketAddressOrName: position.marketName,
+            })
           )
         }
       />

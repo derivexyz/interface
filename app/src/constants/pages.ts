@@ -18,13 +18,22 @@ export enum PageId {
 export type PageArgsMap = {
   [PageId.NotFound]: undefined
   [PageId.Admin]: undefined
-  [PageId.AdminMarket]: { marketAddressOrName: string }
-  [PageId.AdminBoard]: { marketAddressOrName: string; boardId: number }
+  [PageId.AdminMarket]: {
+    network: string
+    marketAddressOrName: string
+  }
+  [PageId.AdminBoard]: {
+    network: string
+    marketAddressOrName: string
+    boardId: number
+  }
   [PageId.Trade]: {
+    network: string
     marketAddressOrName: string
   }
   [PageId.Position]: {
     marketAddressOrName: string
+    network: string
     positionId: number
   }
   [PageId.Portfolio]: undefined
@@ -32,6 +41,7 @@ export type PageArgsMap = {
   [PageId.VaultsIndex]: undefined
   [PageId.VaultsHistory]: undefined
   [PageId.Vaults]: {
+    network: string
     marketAddressOrName: string
   }
   [PageId.Rewards]: undefined

@@ -1,4 +1,3 @@
-import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import formatDate from '@lyra/ui/utils/formatDate'
@@ -7,13 +6,12 @@ import React from 'react'
 
 import PositionCard from '@/app/components/position/PositionCard'
 import PositionHistoryCard from '@/app/components/position/PositionHistoryCard'
-import PositionShareCard from '@/app/components/position/PositionShareCard'
 import PositionStatsCard from '@/app/components/position/PositionStatsCard'
 import PositionChartCard from '@/app/containers/position/PositionChartCard'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
 
 type Props = {
   position: Position
@@ -46,28 +44,14 @@ const PositionPageHelper = ({ position, option }: Props): JSX.Element => {
   )
 
   return (
-    <Layout mobileCollapsedHeader={collapsedTitleText} header={titleText}>
-      <LayoutGrid>
+    <Page mobileCollapsedHeader={collapsedTitleText} header={titleText}>
+      <PageGrid>
         <PositionChartCard option={option} />
-        {position ? (
-          <>
-            {isMobile ? (
-              <>
-                <PositionCard position={position} option={option} />
-                <PositionShareCard position={position} />
-              </>
-            ) : (
-              <Flex>
-                <PositionShareCard mr={6} position={position} />
-                <PositionCard position={position} option={option} />
-              </Flex>
-            )}
-          </>
-        ) : null}
-        <PositionStatsCard option={option} />
+        <PositionCard position={position} option={option} />
+        {position.isOpen ? <PositionStatsCard option={option} /> : null}
         {position && position.trades().length > 0 ? <PositionHistoryCard position={position} /> : null}
-      </LayoutGrid>
-    </Layout>
+      </PageGrid>
+    </Page>
   )
 }
 

@@ -2,18 +2,18 @@ import Center from '@lyra/ui/components/Center'
 import LineChart from '@lyra/ui/components/LineChart'
 import Spinner from '@lyra/ui/components/Spinner'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
+import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
 import useSpotPriceHistory from '@/app/hooks/data/useSpotPriceHistory'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useMarket from '@/app/hooks/market/useMarket'
 import emptyFunction from '@/app/utils/emptyFunction'
 import formatTimestampTooltip from '@/app/utils/formatTimestampTooltip'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = {
-  marketAddressOrName: string
+  market: Market
   period: ChartPeriod
   hoverSpotPrice: number | null
   onHover: (spotPrice: number | null) => void
@@ -21,9 +21,8 @@ type Props = {
   LayoutProps
 
 const SpotPriceLineChart = withSuspense(
-  ({ marketAddressOrName, period, onHover = emptyFunction, hoverSpotPrice, ...styleProps }: Props) => {
-    const market = useMarket(marketAddressOrName)
-    const history = useSpotPriceHistory(market?.name ?? '', period)
+  ({ market, period, onHover = emptyFunction, hoverSpotPrice, ...styleProps }: Props) => {
+    const history = useSpotPriceHistory(market, period)
     const defaultSpotPrice = market ? fromBigNumber(market.spotPrice) : null
     const spotPrice = hoverSpotPrice ?? defaultSpotPrice
     const prevSpotPrice = history.length > 0 ? history[0].price : null
@@ -40,7 +39,7 @@ const SpotPriceLineChart = withSuspense(
       />
     )
   },
-  ({ marketAddressOrName, period, hoverSpotPrice, onHover, ...styleProps }: Props) => (
+  ({ market, period, hoverSpotPrice, onHover, ...styleProps }: Props) => (
     <Center height="100%" {...styleProps}>
       <Spinner />
     </Center>

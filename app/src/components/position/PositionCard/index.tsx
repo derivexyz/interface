@@ -44,16 +44,16 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
         </Text>
         <Grid
           flexGrow={1}
-          sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'], gap: [3, 6], gridRowGap: [6, 8] }}
+          sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr 1fr'], gap: [3, 6], gridRowGap: [6, 8] }}
         >
           {/* First row */}
           {!position.isOpen ? <LabelItem label="Status" value={<PositionStatusToken position={position} />} /> : null}
           <LabelItem
             label="Contracts"
             valueColor={position.isLong ? 'primaryText' : 'errorText'}
-            valueTextVariant="secondaryMedium"
             value={`${position.isLong ? 'LONG' : 'SHORT'} ${formatNumber(position.sizeBeforeClose())}`}
           />
+          <LabelItem label="Equity" value={position.isOpen ? formatUSD(equity) : '-'} />
           <LabelItem label="Average Cost" value={averageCost.isZero() ? '-' : formatUSD(averageCost)} />
           {position.isOpen ? <LabelItem label="Current Price" value={formatUSD(currentPrice)} /> : null}
           <LabelItem
@@ -61,12 +61,11 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
             value={formatUSD(pnl, { showSign: true })}
             valueColor={pnl.gte(0) ? 'primaryText' : 'errorText'}
           />
+          <LabelItem label="Expiration" value={formatDateTime(position.expiryTimestamp, { hideYear: true })} />
           {/* Second row */}
-          {position.isOpen ? <LabelItem label="Equity" value={formatUSD(equity)} /> : null}
-          <LabelItem label="Expiration" value={formatDateTime(position.expiryTimestamp, true)} />
           {position.isOpen && !position.isLong ? (
             <LabelItem
-              label="Liq. Price"
+              label="Liquidation Price"
               value={position.collateral?.liquidationPrice ? formatUSD(position.collateral.liquidationPrice) : 'None'}
             />
           ) : null}
@@ -77,7 +76,7 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
             />
           ) : null}
         </Grid>
-        <Grid mt={8} sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr'], gap: [3, 6] }}>
+        <Grid mt={8} sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr 1fr'], gap: [3, 6] }}>
           {isOwner ? (
             position.isOpen ? (
               <>

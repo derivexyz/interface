@@ -28,15 +28,14 @@ import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 import logEvent from '@/app/utils/logEvent'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
 
 type Props = {
   market: Market
 }
 
-export default function TradePageHelper({ market: initialMarket }: Props): JSX.Element {
-  const [market, setMarket] = useState(initialMarket)
+export default function TradePageHelper({ market }: Props): JSX.Element {
   const isMobile = useIsMobile()
   const [selectedOption, setSelectedOption] = useState<Option | null>(null)
   const [selectedBoard, setSelectedBoard] = useSelectedBoard(market) // sync hook
@@ -45,7 +44,6 @@ export default function TradePageHelper({ market: initialMarket }: Props): JSX.E
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false)
   const [traderSettings, setTraderSettings] = useTraderSettings()
   const [isPositionCardInView, setIsPositionCardInView] = useState(false)
-  const [showBackToTop, setShowBackToTop] = useState(false)
   const positionCardRef = useRef<HTMLElement>()
   const selectedStrikeId = selectedOption?.strike().id ?? null
   const isAdvancedMode = traderSettings.isAdvancedMode
@@ -57,12 +55,8 @@ export default function TradePageHelper({ market: initialMarket }: Props): JSX.E
       const rect = positionCardRef.current.getBoundingClientRect()
       if (rect.top + rect.height / 3 <= window.innerHeight) {
         setIsPositionCardInView(true)
-        if (window.scrollY >= window.innerHeight) {
-          setShowBackToTop(true)
-        }
       } else {
         setIsPositionCardInView(false)
-        setShowBackToTop(false)
       }
     }
   }, [])
@@ -89,7 +83,14 @@ export default function TradePageHelper({ market: initialMarket }: Props): JSX.E
         return
       }
       setSelectedOption(null)
-      navigate(getPagePath({ page: PageId.Position, marketAddressOrName: market.name, positionId }))
+      navigate(
+        getPagePath({
+          page: PageId.Position,
+          network: market.lyra.network,
+          marketAddressOrName: market.name,
+          positionId,
+        })
+      )
     },
     [navigate, setSelectedOption, isAdvancedMode]
   )
@@ -100,8 +101,13 @@ export default function TradePageHelper({ market: initialMarket }: Props): JSX.E
         // Reset selected board + option when market changes
         setSelectedBoard(null)
         setSelectedOption(null)
-        setMarket(newMarket)
-        navigate(getPagePath({ page: PageId.Trade, marketAddressOrName: newMarket.name }))
+        navigate(
+          getPagePath({
+            page: PageId.Trade,
+            network: newMarket.lyra.network,
+            marketAddressOrName: newMarket.name,
+          })
+        )
       }
     },
     [market.address, navigate, setSelectedBoard]
@@ -171,8 +177,8 @@ export default function TradePageHelper({ market: initialMarket }: Props): JSX.E
   )
 
   return (
-    <Layout
-      mobileCollapsedHeader={`${getMarketDisplayName(market.baseToken.symbol)} ${formatUSD(market.spotPrice)}`}
+    <Page
+      mobileCollapsedHeader={`${getMarketDisplayName(market)} ${formatUSD(market.spotPrice)}`}
       desktopRightColumn={
         <Card
           minHeight={MIN_TRADE_CARD_HEIGHT}
@@ -217,8 +223,8 @@ export default function TradePageHelper({ market: initialMarket }: Props): JSX.E
         </Flex>
       }
     >
-      <LayoutGrid key="layout-grid" sx={{ position: 'relative' }}>
-        <TradePriceCard marketAddressOrName={market.address} />
+      <PageGrid key="layout-grid" sx={{ position: 'relative' }}>
+        <TradePriceCard market={market} />
         {!isAdvancedMode || isMobile ? (
           <TradeSimpleBoardCard
             isCall={isCall}
@@ -264,15 +270,15 @@ export default function TradePageHelper({ market: initialMarket }: Props): JSX.E
             }}
           />
         ) : null}
-        {!isPositionCardInView || (!isMobile && showBackToTop) ? (
+        {!isPositionCardInView ? (
           <TradeOpenPositionsFloatingButton
-            label={isPositionCardInView ? 'Back to Top' : 'Open Positions'}
-            rightIcon={isPositionCardInView ? IconType.ArrowUp : IconType.ArrowDown}
+            label="Open Positions"
+            rightIcon={IconType.ArrowDown}
             mr={isMobile ? 0 : DESKTOP_RIGHT_COLUMN_WIDTH + 24}
             onClick={handleClickFloatingActionButton}
           />
         ) : null}
-      </LayoutGrid>
-    </Layout>
+      </PageGrid>
+    </Page>
   )
 }

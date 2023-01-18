@@ -1,25 +1,29 @@
+import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 import { useParams } from 'react-router-dom'
 
 import withSuspense from '@/app/hooks/data/withSuspense'
 import usePosition from '@/app/hooks/position/usePosition'
-import LayoutPageError from '@/app/page_helpers/common/Layout/LayoutPageError'
-import LayoutPageLoading from '@/app/page_helpers/common/Layout/LayoutPageLoading'
+import PageError from '@/app/page_helpers/common/Page/PageError'
+import PageLoading from '@/app/page_helpers/common/Page/PageLoading'
 import PositionPageHelper from '@/app/page_helpers/PositionPageHelper'
 
-// /position/:marketAddressOrName/:positionId
+import coerce from '../utils/coerce'
+
+// /position/:network/:marketAddressOrName/:positionId
 const PositionPage = withSuspense(
   () => {
-    const { marketAddressOrName = null, positionId: positionIdStr } = useParams()
+    const { marketAddressOrName = null, positionId: positionIdStr, network: networkStr } = useParams()
+    const network = coerce(Network, networkStr) ?? null
     const positionId = positionIdStr ? parseInt(positionIdStr) : NaN
-    const { position, option } = usePosition(marketAddressOrName ?? null, !isNaN(positionId) ? positionId : null)
+    const { position, option } = usePosition(network, marketAddressOrName, !isNaN(positionId) ? positionId : null)
     return position && option ? (
       <PositionPageHelper option={option} position={position} />
     ) : (
-      <LayoutPageError error="Position does not exist" />
+      <PageError error="Position does not exist" />
     )
   },
-  () => <LayoutPageLoading />
+  () => <PageLoading />
 )
 
 export default PositionPage

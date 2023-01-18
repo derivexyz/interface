@@ -108,7 +108,7 @@ const PositionHistoryTable = ({ positions, onClick, pageSize, ...styleProps }: P
             <Box>
               <Text variant="secondary">{formatUSD(props.cell.value)}</Text>
               <Text variant="small" color="secondaryText">
-                {formatUSD(openSpotPrice)} / {position.marketName}
+                {formatUSD(openSpotPrice)} / {position.market().baseToken.symbol}
               </Text>
             </Box>
           )
@@ -124,7 +124,7 @@ const PositionHistoryTable = ({ positions, onClick, pageSize, ...styleProps }: P
             <Box>
               <Text variant="secondary">{position.isSettled ? '-' : formatUSD(props.cell.value)}</Text>
               <Text variant="small" color="secondaryText">
-                {formatUSD(closeSpotPrice)} / {position.marketName}
+                {formatUSD(closeSpotPrice)} / {position.market().baseToken.symbol}
               </Text>
             </Box>
           )

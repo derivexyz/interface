@@ -24,6 +24,8 @@ import { Trade, TradeOptions } from '../trade'
 import fetchLatestLiquidity from '../utils/fetchLatestLiquidity'
 import fetchLatestNetGreeks from '../utils/fetchLatestNetGreeks'
 import fetchLiquidityHistory from '../utils/fetchLiquidityHistory'
+import fetchMarketAddresses from '../utils/fetchMarketAddresses'
+import fetchMarketView from '../utils/fetchMarketView'
 import fetchNetGreeksHistory from '../utils/fetchNetGreeksHistory'
 import fetchSpotPriceHistory from '../utils/fetchSpotPriceHistory'
 import fetchTradingVolumeHistory from '../utils/fetchTradingVolumeHistory'
@@ -31,13 +33,7 @@ import findMarket from '../utils/findMarket'
 import getBoardView from '../utils/getBoardView'
 import getBoardViewForStrikeId from '../utils/getBoardViewForStrikeId'
 import getMarketOwner from '../utils/getMaketOwner'
-import getMarketAddresses from '../utils/getMarketAddresses'
 import getMarketName from '../utils/getMarketName'
-import getMarketView from '../utils/getMarketView'
-import getMarketViews from '../utils/getMarketViews'
-import getOptionWrapperMarketId from '../utils/getOptionWrapperMarketId'
-import getOptionWrapperMarketIds from '../utils/getOptionWrapperMarketIds'
-import mergeAndSortSnapshots from '../utils/mergeAndSortSnapshots'
 
 export type MarketToken = {
   address: string
@@ -56,26 +52,21 @@ export type MarketContractAddresses = {
   poolHedger: string
 }
 
-export type MarketLiquidity = {
+export type MarketLiquiditySnapshot = {
+  tvl: BigNumber
   freeLiquidity: BigNumber
   burnableLiquidity: BigNumber
-  totalQueuedDeposits: BigNumber
-  nav: BigNumber
   utilization: number
-  totalWithdrawingDeposits: BigNumber
   reservedCollatLiquidity: BigNumber
   pendingDeltaLiquidity: BigNumber
   usedDeltaLiquidity: BigNumber
   tokenPrice: BigNumber
-}
-
-export type MarketLiquidityHistory = MarketLiquidity & {
   pendingDeposits: BigNumber
   pendingWithdrawals: BigNumber
   timestamp: number
 }
 
-export type MarketNetGreeks = {
+export type MarketNetGreeksSnapshot = {
   poolNetDelta: BigNumber
   hedgerNetDelta: BigNumber
   netDelta: BigNumber
@@ -83,33 +74,35 @@ export type MarketNetGreeks = {
   timestamp: number
 }
 
-export type MarketTradingVolumeHistory = {
+export type MarketTradingVolumeSnapshot = {
   premiumVolume: BigNumber
   notionalVolume: BigNumber
+  vaultFees: BigNumber
+  vaultFeeComponents: {
+    spotPriceFees: BigNumber
+    optionPriceFees: BigNumber
+    vegaUtilFees: BigNumber
+    varianceFees: BigNumber
+    forceCloseFees: BigNumber
+    liquidationFees: BigNumber
+  }
   totalPremiumVolume: BigNumber
   totalNotionalVolume: BigNumber
-  spotPriceFees: BigNumber
-  optionPriceFees: BigNumber
-  vegaFees: BigNumber
-  varianceFees: BigNumber
-  deltaCutoffFees: BigNumber
   liquidatorFees: BigNumber
   smLiquidationFees: BigNumber
-  lpLiquidationFees: BigNumber
   startTimestamp: number
   endTimestamp: number
 }
 
-export type MarketPendingLiquidityHistory = {
-  pendingDepositAmount: BigNumber
-  pendingWithdrawalAmount: BigNumber
-  timestamp: number
-}
-
-export type MarketSpotPrice = {
-  timestamp: number
-  spotPrice: BigNumber
-  blockNumber: number
+export type MarketSpotCandle = {
+  period: number
+  open: BigNumber
+  high: BigNumber
+  low: BigNumber
+  close: BigNumber
+  startTimestamp: number
+  startBlockNumber: number
+  endTimestamp: number
 }
 
 export type MarketQuotes = {
@@ -122,13 +115,13 @@ export class Market {
   private liveBoardsMap: Record<number, BoardViewStructOutput>
   __source = DataSource.ContractCall
   __marketData: MarketViewWithBoardsStructOutput
-  __wrapperMarketId: number | null
   lyra: Lyra
   block: Block
   address: string
   name: string
   quoteToken: MarketToken
   baseToken: MarketToken
+  liquidityToken: MarketToken
   tradingCutoff: number
   isPaused: boolean
   openInterest: BigNumber
@@ -138,11 +131,10 @@ export class Market {
   contractAddresses: MarketContractAddresses
   marketParameters: MarketParametersStructOutput
 
-  constructor(lyra: Lyra, marketView: MarketViewWithBoardsStructOutput, wrapperMarketId: number | null, block: Block) {
+  constructor(lyra: Lyra, marketView: MarketViewWithBoardsStructOutput, block: Block) {
     this.lyra = lyra
     this.block = block
     this.__marketData = marketView
-    this.__wrapperMarketId = wrapperMarketId
     this.marketParameters = marketView.marketParameters
 
     const fields = Market.getFields(lyra.version, marketView)
@@ -152,6 +144,7 @@ export class Market {
     this.spotPrice = fields.spotPrice
     this.quoteToken = fields.quoteToken
     this.baseToken = fields.baseToken
+    this.liquidityToken = fields.liquidityToken
     this.tradingCutoff = fields.tradingCutoff
     this.name = fields.name
     this.contractAddresses = fields.contractAddresses
@@ -179,17 +172,22 @@ export class Market {
   private static getFields(version: Version, marketView: MarketViewWithBoardsStructOutput) {
     const address = marketView.marketAddresses.optionMarket
     const isPaused = marketView.isPaused
-    let spotPrice, quoteSymbol, baseSymbol
+    let spotPrice, quoteSymbol, baseSymbol, quoteDecimals, baseDecimals
     if (version === Version.Avalon) {
       const avalonMarketView = marketView as OptionMarketViewerAvalon.MarketViewWithBoardsStructOutput
       spotPrice = avalonMarketView.exchangeParams.spotPrice
       quoteSymbol = parseBytes32String(avalonMarketView.exchangeParams.quoteKey)
       baseSymbol = parseBytes32String(avalonMarketView.exchangeParams.baseKey)
+      quoteDecimals = 18
+      baseDecimals = 18
     } else {
       const newportMarketView = marketView as OptionMarketViewer.MarketViewWithBoardsStructOutput
-      spotPrice = newportMarketView.spotPrice
+      // TODO: Fix
+      spotPrice = newportMarketView.minSpotPrice
       quoteSymbol = newportMarketView.quoteSymbol
+      quoteDecimals = newportMarketView.quoteDecimals.toNumber()
       baseSymbol = newportMarketView.baseSymbol
+      baseDecimals = newportMarketView.baseDecimals.toNumber()
     }
     const quoteAddress = marketView.marketAddresses.quoteAsset
     const baseAddress = marketView.marketAddresses.baseAsset
@@ -208,11 +206,16 @@ export class Market {
       quoteToken: {
         address: quoteAddress,
         symbol: quoteSymbol,
-        decimals: 18,
+        decimals: quoteDecimals,
       },
       baseToken: {
         address: baseAddress,
         symbol: baseSymbol,
+        decimals: baseDecimals,
+      },
+      liquidityToken: {
+        address: marketView.marketAddresses.liquidityToken,
+        symbol: `${baseSymbol}LP`,
         decimals: 18,
       },
       contractAddresses: marketView.marketAddresses,
@@ -227,29 +230,24 @@ export class Market {
 
   static async get(lyra: Lyra, marketAddressOrName: string): Promise<Market> {
     const [marketView, block] = await Promise.all([
-      getMarketView(lyra, marketAddressOrName),
+      fetchMarketView(lyra, marketAddressOrName),
       lyra.provider.getBlock('latest'),
     ])
-    const marketId = await getOptionWrapperMarketId(lyra, marketView.marketAddresses.optionMarket)
-    if (!marketId) {
-      console.warn(`No market ID found for ${marketAddressOrName}`)
-    }
-    return new Market(lyra, marketView, marketId, block)
+    return new Market(lyra, marketView, block)
   }
 
   static async getMany(lyra: Lyra, marketAddresses: string[]): Promise<Market[]> {
-    const [marketViews, marketsToId, block] = await Promise.all([
-      getMarketViews(lyra, marketAddresses),
-      getOptionWrapperMarketIds(lyra),
+    const [marketViews, block] = await Promise.all([
+      Promise.all(marketAddresses.map(marketAddress => fetchMarketView(lyra, marketAddress))),
       lyra.provider.getBlock('latest'),
     ])
     return marketViews.map(marketView => {
-      return new Market(lyra, marketView, marketsToId[marketView.marketAddresses.optionMarket], block)
+      return new Market(lyra, marketView, block)
     })
   }
 
   static async getAll(lyra: Lyra): Promise<Market[]> {
-    const marketAddresses = await getMarketAddresses(lyra)
+    const marketAddresses = await fetchMarketAddresses(lyra)
     return await Market.getMany(
       lyra,
       marketAddresses.map(m => m.optionMarket)
@@ -275,6 +273,7 @@ export class Market {
       .map(boardView => {
         return new Board(this.lyra, this, boardView, this.block)
       })
+      .filter(b => this.block.timestamp < b.expiryTimestamp)
       .sort((a, b) => a.expiryTimestamp - b.expiryTimestamp)
   }
 
@@ -368,42 +367,34 @@ export class Market {
     options?: MarketTradeOptions
   ): Promise<Trade> {
     return await Trade.get(this.lyra, owner, this.address, strikeId, isCall, isBuy, size, {
-      premiumSlippage: slippage,
+      slippage,
       ...options,
     })
   }
 
   // Dynamic fields
-  async liquidity(): Promise<MarketLiquidity> {
-    return await fetchLatestLiquidity(this.lyra, this.address)
+  async liquidity(): Promise<MarketLiquiditySnapshot> {
+    return await fetchLatestLiquidity(this.lyra, this)
   }
 
-  async netGreeks(): Promise<MarketNetGreeks> {
+  async netGreeks(): Promise<MarketNetGreeksSnapshot> {
     return await fetchLatestNetGreeks(this.lyra, this)
   }
 
-  async liquidityHistory(options?: SnapshotOptions): Promise<MarketLiquidityHistory[]> {
-    const liquidityHistory = await fetchLiquidityHistory(this.lyra, this, options)
-    const res = mergeAndSortSnapshots(liquidityHistory, 'timestamp')
-    return res
+  async liquidityHistory(options?: SnapshotOptions): Promise<MarketLiquiditySnapshot[]> {
+    return await fetchLiquidityHistory(this.lyra, this, options)
   }
 
-  async netGreeksHistory(options?: SnapshotOptions): Promise<MarketNetGreeks[]> {
-    const netGreeksHistory = await fetchNetGreeksHistory(this.lyra, this, options)
-    return mergeAndSortSnapshots(netGreeksHistory, 'timestamp')
+  async netGreeksHistory(options?: SnapshotOptions): Promise<MarketNetGreeksSnapshot[]> {
+    return await fetchNetGreeksHistory(this.lyra, this, options)
   }
 
-  async tradingVolumeHistory(options?: SnapshotOptions): Promise<MarketTradingVolumeHistory[]> {
-    return mergeAndSortSnapshots(await fetchTradingVolumeHistory(this.lyra, this, options), 'endTimestamp')
+  async tradingVolumeHistory(options?: SnapshotOptions): Promise<MarketTradingVolumeSnapshot[]> {
+    return await fetchTradingVolumeHistory(this.lyra, this, options)
   }
 
-  async spotPriceHistory(options?: SnapshotOptions): Promise<MarketSpotPrice[]> {
-    const spotPriceHistory = await fetchSpotPriceHistory(this.lyra, this.address, options)
-    return mergeAndSortSnapshots(spotPriceHistory, 'timestamp', {
-      spotPrice: this.spotPrice,
-      timestamp: this.block.timestamp,
-      blockNumber: this.block.number,
-    })
+  async spotPriceHistory(options?: SnapshotOptions): Promise<MarketSpotCandle[]> {
+    return await fetchSpotPriceHistory(this.lyra, this, options)
   }
 
   async owner(): Promise<string> {

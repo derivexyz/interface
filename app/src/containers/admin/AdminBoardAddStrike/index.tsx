@@ -26,11 +26,11 @@ type Props = {
 
 const AdminBoardAddStrike = withSuspense(({ board, market, owner, onAddStrike }: Props) => {
   const { account, isConnected } = useWallet()
-  const admin = useAdmin()
+  const admin = useAdmin(market.lyra.network)
   const [strike, setStrike] = useState<BigNumber>(ZERO_BN)
   const [skew, setSkew] = useState<BigNumber>(ZERO_BN)
   const [isLoading, setIsLoading] = useState(false)
-  const execute = useAdminTransaction(owner)
+  const execute = useAdminTransaction(market.lyra.network, owner)
   const isAddStrikeDisabled = strike.isZero() || skew.isZero()
   if (!board) {
     return null

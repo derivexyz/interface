@@ -2,7 +2,7 @@ import Button, { ButtonElement } from '@lyra/ui/components/Button'
 import { IconType } from '@lyra/ui/components/Icon'
 import { MarginProps } from '@lyra/ui/types'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Quote, QuoteDisabledReason } from '@lyrafinance/lyra-js'
+import { Market, Quote, QuoteDisabledReason } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import emptyFunction from '@/app/utils/emptyFunction'
@@ -34,12 +34,14 @@ const getDisabledMessage = (disabledReason: QuoteDisabledReason): string => {
   }
 }
 
-const getButtonWidthForMarket = (marketName: string) => {
-  switch (marketName.toLowerCase()) {
+const getButtonWidthForMarket = (market: Market) => {
+  switch (market.baseToken.symbol.toLowerCase()) {
     case 'btc':
-      return 142
+    case 'wbtc':
+    case 'sbtc':
+      return 150
     default:
-      return 128
+      return 136
   }
 }
 
@@ -54,7 +56,7 @@ export default function TradeBoardPriceButton({
   return (
     <Button
       variant={isBuy ? 'primary' : 'error'}
-      width={getButtonWidthForMarket(quote.marketName)}
+      width={getButtonWidthForMarket(quote.market())}
       showRightIconSeparator={!isDisabled}
       isOutline={!isSelected}
       isDisabled={isDisabled}

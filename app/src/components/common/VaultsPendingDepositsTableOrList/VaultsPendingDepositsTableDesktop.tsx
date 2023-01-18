@@ -1,9 +1,10 @@
+import Box from '@lyra/ui/components/Box'
 import Table, { TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
 import formatDateTime from '@lyra/ui/utils/formatDateTime'
-import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
+import formatDuration from '@lyra/ui/utils/formatDuration'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { LiquidityDelayReason } from '@lyrafinance/lyra-js'
+import { LiquidityDelayReason, Market, Network } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 import { CellProps as TableCellProps, Column as TableColum } from 'react-table'
 
@@ -14,9 +15,11 @@ import VaultsCircuitBreakerToken from '../VaultsCircuitBreakerToken'
 import { VaultsPendingDepositsTableOrListProps } from '.'
 
 type VaultsPendingDepositsTableData = TableData<{
-  market: string
-  baseSymbol: string
-  value: number
+  market: Market
+  balance: number
+  baseTokenSymbol: string
+  vaultQuoteSymbol: string
+  network: Network
   requestedDate: number
   timeToEntry: number
   delayReason: LiquidityDelayReason | null
@@ -33,11 +36,16 @@ const VaultsDepositsTableDesktop = ({ deposits, onClick, ...styleProps }: Vaults
       const progressPct = duration > 0 ? progressDuration / duration : 0
       const timeToEntry = duration - progressDuration
       const delayReason = deposit.delayReason
+      const market = deposit.market()
+      const baseTokenSymbol = market.baseToken.symbol
+      const network = market.lyra.network
       return {
-        market: deposit.market().name,
-        baseSymbol: deposit.market().baseToken.symbol,
-        value: fromBigNumber(deposit.value),
-        requestedDate: deposit.depositTimestamp,
+        market: market,
+        baseTokenSymbol: baseTokenSymbol,
+        balance: fromBigNumber(deposit.value),
+        requestedDate: deposit.depositRequestedTimestamp,
+        network: network,
+        vaultQuoteSymbol: market.quoteToken.symbol,
         timeToEntry,
         timeToEntryPercentage: progressPct,
         delayReason,
@@ -49,39 +57,47 @@ const VaultsDepositsTableDesktop = ({ deposits, onClick, ...styleProps }: Vaults
     const columns: TableColum<VaultsPendingDepositsTableData>[] = [
       {
         accessor: 'market',
-        Header: 'Market',
+        Header: 'Vault',
         Cell: (props: TableCellProps<VaultsPendingDepositsTableData>) => {
-          const { timeToEntryPercentage, baseSymbol } = props.row.original
-          return <MarketLabelProgress marketName={baseSymbol} progress={timeToEntryPercentage} color="primaryText" />
+          const { timeToEntryPercentage, market } = props.row.original
+          return <MarketLabelProgress market={market} progress={timeToEntryPercentage} color="primaryText" size={30} />
         },
       },
       {
-        accessor: 'value',
+        accessor: 'balance',
         Header: 'Depositing',
         Cell: (props: TableCellProps<VaultsPendingDepositsTableData>) => {
-          return <Text variant="secondary">{formatUSD(props.cell.value)}</Text>
+          const { market } = props.row.original
+          return (
+            <Box>
+              <Text variant={'secondary'}>{formatUSD(props.cell.value)}</Text>
+              <Text variant="small" color="secondaryText">
+                {market.quoteToken.symbol}
+              </Text>
+            </Box>
+          )
         },
       },
       {
         accessor: 'requestedDate',
-        Header: 'Request Date',
+        Header: 'Requested',
         Cell: (props: TableCellProps<VaultsPendingDepositsTableData>) => {
-          return <Text variant="secondary">{formatDateTime(props.cell.value, true)}</Text>
+          return (
+            <Text variant="secondary">
+              {formatDateTime(props.cell.value, { hideYear: true, hideMins: false, includeTimezone: true })}
+            </Text>
+          )
         },
       },
       {
         accessor: 'timeToEntry',
-        Header: 'Time to Entry',
+        Header: 'Time to Deposit',
         Cell: (props: TableCellProps<VaultsPendingDepositsTableData>) => {
-          const showDuration = props.cell.value > 0
           const delayReason = props.row.original.delayReason
-          return (
-            <>
-              {showDuration && !delayReason ? (
-                <Text variant="secondary">{formatTruncatedDuration(props.cell.value)}</Text>
-              ) : null}
-              {delayReason ? <VaultsCircuitBreakerToken delayReason={delayReason} /> : null}
-            </>
+          return !delayReason ? (
+            <Text variant="secondary">{formatDuration(props.cell.value)}</Text>
+          ) : (
+            <VaultsCircuitBreakerToken delayReason={delayReason} />
           )
         },
       },

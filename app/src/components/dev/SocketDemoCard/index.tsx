@@ -2,6 +2,7 @@ import Button from '@lyra/ui/components/Button'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import { MarginProps } from '@lyra/ui/types'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import OnboardingModal from '../../../containers/common/OnboardingModal'
@@ -13,7 +14,7 @@ export default function SocketDemoCard({ ...marginProps }: MarginProps) {
       <CardBody>
         <Button size="lg" variant="primary" label="Open Onboarding Modal" onClick={() => setIsOpen(true)} />
       </CardBody>
-      <OnboardingModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <OnboardingModal network={Network.Optimism} isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </Card>
   )
 }

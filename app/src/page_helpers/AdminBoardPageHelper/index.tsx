@@ -1,5 +1,5 @@
 import { Board } from '@lyrafinance/lyra-js'
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { PageId } from '@/app/constants/pages'
 import AdminBoardAddStrike from '@/app/containers/admin/AdminBoardAddStrike'
@@ -13,43 +13,48 @@ import { useMutateBoard } from '@/app/hooks/market/useBoard'
 import useMarketOwner from '@/app/hooks/market/useMarketOwner'
 import getPagePath from '@/app/utils/getPagePath'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
-import LayoutPageError from '../common/Layout/LayoutPageError'
-import LayoutPageLoading from '../common/Layout/LayoutPageLoading'
+import Page from '../common/Page'
+import PageError from '../common/Page/PageError'
+import PageGrid from '../common/Page/PageGrid'
+import PageLoading from '../common/Page/PageLoading'
 
 type Props = {
-  board: Board | null
+  board: Board
 }
 
 const AdminBoardPageHelper = withSuspense(
   ({ board }: Props) => {
-    const market = board?.market()
-    const owner = useMarketOwner(market?.address ?? null)
-    const mutateBoard = useMutateBoard(market?.address ?? null, board?.id ?? null)
+    const market = board.market()
+    const owner = useMarketOwner(market)
+    const mutateBoard = useMutateBoard(market.lyra)
+    const handleUpdateBoard = useCallback(
+      () => mutateBoard(market.address, board.id),
+      [mutateBoard, market.address, board.id]
+    )
     if (!market || !board || !owner) {
-      return <LayoutPageError error="Board does not exist" />
+      return <PageError error="Board does not exist" />
     }
     return (
-      <Layout
+      <Page
         desktopRightColumn={<AdminTransactionCard height="80vh" overflow="auto" />}
         showBackButton
         backHref={getPagePath({
           page: PageId.AdminMarket,
+          network: market.lyra.network,
           marketAddressOrName: market.baseToken.symbol.slice(1, market.baseToken.symbol.length),
         })}
       >
-        <LayoutGrid>
+        <PageGrid>
           <AdminMarketSelect marketAddressOrName={market.address} />
-          <AdminBoardInfo market={market} board={board} owner={owner} onUpdateBoard={mutateBoard} />
-          <AdminBoardBaseIv market={market} board={board} owner={owner} onUpdateBoard={mutateBoard} />
-          <AdminBoardAddStrike market={market} board={board} owner={owner} onAddStrike={mutateBoard} />
-          <AdminBoardStrikes board={board} owner={owner} onUpdateStrike={mutateBoard} />
-        </LayoutGrid>
-      </Layout>
+          <AdminBoardInfo market={market} board={board} owner={owner} onUpdateBoard={handleUpdateBoard} />
+          <AdminBoardBaseIv market={market} board={board} owner={owner} onUpdateBoard={handleUpdateBoard} />
+          <AdminBoardAddStrike market={market} board={board} owner={owner} onAddStrike={handleUpdateBoard} />
+          <AdminBoardStrikes board={board} owner={owner} onUpdateStrike={handleUpdateBoard} />
+        </PageGrid>
+      </Page>
     )
   },
-  () => <LayoutPageLoading />
+  () => <PageLoading />
 )
 
 export default AdminBoardPageHelper

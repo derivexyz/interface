@@ -9,7 +9,7 @@ import React from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useOptionPriceHistory from '@/app/hooks/gql/useOptionPriceHistory'
+import useOptionPriceHistory from '@/app/hooks/position/useOptionPriceHistory'
 
 type Props = {
   option: Option
@@ -20,12 +20,7 @@ type Props = {
 
 const PositionPriceChartTitle = withSuspense(
   ({ option, hoverOptionPrice, period, ...styleProps }: Props) => {
-    const history = useOptionPriceHistory(
-      option.market().address.toLowerCase(),
-      option.strike().id,
-      option.isCall,
-      period
-    )
+    const history = useOptionPriceHistory(option, period)
     if (history.length === 0) {
       return null
     }

@@ -7,37 +7,41 @@ import Text from '@lyra/ui/components/Text'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
+import { Market } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import VaultsFormSizeInput from '@/app/components/vaults/VaultsFormSizeInput'
 import { ZERO_BN } from '@/app/constants/bn'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useMarket from '@/app/hooks/market/useMarket'
 import useVaultBalance from '@/app/hooks/vaults/useVaultBalance'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import VaultsWithdrawFormButton from './VaultsWithdrawFormButton'
 
+const CARD_SECTION_HEIGHT = 350
+
 type Props = {
-  marketAddressOrName: string
+  onClose: () => void
+  market: Market
 } & MarginProps &
   LayoutProps
 
 const VaultsWithdrawForm = withSuspense(
-  ({ marketAddressOrName, ...styleProps }: Props) => {
-    const market = useMarket(marketAddressOrName)
-    const vault = useVaultBalance(marketAddressOrName)
-    const lpBalance = vault?.balances.liquidityToken.balance ?? ZERO_BN
+  ({ market, onClose, ...styleProps }: Props) => {
+    const vaultBalance = useVaultBalance(market)
     const [amount, setAmount] = useState(ZERO_BN)
 
-    if (!market) {
+    if (!vaultBalance) {
       return null
     }
 
+    const lpBalance = vaultBalance.liquidityToken.balance
+    const lpSymbol = vaultBalance.liquidityToken.symbol
+
     return (
       <>
-        <CardSection>
+        <CardSection {...styleProps}>
           <Flex alignItems="center" justifyContent="space-between" mb={4}>
             <Text color="secondaryText">Amount</Text>
             <VaultsFormSizeInput amount={amount} max={lpBalance} onChangeAmount={setAmount} />
@@ -48,7 +52,7 @@ const VaultsWithdrawForm = withSuspense(
             </Text>
             <AmountUpdateText
               variant="secondary"
-              symbol="Tokens"
+              symbol={lpSymbol}
               prevAmount={lpBalance}
               newAmount={lpBalance.sub(amount)}
             />
@@ -56,16 +60,6 @@ const VaultsWithdrawForm = withSuspense(
         </CardSection>
         <CardSeparator />
         <CardSection>
-          <Flex alignItems="center" justifyContent="space-between" mb={4}>
-            <Text variant="secondary" color="secondaryText">
-              Deposit Delay
-            </Text>
-            <Text variant="secondary">
-              {market.liveBoards().length === 0 || market.depositDelay === 0
-                ? 'None'
-                : formatTruncatedDuration(market.depositDelay)}
-            </Text>
-          </Flex>
           <Flex alignItems="center" justifyContent="space-between" mb={4}>
             <Text variant="secondary" color="secondaryText">
               Withdrawal Delay
@@ -84,14 +78,14 @@ const VaultsWithdrawForm = withSuspense(
               {formatPercentage(fromBigNumber(market.__marketData.marketParameters.lpParams.withdrawalFee), true)}
             </Text>
           </Flex>
-          <VaultsWithdrawFormButton market={market} amount={amount} />
+          <VaultsWithdrawFormButton vaultBalance={vaultBalance} amount={amount} onWithdraw={onClose} />
         </CardSection>
       </>
     )
   },
-  ({ marketAddressOrName, ...styleProps }: Props) => (
-    <CardSection>
-      <Center {...styleProps}>
+  ({ market, ...styleProps }: Props) => (
+    <CardSection height={CARD_SECTION_HEIGHT}>
+      <Center height="100%" width="100%" {...styleProps}>
         <Spinner />
       </Center>
     </CardSection>

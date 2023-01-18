@@ -1,6 +1,14 @@
 import { CollateralUpdateData } from '../collateral_update_event'
-import { TradeEvent } from '../contracts/newport/typechain/OptionMarket'
-import { PositionUpdatedEvent, TransferEvent } from '../contracts/newport/typechain/OptionToken'
+import { TradeEvent as AvalonTradeEvent } from '../contracts/avalon/typechain/OptionMarket'
+import { TradeEvent as NewportTradeEvent } from '../contracts/newport/typechain/OptionMarket'
+import {
+  PositionUpdatedEvent as AvalonPositionUpdatedEvent,
+  TransferEvent as AvalonTransferEvent,
+} from '../contracts/newport/typechain/OptionToken'
+import {
+  PositionUpdatedEvent as NewportPositionUpdatedEvent,
+  TransferEvent as NewportTransferEvent,
+} from '../contracts/newport/typechain/OptionToken'
 import { SettleEventData } from '../settle_event'
 import { TradeEventData } from '../trade_event'
 import { TransferEventData } from '../transfer_event'
@@ -10,7 +18,7 @@ export type PartialPositionUpdatedEvent = {
   blockNumber: number
   transactionHash: string
   logIndex: number
-  args: PositionUpdatedEvent['args']
+  args: (AvalonPositionUpdatedEvent | NewportPositionUpdatedEvent)['args']
 }
 
 export type PartialTradeEvent = {
@@ -18,7 +26,7 @@ export type PartialTradeEvent = {
   blockNumber: number
   transactionHash: string
   logIndex: number
-  args: TradeEvent['args']
+  args: (AvalonTradeEvent | NewportTradeEvent)['args']
 }
 
 export type PartialTransferEvent = {
@@ -26,7 +34,7 @@ export type PartialTransferEvent = {
   blockNumber: number
   transactionHash: string
   logIndex: number
-  args: TransferEvent['args']
+  args: (AvalonTransferEvent | NewportTransferEvent)['args']
 }
 
 export type PartialCollateralUpdateEventGroup = {

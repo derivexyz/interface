@@ -83,12 +83,12 @@ export default function Tooltip({
           <Card variant="elevated" maxWidth={320}>
             <CardBody noPadding={noPadding}>
               {title != null ? (
-                <Text mx={noPadding ? 6 : 0} mt={noPadding ? 6 : 0} mb={4} variant="bodyMedium">
+                <Text textAlign="left" mx={noPadding ? 6 : 0} mt={noPadding ? 6 : 0} mb={4} variant="bodyMedium">
                   {title}
                 </Text>
               ) : null}
               {typeof tooltip === 'string' ? (
-                <Text color="secondaryText" variant="secondary">
+                <Text textAlign="left" color="secondaryText" variant="secondary">
                   {tooltip}
                 </Text>
               ) : (

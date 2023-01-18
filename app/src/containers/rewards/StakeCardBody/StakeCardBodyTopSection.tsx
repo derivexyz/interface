@@ -24,7 +24,7 @@ type StakeCardBodyTopSectionProps = {
 const StakeCardBodyTopSectionBalance = withSuspense(
   () => {
     const lyraAccountStaking = useLyraAccountStaking()
-    return <TokenAmountText tokenNameOrAddress="lyra" amount={lyraAccountStaking?.lyraBalance.balance ?? 0} />
+    return <TokenAmountText tokenNameOrAddress="lyra" amount={lyraAccountStaking?.lyraBalances.ethereumLyra ?? 0} />
   },
   () => {
     return <TokenAmountTextShimmer />
@@ -34,7 +34,7 @@ const StakeCardBodyTopSectionBalance = withSuspense(
 const StakeCardBodyTopSectionInput = withSuspense(
   ({ amount, onChangeAmount }: StakeCardBodyTopSectionProps) => {
     const lyraAccountStaking = useLyraAccountStaking()
-    const maxStakeBalance = lyraAccountStaking?.lyraBalance.balance ?? ZERO_BN
+    const maxStakeBalance = lyraAccountStaking?.lyraBalances.ethereumLyra ?? ZERO_BN
     return (
       <StakeFormAmountInput amount={amount} max={maxStakeBalance} onChangeAmount={onChangeAmount} ml="auto" mr={-3} />
     )
@@ -48,8 +48,8 @@ const StakeCardBodyTopSection = ({ amount, onChangeAmount, ...styleProps }: Stak
   return (
     <ModalSection variant="elevated" {...styleProps}>
       <Text variant="body" color="secondaryText" width="100%" mb={4}>
-        By staking LYRA you earn stkLYRA and OP rewards and you receive boosts on your vault and trading rewards. LYRA
-        rewards are locked for 6 months. Staked LYRA has a 14 day unstaking period.
+        By staking LYRA you earn stkLYRA rewards and you receive boosts on your vault and trading rewards. Staked LYRA
+        has a 14 day unstaking period.
       </Text>
       <Flex width="100%" my={4} justifyContent="space-between">
         <Text variant="body" color="secondaryText">

@@ -1,12 +1,22 @@
-import { Position } from '@lyrafinance/lyra-js'
+import { Network, Position } from '@lyrafinance/lyra-js'
 
-import lyra from '@/app/utils/lyra'
+import getLyraSDK from '@/app/utils/getLyraSDK'
+import { lyraArbitrum, lyraOptimism } from '@/app/utils/lyra'
 
 import useFetch from '../data/useFetch'
 import useWalletAccount from '../wallet/useWalletAccount'
 
-const fetcher = async (owner: string, includeOpen: boolean): Promise<Position[]> => {
-  const positions = await lyra.positions(owner)
+const fetcher = async (owner: string, includeOpen: boolean, network?: Network): Promise<Position[]> => {
+  let positions: Position[] = []
+  if (network) {
+    positions = await getLyraSDK(network).positions(owner)
+  } else {
+    const [opPositions, arbPositions] = await Promise.all([
+      lyraOptimism.positions(owner),
+      lyraArbitrum.positions(owner),
+    ])
+    positions = [...opPositions, ...arbPositions]
+  }
   return positions
     .filter(p => includeOpen || !p.isOpen)
     .sort((a, b) => {
@@ -18,8 +28,8 @@ const fetcher = async (owner: string, includeOpen: boolean): Promise<Position[]>
 
 const EMPTY: Position[] = []
 
-export default function usePositionHistory(includeOpen = false): Position[] {
+export default function usePositionHistory(includeOpen = false, network?: Network): Position[] {
   const owner = useWalletAccount()
-  const [positions] = useFetch('OwnerPositionHistory', owner ? [owner, includeOpen] : null, fetcher)
+  const [positions] = useFetch('OwnerPositionHistory', owner ? [owner, includeOpen, network] : null, fetcher)
   return positions ?? EMPTY
 }

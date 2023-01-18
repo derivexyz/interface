@@ -17,14 +17,16 @@ import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
+import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 import getPagePath from '@/app/utils/getPagePath'
 
 type Props = MarginProps
 
 const PendingRewardsCardGridItems = withSuspense(
   () => {
-    const epochs = useLatestRewardEpochs()
+    const network = useNetwork()
+    const epochs = useLatestRewardEpoch(network, true)
     const account = epochs?.account
     const global = epochs?.global
     const epochEndTimestamp = global?.endTimestamp ?? 0
@@ -66,7 +68,8 @@ const PendingRewardsCardGridItems = withSuspense(
 
 const PendingStakedLyraText = withSuspense(
   () => {
-    const account = useLatestRewardEpochs()?.account
+    const network = useNetwork()
+    const account = useLatestRewardEpoch(network, true)?.account
     // Omit staking rewards due to 6mo lock
     const lyraVaultRewards = account?.totalVaultRewards.lyra ?? 0
     const lyraTradingRewards = account?.tradingRewards.lyra ?? 0

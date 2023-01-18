@@ -1,26 +1,23 @@
 import { AccountLyraStaking } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
-import lyra from '../../utils/lyra'
-import useOptimismBlockFetch, { useOptimismBlockMutate } from '../data/useOptimismBlockFetch'
+import { lyraOptimism } from '@/app/utils/lyra'
+
+import useFetch, { useMutate } from '../data/useFetch'
 import useWalletAccount from '../wallet/useWalletAccount'
 
 const fetchLyraAccountStaking = async (account: string): Promise<AccountLyraStaking> => {
-  return await lyra.account(account).lyraStaking()
+  return await lyraOptimism.account(account).lyraStaking()
 }
 
 export default function useLyraAccountStaking(): AccountLyraStaking | null {
   const account = useWalletAccount()
-  const [accountStaking] = useOptimismBlockFetch(
-    'LyraAccountStaking',
-    account ? [account] : null,
-    fetchLyraAccountStaking
-  )
+  const [accountStaking] = useFetch('LyraAccountStaking', account ? [account] : null, fetchLyraAccountStaking)
   return accountStaking
 }
 
 export const useMutateAccountStaking = (): (() => Promise<AccountLyraStaking | null>) => {
-  const mutate = useOptimismBlockMutate('LyraAccountStaking', fetchLyraAccountStaking)
+  const mutate = useMutate('LyraAccountStaking', fetchLyraAccountStaking)
   const account = useWalletAccount()
   return useCallback(async () => {
     if (account) {

@@ -45,17 +45,11 @@ export default async function positionTrade(argv: string[]) {
     )} -> ${fromBigNumber(setToCollateral ?? ZERO_BN)} )`
   )
 
-  // TODO: @michaelxuwu Update to include multiple stables
-  await approve(market, market.quoteToken.address)
-
   const trade = await position.trade(isBuy, size, SLIPPAGE, {
     setToCollateral,
   })
 
-  if (!trade.__params) {
-    console.log('something is broken')
-    return
-  }
+  await approve(trade)
 
   printObject('Quote', {
     premium: trade.quoted,

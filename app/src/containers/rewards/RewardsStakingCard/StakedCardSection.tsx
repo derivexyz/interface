@@ -3,40 +3,111 @@ import Button from '@lyra/ui/components/Button'
 import { CardElement } from '@lyra/ui/components/Card'
 import CardSection from '@lyra/ui/components/Card/CardSection'
 import Grid from '@lyra/ui/components/Grid'
+import Icon, { IconType } from '@lyra/ui/components/Icon'
+import Link from '@lyra/ui/components/Link'
+import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
+import Tooltip from '@lyra/ui/components/Tooltip'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
+import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import React, { useMemo, useState } from 'react'
 
+import RowItem from '@/app/components/common/RowItem'
 import StakeAPYTooltip from '@/app/components/common/StakeAPYTooltip'
-import TokenAmountText from '@/app/components/common/TokenAmountText'
-import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import { ZERO_BN } from '@/app/constants/bn'
 import UnstakeModal from '@/app/containers/rewards/UnstakeModal'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
+import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
+import useClaimableBalancesL1 from '@/app/hooks/rewards/useClaimableBalanceL1'
+import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
 import useLyraAccountStaking from '@/app/hooks/rewards/useLyraAccountStaking'
-import useLyraStaking from '@/app/hooks/rewards/useLyraStaking'
-import fromBigNumber from '@/app/utils/fromBigNumber'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 
+import ClaimAndMigrateModal from '../ClaimAndMigrateModal'
+import ClaimStakingRewardsModal from '../ClaimStakingRewardsModal'
 import StakeModal from '../StakeModal'
 
 type Props = MarginProps
 
+type StakedCardSectionButtonProps = {
+  onStakeOpen: () => void
+  onUnstakeOpen: () => void
+  onClaimL1Open: () => void
+  onClaimAndMigrateOpen: () => void
+}
+
 const StakedLyraBalanceText = withSuspense(
   (): CardElement => {
     const lyraAccountStaking = useLyraAccountStaking()
-    const stakedLyraBalance = useMemo(
-      () => lyraAccountStaking?.stakedLyraBalance.balance ?? ZERO_BN,
-      [lyraAccountStaking]
-    )
+    const { optimismOldStkLyra, optimismStkLyra, ethereumStkLyra } = useMemo(() => {
+      const optimismOldStkLyra = lyraAccountStaking?.lyraBalances.optimismOldStkLyra ?? ZERO_BN
+      const ethereumStkLyra = lyraAccountStaking?.lyraBalances.ethereumStkLyra ?? ZERO_BN
+      const optimismStkLyra = lyraAccountStaking?.lyraBalances.optimismStkLyra ?? ZERO_BN
+      return {
+        optimismOldStkLyra,
+        optimismStkLyra,
+        ethereumStkLyra,
+      }
+    }, [lyraAccountStaking])
+    const balance = optimismOldStkLyra.add(optimismStkLyra).add(ethereumStkLyra)
     return (
-      <Text variant="heading" color="primaryText">
-        {formatNumber(stakedLyraBalance)} stkLYRA
-      </Text>
+      <Tooltip
+        title="Staked LYRA"
+        tooltip={
+          <Box>
+            <RowItem label="Ethereum" value={formatBalance(ethereumStkLyra, 'stkLYRA')} />
+            {optimismStkLyra.gt(0) ? (
+              <RowItem mt={3} label="Optimism" value={formatBalance(optimismStkLyra, 'stkLYRA')} />
+            ) : null}
+            {optimismOldStkLyra.gt(0) ? (
+              <RowItem
+                mt={3}
+                label="To Migrate"
+                valueColor="warningText"
+                value={formatBalance(optimismOldStkLyra, 'stkLYRA')}
+              />
+            ) : null}
+            {optimismOldStkLyra.gt(0) ? (
+              <Text mt={3} variant="secondary" color="secondaryText">
+                Migrate your staked LYRA on Optimism to a new version of staked LYRA that is native to Ethereum mainnet.
+                You'll need to migrate to continue to earn boosts on your vault and trading rewards.{' '}
+                <Link
+                  href="https://blog.lyra.finance/lyra-staking-l1-migration/"
+                  target="_blank"
+                  showRightIcon
+                  textVariant="secondary"
+                >
+                  Learn more
+                </Link>
+              </Text>
+            ) : optimismStkLyra.gt(0) ? (
+              <Text mt={3} variant="secondary" color="secondaryText">
+                Bridge your stkLYRA from Optimism to Ethereum mainnet via the{' '}
+                <Link
+                  showRightIcon
+                  textVariant="secondary"
+                  href="https://app.optimism.io/bridge/withdraw"
+                  target="_blank"
+                >
+                  Optimism Gateway
+                </Link>{' '}
+                to earn staking rewards.
+              </Text>
+            ) : null}
+          </Box>
+        }
+        alignItems="center"
+        flexDirection="row"
+      >
+        <Text variant="heading" color="primaryText">
+          {formatBalance(balance, 'stkLYRA')}
+        </Text>
+        <Icon ml={1} mt={'2px'} size={16} color="secondaryText" icon={IconType.Info} />
+      </Tooltip>
     )
   },
   () => {
@@ -44,45 +115,83 @@ const StakedLyraBalanceText = withSuspense(
   }
 )
 
-const StakedCardGridItems = withSuspense(
+const StakedLyraAPYText = withSuspense(
   () => {
-    const lyraStaking = useLyraStaking()
-    const globalEpoch = useLatestRewardEpochs()?.global
+    const network = useNetwork()
+    const globalEpoch = useLatestRewardEpoch(network)?.global
     const stakingApy = globalEpoch ? globalEpoch.stakingApy : null
-    const totalStakedLyraSupply = fromBigNumber(lyraStaking?.totalSupply ?? ZERO_BN)
-
     return (
-      <>
-        <Box>
-          <Text variant="secondary" color="secondaryText" mb={2}>
-            Total Staked
-          </Text>
-          <TokenAmountText
-            tokenNameOrAddress="stkLyra"
-            variant="secondary"
-            isTruncated
-            amount={totalStakedLyraSupply}
+      <StakeAPYTooltip alignItems="center" lyraApy={stakingApy?.lyra ?? 0}>
+        <Text variant="secondary" color="primaryText">
+          {formatPercentage(stakingApy?.total ?? 0, true)}
+        </Text>
+      </StakeAPYTooltip>
+    )
+  },
+  () => <TextShimmer variant="secondary" />
+)
+
+const StakingRewardsText = withSuspense(
+  (): CardElement => {
+    const claimableBalances = useClaimableBalances()
+    const claimableBalancesL1 = useClaimableBalancesL1()
+    let claimableBalance = ZERO_BN
+    if (claimableBalances.oldStkLyra.gt(ZERO_BN)) {
+      claimableBalance = claimableBalances.oldStkLyra
+    } else if (claimableBalancesL1.newStkLyra) {
+      claimableBalance = claimableBalancesL1.newStkLyra
+    }
+    return (
+      <Text variant="secondary" color="primaryText">
+        {formatNumber(claimableBalance)} stkLYRA
+      </Text>
+    )
+  },
+  () => <TextShimmer variant="secondary" />
+)
+
+const StakedCardSectionButton = withSuspense(
+  ({ onStakeOpen, onUnstakeOpen, onClaimAndMigrateOpen, onClaimL1Open }: StakedCardSectionButtonProps) => {
+    const claimableBalances = useClaimableBalances()
+    const claimableBalancesL1 = useClaimableBalancesL1()
+    const lyraAccountStaking = useLyraAccountStaking()
+    const optimismOldStkLyra = lyraAccountStaking?.lyraBalances.optimismOldStkLyra ?? ZERO_BN
+    const hasClaimableOldStkLyra = claimableBalances.oldStkLyra.gt(0)
+    const hasOldStkLyra = optimismOldStkLyra.gt(0)
+    if (hasClaimableOldStkLyra || hasOldStkLyra) {
+      return (
+        <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr'], gridGap: 3 }}>
+          <Button size="lg" label="Migrate" variant="primary" onClick={onClaimAndMigrateOpen} />
+        </Grid>
+      )
+    }
+    return (
+      <Grid
+        sx={{
+          gridTemplateColumns: ['1fr', claimableBalancesL1.newStkLyra.gt(ZERO_BN) ? '1fr 1fr 1fr' : '1fr 1fr'],
+          gridGap: 3,
+        }}
+      >
+        <Button size="lg" mr={2} label="Stake" variant="primary" onClick={onStakeOpen} />
+        <Button size="lg" mr={2} label="Unstake" variant="default" onClick={onUnstakeOpen} />
+        {claimableBalancesL1.newStkLyra.gt(ZERO_BN) ? (
+          <Button
+            size="lg"
+            label="Claim"
+            variant="primary"
+            isDisabled={!claimableBalancesL1.newStkLyra.gt(ZERO_BN)}
+            onClick={onClaimL1Open}
           />
-        </Box>
-        <Box>
-          <Text variant="secondary" color="secondaryText" mb={2}>
-            APY
-          </Text>
-          <StakeAPYTooltip alignItems="center" opApy={stakingApy?.op ?? 0} lyraApy={stakingApy?.lyra ?? 0}>
-            <Text variant="secondary" color="primaryText">
-              {stakingApy ? formatPercentage(stakingApy.total, true) : 'Something went wrong'}
-            </Text>
-          </StakeAPYTooltip>
-        </Box>
-      </>
+        ) : null}
+      </Grid>
     )
   },
   () => {
     return (
-      <Box>
-        <TextShimmer variant="secondary" mb={2} />
-        <TokenAmountTextShimmer variant="secondary" width={150} />
-      </Box>
+      <Grid sx={{ gridTemplateColumns: ['1r', '1fr 1fr'], gridColumnGap: 4, gridRowGap: 4 }}>
+        <ButtonShimmer size="lg" width="100%" />
+        <ButtonShimmer size="lg" width="100%" />
+      </Grid>
     )
   }
 )
@@ -90,30 +199,45 @@ const StakedCardGridItems = withSuspense(
 const StakedCardSection = ({ ...marginProps }: Props): CardElement => {
   const [isUnstakeOpen, setIsUnstakeOpen] = useState(false)
   const [isStakeOpen, setIsStakeOpen] = useState(false)
+  const [isL1ClaimOpen, setIsClaimL1Open] = useState(false)
+  const [isClaimAndMigrateOpen, setIsClaimAndMigrateOpen] = useState(false)
   const isMobile = useIsMobile()
 
   return (
     <CardSection
       justifyContent="space-between"
       isHorizontal={isMobile ? false : true}
-      width={!isMobile ? '50%' : undefined}
+      width={!isMobile ? `50%` : undefined}
       {...marginProps}
     >
-      <Box>
-        <Text variant="heading" mb={1}>
-          Staked
-        </Text>
-        <StakedLyraBalanceText />
-      </Box>
+      <Text variant="heading" mb={1}>
+        Staked
+      </Text>
+      <StakedLyraBalanceText />
       <Grid my={8} sx={{ gridTemplateColumns: '1fr 1fr', gridColumnGap: 4 }}>
-        <StakedCardGridItems />
+        <Box>
+          <Text variant="secondary" color="secondaryText" mb={2}>
+            Claimable Rewards
+          </Text>
+          <StakingRewardsText />
+        </Box>
+        {/* <Box>
+          <Text variant="secondary" color="secondaryText" mb={2}>
+            APY
+          </Text>
+          <StakedLyraAPYText />
+        </Box> */}
       </Grid>
-      <Grid sx={{ gridTemplateColumns: ['1r', '1fr 1fr'], gridColumnGap: 4, gridRowGap: 4 }}>
-        <Button size="lg" label="Stake" variant="primary" onClick={() => setIsStakeOpen(true)} />
-        <Button size="lg" label="Unstake" variant="default" onClick={() => setIsUnstakeOpen(true)} />
-      </Grid>
+      <StakedCardSectionButton
+        onStakeOpen={() => setIsStakeOpen(true)}
+        onUnstakeOpen={() => setIsUnstakeOpen(true)}
+        onClaimAndMigrateOpen={() => setIsClaimAndMigrateOpen(true)}
+        onClaimL1Open={() => setIsClaimL1Open(true)}
+      />
       <UnstakeModal isOpen={isUnstakeOpen} onClose={() => setIsUnstakeOpen(false)} />
       <StakeModal isOpen={isStakeOpen} onClose={() => setIsStakeOpen(false)} />
+      <ClaimAndMigrateModal isOpen={isClaimAndMigrateOpen} onClose={() => setIsClaimAndMigrateOpen(false)} />
+      <ClaimStakingRewardsModal isOpen={isL1ClaimOpen} onClose={() => setIsClaimL1Open(false)} />
     </CardSection>
   )
 }

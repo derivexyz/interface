@@ -3,13 +3,13 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { UNIT, ZERO_BN } from '../constants/bn'
 import Lyra from '../lyra'
 import fromBigNumber from '../utils/fromBigNumber'
+import getUniqueBy from '../utils/getUniqueBy'
 import { AccountPortfolioBalance } from '.'
 
 export default async function fetchPortfolioBalance(lyra: Lyra, account: string): Promise<AccountPortfolioBalance> {
-  const [positions, balances, quoteAssets, markets] = await Promise.all([
+  const [positions, balances, markets] = await Promise.all([
     lyra.openPositions(account),
     lyra.account(account).balances(),
-    lyra.account(account).quoteAssets(),
     lyra.markets(),
   ])
 
@@ -57,9 +57,11 @@ export default async function fetchPortfolioBalance(lyra: Lyra, account: string)
     }, ZERO_BN)
   )
 
-  const stableAccountValue = quoteAssets.reduce((total, balance) => {
-    return total + fromBigNumber(balance.balance, balance.decimals)
-  }, 0)
+  const stables = getUniqueBy(
+    balances.map(b => b.quoteAsset),
+    q => q.address
+  )
+  const stableAccountValue = stables.reduce((sum, stable) => sum + fromBigNumber(stable.balance, stable.decimals), 0)
 
   const totalValue =
     longOptionValue +
@@ -78,9 +80,11 @@ export default async function fetchPortfolioBalance(lyra: Lyra, account: string)
     stableAccountValue,
     totalValue,
     positions,
-    stableAccountBalances: quoteAssets,
+    stableAccountBalances: stables,
     baseAccountBalances: balances.map(b => ({
       ...b.baseAsset,
+      market: b.market,
+      marketName: b.marketName,
       marketAddress: b.marketAddress,
       spotPrice: spotPriceByMarket[b.marketAddress],
       value: spotPriceByMarket[b.marketAddress].mul(b.baseAsset.balance).div(UNIT),

@@ -9,6 +9,7 @@ import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useMarket from '@/app/hooks/market/useMarket'
 import useMarkets from '@/app/hooks/market/useMarkets'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 
@@ -19,10 +20,11 @@ type Props = {
 const AdminMarketSelect = withSuspense(
   ({ marketAddressOrName = null }: Props) => {
     const markets = useMarkets()
-    const selectedMarket = useMarket(marketAddressOrName)
+    const network = useNetwork()
+    const selectedMarket = useMarket(network, marketAddressOrName)
     const [isOpen, setIsOpen] = useState(false)
     const onClose = useCallback(() => setIsOpen(false), [])
-    const fullName = selectedMarket ? getMarketDisplayName(selectedMarket.baseToken.symbol) : 'Global'
+    const fullName = selectedMarket ? getMarketDisplayName(selectedMarket) : 'Global'
     return (
       <Flex>
         <DropdownButton
@@ -34,7 +36,7 @@ const AdminMarketSelect = withSuspense(
           size="lg"
           textVariant="title"
           label={`${fullName}`}
-          leftIcon={selectedMarket ? <MarketImage size={28} name={selectedMarket.name} /> : null}
+          leftIcon={selectedMarket ? <MarketImage market={selectedMarket} /> : null}
         >
           <>
             <DropdownButtonListItem
@@ -49,8 +51,12 @@ const AdminMarketSelect = withSuspense(
                   key={market.address}
                   isSelected={selectedMarket?.address === market.address}
                   label={market.name}
-                  icon={<MarketImage size={28} name={market.name} />}
-                  href={getPagePath({ page: PageId.AdminMarket, marketAddressOrName: market.name })}
+                  icon={<MarketImage market={market} />}
+                  href={getPagePath({
+                    page: PageId.AdminMarket,
+                    network: market.lyra.network,
+                    marketAddressOrName: market.name,
+                  })}
                 />
               )
             })}

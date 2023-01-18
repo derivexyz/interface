@@ -1,15 +1,19 @@
-import { Market } from '@lyrafinance/lyra-js'
-import { useMemo } from 'react'
+import { Market, Network } from '@lyrafinance/lyra-js'
 
-import useMarkets from './useMarkets'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 
-export default function useMarket(marketAddressOrName: string | null): Market | null {
-  const markets = useMarkets()
-  return useMemo(() => {
-    try {
-      return marketAddressOrName ? Market.find(markets, marketAddressOrName) : null
-    } catch (e) {
-      return null
-    }
-  }, [markets, marketAddressOrName])
+import useFetch from '../data/useFetch'
+
+const fetchMarket = async (network: Network, marketAddressOrName: string): Promise<Market> => {
+  const market = await getLyraSDK(network).market(marketAddressOrName)
+  return market
+}
+
+export default function useMarket(network: Network | null, marketAddressOrName: string | null): Market | null {
+  const [market] = useFetch(
+    'Market',
+    network && marketAddressOrName ? [network, marketAddressOrName] : null,
+    fetchMarket
+  )
+  return market
 }

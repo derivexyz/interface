@@ -26,6 +26,11 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
+      {
         internalType: "contract IERC20Decimals",
         name: "asset",
         type: "address",
@@ -45,12 +50,56 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
+    ],
     name: "CancellationDelayNotPassed",
     type: "error",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
+    ],
+    name: "CannotRecoverRestrictedToken",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "balance",
+        type: "uint256",
+      },
+    ],
+    name: "EthTransferFailure",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
+    ],
     name: "GetGMXVaultError",
     type: "error",
   },
@@ -88,12 +137,117 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256",
-        name: "newMaxLeverage",
-        type: "uint256",
+        components: [
+          {
+            internalType: "uint256",
+            name: "acceptableSpotSlippage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "deltaThreshold",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "marketDepthBuffer",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "targetLeverage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "maxLeverage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "leverageBuffer",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "minCancelDelay",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "vaultLiquidityCheckEnabled",
+            type: "bool",
+          },
+        ],
+        internalType: "struct GMXFuturesPoolHedger.FuturesPoolHedgerParameters",
+        name: "futuresPoolHedgerParams",
+        type: "tuple",
       },
     ],
-    name: "InvalidMaxLeverage",
+    name: "InvalidFuturesPoolHedgerParams",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "finalSize",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "finalCollat",
+        type: "uint256",
+      },
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "size",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "collateral",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "averagePrice",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "entryFundingRate",
+            type: "uint256",
+          },
+          {
+            internalType: "int256",
+            name: "unrealisedPnl",
+            type: "int256",
+          },
+          {
+            internalType: "uint256",
+            name: "lastIncreasedTime",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "isLong",
+            type: "bool",
+          },
+        ],
+        internalType: "struct GMXFuturesPoolHedger.PositionDetails",
+        name: "currentPos",
+        type: "tuple",
+      },
+    ],
+    name: "MaxLeverageThresholdCrossed",
     type: "error",
   },
   {
@@ -200,6 +354,22 @@ const _abi = [
       },
       {
         internalType: "bytes32",
+        name: "pendingOrderKey",
+        type: "bytes32",
+      },
+    ],
+    name: "OrderCancellationFailure",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
+      {
+        internalType: "bytes32",
         name: "key",
         type: "bytes32",
       },
@@ -264,6 +434,61 @@ const _abi = [
       },
     ],
     name: "CollateralOrderPosted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "acceptableSpotSlippage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "deltaThreshold",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "marketDepthBuffer",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "targetLeverage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "maxLeverage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "leverageBuffer",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "minCancelDelay",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "vaultLiquidityCheckEnabled",
+            type: "bool",
+          },
+        ],
+        indexed: false,
+        internalType: "struct GMXFuturesPoolHedger.FuturesPoolHedgerParameters",
+        name: "futuresPoolHedgerParams",
+        type: "tuple",
+      },
+    ],
+    name: "FuturesPoolHedgerParamsSet",
     type: "event",
   },
   {
@@ -507,19 +732,6 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
-        name: "targetLeverage",
-        type: "uint256",
-      },
-    ],
-    name: "MaxLeverageSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
         internalType: "bytes32",
         name: "pendingOrderKey",
         type: "bytes32",
@@ -633,6 +845,25 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "contract IPositionRouter",
+        name: "positionRouter",
+        type: "address",
+      },
+    ],
+    name: "PositionRouterSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
+      {
+        indexed: false,
         internalType: "int256",
         name: "currentNetDelta",
         type: "int256",
@@ -671,6 +902,38 @@ const _abi = [
     ],
     name: "QuoteReturnedToLP",
     type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amountWeth",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "quoteReceived",
+        type: "uint256",
+      },
+    ],
+    name: "WETHSold",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "BASIS_POINTS_DIVISOR",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
@@ -714,7 +977,7 @@ const _abi = [
       },
       {
         internalType: "bool",
-        name: "deltaIncreasing",
+        name: "increasesPoolDelta",
         type: "bool",
       },
     ],
@@ -771,6 +1034,11 @@ const _abi = [
       {
         internalType: "uint256",
         name: "targetLeverage",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxLeverage",
         type: "uint256",
       },
       {
@@ -854,6 +1122,294 @@ const _abi = [
         internalType: "int256",
         name: "collateralDelta",
         type: "int256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getHedgerState",
+    outputs: [
+      {
+        components: [
+          {
+            components: [
+              {
+                components: [
+                  {
+                    internalType: "uint256",
+                    name: "size",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "collateral",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "averagePrice",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "entryFundingRate",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "int256",
+                    name: "unrealisedPnl",
+                    type: "int256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "lastIncreasedTime",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "bool",
+                    name: "isLong",
+                    type: "bool",
+                  },
+                ],
+                internalType: "struct GMXFuturesPoolHedger.PositionDetails",
+                name: "longPosition",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "uint256",
+                    name: "size",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "collateral",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "averagePrice",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "entryFundingRate",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "int256",
+                    name: "unrealisedPnl",
+                    type: "int256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "lastIncreasedTime",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "bool",
+                    name: "isLong",
+                    type: "bool",
+                  },
+                ],
+                internalType: "struct GMXFuturesPoolHedger.PositionDetails",
+                name: "shortPosition",
+                type: "tuple",
+              },
+              {
+                internalType: "uint256",
+                name: "amountOpen",
+                type: "uint256",
+              },
+              {
+                internalType: "bool",
+                name: "isLong",
+                type: "bool",
+              },
+            ],
+            internalType: "struct GMXFuturesPoolHedger.CurrentPositions",
+            name: "currentPositions",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "acceptableSpotSlippage",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "deltaThreshold",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "marketDepthBuffer",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "targetLeverage",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "maxLeverage",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "leverageBuffer",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "minCancelDelay",
+                type: "uint256",
+              },
+              {
+                internalType: "bool",
+                name: "vaultLiquidityCheckEnabled",
+                type: "bool",
+              },
+            ],
+            internalType:
+              "struct GMXFuturesPoolHedger.FuturesPoolHedgerParameters",
+            name: "futuresPoolHedgerParams",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "contract IRouter",
+                name: "router",
+                type: "address",
+              },
+              {
+                internalType: "contract IPositionRouter",
+                name: "positionRouter",
+                type: "address",
+              },
+              {
+                internalType: "contract IVault",
+                name: "vault",
+                type: "address",
+              },
+              {
+                internalType: "contract IERC20Decimals",
+                name: "quoteAsset",
+                type: "address",
+              },
+              {
+                internalType: "contract IERC20Decimals",
+                name: "baseAsset",
+                type: "address",
+              },
+              {
+                internalType: "contract IERC20Decimals",
+                name: "weth",
+                type: "address",
+              },
+            ],
+            internalType: "struct GMXFuturesPoolHedger.HedgerAddresses",
+            name: "hedgerAddresses",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "basePoolAmount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "baseReservedAmount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "quotePoolAmount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "quoteReservedAmount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "minExecutionFee",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct GMXFuturesPoolHedger.GMXView",
+            name: "gmxView",
+            type: "tuple",
+          },
+          {
+            internalType: "bytes32",
+            name: "referralCode",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "pendingOrderKey",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint256",
+            name: "lastOrderTimestamp",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "spotPrice",
+            type: "uint256",
+          },
+          {
+            internalType: "int256",
+            name: "expectedHedge",
+            type: "int256",
+          },
+          {
+            internalType: "int256",
+            name: "currentHedge",
+            type: "int256",
+          },
+          {
+            internalType: "uint256",
+            name: "currentLeverage",
+            type: "uint256",
+          },
+          {
+            internalType: "int256",
+            name: "pendingCollateralDelta",
+            type: "int256",
+          },
+          {
+            internalType: "uint256",
+            name: "baseBal",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "quoteBal",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "wethBal",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct GMXFuturesPoolHedger.GMXFuturesPoolHedgerView",
+        name: "",
+        type: "tuple",
       },
     ],
     stateMutability: "view",
@@ -1020,6 +1576,35 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bool",
+        name: "isLong",
+        type: "bool",
+      },
+      {
+        internalType: "bool",
+        name: "isIncrease",
+        type: "bool",
+      },
+      {
+        internalType: "uint256",
+        name: "amountIn18",
+        type: "uint256",
+      },
+    ],
+    name: "getSwapFeeBP",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "feeBP",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "positionKey",
         type: "bytes32",
@@ -1126,6 +1711,11 @@ const _abi = [
       {
         internalType: "contract IERC20Decimals",
         name: "_baseAsset",
+        type: "address",
+      },
+      {
+        internalType: "contract IERC20Decimals",
+        name: "_weth",
         type: "address",
       },
     ],
@@ -1265,6 +1855,24 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "contract IERC20Decimals",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "recoverFunds",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "referralCode",
     outputs: [
@@ -1330,6 +1938,11 @@ const _abi = [
           },
           {
             internalType: "uint256",
+            name: "maxLeverage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
             name: "leverageBuffer",
             type: "uint256",
           },
@@ -1382,6 +1995,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "contract IPositionRouter",
+        name: "_positionRouter",
+        type: "address",
+      },
+    ],
+    name: "setPositionRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "_referralCode",
         type: "bytes32",
@@ -1411,6 +2037,23 @@ const _abi = [
     ],
     stateMutability: "view",
     type: "function",
+  },
+  {
+    inputs: [],
+    name: "weth",
+    outputs: [
+      {
+        internalType: "contract IERC20Decimals",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];
 

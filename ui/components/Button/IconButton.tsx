@@ -60,7 +60,7 @@ const IconButton = React.forwardRef(
         {...marginProps}
         sx={{ ...sizeSx }}
         p={0}
-        minWidth={sizeSx.height}
+        minWidth={sizeSx.minHeight}
       >
         {typeof icon === 'string' ? <IconOrImage src={icon} size={getButtonIconSize(size)} /> : icon}
       </RebassButton>

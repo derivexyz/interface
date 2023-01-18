@@ -29,7 +29,7 @@ const UnstakeCardBodyTopSectionBalance = withSuspense(
       <Flex alignItems="center" ml="auto">
         <TokenImage nameOrAddress="stkLyra" />
         <Text variant="body" color="secondaryText" ml={2}>
-          {formatNumber(lyraAccountStaking?.stakedLyraBalance.balance ?? 0)}
+          {formatNumber(lyraAccountStaking?.lyraBalances.ethereumStkLyra ?? 0)}
         </Text>
       </Flex>
     )
@@ -42,7 +42,7 @@ const UnstakeCardBodyTopSectionBalance = withSuspense(
 const UnstakeCardBodyTopSectionInput = withSuspense(
   ({ amount, onChangeAmount, ...styleProps }: UnstakeCardBodyTopSectionProps) => {
     const lyraAccountStaking = useLyraAccountStaking()
-    const maxStakeBalance = lyraAccountStaking?.stakedLyraBalance.balance ?? ZERO_BN
+    const maxStakeBalance = lyraAccountStaking?.lyraBalances.ethereumStkLyra ?? ZERO_BN
     return (
       <UnstakeCardBodyAmountInput
         {...styleProps}

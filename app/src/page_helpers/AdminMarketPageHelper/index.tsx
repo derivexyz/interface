@@ -1,9 +1,7 @@
 import Button from '@lyra/ui/components/Button'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
-import Center from '@lyra/ui/components/Center'
 import Flex from '@lyra/ui/components/Flex'
-import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
 import { Market } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
@@ -21,7 +19,6 @@ import AdminMarketPartialCollatParams from '@/app/containers/admin/AdminMarketPa
 import AdminMarketPauseButton from '@/app/containers/admin/AdminMarketPauseButton'
 import AdminMarketPricingParams from '@/app/containers/admin/AdminMarketPricingParams'
 import AdminMarketSelect from '@/app/containers/admin/AdminMarketSelect'
-import AdminMarketSpotPrice from '@/app/containers/admin/AdminMarketSpotPrice'
 import AdminMarketTradeLimitParams from '@/app/containers/admin/AdminMarketTradeLimitParams'
 import AdminMarketVarianceFeeParams from '@/app/containers/admin/AdminMarketVarianceFeeParams'
 import AdminTransactionCard from '@/app/containers/admin/AdminTransactionCard'
@@ -30,18 +27,19 @@ import useMarketOwner from '@/app/hooks/market/useMarketOwner'
 import { useMutateMarkets } from '@/app/hooks/market/useMarkets'
 import getPagePath from '@/app/utils/getPagePath'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
-import LayoutPageError from '../common/Layout/LayoutPageError'
+import Page from '../common/Page'
+import PageError from '../common/Page/PageError'
+import PageGrid from '../common/Page/PageGrid'
+import PageLoading from '../common/Page/PageLoading'
 
 type Props = {
-  market: Market | null
+  market: Market
 }
 
 const AdminMarketPageHelper = withSuspense(
   ({ market }: Props) => {
     const mutateMarkets = useMutateMarkets()
-    const owner = useMarketOwner(market?.name ?? null)
+    const owner = useMarketOwner(market)
     const [isGreekCacheExpanded, setIsGreekCacheExpanded] = useState(false)
     const [isForceCloseExpanded, setIsForceCloseExpanded] = useState(false)
     const [isMinCollateralExpanded, setIsMinCollateralExpanded] = useState(false)
@@ -56,18 +54,17 @@ const AdminMarketPageHelper = withSuspense(
     const [isGuardianProcessExpanded, setIsGuardianProcessExpanded] = useState(false)
 
     if (!market || !owner) {
-      return <LayoutPageError error="Market does not exist" />
+      return <PageError error="Market does not exist" />
     }
 
     return (
-      <Layout
+      <Page
         desktopRightColumn={<AdminTransactionCard height="80vh" overflow="auto" />}
         showBackButton
         backHref={getPagePath({ page: PageId.Admin })}
       >
-        <LayoutGrid>
+        <PageGrid>
           <AdminMarketSelect marketAddressOrName={market.name} />
-          <AdminMarketSpotPrice market={market} />
           <AdminMarketPauseButton market={market} owner={owner} />
           <AdminMarketBoardsInfo market={market} />
           <AdminMarketAddBoard market={market} owner={owner} onAddBoard={mutateMarkets} />
@@ -214,18 +211,12 @@ const AdminMarketPageHelper = withSuspense(
               </Flex>
             </CardBody>
           </Card>
-        </LayoutGrid>
-      </Layout>
+        </PageGrid>
+      </Page>
     )
   },
   () => {
-    return (
-      <Layout>
-        <Center width="100%" height="100%">
-          <Spinner />
-        </Center>
-      </Layout>
-    )
+    return <PageLoading />
   }
 )
 

@@ -17,7 +17,7 @@ export default function PortfolioAnnouncementCards() {
         const isOpen = announcementState[announcement.id] !== undefined ? !!announcementState[announcement.id] : true
         return now > announcement.startTimestamp && now < announcement.expiryTimestamp && isOpen
       })
-      .sort((a, b) => b.startTimestamp - a.startTimestamp)
+      .sort((a, b) => b.expiryTimestamp - a.expiryTimestamp)
   }, [announcementsLocalStorageStr])
   const displayedIdx =
     _displayedIdx < displayedAnnouncements.length

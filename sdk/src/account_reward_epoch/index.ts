@@ -1,7 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { AccountBalances, AccountLiquidityTokenBalance } from '../account'
-import { Deployment, LyraContractId } from '../constants/contracts'
+import { Deployment, LyraGlobalContractId } from '../constants/contracts'
+import { Network } from '../constants/network'
 import { SECONDS_IN_SIX_MONTHS } from '../constants/time'
 import { ClaimAddedEvent } from '../contracts/common/typechain/MultiDistributor'
 import { GlobalRewardEpoch } from '../global_reward_epoch'
@@ -9,7 +10,7 @@ import Lyra from '../lyra'
 import fetchAccountRewardEpochData, { AccountRewardEpochData } from '../utils/fetchAccountRewardEpochData'
 import findMarket from '../utils/findMarket'
 import fromBigNumber from '../utils/fromBigNumber'
-import getLyraContract from '../utils/getLyraContract'
+import getGlobalContract from '../utils/getGlobalContract'
 import parseClaimAddedTags from './parseClaimAddedTags'
 
 export type AccountRewardEpochAPY = {
@@ -69,8 +70,8 @@ export class AccountRewardEpoch {
       {}
     )
     this.stakingRewards = {
-      lyra: this.accountEpoch.inflationaryRewards.lyra,
-      op: this.accountEpoch.inflationaryRewards.op,
+      lyra: this.accountEpoch.inflationaryRewards?.lyra,
+      op: this.accountEpoch.inflationaryRewards?.op,
     }
     this.stakingRewardsUnlockTimestamp = {
       lyra: this.globalEpoch.endTimestamp + SECONDS_IN_SIX_MONTHS,
@@ -87,10 +88,10 @@ export class AccountRewardEpoch {
       { lyra: 0, op: 0 }
     )
     this.tradingFeeRebate = this.globalEpoch.tradingFeeRebate(this.stakedLyraBalance)
-    this.tradingFees = this.accountEpoch.tradingRewards.tradingFees
+    this.tradingFees = this.accountEpoch.tradingRewards?.tradingFees ?? 0
     this.tradingRewards = this.globalEpoch.tradingRewards(this.tradingFees, this.stakedLyraBalance)
     this.shortCollateralRewards = this.globalEpoch.shortCollateralRewards(
-      this.accountEpoch.tradingRewards.totalCollatRebateDollars
+      this.accountEpoch.tradingRewards?.totalCollatRebateDollars ?? 0
     )
 
     const claimAddedTags = parseClaimAddedTags(claimAddedEvents)
@@ -123,19 +124,20 @@ export class AccountRewardEpoch {
   // Getters
 
   static async getByOwner(lyra: Lyra, address: string): Promise<AccountRewardEpoch[]> {
-    if (lyra.deployment !== Deployment.Mainnet) {
-      throw Error('Reward epochs only supported on mainnet')
+    // TODO: @dillon remove optimism check
+    if (lyra.deployment !== Deployment.Mainnet || lyra.network !== Network.Optimism) {
+      return []
     }
-    const distributorContract = getLyraContract(lyra, LyraContractId.MultiDistributor)
-    const [block, markets] = await Promise.all([lyra.provider.getBlock('latest'), lyra.markets()])
-    const [accountEpochDatas, globalEpochs, { balance: stakedLyraBalance }, balances, claimAddedEvents] =
-      await Promise.all([
-        fetchAccountRewardEpochData(lyra, address, block.timestamp),
-        GlobalRewardEpoch.getAll(lyra),
-        lyra.account(address).stakedLyraBalance(),
-        lyra.account(address).balances(),
-        await distributorContract.queryFilter(distributorContract.filters.ClaimAdded(null, address, null, null, null)),
-      ])
+    const distributorContract = getGlobalContract(lyra, LyraGlobalContractId.MultiDistributor, lyra.optimismProvider)
+    const [block] = await Promise.all([lyra.provider.getBlock('latest')])
+    const [accountEpochDatas, globalEpochs, lyraBalances, balances, claimAddedEvents] = await Promise.all([
+      fetchAccountRewardEpochData(lyra, address, block.timestamp),
+      GlobalRewardEpoch.getAll(lyra),
+      lyra.account(address).lyraBalances(),
+      lyra.account(address).balances(),
+      await distributorContract.queryFilter(distributorContract.filters.ClaimAdded(null, address, null, null, null)),
+    ])
+    const stakedLyraBalance = lyraBalances.ethereumStkLyra.add(lyraBalances.optimismStkLyra)
     return accountEpochDatas
       .map(accountEpochData => {
         const globalEpoch = globalEpochs.find(
@@ -184,6 +186,15 @@ export class AccountRewardEpoch {
       return this.globalEpoch.minVaultApy(marketAddressOrName)
     } else {
       return this.globalEpoch.vaultApy(marketAddressOrName, this.stakedLyraBalance, vaultTokenBalance)
+    }
+  }
+
+  vaultMaxBoost(marketAddressOrName: string): number {
+    const vaultTokenBalance = this.vaultTokenBalance(marketAddressOrName)
+    if (vaultTokenBalance === 0) {
+      return this.globalEpoch.vaultMaxBoost(marketAddressOrName, 0)
+    } else {
+      return this.globalEpoch.vaultMaxBoost(marketAddressOrName, vaultTokenBalance)
     }
   }
 

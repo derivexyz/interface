@@ -31,13 +31,13 @@ const zeroDecimalKeys: (keyof ForceCloseParams)[] = ['ivGWAVPeriod', 'skewGWAVPe
 const AdminMarketForceCloseParams = withSuspense(
   ({ market, isExpanded, onClickExpand, onParamUpdate }: Props) => {
     const { account, isConnected } = useWallet()
-    const admin = useAdmin()
-    const owner = useMarketOwner(market.name)
+    const admin = useAdmin(market.lyra.network)
+    const owner = useMarketOwner(market)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
     const [params, setParams] = useState<Partial<ForceCloseParams>>({})
     const [newParams, setNewParams] = useState<Partial<ForceCloseParams>>({})
     const [tx, setTx] = useState<PopulatedTransaction | null>(null)
-    const execute = useAdminTransaction(owner)
+    const execute = useAdminTransaction(market.lyra.network, owner)
     const [isLoading, setIsLoading] = useState(false)
     if (!market) {
       return null

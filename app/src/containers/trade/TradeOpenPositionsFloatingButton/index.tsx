@@ -27,7 +27,7 @@ const TradeOpenPositionsFloatingButton = withSuspense(({ onClick, label, rightIc
         transform: 'translateX(-50%)',
       }}
     >
-      <Button variant="elevated" label={label} rightIcon={rightIcon} onClick={onClick} {...styleProps} />
+      <Button variant="primary" label={label} rightIcon={rightIcon} onClick={onClick} {...styleProps} />
     </Box>
   ) : null
 })

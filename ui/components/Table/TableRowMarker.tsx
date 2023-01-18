@@ -10,22 +10,20 @@ export type TableRowMarkerProps = {
 
 export default function TableRowMarker({ content, ...styleProps }: TableRowMarkerProps) {
   return (
-    <Flex alignItems="center" justifyContent="center" height={1} as="tr" bg="primaryButtonBg" {...styleProps}>
+    <Flex alignItems="center" justifyContent="center" height={1} as="tr" bg="primaryText" {...styleProps}>
       <Flex
         as="td"
         alignItems="center"
         justifyContent="center"
         px={3}
         py={1}
-        bg="elevatedButtonBg"
+        bg="primaryButtonBg"
         sx={{
           borderRadius: 'card',
           boxShadow: '10px 10px 10px elevatedShadowBg',
-          border: '1px solid',
-          borderColor: 'primaryButtonBg',
         }}
       >
-        {React.isValidElement(content) ? content : <Text variant="secondary">{content}</Text>}
+        {React.isValidElement(content) ? content : <Text variant="secondaryMedium">{content}</Text>}
       </Flex>
     </Flex>
   )

@@ -28,9 +28,13 @@ const AdminMarketsInfo = withSuspense(
             {markets.map(market => (
               <ListItem
                 key={market.address}
-                href={getPagePath({ page: PageId.AdminMarket, marketAddressOrName: market.name })}
-                icon={<MarketImage name={market.name} mr={2} />}
-                label={getMarketDisplayName(market.name)}
+                href={getPagePath({
+                  page: PageId.AdminMarket,
+                  network: market.lyra.network,
+                  marketAddressOrName: market.name,
+                })}
+                icon={<MarketImage market={market} mr={2} />}
+                label={getMarketDisplayName(market)}
                 sublabel={`${market.liveBoards().length} boards`}
               />
             ))}

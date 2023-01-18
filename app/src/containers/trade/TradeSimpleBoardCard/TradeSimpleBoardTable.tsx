@@ -25,10 +25,11 @@ const TRADE_BOARD_MIN_HEIGHT = 300
 
 const TradeSimpleBoardTable = withSuspense(
   ({ board, isCall, isBuy, selectedOption, onSelectOption }: Props) => {
-    const size = getDefaultQuoteSize(board.market().name)
-    const isGlobalPaused = !!useIsGlobalPaused()
+    const market = board.market()
+    const size = getDefaultQuoteSize(market.name)
+    const isGlobalPaused = !!useIsGlobalPaused(market.lyra.network)
     const boardQuotes = useBoardQuotesSync(board, size)
-    const marketLiquidity = useMarketLiquidity(board.market().address)
+    const marketLiquidity = useMarketLiquidity(market)
     const optionQuotes = useMemo(
       () =>
         boardQuotes

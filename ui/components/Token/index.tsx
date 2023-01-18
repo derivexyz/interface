@@ -7,6 +7,7 @@ export type TokenVariant = 'default' | 'primary' | 'error' | 'warning'
 export type TokenProps = {
   label?: string | null
   variant?: TokenVariant
+  onClick?: React.ReactEventHandler
 } & MarginProps &
   LayoutProps
 
@@ -23,9 +24,9 @@ const getTokenVariant = (variant: TokenVariant): string => {
   }
 }
 
-export default function Token({ label, variant = 'default', ...styleProps }: TokenProps) {
+export default function Token({ label, variant = 'default', onClick, ...styleProps }: TokenProps) {
   return (
-    <RebassText textAlign="center" as="p" variant={getTokenVariant(variant)} {...styleProps}>
+    <RebassText textAlign="center" as="p" variant={getTokenVariant(variant)} onClick={onClick} {...styleProps}>
       {label}
     </RebassText>
   )

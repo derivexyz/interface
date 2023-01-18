@@ -242,38 +242,13 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amountBase",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "quoteReceived",
-        type: "uint256",
-      },
-    ],
-    name: "BaseExchangedAndQuoteSent",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
         name: "receiver",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "amount",
+        name: "nativeAmount",
         type: "uint256",
       },
     ],
@@ -434,7 +409,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "amount",
+        name: "nativeAmount",
         type: "uint256",
       },
     ],

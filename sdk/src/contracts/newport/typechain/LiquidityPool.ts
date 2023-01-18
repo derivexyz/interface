@@ -163,6 +163,7 @@ export interface LiquidityPoolInterface extends utils.Interface {
     "quoteAsset()": FunctionFragment;
     "reclaimInsolventBase(uint256)": FunctionFragment;
     "reclaimInsolventQuote(uint256)": FunctionFragment;
+    "recoverFunds(address,address)": FunctionFragment;
     "sendSettlementValue(address,uint256)": FunctionFragment;
     "sendShortPremium(address,uint256,uint256,uint256,uint256,bool)": FunctionFragment;
     "setCircuitBreakerParameters((uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
@@ -217,6 +218,7 @@ export interface LiquidityPoolInterface extends utils.Interface {
       | "quoteAsset"
       | "reclaimInsolventBase"
       | "reclaimInsolventQuote"
+      | "recoverFunds"
       | "sendSettlementValue"
       | "sendShortPremium"
       | "setCircuitBreakerParameters"
@@ -408,6 +410,10 @@ export interface LiquidityPoolInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "recoverFunds",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "sendSettlementValue",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -595,6 +601,10 @@ export interface LiquidityPoolInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "recoverFunds",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "sendSettlementValue",
     data: BytesLike
   ): Result;
@@ -661,6 +671,7 @@ export interface LiquidityPoolInterface extends utils.Interface {
     "WithdrawPartiallyProcessed(address,address,uint256,uint256,uint256,uint256,uint256,uint256)": EventFragment;
     "WithdrawProcessed(address,address,uint256,uint256,uint256,uint256,uint256,uint256)": EventFragment;
     "WithdrawQueued(address,address,uint256,uint256,uint256,uint256)": EventFragment;
+    "WithdrawReverted(address,address,uint256,uint256,uint256,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BasePurchased"): EventFragment;
@@ -697,6 +708,7 @@ export interface LiquidityPoolInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "WithdrawPartiallyProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WithdrawProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WithdrawQueued"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "WithdrawReverted"): EventFragment;
 }
 
 export interface BasePurchasedEventObject {
@@ -1026,6 +1038,23 @@ export type WithdrawQueuedEvent = TypedEvent<
 
 export type WithdrawQueuedEventFilter = TypedEventFilter<WithdrawQueuedEvent>;
 
+export interface WithdrawRevertedEventObject {
+  caller: string;
+  beneficiary: string;
+  withdrawalQueueId: BigNumber;
+  tokenPrice: BigNumber;
+  totalQueuedWithdrawals: BigNumber;
+  timestamp: BigNumber;
+  tokensReturned: BigNumber;
+}
+export type WithdrawRevertedEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber],
+  WithdrawRevertedEventObject
+>;
+
+export type WithdrawRevertedEventFilter =
+  TypedEventFilter<WithdrawRevertedEvent>;
+
 export interface LiquidityPool extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -1280,6 +1309,12 @@ export interface LiquidityPool extends BaseContract {
 
     reclaimInsolventQuote(
       amountQuote: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1565,6 +1600,12 @@ export interface LiquidityPool extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  recoverFunds(
+    token: PromiseOrValue<string>,
+    recipient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   sendSettlementValue(
     user: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
@@ -1838,6 +1879,12 @@ export interface LiquidityPool extends BaseContract {
 
     reclaimInsolventQuote(
       amountQuote: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2151,6 +2198,25 @@ export interface LiquidityPool extends BaseContract {
       totalQueuedWithdrawals?: null,
       timestamp?: null
     ): WithdrawQueuedEventFilter;
+
+    "WithdrawReverted(address,address,uint256,uint256,uint256,uint256,uint256)"(
+      caller?: PromiseOrValue<string> | null,
+      beneficiary?: PromiseOrValue<string> | null,
+      withdrawalQueueId?: PromiseOrValue<BigNumberish> | null,
+      tokenPrice?: null,
+      totalQueuedWithdrawals?: null,
+      timestamp?: null,
+      tokensReturned?: null
+    ): WithdrawRevertedEventFilter;
+    WithdrawReverted(
+      caller?: PromiseOrValue<string> | null,
+      beneficiary?: PromiseOrValue<string> | null,
+      withdrawalQueueId?: PromiseOrValue<BigNumberish> | null,
+      tokenPrice?: null,
+      totalQueuedWithdrawals?: null,
+      timestamp?: null,
+      tokensReturned?: null
+    ): WithdrawRevertedEventFilter;
   };
 
   estimateGas: {
@@ -2301,6 +2367,12 @@ export interface LiquidityPool extends BaseContract {
 
     reclaimInsolventQuote(
       amountQuote: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -2520,6 +2592,12 @@ export interface LiquidityPool extends BaseContract {
 
     reclaimInsolventQuote(
       amountQuote: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    recoverFunds(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

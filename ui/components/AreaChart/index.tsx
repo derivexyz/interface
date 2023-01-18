@@ -89,7 +89,7 @@ export default function AreaChart<T extends DataPoint>({
   chartMargin = { top: 24, bottom: 8 },
   xAxisDataKey = 'x',
   color = 'primary',
-  fallback = 'No available data',
+  fallback = 'Not enough data',
   ...styleProps
 }: Props<T>): JSX.Element {
   const background = useThemeColor('background')
@@ -110,7 +110,7 @@ export default function AreaChart<T extends DataPoint>({
   const strokeColor = useThemeColor(getStrokeColor(color))
   const fillColor = useThemeColor(getFillColor(color))
 
-  if (data.length === 0) {
+  if (data.length <= 1) {
     return (
       <Center {...styleProps}>
         <Text variant="secondary" color="secondaryText">
@@ -144,29 +144,26 @@ export default function AreaChart<T extends DataPoint>({
           {hideXAxis ? null : <ReferenceLine y={0} stroke={label} />}
           <XAxis hide={true} dataKey={xAxisDataKey} type="number" domain={domain ?? ['dataMin', 'dataMax']} />
           <YAxis hide={true} type="number" domain={range ?? ['dataMin', 'dataMax']} />
-          {renderTooltip ? (
-            <Tooltip
-              cursor={{ visibility: 'default', stroke: label }}
-              allowEscapeViewBox={{ x: true, y: true }}
-              isAnimationActive={false}
-              offset={0}
-              content={prop => {
-                if (prop.payload && prop.payload.length) {
-                  const tooltip = renderTooltip(prop.payload[0].payload)
-                  return typeof tooltip === 'string' ? (
-                    <Text variant="small" color="secondaryText" ml="-50%">
-                      {tooltip}
-                    </Text>
-                  ) : (
-                    tooltip
-                  )
-                }
-                return null
-              }}
-              position={{ y: 0 }}
-            />
-          ) : null}
-
+          <Tooltip
+            cursor={{ visibility: 'default', stroke: label }}
+            allowEscapeViewBox={{ x: true, y: true }}
+            isAnimationActive={false}
+            offset={0}
+            content={prop => {
+              if (prop.payload && prop.payload.length && renderTooltip) {
+                const tooltip = renderTooltip(prop.payload[0].payload)
+                return typeof tooltip === 'string' ? (
+                  <Text variant="small" color="secondaryText" ml="-50%">
+                    {tooltip}
+                  </Text>
+                ) : (
+                  tooltip
+                )
+              }
+              return null
+            }}
+            position={{ y: 0 }}
+          />
           {referenceLinesProps
             ? referenceLinesProps.map(referenceLineProps => (
                 <ReferenceLine key={referenceLineProps.id} {...referenceLineProps} />

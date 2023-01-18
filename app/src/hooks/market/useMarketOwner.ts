@@ -1,12 +1,14 @@
-import lyra from '../../utils/lyra'
-import useFetch from '../data/useFetch'
+import { Market } from '@lyrafinance/lyra-js'
+import Lyra from '@lyrafinance/lyra-js'
 
-const fetcher = async (marketAddressesOrName: string) => {
+import { useLyraFetch } from '../data/useLyraFetch'
+
+const fetcher = async (lyra: Lyra, marketAddressesOrName: string) => {
   const market = await lyra.market(marketAddressesOrName)
   return await market.owner()
 }
 
-export default function useMarketOwner(marketAddressesOrName: string | null): string | null {
-  const [owner] = useFetch('MarketOwner', marketAddressesOrName ? [marketAddressesOrName] : null, fetcher)
+export default function useMarketOwner(market: Market): string | null {
+  const [owner] = useLyraFetch('MarketOwner', market.lyra, [market.address], fetcher)
   return owner
 }

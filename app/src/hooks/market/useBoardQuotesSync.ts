@@ -3,7 +3,7 @@ import { Board } from '@lyrafinance/lyra-js'
 import { useMemo } from 'react'
 
 import { StrikeQuotesNullable } from '@/app/constants/contracts'
-import IGNORE_STRIKE_LIST from '@/app/constants/ignore'
+import { IGNORE_STRIKE_LIST } from '@/app/constants/ignore'
 import getIsQuoteHidden from '@/app/utils/getIsQuoteHidden'
 
 export default function useBoardQuotesSync(board: Board, size: BigNumber): StrikeQuotesNullable[] {
@@ -13,8 +13,10 @@ export default function useBoardQuotesSync(board: Board, size: BigNumber): Strik
       board.quoteAllSync(size).strikes.map(({ callBid, callAsk, putBid, putAsk, strike }) => {
         const quoteStrikeId = strike.id
         const isIgnored = !!IGNORE_STRIKE_LIST.find(
-          ({ strikeId, marketName }) =>
-            quoteStrikeId === strikeId && market.name.toLowerCase() === marketName.toLowerCase()
+          ({ strikeId, marketName, chain }) =>
+            quoteStrikeId === strikeId &&
+            market.name.toLowerCase() === marketName.toLowerCase() &&
+            market.lyra.chain === chain
         )
         if (isIgnored) {
           return {

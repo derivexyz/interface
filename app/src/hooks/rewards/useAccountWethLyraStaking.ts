@@ -1,12 +1,13 @@
 import { AccountWethLyraStaking } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
-import lyra from '../../utils/lyra'
+import { lyraOptimism } from '@/app/utils/lyra'
+
 import useFetch, { useMutate } from '../data/useFetch'
 import useWalletAccount from '../wallet/useWalletAccount'
 
 const fetchAccountWethLyraStaking = async (account: string): Promise<AccountWethLyraStaking> => {
-  return await lyra.account(account).wethLyraStaking()
+  return await lyraOptimism.account(account).wethLyraStaking()
 }
 
 export default function useAccountWethLyraStaking(): AccountWethLyraStaking | null {

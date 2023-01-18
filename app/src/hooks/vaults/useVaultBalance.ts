@@ -1,89 +1,111 @@
-import {
+import Lyra, {
   AccountBalances,
+  AccountLiquidityTokenBalance,
   AccountRewardEpoch,
   AccountRewardEpochAPY,
-  AccountRewardEpochTokens,
+  GlobalRewardEpoch,
+  GlobalRewardEpochAPY,
   LiquidityDeposit,
   LiquidityWithdrawal,
   Market,
-  MarketLiquidity,
+  MarketLiquiditySnapshot,
 } from '@lyrafinance/lyra-js'
-import { useCallback } from 'react'
 
+import { ZERO_ADDRESS } from '@/app/constants/bn'
 import fromBigNumber from '@/app/utils/fromBigNumber'
-import lyra from '@/app/utils/lyra'
 
-import useFetch, { useMutate } from '../data/useFetch'
-import useWalletAccount from '../wallet/useWalletAccount'
-import { fetchVault, Vault } from './useVault'
+import { useLyraFetch, useLyraMutate } from '../data/useLyraFetch'
+import useWallet from '../wallet/useWallet'
 
 export type VaultBalance = {
   market: Market
-  marketLiquidity: MarketLiquidity
-  balances: AccountBalances
-  deposits: LiquidityDeposit[]
-  withdrawals: LiquidityWithdrawal[]
+  marketLiquidity: MarketLiquiditySnapshot
+  marketBalances: AccountBalances
+  globalRewardEpoch: GlobalRewardEpoch | null
   accountRewardEpoch: AccountRewardEpoch | null
-  vault: Vault
-  myApy: AccountRewardEpochAPY
-  myPnl: number
-  myPnlPercent: number
-  myApyMultiplier: number
-  myRewards: AccountRewardEpochTokens
+  tvl: number
+  liquidityTokenBalanceValue: number
+  liquidityToken: AccountLiquidityTokenBalance
+  minApy: GlobalRewardEpochAPY
+  maxApy: GlobalRewardEpochAPY
+  apy: AccountRewardEpochAPY
+  utilization: number
+  pendingDeposits: LiquidityDeposit[]
+  pendingWithdrawals: LiquidityWithdrawal[]
+  allDeposits: LiquidityDeposit[]
+  allWithdrawals: LiquidityWithdrawal[]
 }
 
-const EMPTY_VAULT_APY: AccountRewardEpochAPY = {
-  total: 0,
+const EMPTY_APY: GlobalRewardEpochAPY | AccountRewardEpochAPY = {
   op: 0,
   lyra: 0,
+  total: 0,
 }
 
-export const fetchVaultBalance = async (owner: string, marketAddressOrName: string): Promise<VaultBalance> => {
-  const vault = await fetchVault(marketAddressOrName)
-  const { market, globalRewardEpoch } = vault
-  const account = lyra.account(owner)
-  const [balances, liquidityDeposits, liquidityWithdrawals, accountRewardEpoch, { pnl, pnlPercent }, marketLiquidity] =
-    await Promise.all([
-      account.marketBalances(market.address),
-      account.liquidityDeposits(market.address),
-      account.liquidityWithdrawals(market.address),
-      globalRewardEpoch ? globalRewardEpoch.accountRewardEpoch(owner) : null,
-      account.liquidityUnrealizedPnl(market.address),
-      market.liquidity(),
-    ])
+export const fetchVaultBalance = async (
+  lyra: Lyra,
+  marketAddress: string,
+  walletAddress?: string
+): Promise<VaultBalance> => {
+  const market = await lyra.market(marketAddress)
+  const account = lyra.account(walletAddress ?? ZERO_ADDRESS)
+
+  const fetchAccountBalances = async () =>
+    account ? account.marketBalances(marketAddress) : lyra.account(ZERO_ADDRESS).marketBalances(marketAddress)
+
+  const [marketLiquidity, globalRewardEpoch, marketBalances, deposits, withdrawals] = await Promise.all([
+    market.liquidity(),
+    lyra.latestGlobalRewardEpoch(),
+    fetchAccountBalances(),
+    account.liquidityDeposits(marketAddress),
+    account.liquidityWithdrawals(marketAddress),
+  ])
+
+  const pendingDeposits = deposits.filter(d => d.isPending)
+  const pendingWithdrawals = withdrawals.filter(w => w.isPending)
+
+  let accountRewardEpoch: AccountRewardEpoch | null = null
+  if (walletAddress && globalRewardEpoch) {
+    accountRewardEpoch = await globalRewardEpoch.accountRewardEpoch(walletAddress)
+  }
+
+  const minApy = globalRewardEpoch?.minVaultApy(marketAddress) ?? EMPTY_APY
+  const maxApy = globalRewardEpoch?.maxVaultApy(marketAddress) ?? EMPTY_APY
+  const apy = accountRewardEpoch?.vaultApy(marketAddress) ?? minApy
+
+  const liquidityToken = marketBalances.liquidityToken
+
+  const tvl = fromBigNumber(marketLiquidity.tvl)
+  const liquidityTokenBalanceValue = fromBigNumber(marketLiquidity.tokenPrice) * fromBigNumber(liquidityToken.balance)
+
+  const utilization = marketLiquidity.utilization
+
   return {
     market,
-    balances,
-    deposits: liquidityDeposits.filter(d => d.isPending),
-    withdrawals: liquidityWithdrawals.filter(w => w.isPending),
-    vault,
-    accountRewardEpoch,
-    myPnl: fromBigNumber(pnl),
-    myPnlPercent: fromBigNumber(pnlPercent),
-    myApy: accountRewardEpoch
-      ? accountRewardEpoch.vaultApy(marketAddressOrName)
-      : globalRewardEpoch?.minVaultApy(marketAddressOrName) ?? EMPTY_VAULT_APY,
-    myApyMultiplier: accountRewardEpoch ? accountRewardEpoch.vaultApyMultiplier(marketAddressOrName) : 1,
-    myRewards: accountRewardEpoch ? accountRewardEpoch.vaultRewards(marketAddressOrName) : { lyra: 0, op: 0 },
     marketLiquidity,
+    marketBalances,
+    globalRewardEpoch,
+    accountRewardEpoch,
+    tvl,
+    liquidityTokenBalanceValue,
+    liquidityToken,
+    minApy,
+    maxApy,
+    apy,
+    utilization,
+    pendingDeposits,
+    pendingWithdrawals,
+    allDeposits: deposits,
+    allWithdrawals: withdrawals,
   }
 }
 
-export default function useVaultBalance(marketAddressOrName: string): VaultBalance | null {
-  const account = useWalletAccount()
-  const [balance] = useFetch(
-    'VaultBalance',
-    account && marketAddressOrName ? [account, marketAddressOrName] : null,
-    fetchVaultBalance
-  )
-  return balance
+export default function useVaultBalance(market: Market): VaultBalance | null {
+  const { account } = useWallet()
+  const [vaultStats] = useLyraFetch('VaultBalance', market.lyra, [market.address, account], fetchVaultBalance)
+  return vaultStats
 }
 
-export const useMutateVaultBalance = () => {
-  const account = useWalletAccount()
-  const mutate = useMutate('VaultBalance', fetchVaultBalance)
-  return useCallback(
-    async (marketAddressOrName: string) => (account ? await mutate(account, marketAddressOrName) : null),
-    [mutate, account]
-  )
+export function useMutateVaultBalance(lyra: Lyra) {
+  return useLyraMutate('VaultBalance', lyra, fetchVaultBalance)
 }

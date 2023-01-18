@@ -1,5 +1,5 @@
 import { ScreenTransactionData, TransactionType } from '@/app/constants/screen'
-import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
+import isMainnet from '@/app/utils/isMainnet'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 
 import useFetch from '../data/useFetch'
@@ -27,10 +27,13 @@ const DEFAULT_RESPONSE: ScreenTransactionData = {
   blockDescription: null,
 }
 
-export default function useScreenTransaction(transactionType: TransactionType): ScreenTransactionData | null {
+export default function useScreenTransaction(
+  targetChainId: number,
+  transactionType: TransactionType
+): ScreenTransactionData | null {
   const { connectedAccount: account } = useWallet()
-  const isReady = useIsReady()
+  const isReady = useIsReady(targetChainId)
   const isScreenable = isReady && isScreeningEnabled()
   const [data] = useFetch('ScreenTransaction', isScreenable && account ? [account, transactionType] : null, fetcher)
-  return isScreenable && account && isOptimismMainnet() ? data : DEFAULT_RESPONSE
+  return isScreenable && account && isMainnet() ? data : DEFAULT_RESPONSE
 }

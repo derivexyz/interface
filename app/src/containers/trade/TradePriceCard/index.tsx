@@ -9,10 +9,11 @@ import Center from '@lyra/ui/components/Center'
 import Flex from '@lyra/ui/components/Flex'
 import Icon, { IconType } from '@lyra/ui/components/Icon'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
+import { Market, SnapshotPeriod } from '@lyrafinance/lyra-js'
 import React, { useCallback, useState } from 'react'
 
 import ChartPeriodSelector from '@/app/components/common/ChartPeriodSelector'
-import { CandlePeriod, ChartPeriod } from '@/app/constants/chart'
+import { ChartPeriod } from '@/app/constants/chart'
 import { TRADE_SPOT_CANDLE_CHART_HEIGHT, TRADE_SPOT_LINE_CHART_HEIGHT } from '@/app/constants/layout'
 import useTraderSettings from '@/app/hooks/local_storage/useTraderSettings'
 
@@ -21,56 +22,57 @@ import SpotPriceChartTitle from '../../common/SpotPriceChartTitle'
 import SpotPriceLineChart from '../../common/SpotPriceLineChart'
 
 type Props = {
-  marketAddressOrName: string
+  market: Market
 }
 
-const getCandlePeriodLabel = (candlePeriod: CandlePeriod): string => {
+const formatCandleDuration = (candlePeriod: SnapshotPeriod): string => {
   switch (candlePeriod) {
-    case CandlePeriod.FifteenMinutes:
+    case SnapshotPeriod.FifteenMinutes:
       return '15m'
-    case CandlePeriod.OneHour:
+    case SnapshotPeriod.OneHour:
       return '1h'
-    case CandlePeriod.FourHours:
+    case SnapshotPeriod.FourHours:
       return '4h'
-    case CandlePeriod.EightHours:
+    case SnapshotPeriod.EightHours:
       return '8h'
-    case CandlePeriod.OneDay:
+    case SnapshotPeriod.OneDay:
       return '1d'
-    case CandlePeriod.SevenDays:
+    case SnapshotPeriod.SevenDays:
       return '7d'
-    default:
-      return ''
   }
 }
 
-function getCandlePeriodForChartPeriod(period: ChartPeriod) {
+function getDefaultCandleDurationForPeriod(period: ChartPeriod): SnapshotPeriod {
   switch (period) {
     case ChartPeriod.OneDay:
     case ChartPeriod.ThreeDays:
-      return 3600 // 1 hr
+      return SnapshotPeriod.FifteenMinutes
     case ChartPeriod.OneWeek:
     case ChartPeriod.TwoWeeks:
-      return 14400 // 4 hr
+      return SnapshotPeriod.FourHours
     case ChartPeriod.OneMonth:
-      return 86400 // 1d
+      return SnapshotPeriod.EightHours
     case ChartPeriod.ThreeMonths:
     case ChartPeriod.SixMonths:
+      return SnapshotPeriod.OneDay
     case ChartPeriod.OneYear:
     case ChartPeriod.AllTime:
-      return 604800 // 7d
+      return SnapshotPeriod.SevenDays
   }
 }
 
-const candlePeriodValues: CandlePeriod[] = Object.values(CandlePeriod).flatMap(val =>
+const CANDLE_CHART_PERIODS = [ChartPeriod.OneDay, ChartPeriod.OneWeek, ChartPeriod.OneMonth, ChartPeriod.ThreeMonths]
+
+const candlePeriodValues: SnapshotPeriod[] = Object.values(SnapshotPeriod).flatMap(val =>
   typeof val === 'number' ? [val] : []
 )
 
-const TradePriceCard = ({ marketAddressOrName }: Props): CardElement => {
+const TradePriceCard = ({ market }: Props): CardElement => {
   const [period, setPeriod] = useState(ChartPeriod.OneDay)
   const [spotPrice, setSpotPrice] = useState<number | null>(null)
   const [candle, setCandle] = useState<OhlcData | null>(null)
-  const [isCandlePeriodDropdownOpen, setIsCandlePeriodDropdownOpen] = useState(false)
-  const [candlePeriod, setCandlePeriod] = useState<CandlePeriod>(getCandlePeriodForChartPeriod(period))
+  const [isSnapshotPeriodDropdownOpen, setIsSnapshotPeriodDropdownOpen] = useState(false)
+  const [candleDuration, setCandleDuration] = useState<SnapshotPeriod>(getDefaultCandleDurationForPeriod(period))
   const [traderSettings, setTraderSettings] = useTraderSettings()
   const isCandleChart = traderSettings.isCandleChart
   const isMobile = useIsMobile()
@@ -91,7 +93,7 @@ const TradePriceCard = ({ marketAddressOrName }: Props): CardElement => {
 
   const handleChangeChartPeriod = useCallback((chartPeriod: ChartPeriod) => {
     setPeriod(chartPeriod)
-    setCandlePeriod(getCandlePeriodForChartPeriod(chartPeriod))
+    setCandleDuration(getDefaultCandleDurationForPeriod(chartPeriod))
   }, [])
 
   return (
@@ -101,8 +103,8 @@ const TradePriceCard = ({ marketAddressOrName }: Props): CardElement => {
         <Flex width="100%" alignItems="flex-start" pb={2}>
           <Box flexGrow={1}>
             <SpotPriceChartTitle
+              market={market}
               isCandleChart={isCandleChart}
-              marketAddressOrName={marketAddressOrName}
               period={period}
               hoverSpotPrice={spotPrice}
               hoverCandle={candle}
@@ -111,31 +113,34 @@ const TradePriceCard = ({ marketAddressOrName }: Props): CardElement => {
           {isCandleChart && !isMobile ? (
             <DropdownButton
               mr={2}
-              isTransparent
-              width={70}
               textVariant="secondary"
-              label={getCandlePeriodLabel(candlePeriod)}
-              isOpen={isCandlePeriodDropdownOpen}
-              onClick={() => setIsCandlePeriodDropdownOpen(!isCandlePeriodDropdownOpen)}
-              onClose={() => setIsCandlePeriodDropdownOpen(false)}
+              label={formatCandleDuration(candleDuration)}
+              isOpen={isSnapshotPeriodDropdownOpen}
+              onClick={() => setIsSnapshotPeriodDropdownOpen(!isSnapshotPeriodDropdownOpen)}
+              onClose={() => setIsSnapshotPeriodDropdownOpen(false)}
             >
               {candlePeriodValues.map(candlePeriodVal => (
                 <DropdownButtonListItem
-                  isSelected={candlePeriodVal === candlePeriod}
+                  isSelected={candlePeriodVal === candleDuration}
                   key={candlePeriodVal}
-                  label={getCandlePeriodLabel(candlePeriodVal)}
+                  label={formatCandleDuration(candlePeriodVal)}
                   onClick={() => {
-                    setCandlePeriod(candlePeriodVal)
-                    setIsCandlePeriodDropdownOpen(false)
+                    setCandleDuration(candlePeriodVal)
+                    setIsSnapshotPeriodDropdownOpen(false)
                   }}
                 />
               ))}
             </DropdownButton>
           ) : null}
-
           {!isMobile ? (
             <Flex>
-              <ChartPeriodSelector mr={2} ml="auto" selectedPeriod={period} onChangePeriod={handleChangeChartPeriod} />
+              <ChartPeriodSelector
+                periods={CANDLE_CHART_PERIODS}
+                mr={2}
+                ml="auto"
+                selectedPeriod={period}
+                onChangePeriod={handleChangeChartPeriod}
+              />
               <IconButton
                 icon={
                   isCandleChart ? (
@@ -151,24 +156,28 @@ const TradePriceCard = ({ marketAddressOrName }: Props): CardElement => {
         </Flex>
         {isCandleChart ? (
           <SpotPriceCandleChart
-            marketAddressOrName={marketAddressOrName}
+            market={market}
             period={period}
-            candlePeriod={candlePeriod}
+            candleDuration={candleDuration}
             onHover={handleCandleHover}
             height={TRADE_SPOT_CANDLE_CHART_HEIGHT}
           />
         ) : (
           <SpotPriceLineChart
+            market={market}
             onHover={handleLineHover}
             hoverSpotPrice={spotPrice}
             height={TRADE_SPOT_LINE_CHART_HEIGHT}
-            marketAddressOrName={marketAddressOrName}
             period={period}
           />
         )}
-
         {isMobile ? (
           <Center mt={2}>
+            <ChartPeriodSelector
+              periods={CANDLE_CHART_PERIODS}
+              selectedPeriod={period}
+              onChangePeriod={handleChangeChartPeriod}
+            />
             <IconButton
               mr={2}
               icon={
@@ -176,7 +185,6 @@ const TradePriceCard = ({ marketAddressOrName }: Props): CardElement => {
               }
               onClick={handleToggleCandleChart}
             />
-            <ChartPeriodSelector selectedPeriod={period} onChangePeriod={handleChangeChartPeriod} />
           </Center>
         ) : null}
       </CardBody>

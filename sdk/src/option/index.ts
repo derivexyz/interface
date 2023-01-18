@@ -16,16 +16,15 @@ import fetchOptionPriceHistory from '../utils/fetchOptionPriceHistory'
 import fetchOptionVolumeHistory from '../utils/fetchOptionVolumeHistory'
 import fromBigNumber from '../utils/fromBigNumber'
 import getTimeToExpiryAnnualized from '../utils/getTimeToExpiryAnnualized'
-import mergeAndSortSnapshots from '../utils/mergeAndSortSnapshots'
 import toBigNumber from '../utils/toBigNumber'
 
-export type OptionPriceHistory = {
+export type OptionPriceSnapshot = {
   timestamp: number
   blockNumber: number
   optionPrice: BigNumber
 }
 
-export type OptionTradingVolume = {
+export type OptionTradingVolumeSnapshot = {
   notionalVolume: BigNumber
   premiumVolume: BigNumber
   timestamp: number
@@ -195,11 +194,11 @@ export class Option {
     }
   }
 
-  async tradingVolumeHistory(options?: SnapshotOptions): Promise<OptionTradingVolume[]> {
-    return mergeAndSortSnapshots(await fetchOptionVolumeHistory(this.lyra, this, options), 'timestamp')
+  async tradingVolumeHistory(options?: SnapshotOptions): Promise<OptionTradingVolumeSnapshot[]> {
+    return await fetchOptionVolumeHistory(this.lyra, this, options)
   }
 
-  async priceHistory(options?: SnapshotOptions): Promise<OptionPriceHistory[]> {
+  async priceHistory(options?: SnapshotOptions): Promise<OptionPriceSnapshot[]> {
     return await fetchOptionPriceHistory(this.lyra, this, options)
   }
 }

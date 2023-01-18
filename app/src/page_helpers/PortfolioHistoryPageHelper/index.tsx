@@ -24,8 +24,8 @@ import useQueryParam from '@/app/hooks/url/useQueryParam'
 import getPagePath from '@/app/utils/getPagePath'
 import { getTradeHistoryCSV } from '@/app/utils/getTradeHistoryCSV'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
 
 enum HistoryTab {
   Trade = 'trade',
@@ -41,7 +41,12 @@ const PositionHistory = withSuspense(
         positions={positions}
         onClick={position =>
           navigate(
-            getPagePath({ page: PageId.Position, marketAddressOrName: position.marketName, positionId: position.id })
+            getPagePath({
+              page: PageId.Position,
+              network: position.lyra.network,
+              marketAddressOrName: position.marketName,
+              positionId: position.id,
+            })
           )
         }
         pageSize={10}
@@ -89,7 +94,12 @@ const TradeHistory = withSuspense(
         onClick={event => {
           const positionId = event.positionId
           return navigate(
-            getPagePath({ page: PageId.Position, marketAddressOrName: event.marketName, positionId: positionId })
+            getPagePath({
+              page: PageId.Position,
+              network: event.lyra.network,
+              marketAddressOrName: event.marketName,
+              positionId: positionId,
+            })
           )
         }}
       />
@@ -110,8 +120,8 @@ export default function PortfolioHistoryPageHelper(): JSX.Element {
   const [tableRaw, setTable] = useQueryParam('tab')
   const table = coerce(HistoryTab, tableRaw) ?? HistoryTab.Position
   return (
-    <Layout mobileHeader="History" desktopHeader="History" showBackButton mobileCollapsedHeader="History">
-      <LayoutGrid>
+    <Page mobileHeader="History" desktopHeader="History" showBackButton mobileCollapsedHeader="History">
+      <PageGrid>
         <Card overflow="hidden">
           <CardBody noPadding>
             <Flex p={6}>
@@ -135,7 +145,7 @@ export default function PortfolioHistoryPageHelper(): JSX.Element {
             {table === HistoryTab.Position ? <PositionHistory /> : null}
           </CardBody>
         </Card>
-      </LayoutGrid>
-    </Layout>
+      </PageGrid>
+    </Page>
   )
 }

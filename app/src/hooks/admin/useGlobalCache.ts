@@ -1,20 +1,20 @@
-import { MarketGlobalCache } from '@lyrafinance/lyra-js'
+import { Market, MarketGlobalCache } from '@lyrafinance/lyra-js'
+import Lyra from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
-import lyra from '@/app/utils/lyra'
+import { useMutate } from '../data/useFetch'
+import { useLyraFetch } from '../data/useLyraFetch'
 
-import useFetch, { useMutate } from '../data/useFetch'
-
-const fetcher = async (marketAddress: string) => {
+const fetcher = async (lyra: Lyra, marketAddress: string) => {
   return await lyra.admin().getMarketGlobalCache(marketAddress)
 }
 
-export default function useGlobalCache(marketAddress: string): MarketGlobalCache | null {
-  const [globalOwner] = useFetch('GlobalCache', [marketAddress], fetcher)
+export default function useGlobalCache(market: Market): MarketGlobalCache | null {
+  const [globalOwner] = useLyraFetch('GlobalCache', market.lyra, [market.address], fetcher)
   return globalOwner ?? null
 }
 
-export function useMutateGlobalCache(marketAddress: string): () => Promise<MarketGlobalCache | null> {
+export function useMutateGlobalCache(market: Market): () => Promise<MarketGlobalCache | null> {
   const mutate = useMutate('GlobalCache', fetcher)
-  return useCallback(async () => await mutate(marketAddress), [mutate, marketAddress])
+  return useCallback(async () => await mutate(market.lyra, market.address), [mutate, market])
 }

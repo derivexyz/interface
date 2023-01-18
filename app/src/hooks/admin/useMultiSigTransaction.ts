@@ -3,8 +3,8 @@ import { LyraContractId, Network } from '@lyrafinance/lyra-js'
 import { hexlify } from 'ethers/lib/utils'
 import { useCallback } from 'react'
 
+import getLyraSDK from '@/app/utils/getLyraSDK'
 import getMultiSigWalletContract from '@/app/utils/getMultiSigWalletContract'
-import lyra from '@/app/utils/lyra'
 
 import useFetch from '../data/useBlockFetch'
 import { useMutate } from '../data/useFetch'
@@ -39,9 +39,10 @@ export type AddStrikeToBoardTransaction = MultiSigTransaction & {
   }
 }
 
-const fetcher = async (owner: string, transactionId: BigNumber) => {
+const fetcher = async (network: Network, owner: string, transactionId: BigNumber) => {
+  const lyra = getLyraSDK(network)
   const admin = lyra.admin()
-  const multiSigWallet = getMultiSigWalletContract(owner)
+  const multiSigWallet = getMultiSigWalletContract(network, owner)
   const transaction = await multiSigWallet.transactions(transactionId)
   const markets = await lyra.markets()
   const method = hexlify(transaction.data.slice(0, 10))
@@ -49,7 +50,11 @@ const fetcher = async (owner: string, transactionId: BigNumber) => {
   // Check if transaction was a market contract call
   const marketAndContract = markets
     .map(market => {
-      const contractAndId = admin.getLyraMarketContractForAddress(market.contractAddresses, transaction.destination)
+      const contractAndId = admin.getMarketContractForAddress(
+        market.contractAddresses,
+        lyra.version,
+        transaction.destination
+      )
       return {
         market,
         contract: contractAndId ? contractAndId.contract : null,
@@ -74,13 +79,13 @@ const fetcher = async (owner: string, transactionId: BigNumber) => {
     .filter(c => c !== LyraContractId.TestFaucet && c !== LyraContractId.ExchangeAdapter)
     .map(contractId => ({
       contractId,
-      address: admin.getLyraContractAddress(contractId),
+      address: admin.getLyraContract(lyra.version, contractId).address,
     }))
     .find(contractIdAndAddress => contractIdAndAddress.address === transaction.destination)
 
   if (contractIdAndAddress) {
     const { contractId } = contractIdAndAddress
-    const contract = admin.getLyraContract(contractId)
+    const contract = admin.getLyraContract(lyra.version, contractId)
     // Hack to allow typesafety
     const fragment = contract.interface.getFunction(method as unknown as never)
     const decodedData = contract.interface.decodeFunctionData(method, transaction.data)
@@ -95,22 +100,27 @@ const fetcher = async (owner: string, transactionId: BigNumber) => {
 }
 
 export default function useMultiSigTransaction(
+  network: Network,
   owner: string | null,
   transactionId: BigNumber
 ): MultiSigTransaction | CreateOptionBoardTransaction | AddStrikeToBoardTransaction | null {
   const [transaction] = useFetch(
-    Network.Optimism,
+    network,
     'MultiSigTransaction',
-    owner ? [owner, transactionId] : null,
+    owner ? [network, owner, transactionId] : null,
     fetcher
   )
   return transaction
 }
 
 export function useMutateMultiSigTransaction(
+  network: Network,
   owner: string | null,
   transactionId: BigNumber
 ): () => Promise<MultiSigTransaction | CreateOptionBoardTransaction | AddStrikeToBoardTransaction | null> {
   const mutate = useMutate('MultiSigTransaction', fetcher)
-  return useCallback(async () => (owner ? await mutate(owner, transactionId) : null), [mutate, owner, transactionId])
+  return useCallback(
+    async () => (owner ? await mutate(network, owner, transactionId) : null),
+    [mutate, network, owner, transactionId]
+  )
 }

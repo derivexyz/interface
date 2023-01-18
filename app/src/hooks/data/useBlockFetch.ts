@@ -3,10 +3,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import useFetch, { FetchArg, FetchConfig, Fetcher, FetchResponse, useMutate } from './useFetch'
 
-const getFetchKey = (network: Network, queryId: string) => ['__web3__', network, queryId].join('-')
+const getFetchKey = (network: Network | 'ethereum', queryId: string) => ['__web3__', network, queryId].join('-')
 
 export const useBlockMutate = <Data, Args extends any[]>(
-  network: Network,
+  network: Network | 'ethereum',
   queryId: string,
   fetcher: Fetcher<Data, Args> | null
 ) => {
@@ -25,7 +25,7 @@ export type BlockFetchResponse<Data> = FetchResponse<Data>
 // Polls data as blocks are mined
 // TODO: Fix block polling
 export default function useBlockFetch<Data, Args extends FetchArg[]>(
-  network: Network,
+  network: Network | 'ethereum',
   queryId: string,
   _params: Args | null,
   fetcher: Fetcher<Data, Args>,

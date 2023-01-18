@@ -4,7 +4,6 @@ import Icon, { IconType } from '@lyra/ui/components/Icon'
 import Image from '@lyra/ui/components/Image'
 import List from '@lyra/ui/components/List'
 import Modal from '@lyra/ui/components/Modal'
-import Text from '@lyra/ui/components/Text'
 import Token from '@lyra/ui/components/Token'
 import { ModalContext } from '@lyra/ui/theme/ModalProvider'
 import { Network } from '@lyrafinance/lyra-js'
@@ -15,45 +14,41 @@ import { getDefaultMarket } from '@/app/constants/defaults'
 import { MOBILE_FOOTER_HEIGHT } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
 import AccountButton from '@/app/containers/common/AccountButton'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
+import useWallet from '@/app/hooks/wallet/useWallet'
 import getAssetSrc from '@/app/utils/getAssetSrc'
+import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
 import { getNavPageFromPath } from '@/app/utils/getNavPageFromPath'
 import getPagePath from '@/app/utils/getPagePath'
-import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
+import isMainnet from '@/app/utils/isMainnet'
 
 import LayoutMoreDropdownListItems from './LayoutMoreDropdownListItems'
 import LayoutPrivacyModal from './LayoutPrivacyModal'
-
-const getRootPagePath = (path: string): string => {
-  const parts = path
-    .split('?')[0]
-    .split('#')[0]
-    .split('/')
-    .filter(p => p !== '')
-  if (parts.length === 0) {
-    return '#'
-  } else if (parts[0].startsWith('portfolio')) {
-    return getPagePath({ page: PageId.Portfolio })
-  } else if (parts[0].startsWith('position') || parts[0].startsWith('trade')) {
-    return getPagePath({ page: PageId.Trade, marketAddressOrName: getDefaultMarket(Network.Optimism) })
-  } else if (parts[0].startsWith('admin')) {
-    return getPagePath({ page: PageId.Admin })
-  } else if (parts[0].startsWith('rewards')) {
-    return getPagePath({ page: PageId.Rewards })
-  } else {
-    return '#'
-  }
-}
 
 export default function LayoutMobileBottomNav(): JSX.Element {
   const location = useLocation()
   const navigate = useNavigate()
   const tabPage = getNavPageFromPath(location.pathname)
+  const network = useNetwork()
+  const { chainId, switchNetwork } = useWallet()
   const [isOpen, setIsOpen] = useState(false)
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
   const onClose = useCallback(() => setIsOpen(false), [])
 
   const { openModalId, setOpenModalId } = useContext(ModalContext)
+
+  const handleSelectNetwork = async (newNetwork: Network) => {
+    const newChainId = getChainIdForNetwork(newNetwork)
+    if (newChainId !== chainId) {
+      await switchNetwork(newChainId)
+      if (tabPage === PageId.Trade) {
+        navigate(
+          getPagePath({ page: PageId.Trade, network: newNetwork, marketAddressOrName: getDefaultMarket(newNetwork) })
+        )
+      }
+    }
+  }
 
   return (
     <>
@@ -98,30 +93,6 @@ export default function LayoutMobileBottomNav(): JSX.Element {
               icon={openModalId > 0 ? IconType.X : IconType.Menu}
             />
           </Flex>
-          {(!openModalId || isOpen) && !isMoreOpen ? (
-            <Flex
-              height="100%"
-              alignItems="center"
-              justifyContent="center"
-              sx={{
-                cursor: 'pointer',
-                borderLeft: '1px solid',
-                borderRight: '1px solid',
-                borderColor: 'background',
-                ':hover': {
-                  bg: 'hover',
-                },
-              }}
-              onClick={() => {
-                setIsOpen(false)
-                navigate(getRootPagePath(location.pathname))
-              }}
-            >
-              <Text color="secondaryText" variant="bodyMedium" mx={6} sx={{ visibility: isMoreOpen ? 'hidden' : null }}>
-                {tabPage}
-              </Text>
-            </Flex>
-          ) : null}
         </Flex>
         <Flex flexGrow={1} p={4} alignItems="center" justifyContent="flex-end">
           <AccountButton />
@@ -136,7 +107,7 @@ export default function LayoutMobileBottomNav(): JSX.Element {
               height={24}
               width={24}
             />
-            {!isOptimismMainnet() ? <Token ml="auto" variant="warning" label="Testnet" /> : null}
+            {!isMainnet() ? <Token ml="auto" variant="warning" label="Testnet" /> : null}
           </Flex>
           <List mt="auto">
             <DropdownButtonListItem
@@ -148,7 +119,9 @@ export default function LayoutMobileBottomNav(): JSX.Element {
             />
             <DropdownButtonListItem
               onClick={() => {
-                navigate(getPagePath({ page: PageId.Trade, marketAddressOrName: getDefaultMarket(Network.Optimism) }))
+                navigate(
+                  getPagePath({ page: PageId.Trade, network, marketAddressOrName: getDefaultMarket(Network.Optimism) })
+                )
                 onClose()
               }}
               label="Trade"

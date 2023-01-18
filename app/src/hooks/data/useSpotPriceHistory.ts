@@ -1,17 +1,17 @@
-import gql from 'graphql-tag'
+import { Market, Network, SnapshotPeriod } from '@lyrafinance/lyra-js'
+import { useMemo } from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
+import fromBigNumber from '@/app/utils/fromBigNumber'
 import getChartPeriodStartTimestamp from '@/app/utils/getChartPeriodStartTimestamp'
-import isOptimismMainnet from '@/app/utils/isOptimismMainnet'
-import lyra from '@/app/utils/lyra'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 
-import { SNAPSHOT_RESULT_LIMIT, synthetixClient } from '../apollo/client'
 import useFetch from './useFetch'
 
 export type SpotPrice = {
   price: number
   x: number
-  change: number
+  endTimestamp: number
   open: number
   close: number
   high: number
@@ -33,36 +33,6 @@ export type CandleQueryVariables = {
   where?: CandleFilter
 }
 
-export const candlesQuery = gql`
-  query candles(
-    $period: Int = 300
-    $first: Int = 1000
-    $skip: Int = 0
-    $orderBy: String = "id"
-    $orderDirection: String = "desc"
-    $block: Block_height #
-    $where: Candle_filter!
-  ) {
-    candles(
-      first: $first
-      skip: $skip
-      orderBy: $orderBy
-      orderDirection: $orderDirection
-      block: $block
-      where: $where
-    ) {
-      id
-      synth
-      close
-      open
-      high
-      low
-      timestamp
-      period
-    }
-  }
-`
-
 export type SynthetixSpotPriceHistoryResult = {
   id: string
   close: string
@@ -72,98 +42,58 @@ export type SynthetixSpotPriceHistoryResult = {
   timestamp: string
 }
 
-const getPeriod = (period: ChartPeriod): number => {
-  switch (period) {
-    case ChartPeriod.OneDay:
-    case ChartPeriod.ThreeDays:
-      return isOptimismMainnet() ? 300 : 900 // 5 mins
-    case ChartPeriod.OneWeek:
-    case ChartPeriod.TwoWeeks:
-      return 900 // 15 mins
-    case ChartPeriod.OneMonth:
-    case ChartPeriod.ThreeMonths:
-    case ChartPeriod.SixMonths:
-    case ChartPeriod.OneYear:
-    case ChartPeriod.AllTime:
-      return 14400 // 4 hours
-  }
-}
-
 export const fetchSpotPriceHistory = async (
+  network: Network,
   marketAddressOrName: string,
   period: ChartPeriod,
-  candlePeriod: number,
-  limit: number = 1000
+  candleDuration?: SnapshotPeriod
 ): Promise<SpotPrice[]> => {
+  const lyra = getLyraSDK(network)
   const market = await lyra.market(marketAddressOrName)
   const startTimestamp = getChartPeriodStartTimestamp(market.block.timestamp, period)
-
-  // TODO: @dappbeast Replace with SDK spot price feed
-  const synth = market.baseToken.symbol
-  const variables: CandleQueryVariables = {
-    first: limit,
-    orderBy: 'timestamp',
-    orderDirection: 'asc',
-    where: {
-      synth,
-      timestamp_gte: startTimestamp,
-      period: candlePeriod,
-    },
-  }
-  // Loop for all candles
-  let allFound = false
-  let candles: SynthetixSpotPriceHistoryResult[] = []
-  let min = startTimestamp
-  while (!allFound) {
-    const {
-      data: { candles: candleBatch },
-    } = await synthetixClient.query<{ candles: SynthetixSpotPriceHistoryResult[] }>({
-      query: candlesQuery,
-      variables: { ...variables, where: { ...variables.where, timestamp_gte: min } },
-      fetchPolicy: 'cache-first',
-    })
-    candles = candles.concat(candleBatch)
-    if (candleBatch.length < SNAPSHOT_RESULT_LIMIT) {
-      allFound = true
-    } else {
-      // Set skip to last iterator val
-      min = parseInt(candleBatch[candleBatch.length - 1].timestamp) + 1
-    }
-  }
-
-  const prevCandle = candles[0]
-  const prevSpotPrice = parseFloat(prevCandle.close)
-  const spotPriceHistory = candles.map(candle => {
-    const currSpotPrice = parseFloat(candle.close)
-    const change = prevSpotPrice ? (currSpotPrice - prevSpotPrice) / prevSpotPrice : 0
+  const candles = await market.spotPriceHistory({ startTimestamp, period: candleDuration })
+  return candles.map(candle => {
     return {
-      price: currSpotPrice,
-      x: parseInt(candle.timestamp),
-      change,
-      high: parseFloat(candle.high),
-      low: parseFloat(candle.low),
-      close: parseFloat(candle.close),
-      open: parseFloat(candle.open),
+      price: fromBigNumber(candle.close),
+      x: candle.startTimestamp,
+      endTimestamp: candle.endTimestamp,
+      open: fromBigNumber(candle.open),
+      high: fromBigNumber(candle.high),
+      low: fromBigNumber(candle.low),
+      close: fromBigNumber(candle.close),
     }
   })
-
-  return spotPriceHistory
 }
 
-const EMPTY: SpotPrice[] = []
-
 export default function useSpotPriceHistory(
-  marketNameOrAddress: string | null,
+  market: Market | null,
   period: ChartPeriod,
-  candlePeriod?: number
+  candleDuration?: SnapshotPeriod
 ): SpotPrice[] {
-  const [spotPriceData] = useFetch(
+  const [candles] = useFetch(
     'SpotPriceHistory',
-    marketNameOrAddress ? [marketNameOrAddress, period, candlePeriod ?? getPeriod(period)] : null,
-    fetchSpotPriceHistory,
-    {
-      refreshInterval: 10 * 1000, // 10 seconds
-    }
+    market ? [market.lyra.network, market.address, period, candleDuration] : null,
+    fetchSpotPriceHistory
   )
-  return spotPriceData ?? EMPTY
+
+  return useMemo(() => {
+    if (!market || !candles) {
+      return []
+    }
+    const latestCandle = candles.length ? candles[candles.length - 1] : null
+    const spotPrice = fromBigNumber(market.spotPrice)
+    if (latestCandle && latestCandle.endTimestamp > market.block.number) {
+      // Update close
+      latestCandle.close = spotPrice
+      // Update low
+      if (spotPrice < latestCandle.low) {
+        latestCandle.low = spotPrice
+      }
+      // Update high
+      if (spotPrice > latestCandle.high) {
+        latestCandle.low = spotPrice
+      }
+    }
+    return candles
+  }, [candles, market])
 }

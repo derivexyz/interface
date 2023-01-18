@@ -26,8 +26,8 @@ const ClaimableStakedLyraText = withSuspense(
   (): CardElement => {
     const claimableBalance = useClaimableBalances()
     return (
-      <Text variant="heading" color={claimableBalance.stkLyra.gt(0) ? 'primaryText' : 'secondaryText'}>
-        {formatNumber(claimableBalance.stkLyra)} stkLYRA
+      <Text variant="heading" color={claimableBalance.newStkLyra.gt(0) ? 'primaryText' : 'secondaryText'}>
+        {formatNumber(claimableBalance.newStkLyra)} stkLYRA
       </Text>
     )
   },
@@ -38,15 +38,15 @@ const ClaimableRewardsText = withSuspense(
   () => {
     const claimableBalance = useClaimableBalances()
     const wethLyraAccount = useAccountWethLyraStaking()
-    const claimableLyra = claimableBalance.lyra.add(wethLyraAccount?.rewards ?? ZERO_BN)
+    const claimableStkLyra = claimableBalance.newStkLyra.add(wethLyraAccount?.rewards ?? ZERO_BN)
     return (
       <>
-        {claimableLyra.gt(0) ? (
+        {claimableStkLyra.gt(0) ? (
           <Box flexGrow={1}>
             <Text variant="secondary" color="secondaryText" mb={2}>
-              Claimable LYRA
+              Claimable stkLYRA
             </Text>
-            <TokenAmountText variant="secondary" tokenNameOrAddress="lyra" amount={claimableLyra} />
+            <TokenAmountText variant="secondary" tokenNameOrAddress="lyra" amount={claimableStkLyra} />
           </Box>
         ) : null}
         <Box flexGrow={1}>
@@ -77,8 +77,8 @@ const OpenClaimModalButton = withSuspense(
         variant="primary"
         onClick={onClick}
         isDisabled={
-          claimableBalance.stkLyra.isZero() &&
-          claimableBalance.lyra.isZero() &&
+          claimableBalance.newStkLyra.isZero() &&
+          claimableBalance.oldStkLyra.isZero() &&
           claimableBalance.op.isZero() &&
           wethLyraAccount?.rewards.isZero()
         }

@@ -146,6 +146,17 @@ const _abi = [
         name: "thrower",
         type: "address",
       },
+    ],
+    name: "CannotRecoverQuote",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
       {
         internalType: "enum OptionMarket.NonZeroValues",
         name: "valueType",
@@ -630,12 +641,6 @@ const _abi = [
         name: "quoteAmount",
         type: "uint256",
       },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "baseAmount",
-        type: "uint256",
-      },
     ],
     name: "SMClaimed",
     type: "event",
@@ -702,17 +707,22 @@ const _abi = [
       {
         indexed: true,
         internalType: "uint256",
-        name: "strikeId",
-        type: "uint256",
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
         name: "positionId",
         type: "uint256",
       },
       {
+        indexed: true,
+        internalType: "address",
+        name: "referrer",
+        type: "address",
+      },
+      {
         components: [
+          {
+            internalType: "uint256",
+            name: "strikeId",
+            type: "uint256",
+          },
           {
             internalType: "uint256",
             name: "expiry",
@@ -1094,6 +1104,11 @@ const _abi = [
             name: "maxTotalCost",
             type: "uint256",
           },
+          {
+            internalType: "address",
+            name: "referrer",
+            type: "address",
+          },
         ],
         internalType: "struct OptionMarket.TradeInputParameters",
         name: "params",
@@ -1210,6 +1225,11 @@ const _abi = [
             internalType: "uint256",
             name: "maxTotalCost",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "referrer",
+            type: "address",
           },
         ],
         internalType: "struct OptionMarket.TradeInputParameters",
@@ -1855,6 +1875,11 @@ const _abi = [
             name: "maxTotalCost",
             type: "uint256",
           },
+          {
+            internalType: "address",
+            name: "referrer",
+            type: "address",
+          },
         ],
         internalType: "struct OptionMarket.TradeInputParameters",
         name: "params",
@@ -1913,6 +1938,24 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20Decimals",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "recoverFunds",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

@@ -6,7 +6,8 @@ import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import React, { useCallback, useState } from 'react'
+import { Network } from '@lyrafinance/lyra-js'
+import React, { useCallback } from 'react'
 import { Flex } from 'rebass'
 
 import { ARRAKIS_LIQUIDITY_URL } from '@/app/constants/links'
@@ -17,7 +18,7 @@ import useAccountWethLyraStaking, {
 } from '@/app/hooks/rewards/useAccountWethLyraStaking'
 import useTransaction from '@/app/hooks/transaction/useTransaction'
 import useWalletAccount from '@/app/hooks/wallet/useWalletAccount'
-import lyra from '@/app/utils/lyra'
+import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -30,24 +31,18 @@ type Props = {
 const WethLyraUnstakeModalContent = withSuspense(
   ({ amount, onChange, onUnstake }: Props) => {
     const accountWethLyraStaking = useAccountWethLyraStaking()
-    const [isLoading, setIsLoading] = useState(false)
     const mutateAccountWethLyraStaking = useMutateAccountWethLyraStaking()
-    const execute = useTransaction()
+    const execute = useTransaction(Network.Optimism)
     const account = useWalletAccount()
     const isDisabled = amount.isZero() || accountWethLyraStaking?.stakedLPTokenBalance.isZero()
 
     const handleClickUnstake = useCallback(async () => {
       if (account) {
-        setIsLoading(true)
-        const tx = await lyra.account(account).unstakeWethLyra(amount)
+        const tx = await lyraOptimism.account(account).unstakeWethLyra(amount)
         execute(tx, {
           onComplete: () => {
             mutateAccountWethLyraStaking()
-            setIsLoading(false)
             onUnstake()
-          },
-          onError: () => {
-            setIsLoading(false)
           },
         })
       }
@@ -72,12 +67,11 @@ const WethLyraUnstakeModalContent = withSuspense(
           />
         </Flex>
         <TransactionButton
-          sx={{ mb: 3, width: '100%' }}
+          network="ethereum"
           transactionType={TransactionType.UnstakeWethLyra}
-          variant={accountWethLyraStaking?.stakedLPTokenBalance.gt(0) ? 'primary' : 'default'}
-          size="lg"
+          width="100%"
+          mb={3}
           isDisabled={isDisabled}
-          isLoading={isLoading}
           label="Unstake"
           onClick={handleClickUnstake}
         />

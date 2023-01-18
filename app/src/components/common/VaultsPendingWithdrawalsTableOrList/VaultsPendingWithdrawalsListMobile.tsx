@@ -2,8 +2,8 @@ import Box from '@lyra/ui/components/Box'
 import List, { ListElement } from '@lyra/ui/components/List'
 import ListItem from '@lyra/ui/components/List/ListItem'
 import Text from '@lyra/ui/components/Text'
-import formatNumber from '@lyra/ui/utils/formatNumber'
-import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
+import formatBalance from '@lyra/ui/utils/formatBalance'
+import formatDuration from '@lyra/ui/utils/formatDuration'
 import React from 'react'
 
 import MarketLabelProgress from '../MarketLabelProgress'
@@ -24,22 +24,22 @@ const VaultsPendingWithdrawalsListMobile = ({
         const startTimestamp = withdrawal.withdrawalRequestedTimestamp
         const progressDuration = Math.min(Math.max(currentTimestamp - startTimestamp, 0), duration)
         const progressPct = duration > 0 ? progressDuration / duration : 0
-        const timeToExit = duration - progressDuration
         const delayReason = withdrawal.delayReason
         return (
           <ListItem
             key={`${withdrawal.queueId}-${market.address}`}
-            label={
-              <MarketLabelProgress marketName={market.baseToken.symbol} progress={progressPct} color="errorText" />
-            }
+            label={<MarketLabelProgress market={market} progress={progressPct} color="secondary" />}
             onClick={onClick ? () => onClick(withdrawal) : undefined}
             rightContent={
               <Box textAlign="right">
-                <Text variant="secondary">{formatNumber(withdrawal.balance)} Tokens</Text>
-                {timeToExit && !delayReason ? (
-                  <Text variant="secondary">{formatTruncatedDuration(timeToExit)}</Text>
-                ) : null}
-                {delayReason ? <VaultsCircuitBreakerToken delayReason={delayReason} /> : null}
+                <Text variant="secondary">{formatBalance(withdrawal.balance, market.liquidityToken.symbol)}</Text>
+                {!delayReason ? (
+                  <Text variant="small" color="secondaryText">
+                    in {formatDuration(Math.max(0, withdrawal.withdrawalTimestamp - market.block.timestamp))}
+                  </Text>
+                ) : (
+                  <VaultsCircuitBreakerToken delayReason={delayReason} />
+                )}
               </Box>
             }
           />

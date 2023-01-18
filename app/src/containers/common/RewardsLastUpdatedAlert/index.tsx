@@ -6,10 +6,12 @@ import React from 'react'
 
 import { SECONDS_IN_HOUR } from '@/app/constants/time'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
+import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 
 const RewardsLastUpdatedAlert = withSuspense(() => {
-  const epochs = useLatestRewardEpochs()
+  const network = useNetwork()
+  const epochs = useLatestRewardEpoch(network)
   const currentTimestamp = epochs?.global.blockTimestamp ?? 0
   const lastUpdatedTimestamp = epochs?.global.lastUpdatedTimestamp ?? 0
   const lastUpdatedDuration = currentTimestamp - lastUpdatedTimestamp

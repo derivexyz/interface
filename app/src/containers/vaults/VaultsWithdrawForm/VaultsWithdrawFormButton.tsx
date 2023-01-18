@@ -2,57 +2,69 @@ import { BigNumber } from '@ethersproject/bignumber'
 import Box from '@lyra/ui/components/Box'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import { MarginProps } from '@lyra/ui/types'
-import { Market } from '@lyrafinance/lyra-js'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 
-import { ZERO_BN } from '@/app/constants/bn'
+import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccount from '@/app/hooks/market/useAccount'
-import { useMutateBalances } from '@/app/hooks/market/useBalances'
 import useTransaction from '@/app/hooks/transaction/useTransaction'
-import useVaultBalance from '@/app/hooks/vaults/useVaultBalance'
+import { useMutateVaultBalance, VaultBalance } from '@/app/hooks/vaults/useVaultBalance'
+import { useMutateVaultsTableData } from '@/app/hooks/vaults/useVaultsTableData'
+import logEvent from '@/app/utils/logEvent'
 
 import TransactionButton from '../../common/TransactionButton'
 
 type Props = {
-  market: Market
+  vaultBalance: VaultBalance
   amount: BigNumber
+  onWithdraw: () => void
 } & MarginProps
 
 const VaultsWithdrawFormButton = withSuspense(
-  ({ market, amount, ...styleProps }: Props) => {
-    const [isLoading, setIsLoading] = useState(false)
-    const vault = useVaultBalance(market.address)
-    const account = useAccount()
-    const mutateAccount = useMutateBalances()
-    const execute = useTransaction()
+  ({ vaultBalance, amount, onWithdraw, ...styleProps }: Props) => {
+    const { market } = vaultBalance
+    const account = useAccount(market.lyra.network)
+    const execute = useTransaction(market.lyra.network)
+
+    const mutateVaultBalance = useMutateVaultBalance(market.lyra)
+    const mutateVaultsTableData = useMutateVaultsTableData()
+
+    const mutateBalance = useCallback(
+      async () =>
+        await Promise.all([
+          mutateVaultBalance(market.address, account?.address),
+          mutateVaultsTableData(account?.address),
+        ]),
+      [account?.address, market.address, mutateVaultBalance, mutateVaultsTableData]
+    )
 
     const handleClickWithdraw = useCallback(async () => {
       if (!account) {
         console.warn('Account does not exist')
-        return null
+        return
       }
-      setIsLoading(true)
       await execute(market.withdraw(account.address, amount), {
-        onComplete: () => Promise.all([mutateAccount()]),
+        onComplete: async () => {
+          logEvent(LogEvent.VaultWithdrawSuccess)
+          await mutateBalance()
+        },
+        onError: error => logEvent(LogEvent.VaultWithdrawError, { amount: amount, error: error?.message }),
       })
-      setIsLoading(false)
-    }, [account, amount, execute, market, mutateAccount])
+      onWithdraw()
+    }, [onWithdraw, account, amount, execute, market, mutateBalance])
 
-    const lpBalance = vault?.balances.liquidityToken.balance ?? ZERO_BN
+    const lpBalance = vaultBalance.liquidityToken.balance
 
     const insufficientBalance = lpBalance.lt(amount)
 
     return (
       <Box {...styleProps}>
         <TransactionButton
+          network={vaultBalance.market.lyra.network}
           transactionType={TransactionType.VaultWithdraw}
-          size="lg"
-          sx={{ width: '100%' }}
-          variant="primary"
+          width="100%"
           isDisabled={insufficientBalance || amount.lte(0)}
-          isLoading={isLoading}
           label={amount.lte(0) ? 'Enter Amount' : insufficientBalance ? 'Insufficient Balance' : 'Withdraw'}
           onClick={handleClickWithdraw}
         />

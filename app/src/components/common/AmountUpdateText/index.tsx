@@ -8,47 +8,63 @@ import React from 'react'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = {
-  prevAmount: BigNumber
-  newAmount: BigNumber
+  prevAmount: BigNumber | number
+  newAmount: BigNumber | number
+  decimals?: number
   isUSDFormat?: boolean
   isPercentFormat?: boolean
   symbol?: string
 } & TextProps
 
 const AmountUpdateText = ({
-  prevAmount,
-  newAmount,
+  prevAmount: prevAmountBNOrNum,
+  newAmount: newAmountBNOrNum,
+  decimals,
   symbol,
   isUSDFormat,
   isPercentFormat,
   color,
   ...textProps
 }: Props): TextElement => {
+  const prevAmount = BigNumber.isBigNumber(prevAmountBNOrNum)
+    ? fromBigNumber(prevAmountBNOrNum, decimals)
+    : prevAmountBNOrNum
+  const newAmount = BigNumber.isBigNumber(newAmountBNOrNum)
+    ? fromBigNumber(newAmountBNOrNum, decimals)
+    : newAmountBNOrNum
   let formattedPrevAmount = formatNumber(prevAmount)
-  let formattedNewAmount = formatNumber(newAmount.lt(0) ? 0 : newAmount)
+  let formattedNewAmount = formatNumber(newAmount < 0 ? 0 : newAmount)
   if (isUSDFormat) {
     formattedPrevAmount = formatUSD(prevAmount)
-    formattedNewAmount = formatUSD(newAmount.lt(0) ? 0 : newAmount)
+    formattedNewAmount = formatUSD(newAmount < 0 ? 0 : newAmount)
   }
   if (isPercentFormat) {
-    formattedPrevAmount = formatPercentage(fromBigNumber(prevAmount), true)
-    formattedNewAmount = formatPercentage(fromBigNumber(newAmount), true)
+    formattedPrevAmount = formatPercentage(prevAmount, true)
+    formattedNewAmount = formatPercentage(newAmount, true)
   }
   return (
     <Text color={color} {...textProps}>
       <Text
         as="span"
         sx={{
-          textDecoration: prevAmount.gt(0) && !prevAmount.eq(newAmount) ? 'line-through' : 'auto',
+          textDecoration: prevAmount > 0 && prevAmount !== newAmount ? 'line-through' : 'auto',
         }}
       >
         {formattedPrevAmount}
-        {newAmount.lte(0) ? ` ${symbol}` : ''}
       </Text>
-      {newAmount.gt(0) && !prevAmount.eq(newAmount) ? (
+      {newAmount > 0 && prevAmount !== newAmount ? (
         <Text as="span">
           &nbsp;→&nbsp;
           {formattedNewAmount}
+        </Text>
+      ) : null}
+      {symbol ? (
+        <Text
+          as="span"
+          sx={{
+            textDecoration: prevAmount > 0 && newAmount <= 0 ? 'line-through' : 'auto',
+          }}
+        >
           &nbsp;{symbol}
         </Text>
       ) : null}

@@ -5,28 +5,20 @@ import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Board, MarketLiquidity, Option, Strike } from '@lyrafinance/lyra-js'
+import { Board, MarketLiquiditySnapshot, Option, Strike } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import { UNIT } from '@/app/constants/bn'
-import { getCustomColumnWidth, OptionChainTableData } from '@/app/containers/trade/TradeAdvancedBoardCard'
+import { OptionChainTableData } from '@/app/containers/trade/TradeAdvancedBoardCard'
 import { CustomColumnOption } from '@/app/hooks/local_storage/useTraderSettings'
 import useBoardQuotesSync from '@/app/hooks/market/useBoardQuotesSync'
 import filterNulls from '@/app/utils/filterNulls'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
+import getPriceColumnWidth from '@/app/utils/getPriceColumnWidth'
 
 import TradeBoardNoticeSection from '../TradeBoardNoticeSection'
 import TradeChainPriceButton from './TradeChainPriceButton'
-
-export const getButtonWidthForMarket = (marketName: string) => {
-  switch (marketName.toLowerCase()) {
-    case 'btc':
-      return 112
-    default:
-      return 96
-  }
-}
 
 const renderCustomColumn = (strike: Strike | null, customCol: CustomColumnOption, isCall: boolean) => {
   if (!strike) {
@@ -55,7 +47,7 @@ type Props = {
   selectedOption: Option | null
   isBuy: boolean
   isGlobalPaused: boolean
-  marketLiquidity: MarketLiquidity | null
+  marketLiquidity: MarketLiquiditySnapshot | null
   customCol1: CustomColumnOption
   customCol2: CustomColumnOption
   onSelectOption: (option: Option, isBuy: boolean, isCall: boolean) => void
@@ -75,14 +67,14 @@ const TradeChainTable = ({
 }: Props) => {
   const size = getDefaultQuoteSize(board.market().name ?? '') // defaults to one
   const isCall = selectedOption?.isCall ?? true
-  const marketName = board.market().name
-  const spotPrice = fromBigNumber(board.market().spotPrice)
+  const market = board.market()
+  const spotPrice = fromBigNumber(market.spotPrice)
   const columns = useMemo<TableColumn<OptionData>[]>(
     () => [
       {
         accessor: 'strike',
         id: `custom-col-1-left`,
-        width: getCustomColumnWidth(customCol1),
+        width: 88,
         Cell: (props: TableCellProps<OptionData>) => {
           const { strike } = props.row.original
           return <Text variant="secondary">{renderCustomColumn(strike, customCol1, true)}</Text>
@@ -91,7 +83,7 @@ const TradeChainTable = ({
       {
         accessor: 'strike',
         id: `custom-col-2-left`,
-        width: getCustomColumnWidth(customCol2),
+        width: 88,
         Cell: (props: TableCellProps<OptionData>) => {
           const { strike } = props.row.original
           return <Text variant="secondary">{renderCustomColumn(strike, customCol2, true)}</Text>
@@ -101,40 +93,42 @@ const TradeChainTable = ({
         accessor: 'callBid',
         Header: 'Bid',
         disableSortBy: true,
-        width: getButtonWidthForMarket(marketName),
+        width: getPriceColumnWidth(market),
         Cell: (props: TableCellProps<OptionData>) => {
           const { callBid } = props.row.original
           const isSelected = selectedOption?.strike().id === callBid?.strikeId && isCall && !isBuy
-          return callBid ? (
+          return (
             <TradeChainPriceButton
               quote={callBid}
-              isBid={true}
               isSelected={isSelected}
               onSelected={() => {
-                onSelectOption(callBid.option(), false, callBid.option().isCall)
+                if (callBid) {
+                  onSelectOption(callBid.option(), false, callBid.option().isCall)
+                }
               }}
             />
-          ) : null
+          )
         },
       },
       {
         accessor: 'callAsk',
         Header: 'Ask',
         disableSortBy: true,
-        width: getButtonWidthForMarket(marketName),
+        width: getPriceColumnWidth(market),
         Cell: (props: TableCellProps<OptionData>) => {
           const { callAsk } = props.row.original
           const isSelected = selectedOption?.strike().id === callAsk?.strikeId && isCall && isBuy
-          return callAsk ? (
+          return (
             <TradeChainPriceButton
               quote={callAsk}
-              isBid={false}
               isSelected={isSelected}
               onSelected={() => {
-                onSelectOption(callAsk.option(), true, callAsk.option().isCall)
+                if (callAsk) {
+                  onSelectOption(callAsk.option(), true, callAsk.option().isCall)
+                }
               }}
             />
-          ) : null
+          )
         },
       },
       {
@@ -156,46 +150,48 @@ const TradeChainTable = ({
         accessor: 'putBid',
         Header: 'Bid',
         disableSortBy: true,
-        width: getButtonWidthForMarket(marketName),
+        width: getPriceColumnWidth(market),
         Cell: (props: TableCellProps<OptionData>) => {
           const { putBid } = props.row.original
           const isSelected = selectedOption?.strike().id === putBid?.strikeId && !isCall && !isBuy
-          return putBid ? (
+          return (
             <TradeChainPriceButton
               quote={putBid}
-              isBid={true}
               isSelected={isSelected}
               onSelected={() => {
-                onSelectOption(putBid.option(), false, false)
+                if (putBid) {
+                  onSelectOption(putBid.option(), false, false)
+                }
               }}
             />
-          ) : null
+          )
         },
       },
       {
         accessor: 'putAsk',
         Header: 'Ask',
         disableSortBy: true,
-        width: getButtonWidthForMarket(marketName),
+        width: getPriceColumnWidth(market),
         Cell: (props: TableCellProps<OptionData>) => {
           const { putAsk } = props.row.original
           const isSelected = selectedOption?.strike().id === putAsk?.strikeId && !isCall && isBuy
-          return putAsk ? (
+          return (
             <TradeChainPriceButton
               quote={putAsk}
-              isBid={false}
               isSelected={isSelected}
               onSelected={() => {
-                onSelectOption(putAsk.option(), true, false)
+                if (putAsk) {
+                  onSelectOption(putAsk.option(), true, false)
+                }
               }}
             />
-          ) : null
+          )
         },
       },
       {
         accessor: 'strike',
         id: 'custom-col-2-right',
-        width: getCustomColumnWidth(customCol2),
+        width: 88,
         Cell: (props: TableCellProps<OptionData>) => {
           const { strike } = props.row.original
           return <Text variant="secondary">{renderCustomColumn(strike, customCol2, false)}</Text>
@@ -204,17 +200,15 @@ const TradeChainTable = ({
       {
         accessor: 'strike',
         id: `custom-col-1-right`,
-        width: getCustomColumnWidth(customCol1),
+        width: 88,
         Cell: (props: TableCellProps<OptionData>) => {
           const { strike } = props.row.original
           return <Text variant="secondary">{renderCustomColumn(strike, customCol1, false)}</Text>
         },
       },
     ],
-    [isCall, selectedOption, onSelectOption, isBuy, customCol1, customCol2, marketName]
+    [isCall, selectedOption, onSelectOption, isBuy, customCol1, customCol2]
   )
-
-  const columnOptions = useMemo(() => [{}, {}, { px: 0 }, { px: 0 }, { px: 0 }, { px: 0 }, { px: 0 }, {}, {}], [])
 
   const quotes = useBoardQuotesSync(board, size)
 
@@ -258,7 +252,7 @@ const TradeChainTable = ({
         quotes={filteredQuotes}
         marketLiquidity={marketLiquidity}
       />
-      <Table hideHeader columns={columns} data={rows} columnOptions={columnOptions} tableRowMarker={spotPriceMarker} />
+      <Table hideHeader columns={columns} data={rows} tableRowMarker={spotPriceMarker} />
     </>
   )
 }

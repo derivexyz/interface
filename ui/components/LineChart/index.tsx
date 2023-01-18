@@ -95,7 +95,7 @@ function LineChart<T extends DataPoint>({
   xAxisDataKey = 'x',
   lineColor = 'primary',
   useGradientLineColor = false,
-  fallback = 'No available data',
+  fallback = 'Not enough data',
   compact,
   ...styleProps
 }: Props<T>): JSX.Element {
@@ -115,7 +115,7 @@ function LineChart<T extends DataPoint>({
     [onHover]
   )
 
-  if (data.length === 0) {
+  if (data.length <= 1) {
     return (
       <Center {...styleProps}>
         <Text variant="secondary" color="secondaryText">

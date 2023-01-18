@@ -14,14 +14,16 @@ import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/Toke
 import { ZERO_BN } from '@/app/constants/bn'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import usePositionHistory from '@/app/hooks/position/usePositionHistory'
-import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
+import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = MarginProps
 
 const ShortCollateralRewardsCardGrid = withSuspense(
   ({ ...styleProps }: MarginProps) => {
-    const epochs = useLatestRewardEpochs()
+    const network = useNetwork()
+    const epochs = useLatestRewardEpoch(network, true)
     const positions = usePositionHistory(true)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account

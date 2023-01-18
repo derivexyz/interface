@@ -1,8 +1,10 @@
-import lyra from './lyra'
+import { Network } from '@lyrafinance/lyra-js'
 
-export default async function getIsOwnerMultiSig(owner: string): Promise<boolean> {
+import getLyraSDK from './getLyraSDK'
+
+export default async function getIsOwnerMultiSig(network: Network, owner: string): Promise<boolean> {
   try {
-    const code = await lyra.provider.getCode(owner)
+    const code = await getLyraSDK(network).provider.getCode(owner)
     // No contract deployed
     if (code === '0x') {
       return false

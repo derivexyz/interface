@@ -226,7 +226,12 @@ export const MARKET_PENDING_LIQUIDITY_SNAPSHOT_FRAGMENT = `
 export const SPOT_PRICE_SNAPSHOT_FRAGMENT = `
   timestamp
   spotPrice
+  open
+  high
+  low
+  close
   blockNumber
+  period
 `
 
 export const LONG_OPTION_FRAGMENT = `
@@ -596,13 +601,22 @@ export type StrikeIVAndGreeksSnapshotQueryResult = {
 
 export type SpotPriceSnapshotQueryResult = {
   spotPrice: string
+  open: string
+  high: string
+  low: string
+  close: string
   timestamp: number
+  period: number
   blockNumber: number
 }
 
 export enum SnapshotPeriod {
+  FifteenMinutes = 900,
   OneHour = 3600,
+  FourHours = 14400,
+  EightHours = 28800,
   OneDay = 86400,
+  SevenDays = 604800,
 }
 
 export type TokenTransferResult = {

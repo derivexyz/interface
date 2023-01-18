@@ -1,26 +1,28 @@
 import Button, { ButtonSize } from '@lyra/ui/components/Button'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useEffect, useRef, useState } from 'react'
 import { LayoutProps, MarginProps } from 'styled-system'
 
 import { LogEvent } from '@/app/constants/logEvents'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useQueryParam from '@/app/hooks/url/useQueryParam'
 import useWallet from '@/app/hooks/wallet/useWallet'
 import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
 import getChainForChainId from '@/app/utils/getChainForChainId'
+import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
 import getNetworkConfig from '@/app/utils/getNetworkConfig'
-import getOptimismChainId from '@/app/utils/getOptimismChainId'
 import logEvent from '@/app/utils/logEvent'
+import { MAINNET_NETWORK_CONFIG } from '@/app/utils/mainnetProvider'
 
 type Props = {
+  network: Network | 'ethereum'
   size?: ButtonSize
 } & LayoutProps &
   MarginProps
 
 // TODO: @dappbeast Show override status + exit (for see param)
 const ConnectWalletButton = withSuspense(
-  ({ size, ...styleProps }: Props): JSX.Element => {
+  ({ size, network, ...styleProps }: Props): JSX.Element => {
     const {
       account,
       isLoading,
@@ -31,11 +33,12 @@ const ConnectWalletButton = withSuspense(
       walletType,
       openAccountModal,
       openConnectModal,
+      removeSeeAddress,
     } = useWallet()
-    const [_, setSeeAddress] = useQueryParam('see')
 
-    const targetChainId = getOptimismChainId()
-    const targetChain = getChainForChainId(targetChainId)
+    const targetChainId = network === 'ethereum' ? 1 : getChainIdForNetwork(network)
+    const targetNetworkConfig =
+      network === 'ethereum' ? MAINNET_NETWORK_CONFIG : getNetworkConfig(getChainForChainId(targetChainId))
     const isWrongNetwork = isConnected && walletChainId !== targetChainId
 
     const [isConnectModalOpen, setIsConnectModalOpen] = useState(false)
@@ -58,23 +61,23 @@ const ConnectWalletButton = withSuspense(
     if (isOverride && account) {
       buttonLabel = `Watching ${formatTruncatedAddress(account)}`
     } else if (isWrongNetwork) {
-      buttonLabel = `Switch to ${getNetworkConfig(targetChain).shortName}`
+      buttonLabel = `Switch to ${targetNetworkConfig.shortName}`
     } else if (!isConnected) {
       buttonLabel = 'Connect Wallet'
     }
 
-    const variant = isOverride ? 'warning' : account ? 'light' : 'primary'
+    const variant = isOverride ? 'warning' : 'primary'
 
     const onClick = async () => {
       if (isOverride) {
         // Unset override
-        setSeeAddress(null)
+        removeSeeAddress()
       } else if (isWrongNetwork) {
         logEvent(LogEvent.ConnectWalletSwitchNetworkSubmit, {
           fromChainId: walletChainId,
           toChainId: targetChainId,
         })
-        const connectedChainId = await switchNetwork(targetChainId)
+        const connectedChainId = targetChainId ? await switchNetwork(targetChainId) : null
         if (targetChainId === connectedChainId) {
           logEvent(LogEvent.ConnectWalletSwitchNetworkSuccess, {
             fromChainId: walletChainId,

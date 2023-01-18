@@ -1,77 +1,64 @@
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
-import Center from '@lyra/ui/components/Center'
-import Flex from '@lyra/ui/components/Flex'
+import Grid from '@lyra/ui/components/Grid'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
-import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
-import React from 'react'
+import React, { useMemo } from 'react'
 
+import LabelItem from '@/app/components/common/LabelItem'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useTotalTradingVolume from '@/app/hooks/gql/useTotalTradingVolume'
-import useTotalOpenInterest from '@/app/hooks/portfolio/useTotalOpenInterest'
-import useTotalValueLocked from '@/app/hooks/portfolio/useTotalValueLocked'
+import useAggregateTVL from '@/app/hooks/portfolio/useAggregateTVL'
+import useMarketsTableData from '@/app/hooks/portfolio/useMarketsTableData'
 
 type Props = MarginProps
 
 const TotalValueLockedText = withSuspense(
   () => {
-    const totalValueLocked = formatTruncatedUSD(useTotalValueLocked())
-    return (
-      <Text variant="heading" color="secondaryText">
-        {totalValueLocked}
-      </Text>
-    )
+    const totalValueLocked = useAggregateTVL()
+    return <Text variant="bodyLarge">{formatTruncatedUSD(totalValueLocked)}</Text>
   },
-  () => <TextShimmer variant="heading" />
+  () => <TextShimmer variant="bodyLarge" />
 )
 
 const TradingVolumeText = withSuspense(
   () => {
-    const tradingVolume = useTotalTradingVolume()
-    return (
-      <Text variant="heading" color="secondaryText">
-        {formatTruncatedUSD(tradingVolume)}
-      </Text>
-    )
+    const data = useMarketsTableData()
+    const tradingVolume = useMemo(() => data.reduce((sum, dat) => sum + dat.totalNotionalVolume30D, 0), [data])
+    return <Text variant="bodyLarge">{formatTruncatedUSD(tradingVolume)}</Text>
   },
-  () => <TextShimmer variant="heading" />
+  () => <TextShimmer variant="bodyLarge" />
+)
+
+const TradingFeesText = withSuspense(
+  () => {
+    const data = useMarketsTableData()
+    const tradingFees = useMemo(() => data.reduce((sum, dat) => sum + dat.totalFees30D, 0), [data])
+    return <Text variant="bodyLarge">{formatTruncatedUSD(tradingFees)}</Text>
+  },
+  () => <TextShimmer variant="bodyLarge" />
 )
 
 const OpenInterestText = withSuspense(
   () => {
-    const openInterest = useTotalOpenInterest()
-    const openInterestUSD = formatTruncatedUSD(openInterest)
-    return (
-      <Text variant="heading" color="secondaryText">
-        {openInterestUSD}
-      </Text>
-    )
+    const data = useMarketsTableData()
+    const openInterest = useMemo(() => data.reduce((sum, dat) => sum + dat.openInterest, 0), [data])
+    return <Text variant="bodyLarge">{formatTruncatedUSD(openInterest)}</Text>
   },
-  () => <TextShimmer variant="heading" />
+  () => <TextShimmer variant="bodyLarge" />
 )
 
 const PortfolioKeyMetricsCard = ({ ...styleProps }: Props) => {
-  const isMobile = useIsMobile()
   return (
-    <Card justifyContent="space-between" {...styleProps}>
-      <CardBody width="100%">
-        <Flex py={[2, 4]} width="100%" justifyContent="space-between" flexDirection={isMobile ? 'column' : 'row'}>
-          <Center flexDirection="column" width={['100%', '30%']} mb={[8, 0]}>
-            <Text variant="heading2">Total Value Locked</Text>
-            <TotalValueLockedText />
-          </Center>
-          <Center flexDirection={'column'} width={['100%', '30%']} mb={[8, 0]}>
-            <Text variant="heading2">30D Volume</Text>
-            <TradingVolumeText />
-          </Center>
-          <Center flexDirection={'column'} width={['100%', '30%']}>
-            <Text variant="heading2">Open Interest</Text>
-            <OpenInterestText />
-          </Center>
-        </Flex>
+    <Card {...styleProps}>
+      <CardBody>
+        <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'], gridGap: 3 }}>
+          <LabelItem label="TVL" value={<TotalValueLockedText />} />
+          <LabelItem label="30D Volume" value={<TradingVolumeText />} />
+          <LabelItem label="30D Fees" value={<TradingFeesText />} />
+          <LabelItem label="Open Interest" value={<OpenInterestText />} />
+        </Grid>
       </CardBody>
     </Card>
   )

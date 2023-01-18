@@ -2,16 +2,16 @@ import React from 'react'
 
 import RewardsHistoryCard from '@/app/containers/rewards/RewardsHistoryCard'
 
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
 
 const RewardsHistoryPageHelper = () => {
   return (
-    <Layout header="History" showBackButton>
-      <LayoutGrid>
+    <Page header="History" showBackButton>
+      <PageGrid>
         <RewardsHistoryCard />
-      </LayoutGrid>
-    </Layout>
+      </PageGrid>
+    </Page>
   )
 }
 

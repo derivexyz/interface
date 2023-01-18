@@ -6,7 +6,7 @@ import React from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useOptionPriceHistory from '@/app/hooks/gql/useOptionPriceHistory'
+import useOptionPriceHistory from '@/app/hooks/position/useOptionPriceHistory'
 import formatTimestampTooltip from '@/app/utils/formatTimestampTooltip'
 
 type Props = {
@@ -20,7 +20,7 @@ type Props = {
 
 const PositionPriceChart = withSuspense(
   ({ option, period, onHover, hoverOptionPrice, ...styleProps }: Props) => {
-    const data = useOptionPriceHistory(option.market().address.toLowerCase(), option.strike().id, option.isCall, period)
+    const data = useOptionPriceHistory(option, period)
     const latestOptionPrice = (data.length && hoverOptionPrice) ?? data[data.length - 1].optionPrice
     const prevOptionPrice = data.length ? data[0].optionPrice : null
     const pctChange = prevOptionPrice ? (latestOptionPrice - prevOptionPrice) / prevOptionPrice : 0

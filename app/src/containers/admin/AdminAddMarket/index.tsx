@@ -6,10 +6,12 @@ import Input from '@lyra/ui/components/Input'
 import Text from '@lyra/ui/components/Text'
 import React, { useState } from 'react'
 
+import NetworkDropdownButton from '@/app/components/common/NetworkDropdownButton/NetworkDropdownButton'
 import useAdmin from '@/app/hooks/admin/useAdmin'
 import useAdminGlobalOwner from '@/app/hooks/admin/useAdminGlobalOwner'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 import useWalletAccount from '@/app/hooks/wallet/useWalletAccount'
 
 type OptionMarketContracts = {
@@ -55,16 +57,21 @@ const AdminAddMarket = withSuspense(() => {
     baseAsset: '',
   })
   const [id, setId] = useState<number>(0)
-  const globalOwner = useAdminGlobalOwner()
+  const network = useNetwork()
+  const globalOwner = useAdminGlobalOwner(network)
+  const [addMarketNetwork, setAddMarketNetwork] = useState(network)
   const account = useWalletAccount()
-  const admin = useAdmin()
-  const execute = useAdminTransaction(globalOwner)
+  const admin = useAdmin(network)
+  const execute = useAdminTransaction(network, globalOwner)
   return (
     <Card mt={8} mx={8}>
       <CardBody>
         <Text mb={4} variant="heading">
           Add Market
         </Text>
+        <Flex>
+          <NetworkDropdownButton mb={4} selectedNetwork={addMarketNetwork} onSelectNetwork={setAddMarketNetwork} />
+        </Flex>
         <Input label="Market ID" mb={4} type="number" value={id} onChange={e => setId(parseInt(e.target.value))} />
         {OPTION_MARKET_CONTRACTS.map(contract => (
           <Input
@@ -85,10 +92,6 @@ const AdminAddMarket = withSuspense(() => {
           <Button
             label="addMarketToViewer"
             onClick={() => (account && admin ? execute(admin.addMarketToViewer(account, addresses)) : null)}
-          />
-          <Button
-            label="addMarketToWrapper"
-            onClick={() => (account && admin ? execute(admin.addMarketToWrapper(account, id, addresses)) : null)}
           />
         </Flex>
       </CardBody>

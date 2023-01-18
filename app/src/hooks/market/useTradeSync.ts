@@ -1,9 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Option, Position, Trade } from '@lyrafinance/lyra-js'
+import { AccountBalances, Option, Position, Trade } from '@lyrafinance/lyra-js'
 import { useMemo } from 'react'
 
 import { ZERO_ADDRESS } from '@/app/constants/bn'
-import lyra from '@/app/utils/lyra'
 
 import useWalletAccount from '../wallet/useWalletAccount'
 
@@ -11,45 +10,28 @@ export default function useTradeSync({
   option,
   isBuy,
   size,
-  slippage: premiumSlippage,
+  slippage,
   position,
+  balances,
   setToCollateral,
   isBaseCollateral,
-  stableAddress,
-  stableDecimals,
 }: {
   option: Option
   isBuy: boolean
   size: BigNumber
   slippage: number
+  balances: AccountBalances
   position?: Position | null
   setToCollateral?: BigNumber | null
   isBaseCollateral?: boolean
-  stableAddress: string
-  stableDecimals: number
 }): Trade {
   const account = useWalletAccount() ?? ZERO_ADDRESS
   return useMemo(() => {
-    return Trade.getSync(lyra, account, option, isBuy, size, {
+    return Trade.getSync(option.lyra, account, option, isBuy, size, balances, {
       position: position ?? undefined,
       setToCollateral: setToCollateral ?? undefined,
       isBaseCollateral,
-      premiumSlippage,
-      inputAsset: {
-        address: stableAddress,
-        decimals: stableDecimals,
-      },
+      slippage,
     })
-  }, [
-    option,
-    isBuy,
-    size,
-    premiumSlippage,
-    setToCollateral,
-    isBaseCollateral,
-    stableAddress,
-    stableDecimals,
-    account,
-    position,
-  ])
+  }, [option, account, isBuy, size, balances, position, setToCollateral, isBaseCollateral, slippage])
 }

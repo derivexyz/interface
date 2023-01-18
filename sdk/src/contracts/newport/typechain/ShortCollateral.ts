@@ -188,7 +188,6 @@ export interface ShortCollateralInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "BaseExchangedAndQuoteSent(address,uint256,uint256)": EventFragment;
     "BaseSent(address,uint256)": EventFragment;
     "BoardSettlementCollateralSent(uint256,uint256,uint256,uint256,uint256,uint256)": EventFragment;
     "OwnerChanged(address,address)": EventFragment;
@@ -197,7 +196,6 @@ export interface ShortCollateralInterface extends utils.Interface {
     "QuoteSent(address,uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "BaseExchangedAndQuoteSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BaseSent"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "BoardSettlementCollateralSent"
@@ -208,22 +206,9 @@ export interface ShortCollateralInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "QuoteSent"): EventFragment;
 }
 
-export interface BaseExchangedAndQuoteSentEventObject {
-  recipient: string;
-  amountBase: BigNumber;
-  quoteReceived: BigNumber;
-}
-export type BaseExchangedAndQuoteSentEvent = TypedEvent<
-  [string, BigNumber, BigNumber],
-  BaseExchangedAndQuoteSentEventObject
->;
-
-export type BaseExchangedAndQuoteSentEventFilter =
-  TypedEventFilter<BaseExchangedAndQuoteSentEvent>;
-
 export interface BaseSentEventObject {
   receiver: string;
-  amount: BigNumber;
+  nativeAmount: BigNumber;
 }
 export type BaseSentEvent = TypedEvent<
   [string, BigNumber],
@@ -301,7 +286,7 @@ export type PositionSettledEventFilter = TypedEventFilter<PositionSettledEvent>;
 
 export interface QuoteSentEventObject {
   receiver: string;
-  amount: BigNumber;
+  nativeAmount: BigNumber;
 }
 export type QuoteSentEvent = TypedEvent<
   [string, BigNumber],
@@ -518,24 +503,13 @@ export interface ShortCollateral extends BaseContract {
   };
 
   filters: {
-    "BaseExchangedAndQuoteSent(address,uint256,uint256)"(
-      recipient?: PromiseOrValue<string> | null,
-      amountBase?: null,
-      quoteReceived?: null
-    ): BaseExchangedAndQuoteSentEventFilter;
-    BaseExchangedAndQuoteSent(
-      recipient?: PromiseOrValue<string> | null,
-      amountBase?: null,
-      quoteReceived?: null
-    ): BaseExchangedAndQuoteSentEventFilter;
-
     "BaseSent(address,uint256)"(
       receiver?: PromiseOrValue<string> | null,
-      amount?: null
+      nativeAmount?: null
     ): BaseSentEventFilter;
     BaseSent(
       receiver?: PromiseOrValue<string> | null,
-      amount?: null
+      nativeAmount?: null
     ): BaseSentEventFilter;
 
     "BoardSettlementCollateralSent(uint256,uint256,uint256,uint256,uint256,uint256)"(
@@ -591,11 +565,11 @@ export interface ShortCollateral extends BaseContract {
 
     "QuoteSent(address,uint256)"(
       receiver?: PromiseOrValue<string> | null,
-      amount?: null
+      nativeAmount?: null
     ): QuoteSentEventFilter;
     QuoteSent(
       receiver?: PromiseOrValue<string> | null,
-      amount?: null
+      nativeAmount?: null
     ): QuoteSentEventFilter;
   };
 

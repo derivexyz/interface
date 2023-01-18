@@ -1,14 +1,7 @@
-import { get, ref } from 'firebase/database'
+import fetch from 'cross-fetch'
 
-import { FirebaseCollections } from '../constants/collections'
+import { LYRA_API_URL } from '../constants/links'
 import Lyra, { Deployment } from '../lyra'
-import connectToFirebaseDatabase from './connectToFirebaseDatabase'
-
-const GLOBAL_EPOCH_CACHE_LIFE = 60
-const GLOBAL_EPOCH_CACHE: { lastUpdated: number; epochs: Promise<GlobalRewardEpochData[]> | null } = {
-  lastUpdated: 0,
-  epochs: null,
-}
 
 export type TradingRewardsConfig = {
   useRebateTable: boolean
@@ -86,15 +79,8 @@ export default async function fetchGlobalRewardEpochData(
   if (lyra.deployment !== Deployment.Mainnet) {
     throw new Error('GlobalRewardEpoch only supported on mainnet')
   }
-  if (blockTimestamp > GLOBAL_EPOCH_CACHE.lastUpdated + GLOBAL_EPOCH_CACHE_LIFE || !GLOBAL_EPOCH_CACHE.epochs) {
-    const database = connectToFirebaseDatabase()
-    const collectionReference = ref(database, FirebaseCollections.AvalonGlobalRewardsEpoch)
-    const epochPromise = async (): Promise<GlobalRewardEpochData[]> => {
-      const snapshot = await get(collectionReference)
-      return Object.values(snapshot.val())
-    }
-    GLOBAL_EPOCH_CACHE.epochs = epochPromise()
-    GLOBAL_EPOCH_CACHE.lastUpdated = blockTimestamp
-  }
-  return await GLOBAL_EPOCH_CACHE.epochs
+  const res = await fetch(`${LYRA_API_URL}/globalRewards?blockTimestamp=${blockTimestamp}&network=${lyra.network}`, {
+    method: 'GET',
+  })
+  return await res.json()
 }

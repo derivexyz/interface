@@ -12,6 +12,6 @@ type Props = {
 
 export default function ButtonShimmer({ size = 'md', width = 100, nested = false, ...styleProps }: Props) {
   const sizeSx = getButtonSizeSx(size)
-  const buttonHeight = sizeSx?.height
+  const buttonHeight = sizeSx?.minHeight
   return <Shimmer nested={nested} height={buttonHeight} width={width} borderRadius="circle" {...styleProps} />
 }

@@ -20,14 +20,14 @@ import LoadingDemoCard from '../../components/dev/LoadingDemoCard'
 import ModalDemoCard from '../../components/dev/ModalDemoCard'
 import TableDemoCard from '../../components/dev/TableDemoCard'
 import TextDemoCard from '../../components/dev/TextDemoCard'
-import Layout from '../common/Layout'
-import LayoutGrid from '../common/Layout/LayoutGrid'
+import Page from '../common/Page'
+import PageGrid from '../common/Page/PageGrid'
 
 export default function StortyBookPageHelper(): JSX.Element {
   const [isDarkMode, setIsDarkMode] = useIsDarkMode()
   return (
-    <Layout header="Storybook" mobileCollapsedHeader="Components">
-      <LayoutGrid>
+    <Page header="Storybook" mobileCollapsedHeader="Components">
+      <PageGrid>
         <Card>
           <CardBody>
             <Flex alignItems="center">
@@ -88,7 +88,7 @@ export default function StortyBookPageHelper(): JSX.Element {
           Socket
         </Text>
         <SocketDemoCard />
-      </LayoutGrid>
-    </Layout>
+      </PageGrid>
+    </Page>
   )
 }

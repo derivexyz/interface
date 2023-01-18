@@ -24,6 +24,6 @@ jobs:
       - uses: actions/setup-node@v2
       - run: |
           yarn install
-          yarn app:build
+          yarn build
         env:
           CI: false

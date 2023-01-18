@@ -14,21 +14,22 @@ import React, { useState } from 'react'
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useLatestRewardEpochs from '@/app/hooks/rewards/useLatestRewardEpochs'
+import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import useNetwork from '@/app/hooks/wallet/useNetwork'
 
 import FeeRebateModal from '../../common/FeeRebateModal'
 
 type Props = MarginProps
 
 const TradingRewardsCardGrid = withSuspense(
-  ({ ...styleProps }: MarginProps) => {
-    const epochs = useLatestRewardEpochs()
+  ({ ...styleProps }: Props) => {
+    const network = useNetwork()
+    const epochs = useLatestRewardEpoch(network)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account
     const tradingFees = accountRewardEpoch?.tradingFees ?? 0
     const minTradingFeeRebate = globalRewardEpoch?.minTradingFeeRebate ?? 0
     const tradingFeeRebate = accountRewardEpoch?.tradingFeeRebate ?? minTradingFeeRebate
-    const tradingFeeRebateDelta = tradingFeeRebate - minTradingFeeRebate
     const { lyra: lyraRewardsCap, op: opRewardsCap } = globalRewardEpoch?.tradingRewardsCap ?? { lyra: 0, op: 0 }
     const { lyra: lyraRewards, op: opRewards } = accountRewardEpoch?.tradingRewards ?? { lyra: 0, op: 0 }
     return (
@@ -81,7 +82,7 @@ const TradingRewardsCardGrid = withSuspense(
   }
 )
 
-const TradingRewardsCardSection = ({ ...marginProps }: Props): CardElement => {
+const TradingRewardsCardSection = ({ ...marginProps }: MarginProps): CardElement => {
   const [isOpen, setIsOpen] = useState(false)
   return (
     <CardSection {...marginProps}>

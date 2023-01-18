@@ -9,6 +9,8 @@ import { createPendingToast, createToast } from '@lyra/ui/components/Toast'
 import { MarginProps } from '@lyra/ui/types'
 import React, { useState } from 'react'
 
+import emptyFunction from '@/app/utils/emptyFunction'
+
 export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElement {
   const [isOpen, setIsOpen] = useState(false)
   return (
@@ -43,7 +45,7 @@ export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElem
               leftIcon="https://static.optimism.io/logos/sUSD.svg"
             />
             <Button
-              onClick={() => console.log('onClick')}
+              onClick={emptyFunction}
               mt="auto"
               label="Switch to Kovan"
               size="lg"

@@ -7,7 +7,7 @@ import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { LiquidityDeposit, LiquidityWithdrawal } from '@lyrafinance/lyra-js'
+import { LiquidityDeposit, LiquidityWithdrawal, Market } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
@@ -24,6 +24,7 @@ type Props = {
 } & MarginProps
 
 export type VaultEventTableData = TableData<{
+  market: Market
   event: LiquidityDeposit | LiquidityWithdrawal
   vault: string
   isPending: boolean
@@ -53,6 +54,7 @@ const VaultEventsTable = ({ events, onClick, pageSize, ...styleProps }: Props) =
         time = event.withdrawalTimestamp
       }
       return {
+        market: event.market(),
         event,
         vault,
         isPending,
@@ -91,7 +93,7 @@ const VaultEventsTable = ({ events, onClick, pageSize, ...styleProps }: Props) =
         Cell: (props: TableCellProps<VaultEventTableData>) => {
           return (
             <Flex alignItems="center">
-              <MarketImage size={32} name={props.cell.value} />
+              <MarketImage market={props.row.original.market} />
               <Box ml={2}>
                 <Text variant="secondaryMedium">{getMarketDisplayName(props.cell.value)}</Text>
                 <Text variant="small" color="secondaryText">

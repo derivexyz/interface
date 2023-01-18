@@ -20,11 +20,11 @@ export type BoardQuotes = {
 }
 
 export class Board {
-  private lyra: Lyra
   private __market: Market
   private liveStrikeMap: Record<number, OptionMarketViewer.StrikeViewStructOutput>
   __source = DataSource.ContractCall
   __boardData: BoardViewStructOutput
+  lyra: Lyra
   block: Block
   id: number
   expiryTimestamp: number
@@ -159,11 +159,12 @@ export class Board {
   setStrikeSkew(account: string, strikeId: BigNumber, skew: BigNumber): PopulatedTransaction {
     const optionMarket = getLyraMarketContract(
       this.lyra,
-      this.__market.__marketData.marketAddresses,
+      this.__market.contractAddresses,
+      this.lyra.version,
       LyraMarketContractId.OptionMarket
     )
     const calldata = optionMarket.interface.encodeFunctionData('setStrikeSkew', [strikeId, skew])
-    const tx = buildTx(this.lyra, optionMarket.address, account, calldata)
+    const tx = buildTx(this.lyra.provider, this.lyra.provider.network.chainId, optionMarket.address, account, calldata)
     return {
       ...tx,
       gasLimit: BigNumber.from(10_000_000),

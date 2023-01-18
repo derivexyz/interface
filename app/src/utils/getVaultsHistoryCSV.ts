@@ -1,10 +1,10 @@
 import { LiquidityDeposit, LiquidityWithdrawal } from '@lyrafinance/lyra-js'
 
 import { ZERO_BN } from '../constants/bn'
-import { VaultHistory } from '../hooks/vaults/useVaultsHistory'
+import { VaultTableRowData } from '../hooks/vaults/useVaultsTableData'
 import fromBigNumber from './fromBigNumber'
 
-export const getVaultsHistoryCSV = (events: VaultHistory) => {
+export const getVaultsHistoryCSV = (rows: VaultTableRowData[]) => {
   const headers = [
     { label: 'Date Time', key: 'datetime' },
     { label: 'Timestamp', key: 'timestamp' },
@@ -13,7 +13,10 @@ export const getVaultsHistoryCSV = (events: VaultHistory) => {
     { label: 'Value (in sUSD)', key: 'value' },
   ]
 
-  const data = [...events.deposits, ...events.withdrawals].map(event => {
+  const deposits = rows.flatMap(r => r.allDeposits)
+  const withdrawals = rows.flatMap(r => r.allWithdrawals)
+
+  const data = [...deposits, ...withdrawals].map(event => {
     const value = fromBigNumber(event.value ?? ZERO_BN)
     let datetime = ''
     let timestamp = 0

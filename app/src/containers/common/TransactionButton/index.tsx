@@ -1,50 +1,79 @@
 import Alert from '@lyra/ui/components/Alert'
 import Box from '@lyra/ui/components/Box'
-import Button, { BaseButtonProps } from '@lyra/ui/components/Button'
+import Button from '@lyra/ui/components/Button'
 import Link from '@lyra/ui/components/Link'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
-import React, { useState } from 'react'
-import { SxStyleProp } from 'rebass'
+import { LayoutProps, MarginProps } from '@lyra/ui/types'
+import { Network } from '@lyrafinance/lyra-js'
+import React, { useCallback, useState } from 'react'
 
-import { FeatureFlag } from '@/app/constants/featureFlag'
 import { TERMS_OF_USE_URL } from '@/app/constants/links'
 import { LOCAL_STORAGE_TERMS_OF_USE_KEY } from '@/app/constants/localStorage'
 import { TransactionType } from '@/app/constants/screen'
 import TermsOfUseModal from '@/app/containers/common/TermsOfUseModal'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useFeatureFlags from '@/app/hooks/feature_flag/useFeatureFlags'
 import useLocalStorage from '@/app/hooks/local_storage/useLocalStorage'
 import useIsReady from '@/app/hooks/wallet/useIsReady'
 import useScreenTransaction from '@/app/hooks/wallet/useScreenTransaction'
 import useWallet from '@/app/hooks/wallet/useWallet'
+import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 import isTermsOfUseEnabled from '@/app/utils/isTermsOfUseEnabled'
 
 import ConnectWalletButton from '../ConnectWalletButton'
 
+type RequireTokenAllowance = {
+  address: string
+  symbol: string
+  decimals: number
+  onClick: () => void
+}
+
 type Props = {
   transactionType: TransactionType
-  hideIfNotReady?: boolean
-  helperButton?: React.ReactNode
-  sx?: SxStyleProp
-} & BaseButtonProps
+  network: Network | 'ethereum'
+  onClick: () => Promise<void>
+  label: string
+  isDisabled?: boolean
+  requireAllowance?: RequireTokenAllowance
+  // TODO: @dappbeast re-implement onboarding "swap" modal
+  // requireBalance?: RequireTokenBalance
+} & MarginProps &
+  Omit<LayoutProps, 'size'>
 
 const EMPTY_TERMS = {}
 
 const TransactionButton = withSuspense(
   React.forwardRef(
-    ({ transactionType, helperButton, hideIfNotReady, onClick, isDisabled, sx, ...buttonProps }: Props, ref) => {
+    ({ transactionType, onClick, isDisabled, requireAllowance, network, label, ...marginProps }: Props, ref) => {
       const { account } = useWallet()
       const [termsStr, setTermsStr] = useLocalStorage(LOCAL_STORAGE_TERMS_OF_USE_KEY)
       const termsDict: Record<string, number> = JSON.parse(termsStr) ?? EMPTY_TERMS
       const isTermsAccepted = account && !!termsDict[account]
       const [isTermsOpen, setIsTermsOpen] = useState(false)
-      const screenData = useScreenTransaction(transactionType)
-      const isReady = useIsReady()
-      const featureFlags = useFeatureFlags()
-      const isFeatureFlagEnabled = !featureFlags[FeatureFlag.DisableTransactions][transactionType]
+      const targetChainId = network === 'ethereum' ? 1 : getChainIdForNetwork(network)
+      const screenData = useScreenTransaction(targetChainId, transactionType)
+      const isReady = useIsReady(targetChainId)
+
+      const [isLoading, setIsLoading] = useState(false)
+      const [isApproveLoading, setIsApproveLoading] = useState(false)
+
+      const handleClickApprove = useCallback(async () => {
+        if (requireAllowance) {
+          setIsApproveLoading(true)
+          await requireAllowance.onClick()
+          setIsApproveLoading(false)
+        }
+      }, [requireAllowance])
+
+      const handleClick = useCallback(async () => {
+        setIsLoading(true)
+        await onClick()
+        setIsLoading(false)
+      }, [onClick])
+
       return (
-        <Box sx={sx}>
+        <Box {...marginProps}>
           {isScreeningEnabled() && (!screenData || screenData.isBlocked) ? (
             <Alert
               variant="error"
@@ -52,7 +81,7 @@ const TransactionButton = withSuspense(
               description={
                 screenData?.blockDescription ? (
                   <>
-                    {screenData.blockDescription} &nbsp; Learn more in our{' '}
+                    {screenData.blockDescription}&nbsp;Learn more in our{' '}
                     <Link
                       textVariant="small"
                       color="errorText"
@@ -70,39 +99,47 @@ const TransactionButton = withSuspense(
               }
             />
           ) : null}
-          {isFeatureFlagEnabled ? null : (
-            <Alert
-              variant="error"
+          {!isReady ? (
+            // Switch networks prompt
+            <ConnectWalletButton mb={3} width="100%" size="lg" network={network} />
+          ) : // TODO: @dappbeast Swap prompt
+          requireAllowance ? (
+            // Approve prompt
+            <Button
+              label={`Allow Lyra to use your ${requireAllowance.symbol}`}
+              width="100%"
+              onClick={async () => {
+                if (isTermsAccepted || !isTermsOfUseEnabled()) {
+                  handleClickApprove()
+                } else {
+                  setIsTermsOpen(true)
+                }
+              }}
+              isLoading={isApproveLoading}
+              variant="primary"
+              size="lg"
               mb={3}
-              description={`Transaction type: ${transactionType} has been temporarily disabled.`}
             />
-          )}
-          {!isReady ? <ConnectWalletButton mb={3} width="100%" size={buttonProps.size} /> : null}
-          {!hideIfNotReady || (isReady && hideIfNotReady) ? (
-            <>
-              {helperButton}
-              <Button
-                {...buttonProps}
-                mt={helperButton ? 3 : 0}
-                width="100%"
-                onClick={e => {
-                  // Execute action if terms are accepted or not enabled
-                  if (isTermsAccepted || !isTermsOfUseEnabled()) {
-                    if (onClick) {
-                      onClick(e)
-                    }
-                  } else {
-                    setIsTermsOpen(true)
-                  }
-                }}
-                ref={ref}
-                isDisabled={!isReady || !screenData || screenData?.isBlocked || isDisabled || !isFeatureFlagEnabled}
-              />
-            </>
           ) : null}
+          <Button
+            label={label}
+            variant="primary"
+            size="lg"
+            isLoading={isLoading}
+            width="100%"
+            onClick={() => {
+              if (isTermsAccepted || !isTermsOfUseEnabled()) {
+                handleClick()
+              } else {
+                setIsTermsOpen(true)
+              }
+            }}
+            ref={ref}
+            isDisabled={!isReady || !screenData || screenData?.isBlocked || isDisabled || !!requireAllowance}
+          />
           <TermsOfUseModal
             isOpen={isTermsOpen}
-            onConfirm={e => {
+            onConfirm={() => {
               if (account) {
                 setTermsStr(
                   JSON.stringify({
@@ -111,8 +148,10 @@ const TransactionButton = withSuspense(
                   })
                 )
               }
-              if (onClick) {
-                onClick(e)
+              if (requireAllowance) {
+                handleClickApprove()
+              } else {
+                handleClick()
               }
             }}
             onClose={() => setIsTermsOpen(false)}
@@ -121,9 +160,9 @@ const TransactionButton = withSuspense(
       )
     }
   ),
-  ({ transactionType, helperButton, onClick, sx, ...buttonProps }) => (
-    <Box sx={sx}>
-      <ButtonShimmer width="100%" {...buttonProps} />
+  ({ transactionType, onClick, isDisabled, requireAllowance, network, label, ...marginProps }) => (
+    <Box {...marginProps}>
+      <ButtonShimmer width="100%" size="lg" />
     </Box>
   )
 )

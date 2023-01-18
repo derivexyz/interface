@@ -77,6 +77,17 @@ const _abi = [
         name: "thrower",
         type: "address",
       },
+    ],
+    name: "CannotRecoverQuoteBase",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "thrower",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "beneficiary",
@@ -1295,6 +1306,55 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "beneficiary",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "withdrawalQueueId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenPrice",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "totalQueuedWithdrawals",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokensReturned",
+        type: "uint256",
+      },
+    ],
+    name: "WithdrawReverted",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "CBTimestamp",
     outputs: [
@@ -2174,6 +2234,24 @@ const _abi = [
       },
     ],
     name: "reclaimInsolventQuote",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20Decimals",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "recoverFunds",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

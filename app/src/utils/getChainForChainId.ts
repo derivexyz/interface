@@ -4,6 +4,8 @@ const getChainForChainId = (chainId: number): Chain => {
   switch (chainId) {
     case 420:
       return Chain.OptimismGoerli
+    case 42161:
+      return Chain.Arbitrum
     case 421613:
       return Chain.ArbitrumGoerli
     case 10:

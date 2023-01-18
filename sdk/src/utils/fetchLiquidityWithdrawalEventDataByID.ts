@@ -15,6 +15,7 @@ export default async function fetchLiquidityWithdrawalEventDataByID(
   const liquidityPoolContract = getLyraMarketContract(
     lyra,
     market.__marketData.marketAddresses,
+    lyra.version,
     LyraMarketContractId.LiquidityPool
   )
   const [withdrawalQueuedEvents, withdrawalProcessedEvents] = await Promise.all([
