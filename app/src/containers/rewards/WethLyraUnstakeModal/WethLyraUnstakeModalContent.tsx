@@ -67,7 +67,7 @@ const WethLyraUnstakeModalContent = withSuspense(
           />
         </Flex>
         <TransactionButton
-          network="ethereum"
+          network={Network.Optimism}
           transactionType={TransactionType.UnstakeWethLyra}
           width="100%"
           mb={3}

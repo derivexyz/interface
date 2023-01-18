@@ -89,7 +89,7 @@ const WethLyraStakeModalContent = withSuspense(
           mb={3}
         />
         <TransactionButton
-          network="ethereum"
+          network={Network.Optimism}
           transactionType={TransactionType.StakeWethLyra}
           width="100%"
           isDisabled={!isApprove && isDisabled}
