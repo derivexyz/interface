@@ -45,7 +45,7 @@ export default async function fetchAccountRewardEpochData(
     throw new Error('GlobalRewardEpoch only supported on mainnet')
   }
   const res = await fetch(
-    `${LYRA_API_URL}/globalRewards?account=${account}&blockTimestamp=${blockTimestamp}&network=${lyra.network}`,
+    `${LYRA_API_URL}/accountRewards?account=${account}&blockTimestamp=${blockTimestamp}&network=${lyra.network}`,
     {
       method: 'GET',
     }
