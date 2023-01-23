@@ -17,6 +17,7 @@ import useIsReady from '@/app/hooks/wallet/useIsReady'
 import useScreenTransaction from '@/app/hooks/wallet/useScreenTransaction'
 import useWallet from '@/app/hooks/wallet/useWallet'
 import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
+import isProd from '@/app/utils/isProd'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 import isTermsOfUseEnabled from '@/app/utils/isTermsOfUseEnabled'
 
@@ -71,6 +72,8 @@ const TransactionButton = withSuspense(
         await onClick()
         setIsLoading(false)
       }, [onClick])
+
+      const isNewportTransaction = network === Network.Arbitrum && isProd()
 
       return (
         <Box {...marginProps}>
@@ -135,7 +138,14 @@ const TransactionButton = withSuspense(
               }
             }}
             ref={ref}
-            isDisabled={!isReady || !screenData || screenData?.isBlocked || isDisabled || !!requireAllowance}
+            isDisabled={
+              !isReady ||
+              !screenData ||
+              screenData?.isBlocked ||
+              isDisabled ||
+              !!requireAllowance ||
+              isNewportTransaction
+            }
           />
           <TermsOfUseModal
             isOpen={isTermsOpen}
