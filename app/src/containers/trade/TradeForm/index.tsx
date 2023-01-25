@@ -131,7 +131,7 @@ const TradeForm = withSuspense(
                 <AmountUpdateText
                   variant="secondary"
                   color={position.isLong ? 'primaryText' : 'errorText'}
-                  prefix="LONG"
+                  prefix={position.isLong ? 'LONG' : 'SHORT'}
                   prevAmount={position.size}
                   newAmount={trade.newSize}
                 />
