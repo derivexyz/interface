@@ -7,6 +7,7 @@ import { Position } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import PayoffChart from '@/app/components/common/PayoffChart'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 const VIEW_BOX_HEIGHT = 350
@@ -46,10 +47,9 @@ export default function PositionShareSVG({ position, width, height }: Props) {
   // Formatted
   const formattedSize = formatNumber(position.size, { maxDps: 2 })
 
-  const capitalizedMarketName = market.baseToken.symbol
   const longShortText = isLong ? 'LONG' : 'SHORT'
   const callPutText = isCall ? 'Call' : 'Put'
-  const optionText = `${capitalizedMarketName} $${strikePrice} ${callPutText}`
+  const optionText = `${formatTokenName(market.baseToken)} $${strikePrice} ${callPutText}`
   const expiryText = `${formatDate(position.expiryTimestamp, true)} Exp`
   const positionText = `${longShortText} ${formattedSize}`
 

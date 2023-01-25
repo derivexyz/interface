@@ -1,36 +1,32 @@
 import { Network, Position } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
+import { FetchId } from '@/app/constants/fetch'
 import getLyraSDK from '@/app/utils/getLyraSDK'
-import { lyraArbitrum, lyraOptimism } from '@/app/utils/lyra'
 
+import useWalletAccount from '../account/useWalletAccount'
 import useFetch, { useMutate } from '../data/useFetch'
-import useWalletAccount from '../wallet/useWalletAccount'
 
 const EMPTY: Position[] = []
 
-const fetcher = async (owner: string, network?: Network) => {
-  if (network) {
-    return (await getLyraSDK(network).openPositions(owner)).sort((a, b) => a.expiryTimestamp - b.expiryTimestamp)
-  }
-  const [opPositions, arbPositions] = await Promise.all([
-    lyraOptimism.openPositions(owner),
-    lyraArbitrum.openPositions(owner),
-  ])
-  return [...opPositions, ...arbPositions].sort((a, b) => a.expiryTimestamp - b.expiryTimestamp)
+const fetcher = async (owner: string) => {
+  const newtworkPositions = await Promise.all(
+    Object.values(Network).map(network => getLyraSDK(network).openPositions(owner))
+  )
+  return newtworkPositions.flat().sort((a, b) => a.expiryTimestamp - b.expiryTimestamp)
 }
 
-export default function useOpenPositions(network?: Network): Position[] {
+export default function useOpenPositions(): Position[] {
   const account = useWalletAccount()
-  const [positions] = useFetch('OpenPositions', account ? [account, network] : null, fetcher)
+  const [positions] = useFetch(FetchId.PortfolioOpenPositions, account ? [account] : null, fetcher)
   return positions ?? EMPTY
 }
 
 export function useMutateOpenPositions() {
   const account = useWalletAccount()
-  const mutate = useMutate('OpenPositions', fetcher)
+  const mutate = useMutate(FetchId.PortfolioOpenPositions, fetcher)
   return useCallback(() => {
-    if (account != null) {
+    if (account) {
       return mutate(account)
     }
   }, [mutate, account])

@@ -6,17 +6,25 @@ import withSuspense from '@/app/hooks/data/withSuspense'
 import PageError from '@/app/page_helpers/common/Page/PageError'
 import PageLoading from '@/app/page_helpers/common/Page/PageLoading'
 
-import useMarket from '../hooks/market/useMarket'
+import useFindMarket from '../hooks/market/useFindMarket'
+import useTradePageData from '../hooks/market/useTradePageData'
 import TradePageHelper from '../page_helpers/TradePageHelper'
 import coerce from '../utils/coerce'
 
-// /trade/:marketAddressOrName
+// /trade/:network/:marketAddressOrName
 const TradePage = withSuspense(
   () => {
     const { marketAddressOrName = null, network: networkStr } = useParams()
     const network = coerce(Network, networkStr) ?? null
-    const market = useMarket(network, marketAddressOrName)
-    return !market || !network ? <PageError error="Market does not exist" /> : <TradePageHelper market={market} />
+    const { markets, openPositions } = useTradePageData()
+
+    const selectedMarket = useFindMarket(markets, network, marketAddressOrName)
+
+    return !selectedMarket ? (
+      <PageError error="Market does not exist" />
+    ) : (
+      <TradePageHelper markets={markets} selectedMarket={selectedMarket} openPositions={openPositions} />
+    )
   },
   () => <PageLoading />
 )

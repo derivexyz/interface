@@ -97,6 +97,7 @@ export default function Input({
         )}
         <RebassInput
           ref={inputRef}
+          onWheel={e => e.currentTarget.blur()}
           onBlur={handleBlur}
           onFocus={handleFocus}
           flex={1}

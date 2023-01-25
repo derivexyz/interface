@@ -1,6 +1,7 @@
 import { Network, Option } from '@lyrafinance/lyra-js'
 
 import { ChartPeriod } from '@/app/constants/chart'
+import { FetchId } from '@/app/constants/fetch'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getChartPeriodTimestamp from '@/app/utils/getChartPeriodTimestamp'
 import getLyraSDK from '@/app/utils/getLyraSDK'
@@ -41,7 +42,7 @@ const EMPTY: OptionPriceSnapshot[] = []
 
 const useOptionPriceHistory = (option: Option, period: ChartPeriod): OptionPriceSnapshot[] => {
   const [history] = useFetch(
-    'OptionPriceHistory',
+    FetchId.PositionPriceHistory,
     [option.lyra.network, option.market().address, option.strike().id, option.isCall, period],
     fetcher
   )

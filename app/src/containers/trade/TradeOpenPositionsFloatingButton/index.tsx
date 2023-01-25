@@ -6,8 +6,6 @@ import { MarginProps } from '@lyra/ui/types'
 import React from 'react'
 
 import { MOBILE_FOOTER_HEIGHT } from '@/app/constants/layout'
-import withSuspense from '@/app/hooks/data/withSuspense'
-import useOpenPositions from '@/app/hooks/position/useOpenPositions'
 
 type Props = {
   label: React.ReactNode
@@ -15,21 +13,31 @@ type Props = {
   rightIcon: IconType
 } & MarginProps
 
-const TradeOpenPositionsFloatingButton = withSuspense(({ onClick, label, rightIcon, ...styleProps }: Props) => {
-  const openPositions = useOpenPositions()
-  const isMobile = useIsMobile()
-  return openPositions.length ? (
-    <Box
-      sx={{
-        position: 'fixed',
-        left: '50%',
-        bottom: isMobile ? MOBILE_FOOTER_HEIGHT + 24 : 24,
-        transform: 'translateX(-50%)',
-      }}
-    >
-      <Button variant="primary" label={label} rightIcon={rightIcon} onClick={onClick} {...styleProps} />
-    </Box>
-  ) : null
-})
+const TradeOpenPositionsFloatingButton = React.forwardRef(
+  ({ onClick, label, rightIcon, ...styleProps }: Props, ref) => {
+    const isMobile = useIsMobile()
+    return (
+      <Box
+        ref={ref}
+        sx={{
+          position: 'fixed',
+          left: '50%',
+          bottom: isMobile ? MOBILE_FOOTER_HEIGHT + 24 : 24,
+          transform: 'translateX(-50%)',
+          pointerEvents: 'none',
+        }}
+      >
+        <Button
+          sx={{ pointerEvents: 'auto' }}
+          variant="primary"
+          label={label}
+          rightIcon={rightIcon}
+          onClick={onClick}
+          {...styleProps}
+        />
+      </Box>
+    )
+  }
+)
 
 export default TradeOpenPositionsFloatingButton

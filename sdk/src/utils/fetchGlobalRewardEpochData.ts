@@ -1,7 +1,6 @@
-import fetch from 'cross-fetch'
-
 import { LYRA_API_URL } from '../constants/links'
 import Lyra, { Deployment } from '../lyra'
+import fetchWithCache from './fetchWithCache'
 
 export type TradingRewardsConfig = {
   useRebateTable: boolean
@@ -72,15 +71,9 @@ export type GlobalRewardEpochData = {
   }
 }
 
-export default async function fetchGlobalRewardEpochData(
-  lyra: Lyra,
-  blockTimestamp: number
-): Promise<GlobalRewardEpochData[]> {
+export default async function fetchGlobalRewardEpochData(lyra: Lyra): Promise<GlobalRewardEpochData[]> {
   if (lyra.deployment !== Deployment.Mainnet) {
-    throw new Error('GlobalRewardEpoch only supported on mainnet')
+    return []
   }
-  const res = await fetch(`${LYRA_API_URL}/globalRewards?blockTimestamp=${blockTimestamp}&network=${lyra.network}`, {
-    method: 'GET',
-  })
-  return await res.json()
+  return fetchWithCache(`${LYRA_API_URL}/globalRewards?network=${lyra.network}`)
 }

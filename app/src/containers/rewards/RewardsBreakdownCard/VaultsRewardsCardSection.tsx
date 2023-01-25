@@ -6,9 +6,9 @@ import Grid from '@lyra/ui/components/Grid'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
+import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
-import formatUSD from '@lyra/ui/utils/formatUSD'
-import { AccountRewardEpoch, GlobalRewardEpoch, Market } from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch, GlobalRewardEpoch, Market, Network } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import MarketImage from '@/app/components/common/MarketImage'
@@ -16,12 +16,11 @@ import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import TokenAPYRangeText from '@/app/components/common/TokenAPYRangeText'
 import VaultAPYTooltip from '@/app/components/common/VaultAPYTooltip'
-import { ONE_BN } from '@/app/constants/bn'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useMarketLiquidity from '@/app/hooks/market/useMarketLiquidity'
+import useTradeBalances from '@/app/hooks/market/useTradeBalances'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
-import useNetwork from '@/app/hooks/wallet/useNetwork'
-import fromBigNumber from '@/app/utils/fromBigNumber'
+import formatTokenName from '@/app/utils/formatTokenName'
 
 type Props = MarginProps
 
@@ -32,11 +31,12 @@ type RowProps = {
 }
 
 const VaultRewardsMyLiquidity = withSuspense(
-  ({ accountRewardEpoch, market }: { market: Market; accountRewardEpoch?: AccountRewardEpoch | null }) => {
-    const vaultTokens = accountRewardEpoch ? accountRewardEpoch.vaultTokenBalance(market.address) : 0
-    const marketLiquidity = useMarketLiquidity(market)
-    const vaultLiquidity = vaultTokens * fromBigNumber(marketLiquidity?.tokenPrice ?? ONE_BN)
-    return <Text variant="secondary">{formatUSD(vaultLiquidity)}</Text>
+  ({ market }: { market: Market }) => {
+    const balances = useTradeBalances(market)
+    // TODO: @dappbeast change to liquidity $$
+    return (
+      <Text variant="secondary">{formatBalance(balances.liquidityToken.balance, balances.liquidityToken.symbol)}</Text>
+    )
   },
   () => <TextShimmer variant="secondary" width={50} />
 )
@@ -63,7 +63,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
         <Flex alignItems="flex-end">
           <MarketImage market={market} />
           <Text variant="secondary" ml={2}>
-            {market.baseToken.symbol}
+            {formatTokenName(market.baseToken)}
           </Text>
         </Flex>
       </Flex>
@@ -71,7 +71,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
         <Text variant="secondary" color="secondaryText" mb={2}>
           Your Liquidity
         </Text>
-        <VaultRewardsMyLiquidity market={market} accountRewardEpoch={accountRewardEpoch} />
+        <VaultRewardsMyLiquidity market={market} />
       </Flex>
       <Flex flexDirection="column" justifyContent="space-between">
         <Text variant="secondary" color="secondaryText" mb={2}>
@@ -119,8 +119,8 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
 
 const VaultRewardsMarketRows = withSuspense(
   () => {
-    const network = useNetwork()
-    const epochs = useLatestRewardEpoch(network, true)
+    const network = useNetwork() // TODO: @dillon Use network again and replace Network.Optimism
+    const epochs = useLatestRewardEpoch(Network.Optimism, true)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account
     const markets = useMemo(() => {

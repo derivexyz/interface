@@ -3,7 +3,7 @@ import { DocumentNode } from '@apollo/client'
 import Lyra from '..'
 import { SNAPSHOT_RESULT_LIMIT } from '../constants/queries'
 
-type IteratorVariables = { min: number; max: number }
+type IteratorVariables = { min: number; max: number; limit?: number }
 
 export default async function subgraphRequestWithLoop<
   Snapshot extends Record<string, any>,
@@ -22,6 +22,8 @@ export default async function subgraphRequestWithLoop<
   let data: Snapshot[] = []
   let min = variables.min
 
+  const limit = variables.limit ?? SNAPSHOT_RESULT_LIMIT
+
   while (!allFound) {
     const varArr: (Variables & IteratorVariables)[] = []
     if (batchOptions) {
@@ -39,6 +41,7 @@ export default async function subgraphRequestWithLoop<
     } else {
       varArr.push({
         ...variables,
+        limit,
         min,
       })
     }
@@ -58,7 +61,7 @@ export default async function subgraphRequestWithLoop<
     ).map(res => Object.values(res)[0])
     const lastBatch = batches[batches.length - 1]
     data = [...data, ...batches.flat()]
-    if (!lastBatch.length || lastBatch.length < SNAPSHOT_RESULT_LIMIT) {
+    if (!lastBatch.length || lastBatch.length < limit) {
       allFound = true
     } else {
       // Set skip to last iterator val

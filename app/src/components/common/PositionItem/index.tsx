@@ -7,6 +7,7 @@ import formatNumber from '@lyra/ui/utils/formatNumber'
 import { Position } from '@lyrafinance/lyra-js'
 import React from 'react'
 
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import MarketImage from '../MarketImage'
@@ -23,7 +24,7 @@ export default function PositionItem({ position, customSize, hideSize }: Props):
       <MarketImage market={position.market()} />
       <Box ml={2}>
         <Text variant="secondary">
-          {position.market().baseToken.symbol}&nbsp;${fromBigNumber(position.strikePrice)}&nbsp;
+          {formatTokenName(position.market().baseToken)}&nbsp;${fromBigNumber(position.strikePrice)}&nbsp;
           {position.isCall ? 'Call' : 'Put'}
         </Text>
         <Text variant="small" color="secondaryText">

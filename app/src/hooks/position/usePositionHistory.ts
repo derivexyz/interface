@@ -1,10 +1,11 @@
 import { Network, Position } from '@lyrafinance/lyra-js'
 
+import { FetchId } from '@/app/constants/fetch'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import { lyraArbitrum, lyraOptimism } from '@/app/utils/lyra'
 
+import useWalletAccount from '../account/useWalletAccount'
 import useFetch from '../data/useFetch'
-import useWalletAccount from '../wallet/useWalletAccount'
 
 const fetcher = async (owner: string, includeOpen: boolean, network?: Network): Promise<Position[]> => {
   let positions: Position[] = []
@@ -30,6 +31,6 @@ const EMPTY: Position[] = []
 
 export default function usePositionHistory(includeOpen = false, network?: Network): Position[] {
   const owner = useWalletAccount()
-  const [positions] = useFetch('OwnerPositionHistory', owner ? [owner, includeOpen, network] : null, fetcher)
+  const [positions] = useFetch(FetchId.PositionHistory, owner ? [owner, includeOpen, network] : null, fetcher)
   return positions ?? EMPTY
 }

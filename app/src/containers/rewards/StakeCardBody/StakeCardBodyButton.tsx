@@ -7,11 +7,11 @@ import React, { useCallback, useMemo } from 'react'
 
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
+import useTransaction from '@/app/hooks/account/useTransaction'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccount from '@/app/hooks/market/useAccount'
 import { useMutateAccountStaking } from '@/app/hooks/rewards/useLyraAccountStaking'
-import useStake, { useMutateStake } from '@/app/hooks/rewards/useStake'
-import useTransaction from '@/app/hooks/transaction/useTransaction'
+import useStake from '@/app/hooks/rewards/useStake'
 import logEvent from '@/app/utils/logEvent'
 
 import TransactionButton from '../../common/TransactionButton'
@@ -35,7 +35,6 @@ const StakeFormButton = withSuspense(
       }
     }, [stake])
     const mutateAccountStaking = useMutateAccountStaking()
-    const mutateStake = useMutateStake(amount)
     const handleClickApprove = useCallback(async () => {
       if (!account) {
         console.warn('Account does not exist')
@@ -46,11 +45,11 @@ const StakeFormButton = withSuspense(
       await execute(tx, {
         onComplete: async () => {
           logEvent(LogEvent.StakeLyraApproveSuccess)
-          await Promise.all([mutateAccountStaking(), mutateStake()])
+          await Promise.all([mutateAccountStaking()])
         },
         onError: error => logEvent(LogEvent.StakeLyraApproveError, { error: error?.message }),
       })
-    }, [account, execute, mutateAccountStaking, mutateStake])
+    }, [account, execute, mutateAccountStaking])
 
     const handleClickStake = useCallback(async () => {
       if (!account || !stake) {
@@ -62,7 +61,7 @@ const StakeFormButton = withSuspense(
         await execute(stake.tx, {
           onComplete: async () => {
             logEvent(LogEvent.StakeLyraSuccess, { stakeAmount: stake.amount })
-            await Promise.all([mutateAccountStaking(), mutateStake()])
+            await Promise.all([mutateAccountStaking()])
             onClose()
           },
           onError: error => {
@@ -71,7 +70,7 @@ const StakeFormButton = withSuspense(
           },
         })
       }
-    }, [account, execute, stake, onClose, mutateAccountStaking, mutateStake])
+    }, [account, execute, stake, onClose, mutateAccountStaking])
 
     const stakeButton = (
       <TransactionButton

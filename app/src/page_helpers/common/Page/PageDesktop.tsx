@@ -9,77 +9,69 @@ import { useNavigate } from 'react-router-dom'
 import {
   DESKTOP_HEADER_NAV_HEIGHT,
   DESKTOP_LAYOUT_LARGE_WIDTH,
+  DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH,
   DESKTOP_LAYOUT_WIDTH,
-  DESKTOP_RIGHT_COLUMN_WIDTH,
 } from '@/app/constants/layout'
 
 type Props = {
   children?: React.ReactNode
   rightColumn?: React.ReactNode
-  footer?: React.ReactNode
   header?: React.ReactNode
   showBackButton?: boolean
   backHref?: string
 }
 
-export default function PageDesktop({
-  children,
-  rightColumn,
-  footer,
-  header,
-  showBackButton,
-  backHref,
-}: Props): JSX.Element {
+export default function PageDesktop({ children, rightColumn, header, showBackButton, backHref }: Props): JSX.Element {
   const navigate = useNavigate()
+
+  const headerComponent = (
+    <Box px={6} pb={4}>
+      {showBackButton ? (
+        <Flex>
+          <Button
+            mb={4}
+            label="Back"
+            variant="light"
+            leftIcon={IconType.ArrowLeft}
+            onClick={!backHref ? () => navigate(-1) : undefined}
+            href={backHref}
+          />
+        </Flex>
+      ) : null}
+      {typeof header === 'string' ? (
+        <Text variant="title" mb={2}>
+          {header}
+        </Text>
+      ) : (
+        header
+      )}
+    </Box>
+  )
 
   return (
     <Flex pt={DESKTOP_HEADER_NAV_HEIGHT} minHeight="100%" width="100%" justifyContent="center">
       <Flex
-        pt={3}
+        pt={6}
         px={6}
         minHeight="100%"
         width="100%"
         maxWidth={rightColumn ? DESKTOP_LAYOUT_LARGE_WIDTH : DESKTOP_LAYOUT_WIDTH}
         flexDirection="column"
       >
-        <Box px={6} pb={4}>
-          {showBackButton ? (
-            <Flex>
-              <Button
-                mb={4}
-                label="Back"
-                variant="light"
-                leftIcon={IconType.ArrowLeft}
-                onClick={!backHref ? () => navigate(-1) : undefined}
-                href={backHref}
-              />
-            </Flex>
-          ) : null}
-          {typeof header === 'string' ? (
-            <Text variant="title" mb={2}>
-              {header}
-            </Text>
-          ) : (
-            header
-          )}
-        </Box>
+        {headerComponent}
         <Flex flexGrow={1} width="100%">
           <Flex flexGrow={1} pr={rightColumn ? 6 : 0} flexDirection="column">
             {children}
-            {footer ? (
-              <Box
-                sx={{
-                  position: 'sticky',
-                  bottom: 0,
-                }}
-              >
-                {footer}
-              </Box>
-            ) : null}
           </Flex>
           {rightColumn ? (
-            <Box width={DESKTOP_RIGHT_COLUMN_WIDTH} minWidth={DESKTOP_RIGHT_COLUMN_WIDTH} pb={12}>
-              {rightColumn}
+            <Box minWidth={DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH}>
+              <Box
+                minWidth={DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH}
+                sx={{ position: 'sticky', top: DESKTOP_HEADER_NAV_HEIGHT + 8 }}
+                pb={12}
+              >
+                {rightColumn}
+              </Box>
             </Box>
           ) : null}
         </Flex>

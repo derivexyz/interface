@@ -12,6 +12,7 @@ import React, { useMemo } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import filterNulls from '@/app/utils/filterNulls'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 
@@ -42,8 +43,8 @@ const VaultEventsTable = ({ events, onClick, pageSize, ...styleProps }: Props) =
       let time = 0
       let value = 0
       const vault = event.market().name
-      const marketBaseSymbol = event.market().baseToken.symbol
-      const marketQuoteSymbol = event.market().quoteToken.symbol
+      const marketBaseSymbol = formatTokenName(event.market().baseToken)
+      const marketQuoteSymbol = formatTokenName(event.market().quoteToken)
       const isPending = event.isPending
 
       if (event instanceof LiquidityDeposit) {

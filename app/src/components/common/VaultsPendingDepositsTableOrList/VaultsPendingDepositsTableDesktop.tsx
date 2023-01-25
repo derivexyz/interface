@@ -8,6 +8,7 @@ import { LiquidityDelayReason, Market, Network } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 import { CellProps as TableCellProps, Column as TableColum } from 'react-table'
 
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import MarketLabelProgress from '../MarketLabelProgress'
@@ -29,15 +30,15 @@ type VaultsPendingDepositsTableData = TableData<{
 const VaultsDepositsTableDesktop = ({ deposits, onClick, ...styleProps }: VaultsPendingDepositsTableOrListProps) => {
   const rows: VaultsPendingDepositsTableData[] = useMemo(() => {
     return deposits.map(deposit => {
-      const currentTimestamp = Math.floor(Date.now() / 1000)
-      const duration = deposit.__market.depositDelay
+      const market = deposit.market()
+      const currentTimestamp = market.block.timestamp
+      const duration = market.params.depositDelay
       const startTimestamp = deposit.depositRequestedTimestamp
       const progressDuration = Math.min(Math.max(currentTimestamp - startTimestamp, 0), duration)
       const progressPct = duration > 0 ? progressDuration / duration : 0
       const timeToEntry = duration - progressDuration
       const delayReason = deposit.delayReason
-      const market = deposit.market()
-      const baseTokenSymbol = market.baseToken.symbol
+      const baseTokenSymbol = formatTokenName(market.baseToken)
       const network = market.lyra.network
       return {
         market: market,

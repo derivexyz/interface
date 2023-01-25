@@ -7,11 +7,15 @@ import Icon, { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Market, Option } from '@lyrafinance/lyra-js'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Market, Option, Position } from '@lyrafinance/lyra-js'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { DESKTOP_HEADER_NAV_HEIGHT, DESKTOP_RIGHT_COLUMN_WIDTH, MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
+import {
+  DESKTOP_HEADER_NAV_HEIGHT,
+  DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH,
+  MIN_TRADE_CARD_HEIGHT,
+} from '@/app/constants/layout'
 import { LogEvent } from '@/app/constants/logEvents'
 import { PageId } from '@/app/constants/pages'
 import TradeAdvancedBoardCard from '@/app/containers/trade/TradeAdvancedBoardCard'
@@ -23,7 +27,7 @@ import TradePositionsCard from '@/app/containers/trade/TradePositionsCard'
 import TradePriceCard from '@/app/containers/trade/TradePriceCard'
 import TradeSimpleBoardCard from '@/app/containers/trade/TradeSimpleBoardCard'
 import useTraderSettings from '@/app/hooks/local_storage/useTraderSettings'
-import useSelectedBoard from '@/app/hooks/market/useSelectedBoard'
+import useSelectedBoardSync from '@/app/hooks/market/useSelectedBoardSync'
 import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 import logEvent from '@/app/utils/logEvent'
@@ -32,72 +36,78 @@ import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
 
 type Props = {
-  market: Market
+  markets: Market[]
+  selectedMarket: Market
+  openPositions: Position[]
 }
 
-export default function TradePageHelper({ market }: Props): JSX.Element {
+export default function TradePageHelper({ markets, selectedMarket, openPositions }: Props): JSX.Element {
   const isMobile = useIsMobile()
   const [selectedOption, setSelectedOption] = useState<Option | null>(null)
-  const [selectedBoard, setSelectedBoard] = useSelectedBoard(market) // sync hook
+  const [selectedBoard, setSelectedBoard] = useSelectedBoardSync(selectedMarket) // sync hook
   const [isCall, setIsCall] = useState(true)
   const [isBuy, setIsBuy] = useState(true)
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false)
   const [traderSettings, setTraderSettings] = useTraderSettings()
-  const [isPositionCardInView, setIsPositionCardInView] = useState(false)
   const positionCardRef = useRef<HTMLElement>()
+  const positionButtonRef = useRef<HTMLElement>()
   const selectedStrikeId = selectedOption?.strike().id ?? null
   const isAdvancedMode = traderSettings.isAdvancedMode
 
   const navigate = useNavigate()
 
-  const scrollHandler = useCallback(() => {
-    if (positionCardRef.current) {
+  const refreshPositionButton = useCallback(() => {
+    if (positionCardRef.current && positionButtonRef.current) {
       const rect = positionCardRef.current.getBoundingClientRect()
-      if (rect.top + rect.height / 3 <= window.innerHeight) {
-        setIsPositionCardInView(true)
+      if (rect.top <= window.innerHeight) {
+        positionButtonRef.current.style.display = 'none'
       } else {
-        setIsPositionCardInView(false)
+        positionButtonRef.current.style.display = 'block'
       }
     }
   }, [])
 
   useEffect(() => {
-    window.addEventListener('scroll', scrollHandler)
+    refreshPositionButton()
+  }, [refreshPositionButton])
+
+  useEffect(() => {
+    const handleRefreshPositionButton = () => requestAnimationFrame(refreshPositionButton)
+    document.addEventListener('scroll', handleRefreshPositionButton)
+    const resizeObserver = new ResizeObserver(handleRefreshPositionButton)
+    resizeObserver.observe(document.body)
     return () => {
-      window.removeEventListener('scroll', scrollHandler)
+      document.removeEventListener('resize', handleRefreshPositionButton)
+      resizeObserver.unobserve(document.body)
     }
-  }, [scrollHandler])
+  }, [refreshPositionButton])
 
   const handleClickFloatingActionButton = useCallback(() => {
-    if (!isPositionCardInView) {
-      window.scrollBy({ top: document.body.scrollHeight })
-    } else {
-      window.scrollTo({ top: 0 })
-    }
-  }, [isPositionCardInView])
+    window.scrollBy({ top: document.body.scrollHeight })
+  }, [])
 
   const handleTrade = useCallback(
     (market: Market, positionId: number) => {
+      setSelectedOption(null)
       if (isAdvancedMode) {
         window.scrollBy({ top: document.body.scrollHeight })
-        return
+      } else {
+        navigate(
+          getPagePath({
+            page: PageId.Position,
+            network: market.lyra.network,
+            marketAddressOrName: market.name,
+            positionId,
+          })
+        )
       }
-      setSelectedOption(null)
-      navigate(
-        getPagePath({
-          page: PageId.Position,
-          network: market.lyra.network,
-          marketAddressOrName: market.name,
-          positionId,
-        })
-      )
     },
     [navigate, setSelectedOption, isAdvancedMode]
   )
 
   const handleChangeMarket = useCallback(
     (newMarket: Market) => {
-      if (newMarket.address !== market.address) {
+      if (newMarket.address !== selectedMarket.address) {
         // Reset selected board + option when market changes
         setSelectedBoard(null)
         setSelectedOption(null)
@@ -110,7 +120,7 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
         )
       }
     },
-    [market.address, navigate, setSelectedBoard]
+    [navigate, selectedMarket, setSelectedBoard]
   )
 
   const handleSelectOption = useCallback(
@@ -124,8 +134,8 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
         setSelectedOption(null)
       }
       logEvent(isSelect ? LogEvent.BoardOptionSelect : LogEvent.BoardOptionDeselect, {
-        marketName: market.name,
-        marketAddress: market.address,
+        marketName: selectedMarket.name,
+        marketAddress: selectedMarket.address,
         isCall,
         strikeId: newOption.strike().id,
         strikePrice: newOption.strike().strikePrice,
@@ -133,7 +143,7 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
         expiryTimestamp: newOption.board().expiryTimestamp,
       })
     },
-    [market, isCall, selectedStrikeId]
+    [selectedMarket, isCall, selectedStrikeId]
   )
 
   const handleSelectChainOption = useCallback(
@@ -149,8 +159,8 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
         setSelectedOption(null)
       }
       logEvent(isSelect ? LogEvent.BoardOptionSelect : LogEvent.BoardOptionDeselect, {
-        marketName: market.name,
-        marketAddress: market.address,
+        marketName: selectedMarket.name,
+        marketAddress: selectedMarket.address,
         isCall,
         strikeId: newOption.strike().id,
         strikePrice: newOption.strike().strikePrice,
@@ -158,7 +168,7 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
         expiryTimestamp: newOption.board().expiryTimestamp,
       })
     },
-    [market, isCall, isBuy, selectedStrikeId]
+    [selectedMarket, isCall, isBuy, selectedStrikeId]
   )
 
   const handleToggleBuy = useCallback((newIsBuy: boolean) => {
@@ -176,17 +186,36 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
     [setTraderSettings]
   )
 
+  const selectedPosition = useMemo(() => {
+    if (selectedOption) {
+      return openPositions.find(
+        p =>
+          p.marketAddress === selectedMarket.address &&
+          p.strikeId === selectedStrikeId &&
+          p.isCall === selectedOption.isCall
+      )
+    }
+  }, [openPositions, selectedMarket.address, selectedOption, selectedStrikeId])
+
   return (
     <Page
-      mobileCollapsedHeader={`${getMarketDisplayName(market)} ${formatUSD(market.spotPrice)}`}
+      mobileCollapsedHeader={
+        <Text as="span">
+          {getMarketDisplayName(selectedMarket)}
+          <Text as="span" color="secondaryText">
+            &nbsp;·&nbsp;
+            {formatUSD(selectedMarket.spotPrice)}
+          </Text>
+        </Text>
+      }
       desktopRightColumn={
         <Card
+          width={DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH}
           minHeight={MIN_TRADE_CARD_HEIGHT}
-          overflowY="auto"
           sx={{ position: 'sticky', top: DESKTOP_HEADER_NAV_HEIGHT }}
         >
           {selectedOption ? (
-            <TradeForm isBuy={isBuy} option={selectedOption} onTrade={handleTrade} />
+            <TradeForm isBuy={isBuy} option={selectedOption} onTrade={handleTrade} position={selectedPosition} />
           ) : (
             <CardBody flexGrow={1}>
               <Text variant="heading">Select Option</Text>
@@ -202,9 +231,9 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
       }
       header={
         <Flex alignItems="flex-end">
-          <TradeMarketDropdown onChangeMarket={handleChangeMarket} selectedMarket={market} />
+          <TradeMarketDropdown markets={markets} onChangeMarket={handleChangeMarket} selectedMarket={selectedMarket} />
           {!isMobile ? (
-            <Flex ml="auto" mr={DESKTOP_RIGHT_COLUMN_WIDTH} mb={2} alignItems="center">
+            <Flex mr={DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH} ml="auto" mb={2} alignItems="center">
               <Button
                 isTransparent={isAdvancedMode}
                 label="Simple"
@@ -224,7 +253,7 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
       }
     >
       <PageGrid key="layout-grid" sx={{ position: 'relative' }}>
-        <TradePriceCard market={market} />
+        <TradePriceCard market={selectedMarket} />
         {!isAdvancedMode || isMobile ? (
           <TradeSimpleBoardCard
             isCall={isCall}
@@ -237,7 +266,7 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
             }}
             isBuy={isBuy}
             onToggleBuy={handleToggleBuy}
-            market={market}
+            market={selectedMarket}
             selectedBoard={selectedBoard}
             onSelectBoard={newBoard => {
               if (newBoard.id !== selectedBoard?.id) {
@@ -251,16 +280,17 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
           />
         ) : (
           <TradeAdvancedBoardCard
-            market={market}
+            market={selectedMarket}
             selectedOption={selectedOption}
             onSelectOption={handleSelectChainOption}
             isBuy={isBuy}
           />
         )}
-        <TradePositionsCard ref={positionCardRef} />
+        <TradePositionsCard market={selectedMarket} openPositions={openPositions} ref={positionCardRef} />
         {selectedOption && isMobile ? (
           <TradeFormModal
             option={selectedOption}
+            position={selectedPosition}
             isBuy={isBuy}
             onTrade={handleTrade}
             isOpen={isTradeModalOpen}
@@ -270,11 +300,12 @@ export default function TradePageHelper({ market }: Props): JSX.Element {
             }}
           />
         ) : null}
-        {!isPositionCardInView ? (
+        {openPositions.length ? (
           <TradeOpenPositionsFloatingButton
+            ref={positionButtonRef}
             label="Open Positions"
             rightIcon={IconType.ArrowDown}
-            mr={isMobile ? 0 : DESKTOP_RIGHT_COLUMN_WIDTH + 24}
+            mr={isMobile ? 0 : DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH + 24}
             onClick={handleClickFloatingActionButton}
           />
         ) : null}

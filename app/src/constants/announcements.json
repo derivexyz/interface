@@ -7,7 +7,7 @@
       {
         "label": "Start Trading",
         "href": "/trade",
-        "variant": "primary"
+        "variant": "default"
       }
     ],
     "graphic": "images/logo.png",
@@ -17,12 +17,12 @@
   {
     "id": "migrate-stklyra",
     "header": "Migrate Staked LYRA",
-    "title": "In anticipation of the Lyra Protocol's multichain future, LYRA staking is moving to Ethereum mainnet. Stakers need to migrate their staked LYRA from Optimism to Ethereum mainnet to continue to earn staking rewards and boosts on their vault and trading rewards.",
+    "title": "Stakers must migrate their staked LYRA from Optimism to Ethereum mainnet to continue earning rewards.",
     "cta": [
       {
         "label": "Migrate",
         "href": "/rewards",
-        "variant": "primary"
+        "variant": "default"
       },
       {
         "label": "Learn More",
@@ -33,6 +33,21 @@
     ],
     "graphic": "images/staked-lyra-token.png",
     "startTimestamp": 1673993660,
+    "expiryTimestamp": 1675170000
+  },
+  {
+    "id": "arbitrum-soft-launch",
+    "header": "Beta trading on Arbitrum",
+    "title": "Trading is now live on Arbitrum with limited liquidity.",
+    "cta": [
+      {
+        "label": "Start Trading",
+        "href": "/trade/arbitrum/weth-usdc",
+        "variant": "default"
+      }
+    ],
+    "graphic": "images/arbitrum-circle.svg",
+    "startTimestamp": 1674565200,
     "expiryTimestamp": 1675170000
   }
 ]

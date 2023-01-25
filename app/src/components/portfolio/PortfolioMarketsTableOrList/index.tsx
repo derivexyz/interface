@@ -2,13 +2,13 @@ import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { LayoutProps, MarginProps, PaddingProps } from '@lyra/ui/types'
 import React from 'react'
 
-import { MarketTableData } from '@/app/hooks/portfolio/useMarketsTableData'
+import { PortfolioMarketData } from '@/app/hooks/portfolio/usePortfolioPageData'
 
 import PortfolioMarketsListMobile from './PortfolioMarketsListMobile'
 import PortfolioMarketsTableDesktop from './PortfolioMarketsTableDesktop'
 
 export type PortfolioMarketsTableOrListProps = {
-  markets: MarketTableData[]
+  marketData: PortfolioMarketData[]
 } & MarginProps &
   LayoutProps &
   PaddingProps

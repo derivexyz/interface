@@ -93,7 +93,7 @@ export class LiquidityDeposit {
     this.depositTimestamp = processed
       ? processed.timestamp.toNumber()
       : queued
-      ? queued.timestamp.add(market.__marketData.marketParameters.lpParams.depositDelay).toNumber()
+      ? queued.timestamp.add(market.params.depositDelay).toNumber()
       : // Should never happen
         0
     this.timeToDeposit = Math.max(0, this.depositTimestamp - market.block.timestamp)

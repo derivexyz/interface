@@ -12,12 +12,12 @@ import { Flex } from 'rebass'
 
 import { ARRAKIS_LIQUIDITY_URL } from '@/app/constants/links'
 import { TransactionType } from '@/app/constants/screen'
+import useTransaction from '@/app/hooks/account/useTransaction'
+import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccountWethLyraStaking, {
   useMutateAccountWethLyraStaking,
 } from '@/app/hooks/rewards/useAccountWethLyraStaking'
-import useTransaction from '@/app/hooks/transaction/useTransaction'
-import useWalletAccount from '@/app/hooks/wallet/useWalletAccount'
 import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'

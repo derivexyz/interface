@@ -7,16 +7,24 @@ import PageError from '@/app/page_helpers/common/Page/PageError'
 import PageLoading from '@/app/page_helpers/common/Page/PageLoading'
 import VaultsPageHelper from '@/app/page_helpers/VaultsPageHelper'
 
-import useMarket from '../hooks/market/useMarket'
+import useFindVault from '../hooks/vaults/useFindVault'
+import useVaultsPageData from '../hooks/vaults/useVaultsPageData'
 import coerce from '../utils/coerce'
 
-// /vaults/:marketAddressOrName
+// /vaults/:network/:marketAddressOrName
 const VaultsPage = withSuspense(
   () => {
     const { marketAddressOrName = null, network: networkStr } = useParams()
     const network = coerce(Network, networkStr) ?? null
-    const market = useMarket(network, marketAddressOrName)
-    return !market || !network ? <PageError error="Vault does not exist" /> : <VaultsPageHelper market={market} />
+
+    const vaults = useVaultsPageData()
+    const selectedVault = useFindVault(vaults, network, marketAddressOrName)
+
+    return !selectedVault ? (
+      <PageError error="Vault does not exist" />
+    ) : (
+      <VaultsPageHelper vaults={vaults} selectedVault={selectedVault} />
+    )
   },
   () => <PageLoading />
 )

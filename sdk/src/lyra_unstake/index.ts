@@ -9,7 +9,7 @@ import { GlobalRewardEpoch, GlobalRewardEpochAPY, GlobalRewardEpochTokens } from
 import Lyra from '../lyra'
 import buildTx from '../utils/buildTx'
 import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
-import findMarket from '../utils/findMarket'
+import findMarketX from '../utils/findMarketX'
 import fromBigNumber from '../utils/fromBigNumber'
 import getGlobalContract from '../utils/getGlobalContract'
 import insertTxGasEstimate from '../utils/insertTxGasEstimate'
@@ -182,7 +182,7 @@ export class LyraUnstake {
         op: 0,
       }
     }
-    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarketX(this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const currStakedLyraBalance = fromBigNumber(this.stakedLyraBalance)
     const currVaultTokenBalance = fromBigNumber(this.vaultTokenBalances[marketKey].balance)
@@ -197,7 +197,7 @@ export class LyraUnstake {
         op: 0,
       }
     }
-    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarketX(this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const newStakedLyraBalance = fromBigNumber(this.newStakedLyraBalance)
     const currVaultTokenBalance = fromBigNumber(this.vaultTokenBalances[marketKey].balance)

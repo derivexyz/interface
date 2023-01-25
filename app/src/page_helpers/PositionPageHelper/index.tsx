@@ -8,6 +8,7 @@ import PositionCard from '@/app/components/position/PositionCard'
 import PositionHistoryCard from '@/app/components/position/PositionHistoryCard'
 import PositionStatsCard from '@/app/components/position/PositionStatsCard'
 import PositionChartCard from '@/app/containers/position/PositionChartCard'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import Page from '../common/Page'
@@ -22,11 +23,11 @@ const PositionPageHelper = ({ position, option }: Props): JSX.Element => {
   const strikePrice = position.strikePrice
   const expiryTimestamp = position.expiryTimestamp
   const isCall = position.isCall
-  const marketName = position.market().baseToken.symbol
+  const baseName = formatTokenName(position.market().baseToken)
   const isMobile = useIsMobile()
   const titleText = (
     <Text variant="title">
-      {marketName} ${fromBigNumber(strikePrice)} {isCall ? 'Call' : 'Put'}
+      {baseName} ${fromBigNumber(strikePrice)} {isCall ? 'Call' : 'Put'}
       <Text as="span" color="secondaryText">
         {isMobile ? <br /> : ' · '}
         {formatDate(expiryTimestamp, true)} Exp
@@ -35,7 +36,7 @@ const PositionPageHelper = ({ position, option }: Props): JSX.Element => {
   )
   const collapsedTitleText = (
     <Text variant="secondary">
-      {marketName} ${fromBigNumber(strikePrice)} {isCall ? 'Call' : 'Put'}
+      {baseName} ${fromBigNumber(strikePrice)} {isCall ? 'Call' : 'Put'}
       <Text as="span" color="secondaryText">
         {' · '}
         {formatDate(expiryTimestamp, true)} Exp

@@ -8,6 +8,7 @@ import { LiquidityDelayReason, Network } from '@lyrafinance/lyra-js'
 import { Market } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import MarketLabelProgress from '../MarketLabelProgress'
@@ -35,13 +36,13 @@ const VaultsPendingWithdrawalsTableDesktop = ({
     return withdrawals.map(withdrawal => {
       const market = withdrawal.market()
       const currentTimestamp = Math.floor(Date.now() / 1000)
-      const duration = withdrawal.__market.withdrawalDelay
+      const duration = market.params.withdrawalDelay
       const startTimestamp = withdrawal.withdrawalRequestedTimestamp
       const progressDuration = Math.min(Math.max(currentTimestamp - startTimestamp, 0), duration)
       const progressPct = duration > 0 ? progressDuration / duration : 0
       const timeToExit = duration - progressDuration
       const delayReason = withdrawal.delayReason
-      const baseTokenSymbol = market.baseToken.symbol
+      const baseTokenSymbol = formatTokenName(market.baseToken)
       const network = market.lyra.network
       return {
         market: market,

@@ -9,7 +9,7 @@ import Text from '@lyra/ui/components/Text'
 import React, { useState } from 'react'
 
 import { TERMS_OF_USE_URL } from '@/app/constants/links'
-import useWallet from '@/app/hooks/wallet/useWallet'
+import useWallet from '@/app/hooks/account/useWallet'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 import isTermsOfUseEnabled from '@/app/utils/isTermsOfUseEnabled'
 import postTermsOfUse from '@/app/utils/postTermsOfUse'

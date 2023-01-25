@@ -4,13 +4,10 @@ import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import Center from '@lyra/ui/components/Center'
 import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
-import Token from '@lyra/ui/components/Token'
 import filterNulls from '@lyra/ui/utils/filterNulls'
 import formatBalance from '@lyra/ui/utils/formatBalance'
-import formatNumber from '@lyra/ui/utils/formatNumber'
-import formatTruncatedBalance from '@lyra/ui/utils/formatTruncatedBalance'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Market, Option } from '@lyrafinance/lyra-js'
+import { Market, Option, Position } from '@lyrafinance/lyra-js'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
@@ -19,10 +16,10 @@ import { ZERO_BN } from '@/app/constants/bn'
 import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
 import TradeFormSizeInput from '@/app/containers/trade/TradeForm/TradeFormSizeInput'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useMarketBalances from '@/app/hooks/market/useMarketBalances'
+import useTradeBalances from '@/app/hooks/market/useTradeBalances'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
-import useOpenPositions from '@/app/hooks/position/useOpenPositions'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
 
@@ -35,32 +32,23 @@ import TradeFormPayoffSection from './TradeFormPayoffSection'
 type Props = {
   isBuy: boolean
   option: Option
+  position?: Position | null
   hideTitle?: boolean
-  positionId?: number | null
   onTrade?: (market: Market, positionId: number) => void
 }
 
+// TODO: @dappbeast make slippage configurable
 const SLIPPAGE = 0.5 / 100 // 0.5%
 
 const TradeForm = withSuspense(
-  ({ isBuy, option, positionId, onTrade, hideTitle }: Props) => {
-    const openPositions = useOpenPositions()
-    const balances = useMarketBalances(option.market())
+  ({ isBuy, option, position, onTrade, hideTitle }: Props) => {
+    const market = option.market()
+
+    // TODO: @dappbeast parallelize requests
+    const balances = useTradeBalances(market)
     const epochs = useLatestRewardEpoch(option.lyra.network, false)
 
-    const market = option.market()
-    const position = useMemo(() => {
-      if (positionId) {
-        return openPositions.find(p => p.id === positionId)
-      } else {
-        return openPositions.find(
-          p => p.marketAddress === market.address && p.strikeId === option.strike().id && p.isCall === option.isCall
-        )
-      }
-    }, [positionId, openPositions, option, market])
     const isLong = position ? position.isLong : isBuy
-
-    // TODO - @michaelxuwu re-enable default stable
 
     const [isCoveredCall, setIsCoveredCall] = useState(position ? !!position.collateral?.isBase : false)
 
@@ -84,6 +72,7 @@ const TradeForm = withSuspense(
     const strikeId = option.strike().id
     const marketAddress = option.market().address
     const isCall = option.isCall
+    const positionId = position?.id
     useEffect(() => {
       setSize(ZERO_BN)
       resetCollateralAmount()
@@ -121,8 +110,8 @@ const TradeForm = withSuspense(
     const [isFeeRebateOpen, setIsFeeRebateOpen] = useState(false)
     const feeRewardsStr = tradingRewards
       ? filterNulls([
-          tradingRewards.lyra ? formatTruncatedBalance(tradingRewards.lyra, 'LYRA') : null,
-          tradingRewards.op ? formatTruncatedBalance(tradingRewards.op, 'OP') : null,
+          tradingRewards.lyra ? formatBalance(tradingRewards.lyra, 'LYRA', { maxDps: 3 }) : null,
+          tradingRewards.op ? formatBalance(tradingRewards.op, 'OP', { maxDps: 3 }) : null,
         ]).join(', ')
       : null
 
@@ -131,17 +120,20 @@ const TradeForm = withSuspense(
         <CardSection>
           {!hideTitle ? (
             <Text mb={6} variant="heading">
-              {isBuy ? 'Buy' : 'Sell'} {option.market().baseToken.symbol} {formatUSD(option.strike().strikePrice)}{' '}
-              {option.isCall ? 'Call' : 'Put'}
+              {isBuy ? 'Buy' : 'Sell'} {formatTokenName(option.market().baseToken)}{' '}
+              {formatUSD(option.strike().strikePrice)} {option.isCall ? 'Call' : 'Put'}
             </Text>
           ) : null}
           {position ? (
             <RowItem
               label="Position"
               value={
-                <Token
-                  label={`${position.isLong ? 'LONG' : 'SHORT'} ${formatNumber(position.size)}`}
-                  variant={position.isLong ? 'primary' : 'error'}
+                <AmountUpdateText
+                  variant="secondary"
+                  color={position.isLong ? 'primaryText' : 'errorText'}
+                  prefix="LONG"
+                  prevAmount={position.size}
+                  newAmount={trade.newSize}
                 />
               }
               mb={6}
@@ -203,8 +195,14 @@ const TradeForm = withSuspense(
                 }
                 newAmount={
                   isBaseCollateral
-                    ? fromBigNumber(baseBalance.balance.sub(trade.baseToken.transfer), baseBalance.decimals)
-                    : fromBigNumber(quoteBalance.balance.sub(trade.quoteToken.transfer), quoteBalance.decimals)
+                    ? fromBigNumber(
+                        baseBalance.balance.sub(trade.baseToken.transfer).add(trade.baseToken.receive),
+                        baseBalance.decimals
+                      )
+                    : fromBigNumber(
+                        quoteBalance.balance.sub(trade.quoteToken.transfer).add(trade.quoteToken.receive),
+                        quoteBalance.decimals
+                      )
                 }
                 isUSDFormat={!isBaseCollateral}
                 symbol={isBaseCollateral ? trade.baseToken.symbol : trade.quoteToken.symbol}

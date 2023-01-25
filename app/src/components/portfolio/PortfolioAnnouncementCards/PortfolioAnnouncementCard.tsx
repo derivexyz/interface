@@ -1,4 +1,3 @@
-import Button from '@lyra/ui/components/Button'
 import IconButton from '@lyra/ui/components/Button/IconButton'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
@@ -6,6 +5,7 @@ import Flex from '@lyra/ui/components/Flex'
 import Grid from '@lyra/ui/components/Grid'
 import { IconType } from '@lyra/ui/components/Icon'
 import Image from '@lyra/ui/components/Image'
+import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React, { useCallback } from 'react'
@@ -32,7 +32,7 @@ const PortfolioAnnouncementCardPagination = ({
   onNext,
 }: Omit<Props, 'announcement'>) => {
   return (
-    <Flex alignItems="center" justifyContent="flex-end" minWidth={140}>
+    <Flex ml="auto" alignItems="center" justifyContent="flex-end" minWidth={140}>
       <IconButton variant="light" isTransparent icon={IconType.ChevronLeft} onClick={onPrev} />
       <Text variant="secondary" color="secondaryText" mx={[0, 1]}>
         {announcementIdx + 1} of {numAnnouncements}
@@ -61,48 +61,54 @@ export default function PortfolioAnnouncementCard({
   }, [announcement, announcementsLocalStorageStr, setLocalStorage])
   const isMobile = useIsMobile()
   return (
-    <Card height="100%">
-      <CardBody flexDirection="row" alignItems="center" height="100%">
+    <Card>
+      <CardBody flexDirection="row" alignItems="center">
         {announcement.graphic ? (
-          <Image mr={6} src={getAssetSrc(announcement.graphic)} width={64} minWidth={64} height={64} minHeight={64} />
+          <Image
+            mr={6}
+            src={getAssetSrc(announcement.graphic)}
+            width={[48, 72]}
+            minWidth={[48, 72]}
+            height={[48, 72]}
+            minHeight={[48, 72]}
+          />
         ) : null}
         <Flex flexDirection="column" flexGrow={1}>
-          <Text variant="heading" color="text" mt={-1}>
-            {announcement.header}
-          </Text>
+          <Flex alignItems="center">
+            <Text mr={2} variant="heading" color="text">
+              {announcement.header}
+            </Text>
+            <IconButton ml="auto" variant="light" icon={IconType.X} onClick={handleClickClose} />
+          </Flex>
           <Text variant="secondary" mt={2} color="secondaryText">
             {announcement.title}
           </Text>
-          {announcement.cta.length > 0 ? (
-            <Flex>
-              <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'], gap: 2 }} mt={3}>
+          <Flex alignItems="center" mt={[2, 1]}>
+            {announcement.cta.length > 0 ? (
+              <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'] }}>
                 {announcement.cta.map(cta => (
-                  <Button
+                  <Link
                     key={cta.href}
-                    label={cta.label}
-                    variant={cta.variant}
                     textVariant="secondary"
-                    rightIcon={cta.target === '_blank' ? IconType.ArrowUpRight : IconType.ArrowRight}
+                    showRightIcon
                     href={cta.href}
                     target={cta.target}
-                    px={1}
                     onClick={() => logEvent(LogEvent.NavPortfolioAnnouncementCTAClick, { id: announcement.id })}
-                  />
+                  >
+                    {cta.label}
+                  </Link>
                 ))}
               </Grid>
-            </Flex>
-          ) : null}
-        </Flex>
-        <Flex flexDirection="column" justifyContent="space-between" alignItems="flex-end" height="100%" ml="auto">
-          <IconButton variant="light" icon={IconType.X} onClick={handleClickClose} />
-          {!isMobile ? (
-            <PortfolioAnnouncementCardPagination
-              numAnnouncements={numAnnouncements}
-              announcementIdx={announcementIdx}
-              onNext={onNext}
-              onPrev={onPrev}
-            />
-          ) : null}
+            ) : null}
+            {!isMobile ? (
+              <PortfolioAnnouncementCardPagination
+                numAnnouncements={numAnnouncements}
+                announcementIdx={announcementIdx}
+                onNext={onNext}
+                onPrev={onPrev}
+              />
+            ) : null}
+          </Flex>
         </Flex>
       </CardBody>
     </Card>

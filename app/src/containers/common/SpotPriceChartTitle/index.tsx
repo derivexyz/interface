@@ -11,8 +11,8 @@ import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
-import useSpotPriceHistory from '@/app/hooks/data/useSpotPriceHistory'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useSpotPriceHistory from '@/app/hooks/market/useSpotPriceHistory'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 const getOhlcWidthForToken = (token: string) => {
@@ -49,16 +49,16 @@ const SpotPriceChartTitle = withSuspense(
   }: Props) => {
     const isMobile = useIsMobile()
     const history = useSpotPriceHistory(market, period)
-    const latestSpotPrice = market?.spotPrice
-    const spotPrice = hoverSpotPrice ?? (latestSpotPrice ? fromBigNumber(latestSpotPrice) : null)
+    const latestSpotPrice = fromBigNumber(market.spotPrice)
+    const spotPrice = hoverSpotPrice ?? latestSpotPrice
     const prevSpotPrice = history.length > 0 ? history[0].price : null
-    const pctChange = spotPrice && prevSpotPrice ? (spotPrice - prevSpotPrice) / prevSpotPrice : 0
+    const pctChange = prevSpotPrice && prevSpotPrice > 0 ? (spotPrice - prevSpotPrice) / prevSpotPrice : 0
     const candle = hoverCandle ?? (history.length > 0 ? history[history.length - 1] : null)
     const isCandleUp = candle ? candle?.close > candle?.open : false
     const ohlcLabelWidth = market ? getOhlcWidthForToken(market.baseToken.symbol) : 90
     return (
       <Box {...styleProps}>
-        <Text variant={textVariant}>{spotPrice ? formatUSD(spotPrice) : '-'}</Text>
+        <Text variant={textVariant}>{formatUSD(spotPrice)}</Text>
         {isCandleChart ? (
           <Box
             display={isMobile ? 'grid' : 'flex'}

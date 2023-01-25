@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 
 import { ZERO_ADDRESS } from '@/app/constants/bn'
 
-import useWalletAccount from '../wallet/useWalletAccount'
+import useWalletAccount from '../account/useWalletAccount'
 
 export default function useTradeSync({
   option,

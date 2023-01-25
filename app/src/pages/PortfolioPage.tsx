@@ -1,7 +1,18 @@
 import React from 'react'
 
-import PortfolioPageHelper from '@/app/page_helpers/PortfolioPageHelper'
+import withSuspense from '@/app/hooks/data/withSuspense'
+import PageLoading from '@/app/page_helpers/common/Page/PageLoading'
 
-export default function PortfolioPage(): JSX.Element {
-  return <PortfolioPageHelper />
-}
+import usePortfolioPageData from '../hooks/portfolio/usePortfolioPageData'
+import PortfolioPageHelper from '../page_helpers/PortfolioPageHelper'
+
+// /portfolio
+const PortfolioPage = withSuspense(
+  () => {
+    const { marketData, openPositions } = usePortfolioPageData()
+    return <PortfolioPageHelper marketData={marketData} openPositions={openPositions} />
+  },
+  () => <PageLoading />
+)
+
+export default PortfolioPage

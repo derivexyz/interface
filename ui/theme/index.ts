@@ -116,7 +116,7 @@ const darkColors = {
   active: '#3A445066', // 40%
   cardBg: '#25303BBF', // 75%
   cardElevatedBg: '#1B252D',
-  cardNestedBg: '#36404C',
+  cardNestedBg: '#3A445099',
   cardNestedHover: '#3e4a56',
 
   // primary button
@@ -389,7 +389,7 @@ const theme = {
     cardNested: {
       borderRadius: 'card',
       overflow: 'hidden',
-      bg: 'cardNestedBg',
+      bg: 'buttonBg',
     },
     cardModal: {
       borderRadius: [0, 'card'],
@@ -471,9 +471,9 @@ const theme = {
       borderRadius: 'token',
       textTransform: 'uppercase',
       letterSpacing: '2%',
-      px: 2,
-      lineHeight: '24px',
-      height: '24px',
+      px: 1,
+      lineHeight: '20px',
+      height: '20px',
     },
     tokenDefault: {
       variant: 'variants.token',

@@ -2,7 +2,6 @@ import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { PopulatedTransaction } from '@ethersproject/contracts'
 
-import { CollateralUpdateEvent } from '../collateral_update_event'
 import { MAX_BN, ONE_BN, UNIT, ZERO_BN } from '../constants/bn'
 import {
   Deployment,
@@ -15,7 +14,6 @@ import {
   OLD_STAKED_LYRA_OPTIMISM_ADDRESS,
   OP_OPTIMISM_MAINNET_ADDRESS,
 } from '../constants/contracts'
-import { TokenTransfer } from '../constants/queries'
 import { LiquidityDeposit } from '../liquidity_deposit'
 import { LiquidityWithdrawal } from '../liquidity_withdrawal'
 import Lyra from '../lyra'
@@ -23,9 +21,6 @@ import { LyraStake } from '../lyra_stake'
 import { LyraStaking } from '../lyra_staking'
 import { LyraUnstake } from '../lyra_unstake'
 import { Market } from '../market'
-import { Position } from '../position'
-import { SettleEvent } from '../settle_event'
-import { TradeEvent } from '../trade_event'
 import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
 import fetchLyraBalances from '../utils/fetchLyraBalances'
 import getERC20Contract from '../utils/getERC20Contract'
@@ -34,8 +29,6 @@ import getLyraContract from '../utils/getLyraContract'
 import getLyraMarketContract from '../utils/getLyraMarketContract'
 import toBigNumber from '../utils/toBigNumber'
 import fetchAccountBalancesAndAllowances from './fetchAccountBalancesAndAllowances'
-import fetchPortfolioBalance from './fetchPortfolioBalance'
-import fetchPortfolioHistory from './fetchPortfolioHistory'
 import getAverageCostPerLPToken from './getAverageCostPerLPToken'
 
 export type AccountTokenBalance = {
@@ -43,111 +36,6 @@ export type AccountTokenBalance = {
   symbol: string
   decimals: number
   balance: BigNumber
-}
-
-export type AccountPortfolioBalance = {
-  longOptionValue: number
-  shortOptionValue: number
-  baseCollateralValue: number
-  baseAccountValue: number
-  stableCollateralValue: number
-  stableAccountValue: number
-  totalValue: number
-  baseAccountBalances: {
-    market: Market
-    marketAddress: string
-    marketName: string
-    address: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-    spotPrice: BigNumber
-    value: BigNumber
-  }[]
-  stableAccountBalances: {
-    address: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-  }[]
-  positions: Position[]
-}
-
-export type AccountPortfolioSnapshot = {
-  timestamp: number
-  blockNumber: number
-  longOptionValue: number
-  shortOptionValue: number
-  baseCollateralValue: number
-  baseAccountValue: number
-  stableCollateralValue: number
-  stableAccountValue: number
-  totalValue: number
-  baseAccountBalances: {
-    marketAddress: string
-    address: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-    spotPrice: BigNumber
-    value: BigNumber
-  }[]
-  stableAccountBalances: {
-    address: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-  }[]
-  trades: TradeEvent[]
-  collateralUpdates: CollateralUpdateEvent[]
-  settles: SettleEvent[]
-  transfers: TokenTransfer[]
-}
-
-export type StableBalanceSnapshot = {
-  blockNumber: number
-  timestamp: number
-  balance: number
-  accountBalance: number
-  collateralBalance: number
-  accountBalances: {
-    symbol: string
-    address: string
-    decimals: number
-    balance: BigNumber
-  }[]
-  trades: TradeEvent[]
-  collateralUpdates: CollateralUpdateEvent[]
-  settles: SettleEvent[]
-}
-
-export type BaseBalanceSnapshot = {
-  blockNumber: number
-  timestamp: number
-  symbol: string
-  address: string
-  decimals: number
-  marketAddress: string
-  balance: BigNumber
-  value: BigNumber
-  accountBalance: BigNumber
-  accountValue: BigNumber
-  collateralBalance: BigNumber
-  collateralValue: BigNumber
-  spotPrice: BigNumber
-  trades: TradeEvent[]
-  collateralUpdates: CollateralUpdateEvent[]
-  settles: SettleEvent[]
-}
-
-export type AccountPositionSnapshot = {
-  blockNumber: number
-  timestamp: number
-  longOptionValue: BigNumber
-  shortOptionValue: BigNumber
-  trades: TradeEvent[]
-  collateralUpdates: CollateralUpdateEvent[]
-  settles: SettleEvent[]
 }
 
 export type AccountQuoteBalance = AccountTokenBalance & {
@@ -159,20 +47,7 @@ export type AccountBaseBalance = AccountTokenBalance & {
   tradeAllowance: BigNumber
 }
 
-export type AccountLiquidityTokenBalance = {
-  address: string
-  balance: BigNumber
-  symbol: string
-  decimals: number
-}
-
-export type AccountLiquidityDepositBalance = {
-  address: string
-  symbol: string
-  decimals: number
-  balance: BigNumber
-  allowance: BigNumber
-}
+export type AccountLiquidityTokenBalance = AccountTokenBalance
 
 export type AccountBalances = {
   owner: string
@@ -599,13 +474,5 @@ export class Account {
 
   async liquidityWithdrawals(marketAddressOrName: string): Promise<LiquidityWithdrawal[]> {
     return await this.lyra.liquidityWithdrawals(marketAddressOrName, this.address)
-  }
-
-  async portfolioHistory(startTimestamp: number): Promise<AccountPortfolioSnapshot[]> {
-    return await fetchPortfolioHistory(this.lyra, this.address, startTimestamp)
-  }
-
-  async portfolioBalance(): Promise<AccountPortfolioBalance> {
-    return await fetchPortfolioBalance(this.lyra, this.address)
   }
 }

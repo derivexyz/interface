@@ -1,3 +1,3 @@
 export default function isDeployPreview() {
-  return process.env.VERCEL_ENV === 'preview'
+  return process.env.REACT_APP_ENV === 'preview'
 }

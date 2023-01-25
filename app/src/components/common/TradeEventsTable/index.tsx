@@ -1,9 +1,8 @@
 import Box from '@lyra/ui/components/Box'
-import Flex from '@lyra/ui/components/Flex'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
-import Token from '@lyra/ui/components/Token'
 import { MarginProps } from '@lyra/ui/types'
+import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import formatUSD from '@lyra/ui/utils/formatUSD'
@@ -25,7 +24,6 @@ import PositionItem from '../PositionItem'
 type Props = {
   events: { event: TradeEvent | CollateralUpdateEvent | SettleEvent; position: Position }[]
   onClick?: (event: TradeEvent | CollateralUpdateEvent | SettleEvent) => void
-  hideOption?: boolean
   pageSize?: number
   accountRewardEpochs?: AccountRewardEpoch[]
 } & MarginProps
@@ -48,7 +46,7 @@ export type TradeEventTableData = TableData<{
   isBaseCollateral: boolean
 }>
 
-const TradeEventsTable = ({ events, accountRewardEpochs, onClick, hideOption, pageSize = 10 }: Props) => {
+const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 }: Props) => {
   const rows: TradeEventTableData[] = useMemo(() => {
     return events.map(({ event, position }) => {
       const marketName = event.marketName
@@ -128,118 +126,100 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, hideOption, pa
           )
         },
       },
-      !hideOption
-        ? {
-            accessor: 'expiryTimestamp',
-            Header: 'Option',
-            width: 220,
-            Cell: (props: TableCellProps<TradeEventTableData>) => {
-              const { position } = props.row.original
-              return <PositionItem position={position} hideSize />
-            },
-          }
-        : null,
+      {
+        accessor: 'expiryTimestamp',
+        Header: 'Option',
+        width: 220,
+        Cell: (props: TableCellProps<TradeEventTableData>) => {
+          const { position } = props.row.original
+          return <PositionItem position={position} hideSize />
+        },
+      },
       {
         canSort: false,
         Header: 'Action',
-        width: 150,
         Cell: (props: TableCellProps<TradeEventTableData>) => {
           const event = props.row.original.event
           return (
-            <Token
-              label={`${
+            <Text
+              color={
                 event instanceof TradeEvent
                   ? event.isLiquidation
-                    ? 'Liquidation'
+                    ? 'errorText'
                     : event.isBuy
-                    ? 'Bought'
-                    : 'Sold'
+                    ? 'primaryText'
+                    : 'errorText'
                   : event instanceof CollateralUpdateEvent
-                  ? 'Update'
+                  ? 'text'
                   : event.isInTheMoney
-                  ? 'Settle'
-                  : 'Expired'
-              }${event instanceof TradeEvent || event instanceof SettleEvent ? ` ${formatNumber(event.size)}` : ''}`}
-              variant={
-                event instanceof TradeEvent
-                  ? event.isLiquidation
-                    ? 'warning'
-                    : event.isBuy
-                    ? 'primary'
-                    : 'error'
-                  : event instanceof CollateralUpdateEvent
-                  ? 'default'
-                  : event.isInTheMoney
-                  ? 'warning'
-                  : 'error'
+                  ? 'primaryText'
+                  : 'errorText'
               }
-            />
+              variant="secondary"
+            >{`${
+              event instanceof TradeEvent
+                ? event.isLiquidation
+                  ? 'LIQUIDATE'
+                  : event.isBuy
+                  ? 'BUY'
+                  : 'SELL'
+                : event instanceof CollateralUpdateEvent
+                ? 'UPDATE'
+                : event.isInTheMoney
+                ? 'SETTLE'
+                : 'EXPIRE'
+            }${
+              event instanceof TradeEvent || event instanceof SettleEvent ? ` ${formatNumber(event.size)}` : ''
+            }`}</Text>
           )
         },
       },
       {
-        accessor: 'collateralValue',
-        Header: 'Collateral',
-        width: 150,
-        Cell: (props: TableCellProps<TradeEventTableData>) => {
-          const { isBaseCollateral, event, collateralAmount, collateralValue } = props.row.original
-          if (isBaseCollateral) {
-            return (
-              <Box>
-                <Text variant="secondary" color={collateralAmount === 0 ? 'secondaryText' : 'text'}>
-                  {collateralAmount === 0 ? '-' : `${formatNumber(collateralAmount)} s${event.marketName}`}
-                </Text>
-                {collateralValue !== 0 ? (
-                  <Text variant="small" color="secondaryText">
-                    {formatUSD(collateralValue, { showSign: true })}
-                  </Text>
-                ) : null}
-              </Box>
-            )
-          } else {
-            return (
-              <Text variant="secondary" color={props.cell.value === 0 ? 'secondaryText' : 'text'}>
-                {props.cell.value === 0 ? '-' : formatUSD(props.cell.value, { showSign: true })}
-              </Text>
-            )
-          }
-        },
-      },
-      {
         accessor: 'premium',
-        Header: 'Premiums',
-        width: 150,
-        Cell: (props: TableCellProps<TradeEventTableData>) => (
-          <Text variant="secondary" color={props.cell.value === 0 ? 'secondaryText' : 'text'}>
-            {props.cell.value === 0 ? '-' : formatUSD(props.cell.value, { showSign: true })}
-          </Text>
-        ),
-      },
-      {
-        accessor: 'fee',
-        Header: 'Fees / Rebates',
-        width: 150,
+        Header: 'Premiums / Rebate',
         Cell: (props: TableCellProps<TradeEventTableData>) => {
-          const lyraFeeRebate = props.row.original.feeRebate.lyra
-          const opFeeRebate = props.row.original.feeRebate.op
+          const { position, feeRebate } = props.row.original
+          const market = position.market()
+          const lyraFeeRebate = feeRebate.lyra
+          const opFeeRebate = feeRebate.op
           return (
-            <Flex flexDirection="column">
-              <Text variant="secondary" color={props.cell.value === 0 ? 'secondaryText' : 'text'}>
-                {props.cell.value === 0 ? '-' : formatUSD(props.cell.value, { showSign: false })}
+            <Box>
+              <Text variant="secondary" color={props.cell.value ? 'text' : 'secondaryText'}>
+                {props.cell.value
+                  ? formatBalance(props.cell.value, market.quoteToken.symbol, { showSign: true, showDollars: true })
+                  : '-'}
               </Text>
               {lyraFeeRebate > 0 || opFeeRebate > 0 ? (
                 <Text variant="small" color="secondaryText">
-                  {formatNumber(lyraFeeRebate)} LYRA / {formatNumber(opFeeRebate)} OP
+                  {formatNumber(lyraFeeRebate, { maxDps: 3 })} LYRA, {formatNumber(opFeeRebate, { maxDps: 3 })} OP
                 </Text>
               ) : null}
-            </Flex>
+            </Box>
+          )
+        },
+      },
+      {
+        accessor: 'collateralAmount',
+        Header: 'Collateral',
+        Cell: (props: TableCellProps<TradeEventTableData>) => {
+          const { position, isBaseCollateral, collateralAmount } = props.row.original
+          const market = position.market()
+          return (
+            <Text variant="secondary" color={collateralAmount ? 'text' : 'secondaryText'}>
+              {collateralAmount
+                ? `${formatBalance(
+                    collateralAmount,
+                    isBaseCollateral ? market.baseToken.symbol : market.quoteToken.symbol,
+                    { showSign: true }
+                  )}`
+                : '-'}
+            </Text>
           )
         },
       },
       {
         accessor: 'pnl',
         Header: 'Profit / Loss',
-        width: 150,
         Cell: (props: TableCellProps<TradeEventTableData>) => {
           return (
             <Text
@@ -252,7 +232,7 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, hideOption, pa
         },
       },
     ])
-  }, [hideOption])
+  }, [])
 
   if (rows.length === 0) {
     return null

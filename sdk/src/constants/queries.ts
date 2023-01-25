@@ -1,5 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
-
 import { PositionState } from './contracts'
 
 export const MIN_START_TIMESTAMP = 0
@@ -617,26 +615,6 @@ export enum SnapshotPeriod {
   EightHours = 28800,
   OneDay = 86400,
   SevenDays = 604800,
-}
-
-export type TokenTransferResult = {
-  amount: string
-  timestamp: number
-  blockNumber: number
-  from: string
-  to: string
-  token: {
-    id: string
-  }
-}
-
-export type TokenTransfer = {
-  amount: BigNumber
-  timestamp: number
-  blockNumber: number
-  from: string
-  to: string
-  tokenAddress: string
 }
 
 export type LiquidityDepositQueryResult = {

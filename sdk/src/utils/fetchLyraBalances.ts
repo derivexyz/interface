@@ -1,5 +1,7 @@
-import fetch from 'cross-fetch'
 import { BigNumber } from 'ethers'
+
+import { LYRA_API_URL } from '../constants/links'
+import fetchWithCache from './fetchWithCache'
 
 export type LyraBalancesData = {
   mainnetLYRA: BigNumber
@@ -10,10 +12,7 @@ export type LyraBalancesData = {
 }
 
 export default async function fetchLyraBalances(owner: string): Promise<LyraBalancesData> {
-  const res = await fetch(`https://api.lyra.finance/lyra-balances?&owner=${owner}`, {
-    method: 'GET',
-  })
-  const data = await res.json()
+  const data = await fetchWithCache(`${LYRA_API_URL}/lyra-balances?&owner=${owner}`)
   return {
     mainnetLYRA: BigNumber.from(data.mainnetLYRA),
     opLYRA: BigNumber.from(data.opLYRA),

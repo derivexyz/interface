@@ -8,17 +8,14 @@ import Token from '@lyra/ui/components/Token'
 import { ModalContext } from '@lyra/ui/theme/ModalProvider'
 import { Network } from '@lyrafinance/lyra-js'
 import React, { useCallback, useContext, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
-import { getDefaultMarket } from '@/app/constants/defaults'
 import { MOBILE_FOOTER_HEIGHT } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
 import AccountButton from '@/app/containers/common/AccountButton'
-import useNetwork from '@/app/hooks/wallet/useNetwork'
-import useWallet from '@/app/hooks/wallet/useWallet'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import getAssetSrc from '@/app/utils/getAssetSrc'
-import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
-import { getNavPageFromPath } from '@/app/utils/getNavPageFromPath'
+import { getDefaultMarket } from '@/app/utils/getDefaultMarket'
 import getPagePath from '@/app/utils/getPagePath'
 import isMainnet from '@/app/utils/isMainnet'
 
@@ -26,29 +23,14 @@ import LayoutMoreDropdownListItems from './LayoutMoreDropdownListItems'
 import LayoutPrivacyModal from './LayoutPrivacyModal'
 
 export default function LayoutMobileBottomNav(): JSX.Element {
-  const location = useLocation()
   const navigate = useNavigate()
-  const tabPage = getNavPageFromPath(location.pathname)
   const network = useNetwork()
-  const { chainId, switchNetwork } = useWallet()
   const [isOpen, setIsOpen] = useState(false)
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
   const onClose = useCallback(() => setIsOpen(false), [])
 
   const { openModalId, setOpenModalId } = useContext(ModalContext)
-
-  const handleSelectNetwork = async (newNetwork: Network) => {
-    const newChainId = getChainIdForNetwork(newNetwork)
-    if (newChainId !== chainId) {
-      await switchNetwork(newChainId)
-      if (tabPage === PageId.Trade) {
-        navigate(
-          getPagePath({ page: PageId.Trade, network: newNetwork, marketAddressOrName: getDefaultMarket(newNetwork) })
-        )
-      }
-    }
-  }
 
   return (
     <>

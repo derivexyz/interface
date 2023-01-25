@@ -1,56 +1,41 @@
-import Button from '@lyra/ui/components/Button'
-import Flex from '@lyra/ui/components/Flex'
+import Card from '@lyra/ui/components/Card'
+import CardBody from '@lyra/ui/components/Card/CardBody'
+import Text from '@lyra/ui/components/Text'
 import { Market } from '@lyrafinance/lyra-js'
-import React, { useState } from 'react'
+import React from 'react'
 
+import { TransactionType } from '@/app/constants/screen'
 import useAdmin from '@/app/hooks/admin/useAdmin'
-import useIsMarketPaused, { useMutateIsMarketPaused } from '@/app/hooks/admin/useIsMarketPaused'
-import withSuspense from '@/app/hooks/data/withSuspense'
-import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
-import useWallet from '@/app/hooks/wallet/useWallet'
-import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
+import useAdminTransaction from '@/app/hooks/admin/useAdminTransaction'
+
+import TransactionButton from '../../common/TransactionButton'
 
 type Props = {
   market: Market
-  owner: string
 }
 
-const AdminMarketPauseButton = withSuspense(({ market, owner }: Props) => {
+const AdminMarketPauseButton = ({ market }: Props) => {
   const admin = useAdmin(market.lyra.network)
-  const { isConnected, account } = useWallet()
-  const [isLoading, setIsLoading] = useState(false)
-  const isPaused = useIsMarketPaused(market)
-  const mutateIsPaused = useMutateIsMarketPaused(market)
-  const execute = useAdminTransaction(market.lyra.network, owner)
+  const execute = useAdminTransaction(market.lyra.network, market.params.owner)
   return (
-    <Flex mx={8} mt={4}>
-      <Button
-        isDisabled={!isConnected}
-        isLoading={isLoading}
-        variant={isPaused ? 'primary' : 'error'}
-        label={
-          isPaused ? `Unpause ${getMarketDisplayName(market)} market` : `Pause ${getMarketDisplayName(market)} market`
-        }
-        onClick={async () => {
-          if (!owner || !account || !admin) {
-            return
-          }
-          setIsLoading(true)
-          const tx = admin.setMarketPaused(account, market.address, !isPaused)
-          if (tx) {
-            execute(tx, {
-              onComplete: () => {
-                mutateIsPaused()
-                setIsLoading(false)
-              },
-            })
-          } else {
-            setIsLoading(false)
-          }
-        }}
-      />
-    </Flex>
+    <Card>
+      <CardBody>
+        <Text mb={6} variant="heading">
+          Market Paused: {market.params.isMarketPaused.toString()}
+        </Text>
+        <TransactionButton
+          transactionType={TransactionType.Admin}
+          network={market.lyra.network}
+          width={200}
+          label={market.params.isMarketPaused ? 'Unpause Market' : 'Pause Market'}
+          onClick={async () => {
+            const tx = await admin.setMarketPaused(market.address, !market.params.isMarketPaused)
+            await execute(tx)
+          }}
+        />
+      </CardBody>
+    </Card>
   )
-})
+}
 
 export default AdminMarketPauseButton

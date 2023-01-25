@@ -11,7 +11,7 @@ import LabelItem from '@/app/components/common/LabelItem'
 import LabelItemShimmer from '@/app/components/common/LabelItem/LabelItemShimmer'
 import { SECONDS_IN_MONTH } from '@/app/constants/time'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useAggregateVaultStats from '@/app/hooks/vaults/useAggregateVaultStats'
+import useAggregateVaultStats from '@/app/hooks/vaults/useVaultsAggregatedStats'
 
 const VaultsIndexChartOverviewSection = withSuspense(
   () => {

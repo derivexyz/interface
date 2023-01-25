@@ -4,7 +4,6 @@ import { ToggleButtonItemProps } from '@lyra/ui/components/Button/ToggleButtonIt
 import Card, { CardElement } from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Flex from '@lyra/ui/components/Flex'
-import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { Option } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo, useState } from 'react'
 
@@ -54,7 +53,6 @@ const PositionChartCard = ({ option }: Props): CardElement => {
   const onClose = useCallback(() => setIsOpen(false), [])
   const [chart, setChart] = useState(PositionChart.OptionPrice)
   const chartName = useMemo(() => CHARTS.find(c => c.id === chart), [chart])?.label ?? ''
-  const isMobile = useIsMobile()
 
   const chartTitleComponent =
     chart === PositionChart.OptionPrice ? (

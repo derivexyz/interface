@@ -4,14 +4,14 @@ import React from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { TransactionType } from '@/app/constants/screen'
+import useTransaction from '@/app/hooks/account/useTransaction'
+import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import useOptimismToken from '@/app/hooks/data/useOptimismToken'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccountWethLyraStaking, {
   useMutateAccountWethLyraStaking,
 } from '@/app/hooks/rewards/useAccountWethLyraStaking'
 import useClaimableBalances, { useMutateClaimableBalances } from '@/app/hooks/rewards/useClaimableBalance'
-import useTransaction from '@/app/hooks/transaction/useTransaction'
-import useWalletAccount from '@/app/hooks/wallet/useWalletAccount'
 import filterNulls from '@/app/utils/filterNulls'
 import { lyraOptimism } from '@/app/utils/lyra'
 

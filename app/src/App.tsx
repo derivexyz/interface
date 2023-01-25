@@ -6,13 +6,11 @@ import React, { useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { SWRConfig } from 'swr'
 
-import { getDefaultMarket } from './constants/defaults'
 import { LogEvent } from './constants/logEvents'
 import Layout from './page_helpers/common/Layout'
 import PortfolioHistoryPageHelper from './page_helpers/PortfolioHistoryPageHelper'
 import AdminBoardPage from './pages/AdminBoardPage'
-import AdminMarketPage from './pages/AdminMarketPage'
-import AdminPage from './pages/AdminPage'
+import AdminMarketPage from './pages/AdminPage'
 import NotFoundPage from './pages/NotFoundPage'
 import PortfolioPage from './pages/PortfolioPage'
 import PositionPage from './pages/PositionPage'
@@ -26,11 +24,15 @@ import VaultsPage from './pages/VaultsPage'
 import LocalStorageProvider from './providers/LocalStorageProvider'
 import { WalletProvider } from './providers/WalletProvider'
 import compare from './utils/compare'
+import { getDefaultMarket } from './utils/getDefaultMarket'
 import isProd from './utils/isProd'
 import logEvent from './utils/logEvent'
 import useDefaultNetwork from './utils/useDefaultNetwork'
 
 const POST_HOG_API_KEY = process.env.REACT_APP_POST_HOG_API_KEY
+
+console.debug('NODE_ENV', process.env.NODE_ENV)
+console.debug('REACT_APP_ENV', process.env.REACT_APP_ENV)
 
 function App(): JSX.Element {
   // Initialize PostHog
@@ -78,10 +80,10 @@ function App(): JSX.Element {
       <SWRConfig
         value={{
           suspense: true,
-          revalidateOnFocus: false,
+          revalidateOnFocus: true,
+          revalidateOnMount: true,
           errorRetryCount: 0,
           shouldRetryOnError: false,
-          revalidateOnMount: true,
           refreshWhenHidden: false,
           refreshWhenOffline: false,
           compare,
@@ -106,7 +108,10 @@ function App(): JSX.Element {
                 <Route path="/rewards" element={<RewardsPage />} />
                 <Route path="/rewards/history" element={<RewardsHistoryPage />} />
                 <Route path="/storybook" element={<StoryBookPage />} />
-                <Route path="/admin" element={<AdminPage />} />
+                <Route
+                  path="/admin"
+                  element={<Navigate to={`/admin/${defaultNetwork}/${getDefaultMarket(defaultNetwork)}`} />}
+                />
                 <Route path="/admin/:network/:marketAddressOrName" element={<AdminMarketPage />} />
                 <Route path="/admin/:network/:marketAddressOrName/:boardId" element={<AdminBoardPage />} />
                 <Route path="*" element={<NotFoundPage />} />

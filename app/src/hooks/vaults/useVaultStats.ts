@@ -1,15 +1,18 @@
-import Lyra, {
+import {
   Market,
   MarketLiquiditySnapshot,
   MarketNetGreeksSnapshot,
   MarketTradingVolumeSnapshot,
+  Network,
 } from '@lyrafinance/lyra-js'
 
 import { ZERO_BN } from '@/app/constants/bn'
+import { FetchId } from '@/app/constants/fetch'
 import { SECONDS_IN_YEAR } from '@/app/constants/time'
 import fromBigNumber from '@/app/utils/fromBigNumber'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 
-import { useLyraFetch } from '../data/useLyraFetch'
+import useFetch from '../data/useFetch'
 
 export type VaultStats = {
   market: Market
@@ -30,8 +33,8 @@ export type VaultStats = {
   openInterest: number
 }
 
-export const fetchVault = async (lyra: Lyra, marketAddress: string, period: number): Promise<VaultStats> => {
-  const market = await lyra.market(marketAddress)
+const fetcher = async (network: Network, marketAddress: string, period: number): Promise<VaultStats> => {
+  const market = await getLyraSDK(network).market(marketAddress)
   const [tradingVolumeHistory, liquidityHistory, netGreeksHistory] = await Promise.all([
     market.tradingVolumeHistory({ startTimestamp: market.block.timestamp - period }),
     market.liquidityHistory({ startTimestamp: market.block.timestamp - period }),
@@ -82,6 +85,6 @@ export const fetchVault = async (lyra: Lyra, marketAddress: string, period: numb
 }
 
 export default function useVaultStats(market: Market, period: number): VaultStats | null {
-  const [vaultStats] = useLyraFetch('VaultStats', market.lyra, [market.address, period], fetchVault)
+  const [vaultStats] = useFetch(FetchId.VaultStats, [market.lyra.network, market.address, period], fetcher)
   return vaultStats
 }

@@ -10,23 +10,24 @@ import Countdown from '@lyra/ui/components/Text/CountdownText'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatNumber from '@lyra/ui/utils/formatNumber'
+import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import { PageId } from '@/app/constants/pages'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
-import useNetwork from '@/app/hooks/wallet/useNetwork'
 import getPagePath from '@/app/utils/getPagePath'
 
 type Props = MarginProps
 
 const PendingRewardsCardGridItems = withSuspense(
   () => {
-    const network = useNetwork()
-    const epochs = useLatestRewardEpoch(network, true)
+    const network = useNetwork() // TODO: @dillon Use network again and replace Network.Optimism
+    const epochs = useLatestRewardEpoch(Network.Optimism, true)
     const account = epochs?.account
     const global = epochs?.global
     const epochEndTimestamp = global?.endTimestamp ?? 0

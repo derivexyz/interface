@@ -1,15 +1,14 @@
 import { Block } from '@ethersproject/providers'
 
-import { Market, MarketLiquiditySnapshot, Network } from '..'
+import { Deployment, Market, MarketLiquiditySnapshot, Network } from '..'
 import { AccountRewardEpoch } from '../account_reward_epoch'
-import { Deployment } from '../constants/contracts'
 import { SECONDS_IN_DAY, SECONDS_IN_WEEK, SECONDS_IN_YEAR } from '../constants/time'
 import Lyra from '../lyra'
 import { LyraStaking } from '../lyra_staking'
 import fetchGlobalRewardEpochData, { GlobalRewardEpochData } from '../utils/fetchGlobalRewardEpochData'
 import fetchLyraTokenSpotPrice from '../utils/fetchLyraTokenSpotPrice'
 import fetchOpTokenSpotPrice from '../utils/fetchOpTokenSpotPrice'
-import findMarket from '../utils/findMarket'
+import findMarketX from '../utils/findMarketX'
 import fromBigNumber from '../utils/fromBigNumber'
 import getEffectiveLiquidityTokens, { getMinimumStakedLyra } from '../utils/getEffectiveLiquidityTokens'
 import getEffectiveTradingFeeRebate from '../utils/getEffectiveTradingFeeRebate'
@@ -132,13 +131,17 @@ export class GlobalRewardEpoch {
   // Getters
 
   static async getAll(lyra: Lyra): Promise<GlobalRewardEpoch[]> {
-    const block = await lyra.provider.getBlock('latest')
-    const [epochs, lyraPrice, opPrice, markets, staking] = await Promise.all([
-      fetchGlobalRewardEpochData(lyra, block.timestamp),
+    // TODO: @dillon remove for arbitrum rewards
+    if (lyra.deployment !== Deployment.Mainnet || lyra.network === Network.Arbitrum) {
+      return []
+    }
+    const [epochs, lyraPrice, opPrice, markets, staking, block] = await Promise.all([
+      fetchGlobalRewardEpochData(lyra),
       fetchLyraTokenSpotPrice(lyra),
       fetchOpTokenSpotPrice(lyra),
       lyra.markets(),
       lyra.lyraStaking(),
+      lyra.provider.getBlock('latest'),
     ])
     const marketsLiquidity = await Promise.all(markets.map(market => market.liquidity()))
     const prices = { lyra: lyraPrice, op: opPrice }
@@ -150,8 +153,8 @@ export class GlobalRewardEpoch {
   }
 
   static async getLatest(lyra: Lyra): Promise<GlobalRewardEpoch | null> {
-    // TODO: @dillon remove optimism check
-    if (lyra.deployment !== Deployment.Mainnet || lyra.network !== Network.Optimism) {
+    // TODO: @dillon remove for arbitrum rewards
+    if (lyra.deployment !== Deployment.Mainnet || lyra.network === Network.Arbitrum) {
       return null
     }
     const epochs = await this.getAll(lyra)
@@ -160,8 +163,8 @@ export class GlobalRewardEpoch {
   }
 
   static async getByStartTimestamp(lyra: Lyra, startTimestamp: number): Promise<GlobalRewardEpoch | null> {
-    // TODO: @dillon remove optimism check
-    if (lyra.deployment !== Deployment.Mainnet || lyra.network !== Network.Optimism) {
+    // TODO: @dillon remove for arbitrum rewards
+    if (lyra.deployment !== Deployment.Mainnet || lyra.network === Network.Arbitrum) {
       return null
     }
     const epochs = await this.getAll(lyra)
@@ -172,7 +175,7 @@ export class GlobalRewardEpoch {
   // Dynamic Fields
 
   vaultApy(marketAddressOrName: string, stakedLyraBalance: number, _vaultTokenBalance: number): GlobalRewardEpochAPY {
-    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
+    const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
 
     const vaultTokenBalance = _vaultTokenBalance
@@ -235,7 +238,7 @@ export class GlobalRewardEpoch {
   }
 
   vaultMaxBoost(marketAddressOrName: string, vaultTokenBalance: number): number {
-    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
+    const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const totalAvgVaultTokens = this.totalAverageVaultTokens(marketAddressOrName)
     const scaledStkLyraDays = this.epoch.scaledStkLyraDays[marketKey]
@@ -254,7 +257,7 @@ export class GlobalRewardEpoch {
   }
 
   maxVaultApy(marketAddressOrName: string): GlobalRewardEpochAPY {
-    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
+    const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const scaledStkLyraDays = this.epoch.scaledStkLyraDays[marketKey]
     if (!scaledStkLyraDays) {
@@ -265,7 +268,7 @@ export class GlobalRewardEpoch {
   }
 
   totalVaultRewards(marketAddressOrName: string): GlobalRewardEpochTokens {
-    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
+    const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     return {
       lyra: this.epoch.rewardedMMVRewards.LYRA[marketKey] ?? 0,
@@ -274,13 +277,13 @@ export class GlobalRewardEpoch {
   }
 
   totalAverageVaultTokens(marketAddressOrName: string): number {
-    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
+    const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     return this.progressDays ? (this.epoch.totalLpTokenDays[marketKey] ?? 0) / this.progressDays : 0
   }
 
   totalAverageBoostedVaultTokens(marketAddressOrName: string): number {
-    const market = findMarket(this.lyra, this.markets, marketAddressOrName)
+    const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     return this.progressDays ? (this.epoch.totalBoostedLpTokenDays[marketKey] ?? 0) / this.progressDays : 0
   }

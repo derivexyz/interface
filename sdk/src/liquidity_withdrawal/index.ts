@@ -90,7 +90,7 @@ export class LiquidityWithdrawal {
     this.withdrawalTimestamp = processed
       ? processed.timestamp.toNumber()
       : queued
-      ? queued.timestamp.add(market.__marketData.marketParameters.lpParams.withdrawalDelay).toNumber()
+      ? queued.timestamp.add(market.params.withdrawalDelay).toNumber()
       : // Should never happen
         0
     this.timeToWithdrawal = Math.max(0, this.withdrawalTimestamp - market.block.timestamp)

@@ -7,8 +7,8 @@ import { Market, SnapshotPeriod } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { ChartPeriod } from '@/app/constants/chart'
-import useSpotPriceHistory from '@/app/hooks/data/useSpotPriceHistory'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useSpotPriceHistory from '@/app/hooks/market/useSpotPriceHistory'
 
 type Props = {
   market: Market

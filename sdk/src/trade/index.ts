@@ -58,6 +58,8 @@ export enum TradeDisabledReason {
   InsufficientBaseAllowance = 'InsufficientBaseAllowance',
   InsufficientQuoteBalance = 'InsufficientQuoteBalance',
   InsufficientBaseBalance = 'InsufficientBaseBalance',
+  UnableToHedgeDelta = 'UnableToHedgeDelta',
+  PriceVarianceTooHigh = 'PriceVarianceTooHigh',
   Unknown = 'Unknown',
 }
 
@@ -95,6 +97,7 @@ export class Trade {
   lyra: Lyra
   private __option: Option
   private __position?: Position
+  private __balances: AccountBalances
   __source = DataSource.ContractCall
   marketName: string
   marketAddress: string
@@ -152,6 +155,7 @@ export class Trade {
 
     this.__option = option
     this.__position = position
+    this.__balances = balances
     const strike = option.strike()
     const market = option.market()
     const board = option.board()
@@ -178,6 +182,7 @@ export class Trade {
 
     let quote = Quote.getSync(lyra, option, this.isBuy, this.size, {
       iterations,
+      isOpen: this.isOpen,
     })
 
     if (
@@ -188,6 +193,7 @@ export class Trade {
       // Retry quote with force close flag
       quote = Quote.getSync(lyra, option, this.isBuy, this.size, {
         iterations,
+        isOpen: this.isOpen,
         isForceClose: true,
       })
     }
@@ -231,7 +237,7 @@ export class Trade {
       : undefined
 
     if (!minOrMaxPremium) {
-      throw new Error('Must define one of minOrMaxPremium or premiumSlippage')
+      throw new Error('Must define one of minOrMaxPremium or slippage')
     }
 
     this.slippage = slippage
@@ -580,5 +586,9 @@ export class Trade {
 
   position(): Position | null {
     return this.__position ?? null
+  }
+
+  balances(): AccountBalances {
+    return this.__balances
   }
 }

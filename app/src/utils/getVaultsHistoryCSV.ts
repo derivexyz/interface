@@ -1,10 +1,10 @@
 import { LiquidityDeposit, LiquidityWithdrawal } from '@lyrafinance/lyra-js'
 
 import { ZERO_BN } from '../constants/bn'
-import { VaultTableRowData } from '../hooks/vaults/useVaultsTableData'
+import { Vault } from '../constants/vault'
 import fromBigNumber from './fromBigNumber'
 
-export const getVaultsHistoryCSV = (rows: VaultTableRowData[]) => {
+export const getVaultsHistoryCSV = (rows: Vault[]) => {
   const headers = [
     { label: 'Date Time', key: 'datetime' },
     { label: 'Timestamp', key: 'timestamp' },

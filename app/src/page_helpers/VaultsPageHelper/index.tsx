@@ -1,10 +1,10 @@
 import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
-import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import MarketImage from '@/app/components/common/MarketImage'
 import VaultInfoCardRow from '@/app/components/common/VaultInfoCardRow'
+import { Vault } from '@/app/constants/vault'
 import VaultsChartCard from '@/app/containers/vaults/VaultsChartCard'
 import VaultsMarketDropdown from '@/app/containers/vaults/VaultsMarketDropdown'
 import VaultsMyLiquidityCard from '@/app/containers/vaults/VaultsMyLiquidityCard'
@@ -14,13 +14,15 @@ import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
 
 type Props = {
-  market: Market
+  vaults: Vault[]
+  selectedVault: Vault
 }
 
-const VaultsPageHelper = ({ market }: Props) => {
+const VaultsPageHelper = ({ selectedVault, vaults }: Props) => {
+  const { market } = selectedVault
   return (
     <Page
-      header={<VaultsMarketDropdown selectedMarket={market} />}
+      header={<VaultsMarketDropdown vaults={vaults} selectedVault={selectedVault} />}
       mobileCollapsedHeader={
         <Flex alignItems="center">
           <MarketImage mr={2} market={market} size={18} />
@@ -30,7 +32,7 @@ const VaultsPageHelper = ({ market }: Props) => {
     >
       <PageGrid>
         <VaultsChartCard market={market} />
-        <VaultsMyLiquidityCard market={market} />
+        <VaultsMyLiquidityCard vault={selectedVault} />
         <VaultsStatsCard market={market} />
         <VaultInfoCardRow />
       </PageGrid>

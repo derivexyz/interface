@@ -5,12 +5,11 @@ import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import Text from '@lyra/ui/components/Text'
 import { Network } from '@lyrafinance/lyra-js'
 import { TokenInfo } from '@uniswap/token-lists'
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 
 import { LogEvent } from '@/app/constants/logEvents'
+import useEthBalance from '@/app/hooks/account/useEthBalance'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useEthBalance from '@/app/hooks/erc20/useEthBalance'
-import useBalances from '@/app/hooks/market/useBalances'
 import logEvent from '@/app/utils/logEvent'
 
 import { ONBOARDING_MODAL_WIDTH } from '../../../constants/layout'
@@ -91,17 +90,8 @@ const OnboardingModalTitle = ({
 const OnboardingModalCallToAction = withSuspense(
   ({ network, toToken, onboardingStep, onClickOnboardingStep, onClose }: OnboardingModalCallToActionProps) => {
     const isStepOne = onboardingStep === OnboardingModalStep.GetETH
-    const balances = useBalances(network)
-    const hasToTokenBalance = useMemo(() => {
-      return balances.some(balance => {
-        const quoteToken = balance.quoteAsset
-        return (
-          (balance.baseAsset.address.toLowerCase() === toToken?.address.toLowerCase() &&
-            balance.baseAsset.balance.gt(0)) ||
-          quoteToken.balance.gt(0)
-        )
-      })
-    }, [balances, toToken])
+    // TODO: @dappbeast re-implement check for specific markets
+    const hasToTokenBalance = false
     const ethBalance = useEthBalance(Network.Optimism)
     return (
       <Flex mx={8} mb={6}>

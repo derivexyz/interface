@@ -1,59 +1,45 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import Box from '@lyra/ui/components/Box'
-import Button from '@lyra/ui/components/Button'
+import Card from '@lyra/ui/components/Card'
+import CardBody from '@lyra/ui/components/Card/CardBody'
 import Text from '@lyra/ui/components/Text'
-import formatDateTime from '@lyra/ui/utils/formatDateTime'
-import { Board, Market } from '@lyrafinance/lyra-js'
-import React, { useState } from 'react'
+import formatDate from '@lyra/ui/utils/formatDate'
+import { Board } from '@lyrafinance/lyra-js'
+import React from 'react'
 
+import { TransactionType } from '@/app/constants/screen'
 import useAdmin from '@/app/hooks/admin/useAdmin'
-import withSuspense from '@/app/hooks/data/withSuspense'
-import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
-import useWallet from '@/app/hooks/wallet/useWallet'
+import useAdminTransaction from '@/app/hooks/admin/useAdminTransaction'
+
+import TransactionButton from '../../common/TransactionButton'
 
 type Props = {
-  market: Market
   board: Board
-  owner: string
-  onUpdateBoard: () => void
 }
 
-const AdminBoardInfo = withSuspense(({ board, market, owner, onUpdateBoard }: Props) => {
-  const { account, isConnected } = useWallet()
+const AdminBoardInfo = ({ board }: Props) => {
+  const market = board.market()
   const admin = useAdmin(market.lyra.network)
-  const execute = useAdminTransaction(market.lyra.network, owner)
-  const [isLoading, setIsLoading] = useState(false)
+  const execute = useAdminTransaction(market.lyra.network, market.params.owner)
   return (
-    <Box px={8}>
-      <Text variant="heading">Board #{board.id}</Text>
-      <Text>Expires {formatDateTime(board?.expiryTimestamp)}</Text>
-      <Box mt={4}>
-        <Text>Frozen: {board.isPaused.toString()}</Text>
-        <Button
-          mt={1}
-          isDisabled={!isConnected}
-          isLoading={isLoading}
-          variant={board.isPaused ? 'primary' : 'error'}
+    <Card>
+      <CardBody>
+        <Text variant="heading" mb={6}>
+          Board #{board.id} - Exp. {formatDate(board.expiryTimestamp)}
+        </Text>
+        <Text mb={6}>Paused: {board.isPaused.toString()}</Text>
+        <TransactionButton
+          width={200}
+          transactionType={TransactionType.Admin}
+          network={board.lyra.network}
           label={board.isPaused ? 'Unpause Board' : 'Pause Board'}
           onClick={async () => {
-            if (!account || !admin) {
-              return
-            }
-            setIsLoading(true)
-            const tx = await admin.setBoardPaused(market, account, BigNumber.from(board.id), !board.isPaused)
-            execute(tx, {
-              onComplete: () => {
-                onUpdateBoard()
-                setIsLoading(false)
-              },
-              onError: () => {
-                setIsLoading(false)
-              },
-            })
+            const tx = await admin.setBoardPaused(market.address, BigNumber.from(board.id), !board.isPaused)
+            await execute(tx)
           }}
         />
-      </Box>
-    </Box>
+      </CardBody>
+    </Card>
   )
-})
+}
+
 export default AdminBoardInfo

@@ -8,6 +8,7 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Position, Trade } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import toBigNumber from '@/app/utils/toBigNumber'
 
@@ -49,7 +50,7 @@ export default function PayoffChart({
   const spotPriceAtExpiry = tradeOrPosition instanceof Position ? tradeOrPosition.spotPriceAtExpiry : null
   const spotPrice = spotPriceAtExpiry ?? currSpotPrice // use spot at expiry
 
-  const marketName = tradeOrPosition.market().baseToken.symbol
+  const marketName = formatTokenName(tradeOrPosition.market().baseToken)
 
   const textColor = useThemeColor('secondaryText')
 

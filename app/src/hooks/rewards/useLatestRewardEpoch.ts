@@ -1,8 +1,10 @@
 import { AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
 
+import { FetchId } from '@/app/constants/fetch'
+
 import getLyraSDK from '../../utils/getLyraSDK'
+import useWalletAccount from '../account/useWalletAccount'
 import useFetch from '../data/useFetch'
-import useWalletAccount from '../wallet/useWalletAccount'
 import { fetchAccountRewardEpochs } from './useAccountRewardEpochs'
 
 type LatestRewardEpoch = {
@@ -36,6 +38,6 @@ export const fetchLatestRewardEpoch = async (
 
 export default function useLatestRewardEpoch(network: Network, sortByDescending?: boolean): LatestRewardEpoch | null {
   const account = useWalletAccount()
-  const [data] = useFetch('LatestRewardEpoch', [network, account, sortByDescending], fetchLatestRewardEpoch)
+  const [data] = useFetch(FetchId.LatestRewardEpoch, [network, account, sortByDescending], fetchLatestRewardEpoch)
   return data ?? null
 }

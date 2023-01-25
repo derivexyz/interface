@@ -18,9 +18,9 @@ const VaultsPendingWithdrawalsListMobile = ({
   return (
     <List {...styleProps}>
       {withdrawals.map(withdrawal => {
-        const currentTimestamp = Math.floor(Date.now() / 1000)
         const market = withdrawal.market()
-        const duration = withdrawal.__market.withdrawalDelay
+        const currentTimestamp = market.block.timestamp
+        const duration = market.params.withdrawalDelay
         const startTimestamp = withdrawal.withdrawalRequestedTimestamp
         const progressDuration = Math.min(Math.max(currentTimestamp - startTimestamp, 0), duration)
         const progressPct = duration > 0 ? progressDuration / duration : 0

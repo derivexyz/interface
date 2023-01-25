@@ -8,11 +8,11 @@ import React, { useCallback, useMemo } from 'react'
 import { ZERO_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
+import useTransaction from '@/app/hooks/account/useTransaction'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccount from '@/app/hooks/market/useAccount'
 import useLyraAccountStaking, { useMutateAccountStaking } from '@/app/hooks/rewards/useLyraAccountStaking'
-import useUnstake, { useMutateUnstake } from '@/app/hooks/rewards/useUnstake'
-import useTransaction from '@/app/hooks/transaction/useTransaction'
+import useUnstake from '@/app/hooks/rewards/useUnstake'
 import logEvent from '@/app/utils/logEvent'
 
 import TransactionButton from '../../common/TransactionButton'
@@ -38,7 +38,6 @@ const UnstakeCardBodyButton = withSuspense(
     }, [unstake])
 
     const mutateAccountStaking = useMutateAccountStaking()
-    const mutateUnstake = useMutateUnstake()
     const handleClickRequestUnstake = useCallback(async () => {
       if (!account || !unstake) {
         console.warn('Account or unstake does not exist')
@@ -49,13 +48,13 @@ const UnstakeCardBodyButton = withSuspense(
       await execute(tx, {
         onComplete: async () => {
           logEvent(LogEvent.UnstakeLyraSuccess, { unstakeAmount: unstake.amount })
-          await Promise.all([mutateAccountStaking(), mutateUnstake()])
+          await Promise.all([mutateAccountStaking()])
         },
         onError: error => {
           logEvent(LogEvent.UnstakeLyraError, { unstakeAmount: unstake.amount, error: error?.message })
         },
       })
-    }, [account, execute, mutateAccountStaking, mutateUnstake, unstake])
+    }, [account, execute, mutateAccountStaking, unstake])
 
     const handleClickUnstake = useCallback(async () => {
       if (!account) {
@@ -64,11 +63,11 @@ const UnstakeCardBodyButton = withSuspense(
       }
       if (unstake?.tx) {
         await execute(unstake.tx, {
-          onComplete: async () => await Promise.all([mutateAccountStaking(), mutateUnstake()]),
+          onComplete: async () => await Promise.all([mutateAccountStaking()]),
         })
       }
       onClose && onClose()
-    }, [account, execute, unstake, onClose, mutateAccountStaking, mutateUnstake])
+    }, [account, execute, unstake, onClose, mutateAccountStaking])
     const isCooldown = !!lyraAccountStaking?.isInCooldown
     const hasUnstakeableBalance = (lyraAccountStaking?.lyraBalances.ethereumStkLyra ?? 0) <= 0
     return (

@@ -3,10 +3,10 @@ import React from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { TransactionType } from '@/app/constants/screen'
+import useTransaction from '@/app/hooks/account/useTransaction'
+import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useClaimableBalancesL1, { useMutateClaimableBalancesL1 } from '@/app/hooks/rewards/useClaimableBalanceL1'
-import useTransaction from '@/app/hooks/transaction/useTransaction'
-import useWalletAccount from '@/app/hooks/wallet/useWalletAccount'
 import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'

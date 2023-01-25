@@ -42,7 +42,6 @@ const PositionHistoryCard = withSuspense(
           <TradeEventsTable
             events={events}
             accountRewardEpochs={accountRewardEpochs}
-            hideOption
             onClick={event => window.open(getExplorerUrl(event.lyra.network, event.transactionHash), '_blank')}
           />
         </CardBody>

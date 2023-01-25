@@ -120,7 +120,13 @@ export default function PortfolioHistoryPageHelper(): JSX.Element {
   const [tableRaw, setTable] = useQueryParam('tab')
   const table = coerce(HistoryTab, tableRaw) ?? HistoryTab.Position
   return (
-    <Page mobileHeader="History" desktopHeader="History" showBackButton mobileCollapsedHeader="History">
+    <Page
+      mobileHeader="History"
+      desktopHeader="History"
+      showBackButton
+      backHref={getPagePath({ page: PageId.Portfolio })}
+      mobileCollapsedHeader="History"
+    >
       <PageGrid>
         <Card overflow="hidden">
           <CardBody noPadding>

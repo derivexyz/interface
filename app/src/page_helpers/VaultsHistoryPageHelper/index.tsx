@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom'
 import VaultEventsTable from '@/app/components/common/VaultEventsTable'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useVaultsTableData from '@/app/hooks/vaults/useVaultsTableData'
+import useVaultsTableData from '@/app/hooks/vaults/useVaultsPageData'
 import getPagePath from '@/app/utils/getPagePath'
 import { getVaultsHistoryCSV } from '@/app/utils/getVaultsHistoryCSV'
 
@@ -76,7 +76,7 @@ const VaultsHistory = withSuspense(
 
 export default function VaultsHistoryPageHelper(): JSX.Element {
   return (
-    <Page header="History" showBackButton>
+    <Page header="History" showBackButton backHref={getPagePath({ page: PageId.VaultsIndex })}>
       <PageGrid>
         <Card overflow="hidden">
           <CardBody noPadding>

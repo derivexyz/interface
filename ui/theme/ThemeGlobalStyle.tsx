@@ -27,6 +27,11 @@ export default function ThemeGlobalStyle(): JSX.Element {
         height: 100%;
       }
 
+      div#root > div:first-child {
+        display: flex;
+        flex-direction: column;
+      }
+
       body {
         background: ${background};
         scrollbar-width: none;
@@ -37,11 +42,7 @@ export default function ThemeGlobalStyle(): JSX.Element {
       .Toastify__toast-container--top-right {
         top: ${isMobile ? 0 : 60}px !important;
         right: ${isMobile ? 0 : 4}px !important;
-      }
-
-      // https://styled-components.com/docs/faqs#how-can-i-override-styles-with-higher-specificity
-      &&&.Toastify__toast-container {
-        width: 420px !important;
+        min-width: 380px !important;
         max-width: 100vw !important;
         min-height: 42px !important;
       }

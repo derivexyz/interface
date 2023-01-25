@@ -10,7 +10,6 @@ type Props = {
   showBackButton?: boolean
   backHref?: string
   desktopRightColumn?: React.ReactNode
-  desktopFooter?: React.ReactNode
   header?: React.ReactNode
   desktopHeader?: React.ReactNode
   mobileHeader?: React.ReactNode
@@ -23,7 +22,6 @@ export default function Page({
   backHref,
   header,
   desktopRightColumn,
-  desktopFooter,
   desktopHeader,
   mobileHeader,
   mobileCollapsedHeader,
@@ -43,7 +41,6 @@ export default function Page({
       backHref={backHref}
       showBackButton={showBackButton}
       header={desktopHeader ?? header}
-      footer={desktopFooter}
       rightColumn={desktopRightColumn}
     >
       {children}

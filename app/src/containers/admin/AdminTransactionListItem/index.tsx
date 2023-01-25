@@ -6,32 +6,35 @@ import Icon, { IconType } from '@lyra/ui/components/Icon'
 import ListItem from '@lyra/ui/components/List/ListItem'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 
 import AdminAddStrikeToBoardTransactionListItem from '@/app/components/admin/AdminAddStrikeToBoardTransactionListItem'
 import AdminCreateOptionBoardTransactionListItem from '@/app/components/admin/AdminCreateOptionBoardTransactionListItem'
-import useAdminGlobalOwner from '@/app/hooks/admin/useAdminGlobalOwner'
+import useTransaction from '@/app/hooks/account/useTransaction'
+import useWallet from '@/app/hooks/account/useWallet'
 import useMultiSigTransaction, {
   AddStrikeToBoardTransaction,
   CreateOptionBoardTransaction,
   useMutateMultiSigTransaction,
 } from '@/app/hooks/admin/useMultiSigTransaction'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useTransaction from '@/app/hooks/transaction/useTransaction'
-import useNetwork from '@/app/hooks/wallet/useNetwork'
-import useWallet from '@/app/hooks/wallet/useWallet'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getMultiSigWalletContract from '@/app/utils/getMultiSigWalletContract'
+
+type Props = {
+  network: Network
+  transactionId: BigNumber
+  globalOwner: string
+  onConfirm: () => void
+}
 
 // Filter out anything less than 10^-10, i.e. 10^8/10^18
 const BN_CONVERSION_THRESHOLD = 10 ** 8
 
 const AdminTransactionListItem = withSuspense(
-  ({ transactionId, onConfirm }: { transactionId: BigNumber; onConfirm: () => void }) => {
+  ({ network, transactionId, globalOwner: owner, onConfirm }: Props) => {
     const { account, isConnected, signer } = useWallet()
-    const network = useNetwork()
-    const owner = useAdminGlobalOwner(network)
-    // TODO @michaelxuwu update to dynamic network
     const transaction = useMultiSigTransaction(network, owner, transactionId)
     const mutateTransaction = useMutateMultiSigTransaction(network, owner, transactionId)
     const execute = useTransaction(network)

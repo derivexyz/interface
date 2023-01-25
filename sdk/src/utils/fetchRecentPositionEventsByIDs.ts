@@ -1,6 +1,5 @@
 import { LyraMarketContractId, POSITION_UPDATED_TYPES } from '../constants/contracts'
-import { PositionEventData } from '../constants/events'
-import { TransferEvent as ContractTransferEvent } from '../contracts/newport/typechain/OptionToken'
+import { PartialTransferEvent, PositionEventData } from '../constants/events'
 import Lyra, { Version } from '../lyra'
 import { Market } from '../market'
 import filterNulls from './filterNulls'
@@ -74,13 +73,13 @@ export default async function fetchRecentPositionEventsByIDs(
     tokenContract.queryFilter(tokenContract.filters.Transfer(null, null, positionIds), fromBlockNumber, toBlockNumber),
   ])
 
-  const transfersByIdAndHash: Record<string, ContractTransferEvent[]> = transferEvents.reduce((dict, transfer) => {
+  const transfersByIdAndHash: Record<string, PartialTransferEvent[]> = transferEvents.reduce((dict, transfer) => {
     const key = getTransferKey(transfer.transactionHash, transfer.args.tokenId.toNumber())
     return {
       ...dict,
       [key]: [...(dict[key] ?? []), transfer],
     }
-  }, {} as Record<string, ContractTransferEvent[]>)
+  }, {} as Record<string, PartialTransferEvent[]>)
 
   const eventsByPositionID: Record<number, PositionRecentEventData> = positionIds.reduce(
     (dict, positionId) => ({

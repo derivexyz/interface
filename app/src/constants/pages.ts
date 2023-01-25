@@ -1,7 +1,6 @@
 export enum PageId {
   NotFound = 'NotFound',
   Admin = 'Admin',
-  AdminMarket = 'AdminMarket',
   AdminBoard = 'AdminBoard',
   Trade = 'Trade',
   Position = 'Position',
@@ -17,8 +16,7 @@ export enum PageId {
 
 export type PageArgsMap = {
   [PageId.NotFound]: undefined
-  [PageId.Admin]: undefined
-  [PageId.AdminMarket]: {
+  [PageId.Admin]: {
     network: string
     marketAddressOrName: string
   }

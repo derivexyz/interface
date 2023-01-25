@@ -14,7 +14,7 @@ type Props = {
 } & LayoutProps &
   MarginProps
 
-export default function NetworkImage({ network, size = 24, ...styleProps }: Props): JSX.Element {
+export default function NetworkImage({ network, size = 32, ...styleProps }: Props): JSX.Element {
   const trueSize = parseInt(String(useThemeValue(size)))
   const logoURI: string = getNetworkLogoURI(network)
 

@@ -2,13 +2,13 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Network } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
+import { FetchId } from '@/app/constants/fetch'
 import getIsOwnerMultiSig from '@/app/utils/getIsOwnerMultiSig'
 import getMultiSigWalletContract from '@/app/utils/getMultiSigWalletContract'
 
-import useBlockFetch from '../data/useBlockFetch'
-import { useMutate } from '../data/useFetch'
+import useFetch, { useMutate } from '../data/useFetch'
 
-const fetcher = async (network: Network, owner: string, from: BigNumber, to: BigNumber) => {
+const fetcher = async (network: Network, owner: string, from: number, to: number) => {
   const isOwnerMultiSig = await getIsOwnerMultiSig(network, owner)
   if (!isOwnerMultiSig) {
     return null
@@ -24,10 +24,9 @@ export default function useMultiSigTransactionIds(
   from: BigNumber,
   to: BigNumber
 ): BigNumber[] | null {
-  const [transactionIds] = useBlockFetch(
-    network,
-    'MultiSigTransactionIds',
-    owner ? [network, owner, from, to] : null,
+  const [transactionIds] = useFetch(
+    FetchId.AdminMultiSigTransactionIds,
+    owner ? [network, owner, from.toNumber(), to.toNumber()] : null,
     fetcher
   )
   return transactionIds
@@ -39,6 +38,9 @@ export function useMutateMultiSigTransactionIds(
   from: BigNumber,
   to: BigNumber
 ): () => Promise<BigNumber[] | null> {
-  const mutate = useMutate('MultiSigTransactionIds', fetcher)
-  return useCallback(async () => (owner ? await mutate(network, owner, from, to) : null), [mutate, from, to, owner])
+  const mutate = useMutate(FetchId.AdminMultiSigTransactionIds, fetcher)
+  return useCallback(
+    async () => (owner ? await mutate(network, owner, from.toNumber(), to.toNumber()) : null),
+    [owner, mutate, network, from, to]
+  )
 }

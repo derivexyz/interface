@@ -1,7 +1,7 @@
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React from 'react'
-import { Box, Flex, SxStyleProp } from 'rebass'
+import { Box, Flex } from 'rebass'
 
 import Center from '../Center'
 import { IconType } from '../Icon'
@@ -18,7 +18,6 @@ export type ListItemProps = {
   target?: string
   href?: string
   children?: React.ReactNode
-  sx?: SxStyleProp
 }
 
 export type ListItemElement = React.ReactElement<ListItemProps>
@@ -33,7 +32,6 @@ export default function ListItem({
   target,
   href,
   children,
-  sx,
 }: ListItemProps): ListItemElement {
   const isMobile = useIsMobile()
   return (
@@ -55,7 +53,7 @@ export default function ListItem({
           alignItems="center"
           justifyContent="flex-start"
           // TODO: @dappbeast set all mobile px to 3px
-          px={[6, 3]}
+          px={[6, 2]}
           py={3}
           height="100%"
           sx={{
@@ -64,7 +62,6 @@ export default function ListItem({
             ':hover': {
               color: isDisabled ? 'disabledText' : 'text',
             },
-            ...sx,
           }}
         >
           {icon ? (

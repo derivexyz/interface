@@ -18,9 +18,9 @@ const VaultsPendingDepositsListMobile = ({
   return (
     <List {...styleProps}>
       {deposits.map(deposit => {
-        const currentTimestamp = Math.floor(Date.now() / 1000)
         const market = deposit.market()
-        const duration = market.depositDelay
+        const currentTimestamp = market.block.timestamp
+        const duration = market.params.depositDelay
         const startTimestamp = deposit.depositRequestedTimestamp
         const progressDuration = Math.min(Math.max(currentTimestamp - startTimestamp, 0), duration)
         const progress = duration > 0 ? progressDuration / duration : 0

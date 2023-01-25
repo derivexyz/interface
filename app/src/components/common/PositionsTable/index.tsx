@@ -11,6 +11,7 @@ import React, { useMemo } from 'react'
 
 import { UNIT, ZERO_BN } from '@/app/constants/bn'
 import filterNulls from '@/app/utils/filterNulls'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import PositionItem from '../PositionItem'
@@ -100,9 +101,9 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
                   {liquidationPrice ? `Liq ${formatTruncatedUSD(liquidationPrice)}` : null}
                   {liquidationPrice && isBase ? ' · ' : ''}
                   {isBase
-                    ? `${formatTruncatedNumber(position.collateral?.amount ?? ZERO_BN)} ${
-                        position.market().baseToken.symbol
-                      }`
+                    ? `${formatTruncatedNumber(position.collateral?.amount ?? ZERO_BN)} ${formatTokenName(
+                        position.market().baseToken
+                      )}`
                     : ''}
                 </Text>
               ) : null}

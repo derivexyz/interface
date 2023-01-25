@@ -44,7 +44,7 @@ const VaultsStatsCard = withSuspense(
           <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gridColumnGap: 6, gridRowGap: 6 }}>
             <LabelItem
               label="30D Perf (Annualized)"
-              value={isLiquidityData15DOld ? formatPercentage(tokenPriceChangeAnnualized) : '-'}
+              value={isLiquidityData15DOld ? formatPercentage(tokenPriceChangeAnnualized) : 'Not enough data'}
               valueColor="text"
             />
             <LabelItem
@@ -52,8 +52,12 @@ const VaultsStatsCard = withSuspense(
               value={isBoardsLive ? formatPercentage(utilization, true) : '-'}
               valueColor="text"
             />
-            <LabelItem label="Pending Deposits" value={formatTruncatedUSD(pendingDeposits)} valueColor="text" />
-            <LabelItem label="Pending Withdrawals" value={formatTruncatedUSD(pendingWithdrawals)} valueColor="text" />
+            {isBoardsLive ? (
+              <LabelItem label="Pending Deposits" value={formatTruncatedUSD(pendingDeposits)} valueColor="text" />
+            ) : null}
+            {isBoardsLive ? (
+              <LabelItem label="Pending Withdrawals" value={formatTruncatedUSD(pendingWithdrawals)} valueColor="text" />
+            ) : null}
             <LabelItem label="Net Delta" value={`${netDelta.gt(0) ? '+' : ''}${formatNumber(netDelta, { dps: 3 })}`} />
             <LabelItem
               label="Net Vega"

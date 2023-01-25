@@ -17,9 +17,9 @@ import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { PageId } from '@/app/constants/pages'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
-import useNetwork from '@/app/hooks/wallet/useNetwork'
 import getPagePath from '@/app/utils/getPagePath'
 
 type Props = {
@@ -54,8 +54,8 @@ const FeeRebateModalBody = withSuspense(
             />
           </Flex>
           <Text variant="secondary" color="secondaryText">
-            Lyra's fee rebate program allows traders to earn back part of their fees as Staked LYRA and OP tokens every
-            2 weeks. Traders can stake LYRA to unlock a higher fee rebate tier.
+            The Lyra Protocol's trading rewards program allows traders to earn back part of their trading fees as Staked
+            LYRA and OP tokens every 2 weeks. Traders can stake LYRA to unlock a higher fee rebate.
           </Text>
         </CardSection>
         <CardSection noPadding>
@@ -114,7 +114,7 @@ const FeeRebateModalBody = withSuspense(
 
 export default function FeeRebateModal({ isOpen, onClose, network }: Props) {
   return (
-    <Modal isMobileFullscreen width={500} isOpen={isOpen} onClose={onClose} title="Fee Tiers">
+    <Modal isMobileFullscreen width={500} isOpen={isOpen} onClose={onClose} title="Trading Tiers">
       <FeeRebateModalBody network={network} onClose={onClose} isOpen={isOpen} />
     </Modal>
   )

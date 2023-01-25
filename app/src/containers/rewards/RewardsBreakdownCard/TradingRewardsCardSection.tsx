@@ -9,13 +9,14 @@ import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
-import useNetwork from '@/app/hooks/wallet/useNetwork'
 
 import FeeRebateModal from '../../common/FeeRebateModal'
 
@@ -23,8 +24,8 @@ type Props = MarginProps
 
 const TradingRewardsCardGrid = withSuspense(
   ({ ...styleProps }: Props) => {
-    const network = useNetwork()
-    const epochs = useLatestRewardEpoch(network)
+    const network = useNetwork() // TODO: @dillon Use network again and replace Network.Optimism
+    const epochs = useLatestRewardEpoch(Network.Optimism)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account
     const tradingFees = accountRewardEpoch?.tradingFees ?? 0

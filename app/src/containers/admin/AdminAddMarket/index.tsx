@@ -1,4 +1,3 @@
-import Button from '@lyra/ui/components/Button'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Flex from '@lyra/ui/components/Flex'
@@ -7,12 +6,13 @@ import Text from '@lyra/ui/components/Text'
 import React, { useState } from 'react'
 
 import NetworkDropdownButton from '@/app/components/common/NetworkDropdownButton/NetworkDropdownButton'
+import { TransactionType } from '@/app/constants/screen'
+import useNetwork from '@/app/hooks/account/useNetwork'
+import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import useAdmin from '@/app/hooks/admin/useAdmin'
-import useAdminGlobalOwner from '@/app/hooks/admin/useAdminGlobalOwner'
-import withSuspense from '@/app/hooks/data/withSuspense'
-import useAdminTransaction from '@/app/hooks/transaction/useAdminTransaction'
-import useNetwork from '@/app/hooks/wallet/useNetwork'
-import useWalletAccount from '@/app/hooks/wallet/useWalletAccount'
+import useAdminTransaction from '@/app/hooks/admin/useAdminTransaction'
+
+import TransactionButton from '../../common/TransactionButton'
 
 type OptionMarketContracts = {
   liquidityPool: string
@@ -42,7 +42,7 @@ const OPTION_MARKET_CONTRACTS: (keyof OptionMarketContracts)[] = [
   'baseAsset',
 ]
 
-const AdminAddMarket = withSuspense(() => {
+const AdminAddMarket = ({ globalOwner }: { globalOwner: string }) => {
   const [addresses, setAddresses] = useState<OptionMarketContracts>({
     liquidityPool: '',
     liquidityToken: '',
@@ -58,24 +58,21 @@ const AdminAddMarket = withSuspense(() => {
   })
   const [id, setId] = useState<number>(0)
   const network = useNetwork()
-  const globalOwner = useAdminGlobalOwner(network)
   const [addMarketNetwork, setAddMarketNetwork] = useState(network)
   const account = useWalletAccount()
   const admin = useAdmin(network)
   const execute = useAdminTransaction(network, globalOwner)
   return (
-    <Card mt={8} mx={8}>
+    <Card>
       <CardBody>
-        <Text mb={4} variant="heading">
+        <Text mb={6} variant="heading">
           Add Market
         </Text>
-        <Flex>
-          <NetworkDropdownButton mb={4} selectedNetwork={addMarketNetwork} onSelectNetwork={setAddMarketNetwork} />
-        </Flex>
-        <Input label="Market ID" mb={4} type="number" value={id} onChange={e => setId(parseInt(e.target.value))} />
+        <NetworkDropdownButton mb={6} selectedNetwork={addMarketNetwork} onSelectNetwork={setAddMarketNetwork} />
+        <Input label="Market ID" mb={6} type="number" value={id} onChange={e => setId(parseInt(e.target.value))} />
         {OPTION_MARKET_CONTRACTS.map(contract => (
           <Input
-            mb={4}
+            mb={6}
             key={contract}
             label={contract}
             value={addresses[contract]}
@@ -84,19 +81,34 @@ const AdminAddMarket = withSuspense(() => {
             }}
           />
         ))}
-        <Flex pt={6}>
-          <Button
-            label="addMarketToRegistry"
-            onClick={() => (account && admin ? execute(admin.addMarketToRegistry(account, addresses)) : null)}
+        <Flex>
+          <TransactionButton
+            mr={3}
+            width={200}
+            transactionType={TransactionType.Admin}
+            network={network}
+            label="Add To Registry"
+            onClick={async () => {
+              if (account && admin) {
+                await execute(await admin.addMarketToRegistry(addresses))
+              }
+            }}
           />
-          <Button
-            label="addMarketToViewer"
-            onClick={() => (account && admin ? execute(admin.addMarketToViewer(account, addresses)) : null)}
+          <TransactionButton
+            width={200}
+            transactionType={TransactionType.Admin}
+            network={network}
+            label="Add To Viewer"
+            onClick={async () => {
+              if (account && admin) {
+                await execute(await admin.addMarketToViewer(addresses))
+              }
+            }}
           />
         </Flex>
       </CardBody>
     </Card>
   )
-})
+}
 
 export default AdminAddMarket

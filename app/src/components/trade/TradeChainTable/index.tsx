@@ -5,7 +5,7 @@ import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Board, MarketLiquiditySnapshot, Option, Strike } from '@lyrafinance/lyra-js'
+import { Board, Option, Strike } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import { UNIT } from '@/app/constants/bn'
@@ -46,8 +46,6 @@ type Props = {
   board: Board
   selectedOption: Option | null
   isBuy: boolean
-  isGlobalPaused: boolean
-  marketLiquidity: MarketLiquiditySnapshot | null
   customCol1: CustomColumnOption
   customCol2: CustomColumnOption
   onSelectOption: (option: Option, isBuy: boolean, isCall: boolean) => void
@@ -55,16 +53,7 @@ type Props = {
 
 type OptionData = Omit<OptionChainTableData, 'isExpanded'>
 
-const TradeChainTable = ({
-  board,
-  selectedOption,
-  onSelectOption,
-  isBuy,
-  isGlobalPaused,
-  marketLiquidity,
-  customCol1,
-  customCol2,
-}: Props) => {
+const TradeChainTable = ({ board, selectedOption, onSelectOption, isBuy, customCol1, customCol2 }: Props) => {
   const size = getDefaultQuoteSize(board.market().name ?? '') // defaults to one
   const isCall = selectedOption?.isCall ?? true
   const market = board.market()
@@ -207,7 +196,7 @@ const TradeChainTable = ({
         },
       },
     ],
-    [isCall, selectedOption, onSelectOption, isBuy, customCol1, customCol2]
+    [market, customCol1, customCol2, selectedOption, isCall, isBuy, onSelectOption]
   )
 
   const quotes = useBoardQuotesSync(board, size)
@@ -245,13 +234,7 @@ const TradeChainTable = ({
 
   return (
     <>
-      <TradeBoardNoticeSection
-        m={6}
-        board={board}
-        isGlobalPaused={isGlobalPaused}
-        quotes={filteredQuotes}
-        marketLiquidity={marketLiquidity}
-      />
+      <TradeBoardNoticeSection m={6} board={board} quotes={filteredQuotes} />
       <Table hideHeader columns={columns} data={rows} tableRowMarker={spotPriceMarker} />
     </>
   )

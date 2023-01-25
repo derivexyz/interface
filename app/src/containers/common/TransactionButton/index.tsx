@@ -11,11 +11,11 @@ import { TERMS_OF_USE_URL } from '@/app/constants/links'
 import { LOCAL_STORAGE_TERMS_OF_USE_KEY } from '@/app/constants/localStorage'
 import { TransactionType } from '@/app/constants/screen'
 import TermsOfUseModal from '@/app/containers/common/TermsOfUseModal'
+import useIsReady from '@/app/hooks/account/useIsReady'
+import useScreenTransaction from '@/app/hooks/account/useScreenTransaction'
+import useWallet from '@/app/hooks/account/useWallet'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLocalStorage from '@/app/hooks/local_storage/useLocalStorage'
-import useIsReady from '@/app/hooks/wallet/useIsReady'
-import useScreenTransaction from '@/app/hooks/wallet/useScreenTransaction'
-import useWallet from '@/app/hooks/wallet/useWallet'
 import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
 import isProd from '@/app/utils/isProd'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
@@ -30,7 +30,7 @@ type RequireTokenAllowance = {
   onClick: () => void
 }
 
-type Props = {
+export type TransactionButtonProps = {
   transactionType: TransactionType
   network: Network | 'ethereum'
   onClick: () => Promise<void>
@@ -46,7 +46,18 @@ const EMPTY_TERMS = {}
 
 const TransactionButton = withSuspense(
   React.forwardRef(
-    ({ transactionType, onClick, isDisabled, requireAllowance, network, label, ...marginProps }: Props, ref) => {
+    (
+      {
+        transactionType,
+        onClick,
+        isDisabled,
+        requireAllowance,
+        network,
+        label,
+        ...marginProps
+      }: TransactionButtonProps,
+      ref
+    ) => {
       const { account } = useWallet()
       const [termsStr, setTermsStr] = useLocalStorage(LOCAL_STORAGE_TERMS_OF_USE_KEY)
       const termsDict: Record<string, number> = JSON.parse(termsStr) ?? EMPTY_TERMS
@@ -113,7 +124,7 @@ const TransactionButton = withSuspense(
               width="100%"
               onClick={async () => {
                 if (isTermsAccepted || !isTermsOfUseEnabled()) {
-                  handleClickApprove()
+                  await handleClickApprove()
                 } else {
                   setIsTermsOpen(true)
                 }
@@ -130,9 +141,9 @@ const TransactionButton = withSuspense(
             size="lg"
             isLoading={isLoading}
             width="100%"
-            onClick={() => {
+            onClick={async () => {
               if (isTermsAccepted || !isTermsOfUseEnabled()) {
-                handleClick()
+                await handleClick()
               } else {
                 setIsTermsOpen(true)
               }

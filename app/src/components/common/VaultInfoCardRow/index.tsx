@@ -56,7 +56,7 @@ export default function VaultInfoCardRow({ ...styleProps }: Props) {
           </Text>
           <Text variant="secondary" color="secondaryText" mb={4}>
             Interacting with the Lyra Protocol can lead to the loss of all assets that form part of a transaction due to
-            risks including but not limited to: Smart Contract Risk, AMM Liquidity Provision Risk, Synthetix Collateral
+            risks including but not limited to: Smart Contract Risk, AMM Liquidity Provision Risk, Synthetix and GMX
             Risk, and Settlement Risk.
           </Text>
           <Link

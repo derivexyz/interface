@@ -1,5 +1,5 @@
 import getVariantSX from '@lyra/ui/utils/getVariantSX'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { Button as RebassButton } from 'rebass'
 import { LayoutProps, MarginProps, PaddingProps } from 'styled-system'
 
@@ -18,13 +18,17 @@ export type ButtonVariant = 'default' | 'primary' | 'error' | 'light' | 'warning
 
 export type ButtonJustify = 'left' | 'right' | 'center'
 
+export type ButtonClickHandler = (
+  event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement, MouseEvent>
+) => void | Promise<void>
+
 export type BaseButtonProps = {
   label: string | React.ReactNode
   size?: ButtonSize
   target?: string
   href?: string
   variant?: ButtonVariant
-  onClick?: React.MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>
+  onClick?: ButtonClickHandler
   isOutline?: boolean
   isDisabled?: boolean
   isTransparent?: boolean
@@ -192,7 +196,7 @@ const Button = React.forwardRef(
       isOutline,
       isTransparent,
       isDisabled,
-      isLoading,
+      isLoading: injectedIsLoading,
       leftIcon,
       leftIconSpacing,
       rightIcon,
@@ -209,6 +213,31 @@ const Button = React.forwardRef(
     const sizeSx = getButtonSizeSx(size)
     const paddingSx = !noPadding ? getButtonPaddingSx(size) : EMPTY_PADDING
     const buttonSx = getVariantSX(buttonVariant)
+
+    const [overrideIsLoading, setOverrideIsLoading] = useState(false)
+    const isLoading = overrideIsLoading || injectedIsLoading
+
+    const handleClick: ButtonClickHandler = useCallback(
+      e => {
+        if (onClick && !isLoading && !isDisabled) {
+          if (typeof (onClick as any).then === 'function' || onClick.constructor.name === 'AsyncFunction') {
+            const onClickProm = onClick as (
+              event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement, MouseEvent>
+            ) => Promise<void>
+            setOverrideIsLoading(true)
+            onClickProm(e)
+              .then(() => setOverrideIsLoading(false))
+              .catch(err => {
+                setOverrideIsLoading(false)
+                throw err
+              })
+          } else {
+            onClick(e)
+          }
+        }
+      },
+      [isDisabled, isLoading, onClick]
+    )
 
     // HACK: Ensure fontSize in theme always refers to direct value
     const iconSize = getButtonIconSize(size)
@@ -260,10 +289,11 @@ const Button = React.forwardRef(
         type={type}
         justifyContent={getButtonJustify(justify)}
         className={isDisabled || isLoading ? 'disabled' : undefined}
-        onClick={!isDisabled && !isLoading ? onClick : undefined}
+        onClick={handleClick}
         variant={buttonVariant}
         {...styleProps}
         sx={{
+          ...(styleProps as any).sx,
           ...sizeSx,
           cursor: isDisabled ? 'not-allowed' : isLoading ? 'default' : 'pointer',
           alignItems: 'stretch',

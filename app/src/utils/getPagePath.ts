@@ -1,7 +1,7 @@
 import { PageArgsMap, PageId, PagePathArgs } from '../constants/pages'
 import getHostname from './getHostname'
 
-const getAdminMarketPath = (args: PageArgsMap[PageId.AdminMarket]): string => {
+const getAdminPath = (args: PageArgsMap[PageId.Admin]): string => {
   return `/admin/${args.network}/${args.marketAddressOrName}`.toLowerCase()
 }
 
@@ -26,9 +26,7 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
   const page = args.page as PageId
   switch (page) {
     case PageId.Admin:
-      return '/admin'
-    case PageId.AdminMarket:
-      return getAdminMarketPath(args as PageArgsMap[PageId.AdminMarket])
+      return getAdminPath(args as PageArgsMap[PageId.Admin])
     case PageId.AdminBoard:
       return getAdminBoardPath(args as PageArgsMap[PageId.AdminBoard])
     case PageId.Trade:

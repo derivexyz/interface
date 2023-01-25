@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { LogEvent } from '@/app/constants/logEvents'
 import { PageId } from '@/app/constants/pages'
+import formatTokenName from '@/app/utils/formatTokenName'
 import getPagePath from '@/app/utils/getPagePath'
 import logEvent from '@/app/utils/logEvent'
 
@@ -28,10 +29,10 @@ type PortfolioMarketsData = TableData<{
   tradingVolume30D: number
 }>
 
-const PortfolioMarketsTableDesktop = ({ markets }: PortfolioMarketsTableOrListProps) => {
+const PortfolioMarketsTableDesktop = ({ marketData }: PortfolioMarketsTableOrListProps) => {
   const navigate = useNavigate()
   const rows: PortfolioMarketsData[] = useMemo(() => {
-    return markets.map(({ market, spotPrice, spotPrice24HChange, openInterest, totalNotionalVolume30D }) => {
+    return marketData.map(({ market, spotPrice, spotPrice24HChange, openInterest, totalNotionalVolume30D }) => {
       return {
         market,
         marketName: market.name,
@@ -40,7 +41,7 @@ const PortfolioMarketsTableDesktop = ({ markets }: PortfolioMarketsTableOrListPr
         pricePctChange: spotPrice24HChange,
         openInterest,
         openInterestDollar: openInterest,
-        symbol: market.baseToken.symbol,
+        symbol: formatTokenName(market.baseToken),
         tradingVolume30D: totalNotionalVolume30D,
         onClick: () => {
           logEvent(LogEvent.PortfolioMarketClick, {
@@ -57,7 +58,7 @@ const PortfolioMarketsTableDesktop = ({ markets }: PortfolioMarketsTableOrListPr
         },
       }
     })
-  }, [markets, navigate])
+  }, [marketData, navigate])
   const columns = useMemo<TableColumn<PortfolioMarketsData>[]>(
     () => [
       {

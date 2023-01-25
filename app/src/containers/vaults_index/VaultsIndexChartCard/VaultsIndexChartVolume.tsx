@@ -11,7 +11,7 @@ import React, { useMemo, useState } from 'react'
 import { ChartPeriod } from '@/app/constants/chart'
 import { VAULTS_INDEX_CHART_HEIGHT } from '@/app/constants/layout'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useAggregateVaultStats from '@/app/hooks/vaults/useAggregateVaultStats'
+import useAggregateVaultStats from '@/app/hooks/vaults/useVaultsAggregatedStats'
 import formatTimestampTooltip from '@/app/utils/formatTimestampTooltip'
 import getChartPeriodTimestamp from '@/app/utils/getChartPeriodTimestamp'
 

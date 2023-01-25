@@ -1,63 +1,33 @@
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Grid from '@lyra/ui/components/Grid'
-import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
-import Text from '@lyra/ui/components/Text'
-import { MarginProps } from '@lyra/ui/types'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import React, { useMemo } from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
-import withSuspense from '@/app/hooks/data/withSuspense'
-import useAggregateTVL from '@/app/hooks/portfolio/useAggregateTVL'
-import useMarketsTableData from '@/app/hooks/portfolio/useMarketsTableData'
+import { PortfolioMarketData } from '@/app/hooks/portfolio/usePortfolioPageData'
 
-type Props = MarginProps
+type Props = {
+  marketData: PortfolioMarketData[]
+}
 
-const TotalValueLockedText = withSuspense(
-  () => {
-    const totalValueLocked = useAggregateTVL()
-    return <Text variant="bodyLarge">{formatTruncatedUSD(totalValueLocked)}</Text>
-  },
-  () => <TextShimmer variant="bodyLarge" />
-)
+const PortfolioKeyMetricsCard = ({ marketData }: Props) => {
+  const openInterest = useMemo(() => marketData.reduce((sum, dat) => sum + dat.openInterest, 0), [marketData])
+  const tradingFees = useMemo(() => marketData.reduce((sum, dat) => sum + dat.totalFees30D, 0), [marketData])
+  const tradingVolume = useMemo(
+    () => marketData.reduce((sum, dat) => sum + dat.totalNotionalVolume30D, 0),
+    [marketData]
+  )
+  const tvl = useMemo(() => marketData.reduce((sum, dat) => sum + dat.tvl, 0), [marketData])
 
-const TradingVolumeText = withSuspense(
-  () => {
-    const data = useMarketsTableData()
-    const tradingVolume = useMemo(() => data.reduce((sum, dat) => sum + dat.totalNotionalVolume30D, 0), [data])
-    return <Text variant="bodyLarge">{formatTruncatedUSD(tradingVolume)}</Text>
-  },
-  () => <TextShimmer variant="bodyLarge" />
-)
-
-const TradingFeesText = withSuspense(
-  () => {
-    const data = useMarketsTableData()
-    const tradingFees = useMemo(() => data.reduce((sum, dat) => sum + dat.totalFees30D, 0), [data])
-    return <Text variant="bodyLarge">{formatTruncatedUSD(tradingFees)}</Text>
-  },
-  () => <TextShimmer variant="bodyLarge" />
-)
-
-const OpenInterestText = withSuspense(
-  () => {
-    const data = useMarketsTableData()
-    const openInterest = useMemo(() => data.reduce((sum, dat) => sum + dat.openInterest, 0), [data])
-    return <Text variant="bodyLarge">{formatTruncatedUSD(openInterest)}</Text>
-  },
-  () => <TextShimmer variant="bodyLarge" />
-)
-
-const PortfolioKeyMetricsCard = ({ ...styleProps }: Props) => {
   return (
-    <Card {...styleProps}>
+    <Card>
       <CardBody>
         <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'], gridGap: 3 }}>
-          <LabelItem label="TVL" value={<TotalValueLockedText />} />
-          <LabelItem label="30D Volume" value={<TradingVolumeText />} />
-          <LabelItem label="30D Fees" value={<TradingFeesText />} />
-          <LabelItem label="Open Interest" value={<OpenInterestText />} />
+          <LabelItem label="TVL" valueTextVariant="bodyLarge" value={formatTruncatedUSD(tvl)} />
+          <LabelItem label="30D Volume" valueTextVariant="bodyLarge" value={formatTruncatedUSD(tradingVolume)} />
+          <LabelItem label="30D Fees" valueTextVariant="bodyLarge" value={formatTruncatedUSD(tradingFees)} />
+          <LabelItem label="Open Interest" valueTextVariant="bodyLarge" value={formatTruncatedUSD(openInterest)} />
         </Grid>
       </CardBody>
     </Card>

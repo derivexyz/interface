@@ -1,4 +1,5 @@
-import { Block, BlockTag, StaticJsonRpcProvider, TransactionRequest } from '@ethersproject/providers'
+import { FilterByBlockHash } from '@ethersproject/abstract-provider'
+import { Block, BlockTag, Filter, Log, StaticJsonRpcProvider, TransactionRequest } from '@ethersproject/providers'
 import { deepCopy, Deferrable, fetchJson } from 'ethers/lib/utils'
 
 function getResult(payload: { error?: { code?: number; data?: any; message?: string }; result?: any }): any {
@@ -16,9 +17,10 @@ function getResult(payload: { error?: { code?: number; data?: any; message?: str
 export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
   urls: string[]
   callPromiseCache: Record<string, Promise<string>> = {}
+  logsPromiseCache: Record<string, Promise<Log[]>> = {}
   blockPromiseCache: Record<string, Promise<Block>> = {}
-  // Refresh latest block every 5 seconds
-  latestBlockCacheTimeout = 5 * 1000
+  // Refresh latest block every 3 seconds
+  latestBlockCacheTimeout = 3 * 1000
   latestBlockUpdateTimestamp: number = 0
 
   constructor(urls: string[], chainId: number) {
@@ -96,6 +98,18 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
     const key = [blockNumber, JSON.stringify(transaction)].join()
     this.callPromiseCache[key] = this.callPromiseCache[key] ?? super.call(transaction, blockNumber)
     return this.callPromiseCache[key]
+  }
+  async getLogs(filter: Filter | FilterByBlockHash | Promise<Filter | FilterByBlockHash>): Promise<Log[]> {
+    const resolvedFilter = await filter
+    let key: string
+    if ((resolvedFilter as any)?.toBlock === 'latest') {
+      const { number: blockNumber } = await this.getBlock('latest')
+      key = [blockNumber, JSON.stringify(resolvedFilter)].join()
+    } else {
+      key = JSON.stringify(resolvedFilter)
+    }
+    this.logsPromiseCache[key] = this.logsPromiseCache[key] ?? super.getLogs(filter)
+    return this.logsPromiseCache[key]
   }
   async getBlock(_blockHashOrBlockTag: BlockTag | Promise<BlockTag>, skipLatestBlockCache?: boolean): Promise<Block> {
     const blockHashOrBlockTag = await _blockHashOrBlockTag

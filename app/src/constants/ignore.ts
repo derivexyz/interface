@@ -34,7 +34,7 @@ export const IGNORE_VAULTS_LIST: IgnoreVault[] = filterNulls([
   },
   isProd()
     ? {
-        marketName: 'WBTC-USDC',
+        marketName: 'ETH-USDC',
         chain: Chain.Arbitrum,
       }
     : null,
@@ -45,10 +45,4 @@ export const IGNORE_MARKETS_LIST: IgnoreMarket[] = filterNulls([
     marketName: 'sSOL-sUSD',
     chain: Chain.Optimism,
   },
-  isProd()
-    ? {
-        marketName: 'WBTC-USDC',
-        chain: Chain.Arbitrum,
-      }
-    : null,
 ])

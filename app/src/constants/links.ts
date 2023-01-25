@@ -38,7 +38,6 @@ export const KEEPER_BOT_DOC_URL =
 export const VAULT_REWARDS_DOC_URL = 'https://docs.lyra.finance/governance/incentives#vault-rewards-and-boosting'
 export const TRADING_REWARDS_DOC_URL = 'https://docs.lyra.finance/governance/incentives#trading-rewards-and-boosting'
 export const VAULTS_ABOUT_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/market-maker-vaults'
-export const SYNTH_COLLATERAL_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/synthetix'
 export const DYNAMIC_FEES_DOC_URL =
   'https://docs.lyra.finance/overview/how-does-lyra-work/options-pricing-and-the-amm#dynamic-fees'
 export const SHORT_COLLATERAL_REWARDS_DOC_URL =

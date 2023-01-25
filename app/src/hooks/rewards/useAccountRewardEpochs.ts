@@ -1,9 +1,11 @@
 import { AccountRewardEpoch, Network } from '@lyrafinance/lyra-js'
 
+import { FetchId } from '@/app/constants/fetch'
+
 import getLyraSDK from '../../utils/getLyraSDK'
+import useNetwork from '../account/useNetwork'
+import useWalletAccount from '../account/useWalletAccount'
 import useFetch from '../data/useFetch'
-import useNetwork from '../wallet/useNetwork'
-import useWalletAccount from '../wallet/useWalletAccount'
 
 const EMPTY: AccountRewardEpoch[] = []
 
@@ -18,6 +20,6 @@ export const fetchAccountRewardEpochs = async (address: string, network?: Networ
 export default function useAccountRewardEpochs(): AccountRewardEpoch[] {
   const account = useWalletAccount()
   const network = useNetwork()
-  const [data] = useFetch('AccountRewardEpochs', account ? [account, network] : null, fetchAccountRewardEpochs)
+  const [data] = useFetch(FetchId.AccountRewardEpochs, account ? [account, network] : null, fetchAccountRewardEpochs)
   return data ?? EMPTY
 }

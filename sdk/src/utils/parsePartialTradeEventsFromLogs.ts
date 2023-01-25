@@ -5,8 +5,6 @@ import { Version } from '..'
 import { ZERO_ADDRESS } from '../constants/bn'
 import { EventName, LyraMarketContractId } from '../constants/contracts'
 import { PartialTradeEvent } from '../constants/events'
-import { OptionMarket } from '../contracts/newport/typechain'
-import { TradeEvent } from '../contracts/newport/typechain/OptionMarket'
 import filterNulls from './filterNulls'
 import { getMarketContractABI } from './getLyraMarketContract'
 
@@ -16,19 +14,19 @@ export default function parsePartialTradeEventsFromLogs(logs: Log[]): PartialTra
     ZERO_ADDRESS,
     // Hard-coded Version as these ABI events are functionally the same
     getMarketContractABI(Version.Newport, LyraMarketContractId.OptionMarket)
-  ) as OptionMarket
+  )
   const events = filterNulls(
     logs.map(log => {
       try {
         const event = optionMarket.interface.parseLog(log)
         // Skip any Trade events with empty tradeResults (collateral adjustments)
-        if (event.name === EventName.Trade && (event.args as TradeEvent['args']).tradeResults.length > 0) {
+        if (event.name === EventName.Trade && (event.args as PartialTradeEvent['args']).tradeResults.length > 0) {
           return {
             address: log.address,
             blockNumber: log.blockNumber,
             transactionHash: log.transactionHash,
             logIndex: log.logIndex,
-            args: event.args as TradeEvent['args'],
+            args: event.args as PartialTradeEvent['args'],
           }
         }
         return null

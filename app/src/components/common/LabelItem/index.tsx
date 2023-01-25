@@ -1,6 +1,7 @@
 import Box from '@lyra/ui/components/Box'
 import Flex from '@lyra/ui/components/Flex'
 import Text, { TextColor, TextVariant } from '@lyra/ui/components/Text'
+import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import React from 'react'
 
 type Props = {
@@ -9,7 +10,8 @@ type Props = {
   valueColor?: TextColor
   valueTextVariant?: TextVariant
   noPadding?: boolean
-}
+} & MarginProps &
+  LayoutProps
 
 export default function LabelItem({
   label,

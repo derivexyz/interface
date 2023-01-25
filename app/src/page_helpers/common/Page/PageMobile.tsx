@@ -41,7 +41,7 @@ export default function PageMobile({
   const navigate = useNavigate()
 
   const pageContent = (
-    <Box pb={MOBILE_FOOTER_HEIGHT}>
+    <Box flexGrow={1} pb={MOBILE_FOOTER_HEIGHT}>
       {showBackButton || !!header ? (
         <Card>
           <CardSection px={6} pt={12} noPadding>

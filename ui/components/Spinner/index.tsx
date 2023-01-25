@@ -20,7 +20,7 @@ export const getSpinnerWidth = (size: SpinnerSize): ResponsiveValue => {
       return 18
     case 'md':
     case 'medium':
-      return 42
+      return 36
     case 'lg':
     case 'large':
       return 64

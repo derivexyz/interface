@@ -1,19 +1,16 @@
-import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
+import { IconType } from '@lyra/ui/components/Icon'
+import { createToast } from '@lyra/ui/components/Toast'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
-import { Market, MarketTradeOptions, Trade, TradeDisabledReason } from '@lyrafinance/lyra-js'
+import { Market, Trade, TradeDisabledReason } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 
 import { MAX_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
-import withSuspense from '@/app/hooks/data/withSuspense'
+import useTransaction from '@/app/hooks/account/useTransaction'
 import useAccount from '@/app/hooks/market/useAccount'
-import { useMutateBalances } from '@/app/hooks/market/useBalances'
-import useMarketBalances from '@/app/hooks/market/useMarketBalances'
-import { useMutateOpenPositions } from '@/app/hooks/position/useOpenPositions'
-import { useMutatePosition } from '@/app/hooks/position/usePosition'
-import useTransaction from '@/app/hooks/transaction/useTransaction'
-import filterNulls from '@/app/utils/filterNulls'
+import useMutateTrade from '@/app/hooks/mutations/useMutateTrade'
+import useMutateTradeApprove from '@/app/hooks/mutations/useMutateTradeApprove'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import getTradeLogData from '@/app/utils/getTradeLogData'
 import logEvent from '@/app/utils/logEvent'
@@ -40,6 +37,8 @@ const getTradeDisabledMessage = (disabledReason: TradeDisabledReason): string =>
       return 'Delta out of range'
     case TradeDisabledReason.InsufficientLiquidity:
       return 'Insufficient liquidity'
+    case TradeDisabledReason.UnableToHedgeDelta:
+      return 'Unable to hedge delta'
     case TradeDisabledReason.Expired:
       return 'Strike has expired'
     case TradeDisabledReason.TradingCutoff:
@@ -67,8 +66,10 @@ const getTradeDisabledMessage = (disabledReason: TradeDisabledReason): string =>
     case TradeDisabledReason.InsufficientBaseBalance:
     case TradeDisabledReason.InsufficientQuoteBalance:
       return 'Insufficient Balance'
+    case TradeDisabledReason.PriceVarianceTooHigh:
+      return 'Price variance too high'
     case TradeDisabledReason.Unknown:
-      return 'Unavailable'
+      return 'Something went wrong'
   }
 }
 
@@ -90,157 +91,135 @@ const getTradeButtonLabel = (trade: Trade): string => {
   }
 }
 
-const TradeFormButton = withSuspense(
-  ({ onTrade, trade, ...styleProps }: Props) => {
-    const option = trade.option()
-    const position = trade.position()
-    const market = option.market()
-    const network = trade.lyra.network
-    const mutateOpenPositions = useMutateOpenPositions()
-    const balances = useMarketBalances(trade.market())
-    const account = useAccount(network)
-    const mutateAccount = useMutateBalances(network)
-    const mutatePosition = useMutatePosition(market.lyra)
-    const quoteToken = balances.quoteAsset
+const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
+  const option = trade.option()
+  const position = trade.position()
+  const market = option.market()
 
-    const execute = useTransaction(network)
+  const account = useAccount(trade.lyra.network)
 
-    const handleClickApproveQuote = useCallback(async () => {
-      logEvent(LogEvent.TradeApproveSubmit, { isBase: false })
-      if (!account || !quoteToken) {
-        console.warn('Account or quote token does not exist')
-        return null
+  const mutateTrade = useMutateTrade(trade)
+  const mutateTradeApprove = useMutateTradeApprove(trade)
+
+  const execute = useTransaction(trade.lyra.network)
+
+  const handleClickApproveQuote = useCallback(async () => {
+    if (!account) {
+      console.warn('Missing account')
+      return
+    }
+    logEvent(LogEvent.TradeApproveSubmit, { isBase: false })
+    const tx = await trade.approveQuote(account.address, MAX_BN)
+    await execute(tx, {
+      onComplete: async () => {
+        await mutateTradeApprove()
+        logEvent(LogEvent.TradeApproveSuccess, {
+          isBase: false,
+        })
+      },
+      onError: () => logEvent(LogEvent.TradeApproveError, { isBase: false }),
+    })
+  }, [account, trade, execute, mutateTradeApprove])
+
+  const handleClickApproveBase = useCallback(async () => {
+    if (!account) {
+      console.warn('Missing account')
+      return null
+    }
+    logEvent(LogEvent.TradeApproveSubmit, { isBase: true })
+    const tx = await trade.approveBase(account.address, MAX_BN)
+    await execute(tx, {
+      onComplete: async () => {
+        await mutateTradeApprove()
+        logEvent(LogEvent.TradeApproveSuccess, { isBase: true })
+      },
+      onError: () => logEvent(LogEvent.TradeApproveError, { isBase: true }),
+    })
+  }, [account, trade, execute, mutateTradeApprove])
+
+  const handleClickTrade = useCallback(async () => {
+    if (!account) {
+      console.warn('Account or market does not exist')
+      return
+    }
+
+    const proposedTrade = await await market.trade(
+      account.address,
+      trade.option().strike().id,
+      trade.option().isCall,
+      trade.isBuy,
+      trade.size,
+      trade.slippage,
+      {
+        setToCollateral: trade.collateral?.amount,
+        isBaseCollateral: trade.collateral?.isBase,
+        positionId: position?.id,
       }
-      const tx = await trade.approveQuote(account.address, MAX_BN)
-      await execute(tx, {
-        onComplete: () => {
-          mutateAccount()
-          logEvent(LogEvent.TradeApproveSuccess, {
-            isBase: false,
-          })
-        },
-        onError: () => logEvent(LogEvent.TradeApproveError, { isBase: false }),
-      })
-    }, [account, quoteToken, trade, execute, mutateAccount])
-
-    const handleClickApproveBase = useCallback(async () => {
-      logEvent(LogEvent.TradeApproveSubmit, { isBase: true })
-      if (!account || !market) {
-        console.warn('Account or market does not exist')
-        return null
-      }
-      const tx = await trade.approveBase(account.address, MAX_BN)
-      await execute(tx, {
-        onComplete: () => {
-          mutateAccount()
-          logEvent(LogEvent.TradeApproveSuccess, { isBase: true })
-        },
-        onError: () => logEvent(LogEvent.TradeApproveError, { isBase: true }),
-      })
-    }, [account, market, trade, execute, mutateAccount])
-
-    const handleClickTrade = useCallback(async () => {
-      if (!trade || !account) {
-        console.warn('Account or market does not exist')
-        return
-      }
-
-      logEvent(LogEvent.TradeSubmit, getTradeLogData(trade))
-
-      const resolveTx = async () => {
-        const options: MarketTradeOptions = {
-          setToCollateral: trade.collateral?.amount,
-          isBaseCollateral: trade.collateral?.isBase,
-        }
-        const { tx, disabledReason } = !position
-          ? await market.trade(
-              account.address,
-              trade.option().strike().id,
-              trade.option().isCall,
-              trade.isBuy,
-              trade.size,
-              trade.slippage,
-              options
-            )
-          : await position.trade(trade.isBuy, trade.size, trade.slippage, options)
-
-        if (!tx) {
-          throw new Error(disabledReason ? getTradeDisabledMessage(disabledReason) : 'Something went wrong')
-        }
-        return tx
-      }
-      const receipt = await execute(resolveTx(), {
-        onComplete: async receipt => {
-          const mutatePromise = Promise.all(
-            filterNulls([
-              mutateOpenPositions(),
-              position ? mutatePosition(market.name, position.id) : null,
-              position ? mutatePosition(market.address, position.id) : null,
-              mutateAccount(),
-            ])
-          )
-          const [events] = await Promise.all([getLyraSDK(network).events(receipt), mutatePromise])
-          const { trades, collateralUpdates } = events
-          trades.forEach(trade => logEvent(LogEvent.TradeSuccess, getTradeLogData(trade)))
-          collateralUpdates
-            .filter(update => update.isAdjustment)
-            .forEach(update => logEvent(LogEvent.TradeCollateralUpdateSuccess, getTradeLogData(update)))
-        },
-        onError: error => {
-          // For debugging
-          console.error(error)
-          logEvent(LogEvent.TradeError, { ...getTradeLogData(trade), error: error?.message })
-        },
-      })
-      if (onTrade && receipt) {
-        const [positionId] = Trade.getPositionIdsForLogs(receipt.logs)
-        if (positionId) {
-          onTrade(market, positionId)
-        }
-      }
-    }, [
-      trade,
-      network,
-      account,
-      execute,
-      onTrade,
-      position,
-      market,
-      mutateOpenPositions,
-      mutateAccount,
-      mutatePosition,
-    ])
-
-    const transactionType = trade.isCollateralUpdate
-      ? TransactionType.TradeCollateralUpdate
-      : trade.isOpen
-      ? TransactionType.TradeOpenPosition
-      : TransactionType.TradeClosePosition
-
-    return (
-      <TransactionButton
-        requireAllowance={
-          trade.disabledReason === TradeDisabledReason.InsufficientQuoteAllowance
-            ? {
-                ...trade.quoteToken,
-                onClick: handleClickApproveQuote,
-              }
-            : trade.disabledReason === TradeDisabledReason.InsufficientBaseAllowance
-            ? {
-                ...trade.baseToken,
-                onClick: handleClickApproveBase,
-              }
-            : undefined
-        }
-        network={trade.lyra.network}
-        transactionType={transactionType}
-        onClick={handleClickTrade}
-        isDisabled={trade.isDisabled}
-        label={getTradeButtonLabel(trade)}
-        {...styleProps}
-      />
     )
-  },
-  ({ trade, onTrade, ...styleProps }) => <ButtonShimmer size="lg" width="100%" {...styleProps} />
-)
+
+    logEvent(LogEvent.TradeSubmit, getTradeLogData(trade))
+
+    if (proposedTrade.disabledReason) {
+      createToast({
+        variant: 'error',
+        description: `Trade Failed: ${getTradeDisabledMessage(TradeDisabledReason.Unknown)}`,
+        icon: IconType.AlertTriangle,
+      })
+      return
+    }
+
+    const receipt = await execute(proposedTrade.tx, {
+      onComplete: async receipt => {
+        const [events] = await Promise.all([getLyraSDK(trade.lyra.network).events(receipt), mutateTrade()])
+        const { trades, collateralUpdates } = events
+        trades.forEach(trade => logEvent(LogEvent.TradeSuccess, getTradeLogData(trade)))
+        collateralUpdates
+          .filter(update => update.isAdjustment)
+          .forEach(update => logEvent(LogEvent.TradeCollateralUpdateSuccess, getTradeLogData(update)))
+      },
+      onError: error => {
+        // For debugging
+        console.error(error)
+        logEvent(LogEvent.TradeError, { ...getTradeLogData(trade), error: error?.message })
+      },
+    })
+    if (onTrade && receipt) {
+      const [positionId] = Trade.getPositionIdsForLogs(receipt.logs)
+      if (positionId) {
+        onTrade(market, positionId)
+      }
+    }
+  }, [trade, account, execute, onTrade, position, market, mutateTrade])
+
+  const transactionType = trade.isCollateralUpdate
+    ? TransactionType.TradeCollateralUpdate
+    : trade.isOpen
+    ? TransactionType.TradeOpenPosition
+    : TransactionType.TradeClosePosition
+
+  return (
+    <TransactionButton
+      requireAllowance={
+        trade.disabledReason === TradeDisabledReason.InsufficientQuoteAllowance
+          ? {
+              ...trade.quoteToken,
+              onClick: handleClickApproveQuote,
+            }
+          : trade.disabledReason === TradeDisabledReason.InsufficientBaseAllowance
+          ? {
+              ...trade.baseToken,
+              onClick: handleClickApproveBase,
+            }
+          : undefined
+      }
+      network={trade.lyra.network}
+      transactionType={transactionType}
+      onClick={handleClickTrade}
+      isDisabled={trade.isDisabled}
+      label={getTradeButtonLabel(trade)}
+      {...styleProps}
+    />
+  )
+}
+
 export default TradeFormButton

@@ -28,4 +28,5 @@ export enum TransactionType {
   UnstakeLyra = 'UnstakeLyra',
   StakeWethLyra = 'StakeWethLyra',
   UnstakeWethLyra = 'UnstakeWethLyra',
+  Admin = 'Admin',
 }

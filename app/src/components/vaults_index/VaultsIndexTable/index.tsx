@@ -10,15 +10,15 @@ import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Market } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { IGNORE_VAULTS_LIST } from '@/app/constants/ignore'
 import { PageId } from '@/app/constants/pages'
+import { Vault } from '@/app/constants/vault'
 import VaultsDepositFormModal from '@/app/containers/vaults/VaultsDepositFormModal'
-import { VaultTableRowData } from '@/app/hooks/vaults/useVaultsTableData'
 import filterNulls from '@/app/utils/filterNulls'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
@@ -27,12 +27,12 @@ import VaultsBoostFormModal from '../../../containers/vaults/VaultsBoostFormModa
 import MarketImage from '../../common/MarketImage'
 
 export type VaultsIndexTableProps = {
-  vaultData: VaultTableRowData[]
+  vaults: Vault[]
 } & MarginProps &
   LayoutProps
 
 type VaultsIndexTableData = TableData<{
-  vaultData: VaultTableRowData
+  vault: Vault
   vaultName: string
   balance: number
   tvl: number
@@ -42,50 +42,40 @@ type VaultsIndexTableData = TableData<{
   onClick?: () => void
 }>
 
-const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): TableElement<VaultsIndexTableData> => {
+const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): TableElement<VaultsIndexTableData> => {
   const navigate = useNavigate()
-  const [depositModalMarket, setDepositModalMarket] = useState<Market | null>(null)
-  const [boostModalMarket, setBoostModalMarket] = useState<Market | null>(null)
+  const [depositModalVault, setDepositModalVault] = useState<Vault | null>(null)
+  const [boostModalVault, setBoostModalVault] = useState<Vault | null>(null)
   const onModalClose = useCallback(() => {
-    setDepositModalMarket(null)
-    setBoostModalMarket(null)
+    setDepositModalVault(null)
+    setBoostModalVault(null)
   }, [])
 
-  const pendingDeposits = useMemo(() => vaultData.flatMap(s => s.pendingDeposits), [vaultData])
-  const pendingWithdrawals = useMemo(() => vaultData.flatMap(s => s.pendingWithdrawals), [vaultData])
-  const balance = useMemo(
-    () => vaultData.reduce((sum, s) => sum + fromBigNumber(s.liquidityToken.balance), 0),
-    [vaultData]
-  )
+  const pendingDeposits = useMemo(() => vaults.flatMap(s => s.pendingDeposits), [vaults])
+  const pendingWithdrawals = useMemo(() => vaults.flatMap(s => s.pendingWithdrawals), [vaults])
+  const balance = useMemo(() => vaults.reduce((sum, s) => sum + fromBigNumber(s.liquidityToken.balance), 0), [vaults])
 
   const rows: VaultsIndexTableData[] = useMemo(() => {
-    return vaultData
-      .filter(
-        vaultData =>
-          !IGNORE_VAULTS_LIST.find(
-            ({ marketName, chain }) => marketName === vaultData.market.name && chain === vaultData.market.lyra.chain
-          ) || vaultData.liquidityToken.balance.gt(0)
-      )
-      .map(vaultData => {
-        const { market, tvl, apy, liquidityTokenBalanceValue, pendingDeposits, pendingWithdrawals } = vaultData
-        return {
-          vaultData,
-          vaultName: market.baseToken.symbol,
-          balance: liquidityTokenBalanceValue,
-          tvl,
-          apy: apy.total,
-          depositing: pendingDeposits.reduce((sum, d) => sum + fromBigNumber(d.value), 0),
-          withdrawing: pendingWithdrawals.reduce((sum, d) => sum + fromBigNumber(d.balance), 0),
-          onClick: () => {
-            if (!depositModalMarket) {
-              navigate(
-                getPagePath({ page: PageId.Vaults, network: market.lyra.network, marketAddressOrName: market.name })
-              )
-            }
-          },
-        }
-      })
-  }, [navigate, vaultData, depositModalMarket])
+    return vaults.map(vault => {
+      const { market, tvl, apy, liquidityTokenBalanceValue, pendingDeposits, pendingWithdrawals } = vault
+      return {
+        vault,
+        vaultName: formatTokenName(market.baseToken),
+        balance: liquidityTokenBalanceValue,
+        tvl,
+        apy: apy.total,
+        depositing: pendingDeposits.reduce((sum, d) => sum + fromBigNumber(d.value), 0),
+        withdrawing: pendingWithdrawals.reduce((sum, d) => sum + fromBigNumber(d.balance), 0),
+        onClick: () => {
+          if (!depositModalVault) {
+            navigate(
+              getPagePath({ page: PageId.Vaults, network: market.lyra.network, marketAddressOrName: market.name })
+            )
+          }
+        },
+      }
+    })
+  }, [navigate, vaults, depositModalVault])
   const columns = useMemo<TableColumn<VaultsIndexTableData>[]>(
     () =>
       filterNulls([
@@ -94,13 +84,13 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
           Header: 'Vault',
           Cell: (props: TableCellProps<VaultsIndexTableData>) => {
             const {
-              vaultData: { market },
+              vault: { market },
             } = props.row.original
             return (
               <Flex alignItems="center">
                 <MarketImage market={market} />
                 <Box ml={2}>
-                  <Text variant="secondaryMedium">{props.cell.value}</Text>
+                  <Text variant="secondaryMedium">{props.cell.value} Vault</Text>
                   <Text variant="small" color="secondaryText">
                     {getNetworkDisplayName(market.lyra.network)}
                   </Text>
@@ -114,7 +104,7 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
           Header: 'Your Liquidity',
           Cell: (props: TableCellProps<VaultsIndexTableData>) => {
             const {
-              vaultData: { market },
+              vault: { market },
             } = props.row.original
             return (
               <Box>
@@ -135,7 +125,7 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
               Cell: (props: TableCellProps<VaultsIndexTableData>) => {
                 const {
                   depositing,
-                  vaultData: { market, pendingDeposits },
+                  vault: { market, pendingDeposits },
                 } = props.row.original
                 if (!depositing || !pendingDeposits.length) {
                   return (
@@ -163,7 +153,7 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
               Cell: (props: TableCellProps<VaultsIndexTableData>) => {
                 const {
                   withdrawing,
-                  vaultData: { market, pendingWithdrawals },
+                  vault: { market, pendingWithdrawals },
                 } = props.row.original
                 if (!withdrawing || !pendingWithdrawals.length) {
                   return (
@@ -195,38 +185,24 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
           accessor: 'apy',
           Header: 'Rewards APY',
           Cell: ({ cell }: TableCellProps<VaultsIndexTableData>) => {
-            const { vaultData } = cell.row.original
-            const { market } = vaultData
-            if (
-              IGNORE_VAULTS_LIST.find(
-                ({ marketName, chain }) => marketName === market.name && chain === market.lyra.chain
-              )
-            ) {
-              return (
-                <Text variant="secondary" color="secondaryText">
-                  -
-                </Text>
-              )
-            }
+            const { vault } = cell.row.original
             return (
               <Box>
                 <Flex alignItems="center">
                   <Text
                     variant="secondary"
-                    color={
-                      vaultData.apy.total > 0 && vaultData.apy.total > vaultData.minApy.total ? 'primaryText' : 'text'
-                    }
+                    color={vault.apy.total > 0 && vault.apy.total > vault.minApy.total ? 'primaryText' : 'text'}
                   >
                     {formatPercentage(cell.row.original.apy, true)}
                   </Text>
                 </Flex>
-                {vaultData.apy.total > 0 ? (
+                {vault.apy.total > 0 ? (
                   <Text variant="small" color="secondaryText">
-                    {formatPercentage(vaultData.minApy.total, true)}
+                    {formatPercentage(vault.minApy.total, true)}
                     {' - '}
-                    {formatPercentage(vaultData.maxApy.total, true)}
-                    {vaultData.minApy.op ? ' OP' : ''}
-                    {vaultData.minApy.lyra ? ', stkLYRA' : ''}
+                    {formatPercentage(vault.maxApy.total, true)}
+                    {vault.minApy.op ? ' OP' : ''}
+                    {vault.minApy.lyra ? ', stkLYRA' : ''}
                   </Text>
                 ) : null}
               </Box>
@@ -237,9 +213,8 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
           id: 'deposit',
           width: 110,
           Cell: (props: TableCellProps<VaultsIndexTableData>) => {
-            const {
-              vaultData: { market },
-            } = props.cell.row.original
+            const { vault } = props.cell.row.original
+            const { market } = vault
             return (
               <>
                 <Button
@@ -251,7 +226,7 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
                     )
                   }
                   onClick={e => {
-                    setDepositModalMarket(market)
+                    setDepositModalVault(vault)
                     e.stopPropagation()
                     e.preventDefault()
                   }}
@@ -266,9 +241,9 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
               id: 'boost',
               width: 105,
               Cell: (props: TableCellProps<VaultsIndexTableData>) => {
-                const {
-                  vaultData: { market, apy, maxApy },
-                } = props.cell.row.original
+                const { vault } = props.cell.row.original
+
+                const { market, apy, maxApy } = vault
 
                 // Check for max boost with 1% buffer
                 const isMaxBoost = maxApy.total > 0 && apy.total * 1.01 > maxApy.total
@@ -279,14 +254,14 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
                       rightIcon={isMaxBoost ? IconType.Check : null}
                       variant="primary"
                       isDisabled={
+                        isMaxBoost ||
+                        maxApy.total === 0 ||
                         !!IGNORE_VAULTS_LIST.find(
                           ({ marketName, chain }) => marketName === market.name && chain === market.lyra.chain
-                        ) ||
-                        isMaxBoost ||
-                        maxApy.total === 0
+                        )
                       }
                       onClick={e => {
-                        setBoostModalMarket(market)
+                        setBoostModalVault(vault)
                         e.stopPropagation()
                         e.preventDefault()
                       }}
@@ -303,11 +278,11 @@ const VaultsIndexTable = ({ vaultData, ...styleProps }: VaultsIndexTableProps): 
   return (
     <>
       <Table width="100%" data={rows} columns={columns} {...styleProps} />
-      {boostModalMarket ? (
-        <VaultsBoostFormModal isOpen={!!boostModalMarket} onClose={onModalClose} market={boostModalMarket} />
+      {boostModalVault ? (
+        <VaultsBoostFormModal isOpen={!!boostModalVault} onClose={onModalClose} vault={boostModalVault} />
       ) : null}
-      {depositModalMarket ? (
-        <VaultsDepositFormModal isOpen={!!depositModalMarket} onClose={onModalClose} market={depositModalMarket} />
+      {depositModalVault ? (
+        <VaultsDepositFormModal isOpen={!!depositModalVault} onClose={onModalClose} vault={depositModalVault} />
       ) : null}
     </>
   )

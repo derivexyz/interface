@@ -8,12 +8,13 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Position } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
+import PositionStatusText from '@/app/components/common/PositionStatusText'
 import { ZERO_BN } from '@/app/constants/bn'
 import filterNulls from '@/app/utils/filterNulls'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import PositionItem from '../PositionItem'
-import PositionStatusToken from '../PositionStatusToken'
 
 type Props = {
   positions: Position[]
@@ -92,23 +93,21 @@ const PositionHistoryTable = ({ positions, onClick, pageSize, ...styleProps }: P
       {
         accessor: 'id',
         Header: 'Status',
-        width: 150,
         Cell: (props: TableCellProps<PositionTableData>) => {
           const { position } = props.row.original
-          return <PositionStatusToken position={position} />
+          return <PositionStatusText position={position} />
         },
       },
       {
         accessor: 'openPrice',
         Header: 'Open Price',
-        width: 150,
         Cell: (props: TableCellProps<PositionTableData>) => {
           const { position, openSpotPrice } = props.row.original
           return (
             <Box>
               <Text variant="secondary">{formatUSD(props.cell.value)}</Text>
               <Text variant="small" color="secondaryText">
-                {formatUSD(openSpotPrice)} / {position.market().baseToken.symbol}
+                {formatUSD(openSpotPrice)} / {formatTokenName(position.market().baseToken)}
               </Text>
             </Box>
           )
@@ -117,14 +116,13 @@ const PositionHistoryTable = ({ positions, onClick, pageSize, ...styleProps }: P
       {
         accessor: 'closePrice',
         Header: 'Close Price',
-        width: 150,
         Cell: (props: TableCellProps<PositionTableData>) => {
           const { position, closeSpotPrice } = props.row.original
           return (
             <Box>
               <Text variant="secondary">{position.isSettled ? '-' : formatUSD(props.cell.value)}</Text>
               <Text variant="small" color="secondaryText">
-                {formatUSD(closeSpotPrice)} / {position.market().baseToken.symbol}
+                {formatUSD(closeSpotPrice)} / {formatTokenName(position.market().baseToken)}
               </Text>
             </Box>
           )
@@ -133,7 +131,6 @@ const PositionHistoryTable = ({ positions, onClick, pageSize, ...styleProps }: P
       {
         accessor: 'pnl',
         Header: 'Profit / Loss',
-        width: 150,
         Cell: (props: TableCellProps<PositionTableData>) => {
           const { pnlPercentage } = props.row.original
           return (

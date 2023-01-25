@@ -9,13 +9,13 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Option, Position } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
+import PositionStatusText from '@/app/components/common/PositionStatusText'
 import { UNIT, ZERO_BN } from '@/app/constants/bn'
 import ShortYieldValue from '@/app/containers/common/ShortYieldValue'
 import TradeFormModal from '@/app/containers/trade/TradeFormModal'
-import useWallet from '@/app/hooks/wallet/useWallet'
+import useWallet from '@/app/hooks/account/useWallet'
 
 import LabelItem from '../../common/LabelItem'
-import PositionStatusToken from '../../common/PositionStatusToken'
 
 type Props = {
   position: Position
@@ -47,7 +47,7 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
           sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr 1fr'], gap: [3, 6], gridRowGap: [6, 8] }}
         >
           {/* First row */}
-          {!position.isOpen ? <LabelItem label="Status" value={<PositionStatusToken position={position} />} /> : null}
+          {!position.isOpen ? <LabelItem label="Status" value={<PositionStatusText position={position} />} /> : null}
           <LabelItem
             label="Contracts"
             valueColor={position.isLong ? 'primaryText' : 'errorText'}
@@ -76,46 +76,37 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
             />
           ) : null}
         </Grid>
-        <Grid mt={8} sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr 1fr'], gap: [3, 6] }}>
-          {isOwner ? (
-            position.isOpen ? (
-              <>
-                <Button
-                  variant="primary"
-                  isOutline
-                  size="lg"
-                  label="Open Position"
-                  onClick={() => {
-                    setIsBuy(position.isLong)
-                    setIsOpen(true)
-                  }}
-                />
-                <Button
-                  variant="error"
-                  isOutline
-                  size="lg"
-                  label="Close Position"
-                  onClick={() => {
-                    setIsBuy(!position.isLong)
-                    setIsOpen(true)
-                  }}
-                />
-              </>
-            ) : (
-              <Button size="lg" isDisabled label="Position Closed" />
-            )
-          ) : (
-            <Button size="lg" isDisabled label="Not Owner" />
-          )}
-        </Grid>
+        {isOwner && position.isOpen ? (
+          <Grid mt={8} sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr 1fr'], gap: [3, 6] }}>
+            <Button
+              variant="primary"
+              isOutline
+              size="lg"
+              label="Open Position"
+              onClick={() => {
+                setIsBuy(position.isLong)
+                setIsOpen(true)
+              }}
+            />
+            <Button
+              variant="error"
+              isOutline
+              size="lg"
+              label="Close Position"
+              onClick={() => {
+                setIsBuy(!position.isLong)
+                setIsOpen(true)
+              }}
+            />
+          </Grid>
+        ) : null}
       </CardBody>
-
       <TradeFormModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         onTrade={() => setIsOpen(false)}
         isBuy={isBuy}
-        positionId={position?.id}
+        position={position}
         option={option}
       />
     </Card>

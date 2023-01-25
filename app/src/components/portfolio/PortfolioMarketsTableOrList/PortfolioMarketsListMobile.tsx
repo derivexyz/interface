@@ -12,10 +12,10 @@ import getPagePath from '@/app/utils/getPagePath'
 import MarketLabel from '../../common/MarketLabel'
 import { PortfolioMarketsTableOrListProps } from '.'
 
-const PortfolioMarketsListMobile = ({ markets }: PortfolioMarketsTableOrListProps) => {
+const PortfolioMarketsListMobile = ({ marketData }: PortfolioMarketsTableOrListProps) => {
   return (
     <List>
-      {markets.map(({ market, spotPrice, spotPrice24HChange }) => (
+      {marketData.map(({ market, spotPrice, spotPrice24HChange }) => (
         <ListItem
           href={getPagePath({
             page: PageId.Trade,

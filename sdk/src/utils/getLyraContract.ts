@@ -4,16 +4,16 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import Lyra, { Chain, Version } from '..'
 import { LyraContractId } from '../constants/contracts'
 import { LyraContractMap } from '../constants/mappings'
-import AVALON_LYRA_REGISTRY_ABI from '../contracts/avalon/abis/LyraRegistry.json'
-import AVALON_OPTION_MARKET_VIEWER_ABI from '../contracts/avalon/abis/OptionMarketViewer.json'
-import AVALON_SYNTHETIX_ADAPTER_ABI from '../contracts/avalon/abis/SynthetixAdapter.json'
-import AVALON_TEST_FAUCET_ABI from '../contracts/avalon/abis/TestFaucet.json'
+import AVALON_LYRA_REGISTRY_ABI from '../contracts/avalon/abis/AvalonLyraRegistry.json'
+import AVALON_OPTION_MARKET_VIEWER_ABI from '../contracts/avalon/abis/AvalonOptionMarketViewer.json'
+import AVALON_SYNTHETIX_ADAPTER_ABI from '../contracts/avalon/abis/AvalonSynthetixAdapter.json'
+import AVALON_TEST_FAUCET_ABI from '../contracts/avalon/abis/AvalonTestFaucet.json'
 import AVALON_MAINNET_ADDRESS_MAP from '../contracts/avalon/addresses/mainnet.addresses.json'
 import AVALON_TESTNET_ADDRESS_MAP from '../contracts/avalon/addresses/testnet.addresses.json'
-import NEWPORT_EXCHANGE_ADAPTER_ABI from '../contracts/newport/abis/ExchangeAdapter.json'
-import NEWPORT_LYRA_REGISTRY_ABI from '../contracts/newport/abis/LyraRegistry.json'
-import NEWPORT_OPTION_MARKET_VIEWER_ABI from '../contracts/newport/abis/OptionMarketViewer.json'
-import NEWPORT_TEST_FAUCET_ABI from '../contracts/newport/abis/TestFaucet.json'
+import NEWPORT_GMX_ADAPTER_ABI from '../contracts/newport/abis/NewportGMXAdapter.json'
+import NEWPORT_LYRA_REGISTRY_ABI from '../contracts/newport/abis/NewportLyraRegistry.json'
+import NEWPORT_OPTION_MARKET_VIEWER_ABI from '../contracts/newport/abis/NewportOptionMarketViewer.json'
+import NEWPORT_TEST_FAUCET_ABI from '../contracts/newport/abis/NewportTestFaucet.json'
 import NEWPORT_ARBITRUM_MAINNET_ADDRESS_MAP from '../contracts/newport/addresses/arbitrum.addresses.json'
 import NEWPORT_ARBITRUM_TESTNET_ADDRESS_MAP from '../contracts/newport/addresses/arbitrum-goerli.addresses.json'
 
@@ -82,7 +82,7 @@ export const getLyraContractABI = (version: Version, contractId: LyraContractId)
         case Version.Avalon:
           return AVALON_SYNTHETIX_ADAPTER_ABI
         case Version.Newport:
-          return NEWPORT_EXCHANGE_ADAPTER_ABI
+          return NEWPORT_GMX_ADAPTER_ABI
       }
       break
 

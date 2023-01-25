@@ -4,7 +4,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import Lyra from '..'
 import {
   MIN_START_TIMESTAMP,
-  SNAPSHOT_RESULT_LIMIT,
   SnapshotPeriod,
   SPOT_PRICE_SNAPSHOT_FRAGMENT,
   SpotPriceSnapshotQueryResult,
@@ -14,11 +13,13 @@ import { Market, MarketSpotCandle } from '../market'
 import getSnapshotPeriod from './getSnapshotPeriod'
 import subgraphRequestWithLoop from './subgraphRequestWithLoop'
 
+const SPOT_PRICE_SNAPSHOT_LIMIT = 10000
+
 const spotPriceSnapshotsQuery = gql`
   query spotPriceSnapshots(
-    $market: String!, $min: Int!, $max: Int! $period: Int!
+    $market: String!, $min: Int!, $max: Int!, $period: Int!, $limit: Int!
   ) {
-    spotPriceSnapshots(first: ${SNAPSHOT_RESULT_LIMIT}, orderBy: timestamp, orderDirection: asc, where: { 
+    spotPriceSnapshots(first: $limit, orderBy: timestamp, orderDirection: asc, where: { 
       market: $market, 
       timestamp_gte: $min, 
       timestamp_lte: $max,
@@ -48,15 +49,21 @@ export default async function fetchSpotPriceHistory(
     ])
 
   const estNumCandles = candleDuration > 0 ? (endTimestamp - startTimestamp) / candleDuration : 0
-  const numBatches = Math.ceil(estNumCandles / SNAPSHOT_RESULT_LIMIT)
+  const numBatches = Math.ceil(estNumCandles / SPOT_PRICE_SNAPSHOT_LIMIT)
 
   const data = await subgraphRequestWithLoop<SpotPriceSnapshotQueryResult>(
     lyra,
     spotPriceSnapshotsQuery,
-    { min: startTimestamp, max: endTimestamp, period: candleDuration, market: market.address.toLowerCase() },
+    {
+      min: startTimestamp,
+      max: endTimestamp,
+      limit: SPOT_PRICE_SNAPSHOT_LIMIT,
+      period: candleDuration,
+      market: market.address.toLowerCase(),
+    },
     'timestamp',
     {
-      increment: SNAPSHOT_RESULT_LIMIT * candleDuration,
+      increment: SPOT_PRICE_SNAPSHOT_LIMIT * candleDuration,
       batch: numBatches,
     }
   )

@@ -14,6 +14,7 @@ type Props = {
   isUSDFormat?: boolean
   isPercentFormat?: boolean
   symbol?: string
+  prefix?: string
 } & TextProps
 
 const AmountUpdateText = ({
@@ -24,6 +25,7 @@ const AmountUpdateText = ({
   isUSDFormat,
   isPercentFormat,
   color,
+  prefix,
   ...textProps
 }: Props): TextElement => {
   const prevAmount = BigNumber.isBigNumber(prevAmountBNOrNum)
@@ -42,6 +44,7 @@ const AmountUpdateText = ({
     formattedPrevAmount = formatPercentage(prevAmount, true)
     formattedNewAmount = formatPercentage(newAmount, true)
   }
+  const prefixWithSpace = prefix ? `${prefix} ` : prefix
   return (
     <Text color={color} {...textProps}>
       <Text
@@ -50,11 +53,13 @@ const AmountUpdateText = ({
           textDecoration: prevAmount > 0 && prevAmount !== newAmount ? 'line-through' : 'auto',
         }}
       >
+        {prefixWithSpace}
         {formattedPrevAmount}
       </Text>
       {newAmount > 0 && prevAmount !== newAmount ? (
         <Text as="span">
           &nbsp;→&nbsp;
+          {prefixWithSpace}
           {formattedNewAmount}
         </Text>
       ) : null}

@@ -104,12 +104,12 @@ function LineChart<T extends DataPoint>({
   const strokeColor = useThemeColor(getStrokeColor(lineColor))
   const gradientStrokeColor = useGradientLineColor ? getGradientStrokeColor(lineColor) : 'primary'
   const handleMouseMove = useCallback(
-    ({ activePayload }: CategoricalChartState) => {
-      if (!activePayload || activePayload.length === 0) {
+    (state: CategoricalChartState) => {
+      if (!state || !state.activePayload || state.activePayload.length === 0) {
         return null
       }
-      if (onHover && activePayload[0].payload) {
-        onHover(activePayload[0].payload)
+      if (onHover && state.activePayload[0].payload) {
+        onHover(state.activePayload[0].payload)
       }
     },
     [onHover]
@@ -156,14 +156,14 @@ function LineChart<T extends DataPoint>({
           <stop offset="45%" stopColor="#E8488A" />
         </linearGradient>
       </defs>
-      {renderTooltip && !compact ? (
+      {!compact ? (
         <Tooltip
           cursor={{ visibility: 'default', stroke: axisStroke }}
           allowEscapeViewBox={{ x: true, y: true }}
           isAnimationActive={false}
           offset={0}
           content={prop => {
-            if (prop.payload && prop.payload.length) {
+            if (renderTooltip && prop.payload && prop.payload.length) {
               const tooltip = renderTooltip(prop.payload[0].payload)
               return typeof tooltip === 'string' ? (
                 <Text variant="small" color="secondaryText" ml="-50%">

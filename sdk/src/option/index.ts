@@ -5,9 +5,7 @@ import { Board } from '../board'
 import { ZERO_BN } from '../constants/bn'
 import { DataSource } from '../constants/contracts'
 import { SnapshotOptions } from '../constants/snapshots'
-import { OptionMarketViewer as OptionMarketViewerAvalon } from '../contracts/avalon/typechain'
-import { OptionMarketViewer } from '../contracts/newport/typechain'
-import Lyra, { Version } from '../lyra'
+import Lyra from '../lyra'
 import { Market } from '../market'
 import { Quote, QuoteOptions } from '../quote'
 import { Strike } from '../strike'
@@ -55,7 +53,7 @@ export class Option {
     this.__strike = strike
     this.block = block
     this.isCall = isCall
-    const fields = Option.getFields(lyra.version, strike, isCall)
+    const fields = Option.getFields(strike, isCall)
     this.price = fields.price
     this.longOpenInterest = fields.longOpenInterest
     this.shortOpenInterest = fields.shortOpenInterest
@@ -67,7 +65,6 @@ export class Option {
 
   // TODO: @dappbeast Remove getFields
   static getFields(
-    version: Version,
     strike: Strike,
     isCall: boolean
   ): {
@@ -79,11 +76,10 @@ export class Option {
     rho: BigNumber
     isInTheMoney: boolean
   } {
-    const strikeView = strike.__strikeData
-    const marketView = strike.market().__marketData
+    const market = strike.market()
 
     const timeToExpiryAnnualized = getTimeToExpiryAnnualized(strike.board())
-    const spotPrice = strike.board().spotPriceAtExpiry ?? strike.market().spotPrice
+    const spotPrice = strike.board().spotPriceAtExpiry ?? market.spotPrice
     const isInTheMoney = isCall ? spotPrice.gt(strike.strikePrice) : spotPrice.lt(strike.strikePrice)
 
     if (timeToExpiryAnnualized === 0) {
@@ -97,42 +93,31 @@ export class Option {
         isInTheMoney,
       }
     } else {
-      const longOpenInterest = isCall ? strikeView.longCallOpenInterest : strikeView.longPutOpenInterest
-      const shortOpenInterest = isCall
-        ? strikeView.shortCallBaseOpenInterest.add(strikeView.shortCallQuoteOpenInterest)
-        : strikeView.shortPutOpenInterest
+      const longOpenInterest = isCall ? strike.longCallOpenInterest : strike.longPutOpenInterest
+      const shortOpenInterest = isCall ? strike.shortCallOpenInterest : strike.shortPutOpenInterest
 
-      const spotPrice = fromBigNumber(
-        version === Version.Avalon
-          ? (marketView as OptionMarketViewerAvalon.MarketViewWithBoardsStructOutput).exchangeParams.spotPrice
-          : (marketView as OptionMarketViewer.MarketViewWithBoardsStructOutput).spotPrice
-      )
-      const strikePriceNum = fromBigNumber(strikeView.strikePrice)
-      const rate = fromBigNumber(
-        version === Version.Avalon
-          ? (marketView as OptionMarketViewerAvalon.MarketViewWithBoardsStructOutput).marketParameters.greekCacheParams
-              .rateAndCarry
-          : (marketView as OptionMarketViewer.MarketViewWithBoardsStructOutput).rateAndCarry
-      )
+      const spotPriceNum = fromBigNumber(spotPrice)
+      const strikePriceNum = fromBigNumber(strike.strikePrice)
+      const rate = fromBigNumber(market.params.rateAndCarry)
       const strikeIV = fromBigNumber(strike.iv)
 
       const price = toBigNumber(
-        getBlackScholesPrice(timeToExpiryAnnualized, strikeIV, spotPrice, strikePriceNum, rate, isCall)
+        getBlackScholesPrice(timeToExpiryAnnualized, strikeIV, spotPriceNum, strikePriceNum, rate, isCall)
       )
 
       const delta =
         strikeIV > 0
-          ? toBigNumber(getDelta(timeToExpiryAnnualized, strikeIV, spotPrice, strikePriceNum, rate, isCall))
+          ? toBigNumber(getDelta(timeToExpiryAnnualized, strikeIV, spotPriceNum, strikePriceNum, rate, isCall))
           : ZERO_BN
 
       const theta =
         strikeIV > 0
-          ? toBigNumber(getTheta(timeToExpiryAnnualized, strikeIV, spotPrice, strikePriceNum, rate, isCall))
+          ? toBigNumber(getTheta(timeToExpiryAnnualized, strikeIV, spotPriceNum, strikePriceNum, rate, isCall))
           : ZERO_BN
 
       const rho =
         strikeIV > 0
-          ? toBigNumber(getRho(timeToExpiryAnnualized, strikeIV, spotPrice, strikePriceNum, rate, isCall))
+          ? toBigNumber(getRho(timeToExpiryAnnualized, strikeIV, spotPriceNum, strikePriceNum, rate, isCall))
           : ZERO_BN
 
       return {

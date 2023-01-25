@@ -7,23 +7,24 @@ import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatUSD from '@lyra/ui/utils/formatUSD'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import { ZERO_BN } from '@/app/constants/bn'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import usePositionHistory from '@/app/hooks/position/usePositionHistory'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
-import useNetwork from '@/app/hooks/wallet/useNetwork'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = MarginProps
 
 const ShortCollateralRewardsCardGrid = withSuspense(
   ({ ...styleProps }: MarginProps) => {
-    const network = useNetwork()
-    const epochs = useLatestRewardEpoch(network, true)
+    const network = useNetwork() // TODO: @dillon Use network again and replace Network.Optimism
+    const epochs = useLatestRewardEpoch(Network.Optimism, true)
     const positions = usePositionHistory(true)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account

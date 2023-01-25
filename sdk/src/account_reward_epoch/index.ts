@@ -1,6 +1,4 @@
-import { BigNumber } from '@ethersproject/bignumber'
-
-import { AccountBalances, AccountLiquidityTokenBalance } from '../account'
+import { AccountBalances, AccountLiquidityTokenBalance, AccountLyraBalances } from '../account'
 import { Deployment, LyraGlobalContractId } from '../constants/contracts'
 import { Network } from '../constants/network'
 import { SECONDS_IN_SIX_MONTHS } from '../constants/time'
@@ -8,7 +6,7 @@ import { ClaimAddedEvent } from '../contracts/common/typechain/MultiDistributor'
 import { GlobalRewardEpoch } from '../global_reward_epoch'
 import Lyra from '../lyra'
 import fetchAccountRewardEpochData, { AccountRewardEpochData } from '../utils/fetchAccountRewardEpochData'
-import findMarket from '../utils/findMarket'
+import findMarketX from '../utils/findMarketX'
 import fromBigNumber from '../utils/fromBigNumber'
 import getGlobalContract from '../utils/getGlobalContract'
 import parseClaimAddedTags from './parseClaimAddedTags'
@@ -31,8 +29,8 @@ export type AccountRewardEpochTokensWethLyraStaking = {
 }
 
 export class AccountRewardEpoch {
-  private lyra: Lyra
   private vaultTokenBalances: Record<string, AccountLiquidityTokenBalance>
+  lyra: Lyra
   account: string
   globalEpoch: GlobalRewardEpoch
   accountEpoch: AccountRewardEpochData
@@ -52,7 +50,7 @@ export class AccountRewardEpoch {
     accountEpoch: AccountRewardEpochData,
     globalEpoch: GlobalRewardEpoch,
     balances: AccountBalances[],
-    stakedLyraBalance: BigNumber,
+    lyraBalances: AccountLyraBalances,
     claimAddedEvents: ClaimAddedEvent[]
   ) {
     this.lyra = lyra
@@ -61,7 +59,9 @@ export class AccountRewardEpoch {
     this.accountEpoch = accountEpoch
     const avgStkLyraBalance =
       this.globalEpoch.progressDays > 0 ? this.accountEpoch.stkLyraDays / this.globalEpoch.progressDays : 0
-    this.stakedLyraBalance = this.globalEpoch.isComplete ? avgStkLyraBalance : fromBigNumber(stakedLyraBalance)
+    this.stakedLyraBalance = this.globalEpoch.isComplete
+      ? avgStkLyraBalance
+      : fromBigNumber(lyraBalances.ethereumStkLyra.add(lyraBalances.optimismStkLyra))
     this.vaultTokenBalances = balances.reduce(
       (lpTokenBalances, balance) => ({
         ...lpTokenBalances,
@@ -124,20 +124,18 @@ export class AccountRewardEpoch {
   // Getters
 
   static async getByOwner(lyra: Lyra, address: string): Promise<AccountRewardEpoch[]> {
-    // TODO: @dillon remove optimism check
-    if (lyra.deployment !== Deployment.Mainnet || lyra.network !== Network.Optimism) {
+    // TODO: @dillon remove for arbitrum rewards
+    if (lyra.deployment !== Deployment.Mainnet || lyra.network === Network.Arbitrum) {
       return []
     }
     const distributorContract = getGlobalContract(lyra, LyraGlobalContractId.MultiDistributor, lyra.optimismProvider)
-    const [block] = await Promise.all([lyra.provider.getBlock('latest')])
     const [accountEpochDatas, globalEpochs, lyraBalances, balances, claimAddedEvents] = await Promise.all([
-      fetchAccountRewardEpochData(lyra, address, block.timestamp),
+      fetchAccountRewardEpochData(lyra, address),
       GlobalRewardEpoch.getAll(lyra),
       lyra.account(address).lyraBalances(),
       lyra.account(address).balances(),
-      await distributorContract.queryFilter(distributorContract.filters.ClaimAdded(null, address, null, null, null)),
+      distributorContract.queryFilter(distributorContract.filters.ClaimAdded(null, address, null, null, null)),
     ])
-    const stakedLyraBalance = lyraBalances.ethereumStkLyra.add(lyraBalances.optimismStkLyra)
     return accountEpochDatas
       .map(accountEpochData => {
         const globalEpoch = globalEpochs.find(
@@ -158,7 +156,7 @@ export class AccountRewardEpoch {
           accountEpochData,
           globalEpoch,
           balances,
-          stakedLyraBalance,
+          lyraBalances,
           epochClaimAddedEvents
         )
       })
@@ -170,8 +168,9 @@ export class AccountRewardEpoch {
     address: string,
     startTimestamp: number
   ): Promise<AccountRewardEpoch | null> {
-    if (lyra.deployment !== Deployment.Mainnet) {
-      throw Error('Reward epochs only supported on mainnet')
+    // TODO: @dillon remove for arbitrum rewards
+    if (lyra.deployment !== Deployment.Mainnet || lyra.network === Network.Arbitrum) {
+      return null
     }
     const epochs = await AccountRewardEpoch.getByOwner(lyra, address)
     const epoch = epochs.find(epoch => epoch.globalEpoch.startTimestamp === startTimestamp)
@@ -208,7 +207,7 @@ export class AccountRewardEpoch {
   }
 
   vaultTokenBalance(marketAddressOrName: string): number {
-    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarketX(this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const boostedLpDays = this.accountEpoch.boostedLpDays
       ? this.accountEpoch.boostedLpDays[marketKey]
@@ -223,7 +222,7 @@ export class AccountRewardEpoch {
   }
 
   vaultRewards(marketAddressOrName: string): AccountRewardEpochTokens {
-    const market = findMarket(this.lyra, this.globalEpoch.markets, marketAddressOrName)
+    const market = findMarketX(this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
     const mmvRewards = this.accountEpoch.MMVRewards
       ? this.accountEpoch.MMVRewards[marketKey]

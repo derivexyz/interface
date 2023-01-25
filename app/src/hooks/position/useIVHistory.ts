@@ -1,18 +1,20 @@
-import { Strike, StrikeIVHistory } from '@lyrafinance/lyra-js'
-import Lyra from '@lyrafinance/lyra-js'
+import { Network, Strike, StrikeIVHistory } from '@lyrafinance/lyra-js'
 
 import { ChartPeriod } from '@/app/constants/chart'
+import { FetchId } from '@/app/constants/fetch'
 import getChartPeriodTimestamp from '@/app/utils/getChartPeriodTimestamp'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 
-import { useLyraFetch } from '../data/useLyraFetch'
+import useFetch from '../data/useFetch'
 
 const fetcher = async (
-  lyra: Lyra,
+  network: Network,
   marketAddress: string,
   boardId: number,
   strikeId: number,
   period: ChartPeriod
 ): Promise<StrikeIVHistory[]> => {
+  const lyra = getLyraSDK(network)
   const board = await lyra.board(marketAddress, boardId)
   const strike = board.strike(strikeId)
   const endTimestamp = Math.min(board.block.timestamp, board.expiryTimestamp)
@@ -26,10 +28,9 @@ const fetcher = async (
 const EMPTY: StrikeIVHistory[] = []
 
 const useIVHistory = (strike: Strike, period: ChartPeriod): StrikeIVHistory[] => {
-  const [history] = useLyraFetch(
-    'StrikeIVHistory',
-    strike.lyra,
-    [strike.market().address, strike.board().id, strike.id, period],
+  const [history] = useFetch(
+    FetchId.PositionIVHistory,
+    [strike.lyra.network, strike.market().address, strike.board().id, strike.id, period],
     fetcher
   )
   return history ?? EMPTY

@@ -35,8 +35,8 @@ export const NETWORK_CONFIGS: Record<Chain, NetworkConfig> = {
     network: Network.Optimism,
     walletRpcUrl: 'https://mainnet.optimism.io',
     readRpcUrls: filterNulls([
-      ALCHEMY_PROJECT_ID ? `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_PROJECT_ID}` : null,
       `https://optimism-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+      ALCHEMY_PROJECT_ID ? `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_PROJECT_ID}` : null,
     ]),
     blockExplorerUrl: 'https://optimistic.etherscan.io',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],

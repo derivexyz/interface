@@ -22,6 +22,8 @@ const getDisabledMessage = (disabledReason: QuoteDisabledReason): string => {
     case QuoteDisabledReason.TradingCutoff:
     case QuoteDisabledReason.InsufficientLiquidity:
     case QuoteDisabledReason.DeltaOutOfRange:
+    case QuoteDisabledReason.UnableToHedgeDelta:
+    case QuoteDisabledReason.PriceVarianceTooHigh:
       return 'Disabled'
     case QuoteDisabledReason.VolTooHigh:
     case QuoteDisabledReason.VolTooLow:

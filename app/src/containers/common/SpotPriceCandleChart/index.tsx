@@ -7,8 +7,8 @@ import React, { useMemo } from 'react'
 
 import CandleChart from '@/app/components/trade/CandleChart'
 import { ChartPeriod } from '@/app/constants/chart'
-import useSpotPriceHistory from '@/app/hooks/data/useSpotPriceHistory'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useSpotPriceHistory from '@/app/hooks/market/useSpotPriceHistory'
 import getChartPeriodStartTimestamp from '@/app/utils/getChartPeriodStartTimestamp'
 
 type Props = {
@@ -35,14 +35,7 @@ const SpotPriceCandleChart = withSuspense(
         })),
       [spotPriceHistory]
     )
-    return (
-      <CandleChart
-        data={candleSeriesData}
-        showTimeRange={showTimeRange}
-        onHover={candle => onHover(candle ?? candleSeriesData[candleSeriesData.length - 1])}
-        {...styleProps}
-      />
-    )
+    return <CandleChart data={candleSeriesData} showTimeRange={showTimeRange} onHover={onHover} {...styleProps} />
   },
   ({ market, candleDuration, period, onHover, ...styleProps }: Props) => (
     <Center height="100%" {...styleProps}>

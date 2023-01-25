@@ -5,9 +5,9 @@ import formatDuration from '@lyra/ui/utils/formatDuration'
 import React from 'react'
 
 import { SECONDS_IN_HOUR } from '@/app/constants/time'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
-import useNetwork from '@/app/hooks/wallet/useNetwork'
 
 const RewardsLastUpdatedAlert = withSuspense(() => {
   const network = useNetwork()

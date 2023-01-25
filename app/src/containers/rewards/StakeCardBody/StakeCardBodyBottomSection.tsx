@@ -15,7 +15,7 @@ import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import { ZERO_BN } from '@/app/constants/bn'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useMarkets from '@/app/hooks/market/useMarkets'
+import useMarkets from '@/app/hooks/rewards/useMarkets'
 import useStake from '@/app/hooks/rewards/useStake'
 
 import VaultsSelector from '../../../components/common/VaultSelector'

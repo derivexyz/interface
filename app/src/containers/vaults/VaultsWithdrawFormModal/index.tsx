@@ -1,19 +1,20 @@
 import Modal from '@lyra/ui/components/Modal'
-import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
+
+import { Vault } from '@/app/constants/vault'
 
 import VaultsWithdrawForm from '../VaultsWithdrawForm'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
-  market: Market
+  vault: Vault
 }
 
-export default function VaultsWithdrawFormModal({ isOpen, onClose, market }: Props) {
+export default function VaultsWithdrawFormModal({ isOpen, onClose, vault }: Props) {
   return (
     <Modal isMobileFullscreen title="Withdraw" isOpen={isOpen} onClose={onClose}>
-      <VaultsWithdrawForm market={market} onClose={onClose} />
+      <VaultsWithdrawForm vault={vault} onClose={onClose} />
     </Modal>
   )
 }
