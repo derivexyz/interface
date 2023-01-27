@@ -37,12 +37,12 @@ export type AccountRewardEpochData = {
   }
 }
 
-export default async function fetchGlobalRewardEpochData(
+export default async function fetchAccountRewardEpochData(
   lyra: Lyra,
   account: string
 ): Promise<AccountRewardEpochData[]> {
   if (lyra.deployment !== Deployment.Mainnet) {
     return []
   }
-  return fetchWithCache(`${LYRA_API_URL}/globalRewards?network=${lyra.network}&account=${account}`)
+  return fetchWithCache(`${LYRA_API_URL}/accountRewards?network=${lyra.network}&account=${account}`)
 }
