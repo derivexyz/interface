@@ -1,7 +1,13 @@
 import { UNIT } from '../constants/bn'
-import { PoolHedgerView } from '../market'
+import { MarketToken, PoolHedgerView } from '../market'
+import { to18DecimalBN } from './convertBNDecimals'
 
-export default function canHedge(increasesPoolDelta: boolean, hedgerView: PoolHedgerView) {
+export default function canHedge(
+  increasesPoolDelta: boolean,
+  hedgerView: PoolHedgerView,
+  baseToken: MarketToken,
+  quoteToken: MarketToken
+) {
   const { expectedHedge, currentHedge, gmxView, futuresPoolHedgerParams } = hedgerView
   const expectedHedgeAbs = expectedHedge.abs()
   const currentHedgeAbs = currentHedge.abs()
@@ -26,11 +32,12 @@ export default function canHedge(increasesPoolDelta: boolean, hedgerView: PoolHe
   let remainingDeltas
   if (expectedHedge.gt(0)) {
     const { basePoolAmount, baseReservedAmount } = gmxView
-    // remaining is the amount of baseAsset that can be hedged
-    remainingDeltas = basePoolAmount.sub(baseReservedAmount)
+    // remaining is the amount of baseAsset that can be hedged (adjusted from base token decimals)
+    remainingDeltas = to18DecimalBN(basePoolAmount.sub(baseReservedAmount), baseToken.decimals)
   } else {
     const { quotePoolAmount, quoteReservedAmount } = gmxView
-    remainingDeltas = quotePoolAmount.sub(quoteReservedAmount)
+    // Adjusted from quote token decimals
+    remainingDeltas = to18DecimalBN(quotePoolAmount.sub(quoteReservedAmount), quoteToken.decimals)
   }
 
   const absHedgeDiff = expectedHedgeAbs.sub(currentHedgeAbs)
