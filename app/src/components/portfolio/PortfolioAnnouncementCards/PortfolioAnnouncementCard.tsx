@@ -43,6 +43,8 @@ const PortfolioAnnouncementCardPagination = ({
   )
 }
 
+const IMAGE_SIZE = [64, 72]
+
 export default function PortfolioAnnouncementCard({
   announcement,
   announcementIdx,
@@ -66,12 +68,10 @@ export default function PortfolioAnnouncementCard({
       <CardBody flexDirection="row" alignItems="center">
         {announcement.graphic ? (
           <Image
-            mr={6}
+            mr={4}
             src={getAssetSrc(announcement.graphic)}
-            width={[48, 72]}
-            minWidth={[48, 72]}
-            height={[48, 72]}
-            minHeight={[48, 72]}
+            height={announcement.graphicSize ?? IMAGE_SIZE}
+            minHeight={announcement.graphicSize ?? IMAGE_SIZE}
           />
         ) : null}
         <Flex flexDirection="column" flexGrow={1}>

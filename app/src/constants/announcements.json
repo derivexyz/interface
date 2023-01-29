@@ -37,7 +37,7 @@
   },
   {
     "id": "arbitrum-deposits",
-    "header": "Deposit to Arbitrum Vaults",
+    "header": "Arbitrum Deposits Now Live",
     "title": "Deposit USDC into the new Arbitrum ETH vault to earn your share of more than 1m LYRA rewards in the first 2 week epoch.",
     "cta": [
       {
@@ -46,7 +46,8 @@
         "variant": "default"
       }
     ],
-    "graphic": "images/arbitrum-circle.svg",
+    "graphic": "images/arbitrum-vaults.png",
+    "graphicSize": [64, 96],
     "startTimestamp": 1674565200,
     "expiryTimestamp": 1675206000,
     "showCountdown": true

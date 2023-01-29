@@ -13,6 +13,7 @@ export type Announcement = {
     target?: '_self' | '_blank'
   }[]
   graphic?: string
+  graphicSize?: number[]
   startTimestamp: number
   expiryTimestamp: number
   showCountdown?: boolean
