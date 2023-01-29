@@ -9,11 +9,13 @@ import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatNumber from '@lyra/ui/utils/formatNumber'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import { ZERO_BN } from '@/app/constants/bn'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccountWethLyraStaking from '@/app/hooks/rewards/useAccountWethLyraStaking'
 import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
@@ -36,25 +38,26 @@ const ClaimableStakedLyraText = withSuspense(
 
 const ClaimableRewardsText = withSuspense(
   () => {
+    const network = useNetwork()
     const claimableBalance = useClaimableBalances()
     const wethLyraAccount = useAccountWethLyraStaking()
     const claimableStkLyra = claimableBalance.newStkLyra.add(wethLyraAccount?.rewards ?? ZERO_BN)
     return (
       <>
-        {claimableStkLyra.gt(0) ? (
-          <Box flexGrow={1}>
-            <Text variant="secondary" color="secondaryText" mb={2}>
-              Claimable stkLYRA
-            </Text>
-            <TokenAmountText variant="secondary" tokenNameOrAddress="lyra" amount={claimableStkLyra} />
-          </Box>
-        ) : null}
         <Box flexGrow={1}>
           <Text variant="secondary" color="secondaryText" mb={2}>
-            Claimable OP
+            Claimable stkLYRA
           </Text>
-          <TokenAmountText variant="secondary" tokenNameOrAddress="op" amount={claimableBalance.op} />
+          <TokenAmountText variant="secondary" tokenNameOrAddress="stkLyra" amount={claimableStkLyra} />
         </Box>
+        {network === Network.Optimism ? (
+          <Box flexGrow={1}>
+            <Text variant="secondary" color="secondaryText" mb={2}>
+              Claimable OP
+            </Text>
+            <TokenAmountText variant="secondary" tokenNameOrAddress="op" amount={claimableBalance.op} />
+          </Box>
+        ) : null}
       </>
     )
   },

@@ -80,10 +80,10 @@ function App(): JSX.Element {
       <SWRConfig
         value={{
           suspense: true,
-          revalidateOnFocus: true,
-          revalidateOnMount: true,
+          revalidateOnFocus: false,
           errorRetryCount: 0,
           shouldRetryOnError: false,
+          revalidateOnMount: true,
           refreshWhenHidden: false,
           refreshWhenOffline: false,
           compare,

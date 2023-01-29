@@ -20,6 +20,7 @@ import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useTradeBalances from '@/app/hooks/market/useTradeBalances'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 import formatTokenName from '@/app/utils/formatTokenName'
 
 type Props = MarginProps
@@ -42,17 +43,23 @@ const VaultRewardsMyLiquidity = withSuspense(
 )
 
 const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }: RowProps) => {
-  const marketName = market.name
   const marketAddress = market.address
-  const { op: opRewards, lyra: lyraRewards } = accountRewardEpoch
-    ? accountRewardEpoch.vaultRewards(marketAddress)
-    : { op: 0, lyra: 0 }
-  const { op: opApy, lyra: lyraApy } = accountRewardEpoch
-    ? accountRewardEpoch.vaultApy(marketAddress)
-    : globalRewardEpoch.minVaultApy(marketAddress)
-  const maxApy = globalRewardEpoch.maxVaultApy(marketAddress).total
+  const opRewards = findOpRewardEpochToken(accountRewardEpoch?.vaultRewards(marketAddress) ?? [])
+  const lyraRewards = findLyraRewardEpochToken(accountRewardEpoch?.vaultRewards(marketAddress) ?? [])
+  const opApy = findOpRewardEpochToken(
+    accountRewardEpoch?.vaultApy(marketAddress) ?? globalRewardEpoch.minVaultApy(marketAddress)
+  )
+  const lyraApy = findLyraRewardEpochToken(
+    accountRewardEpoch?.vaultApy(marketAddress) ?? globalRewardEpoch.minVaultApy(marketAddress)
+  )
+  const maxApy = globalRewardEpoch.maxVaultApy(marketAddress).reduce((sum, tokens) => sum + tokens.amount, 0)
   const apyMultiplier = accountRewardEpoch ? accountRewardEpoch.vaultApyMultiplier(marketAddress) : 1
   const stakedLyraBalance = accountRewardEpoch ? accountRewardEpoch.stakedLyraBalance : 0
+
+  const tokenNameOrAddress = market.lyra.network === Network.Optimism ? ['stkLyra', 'OP'] : ['stkLyra']
+
+  // TODO: @dillon remove next epoch
+  const isDepositPeriod = globalRewardEpoch.isDepositPeriod
 
   return (
     <Grid mb={8} sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 4, gridRowGap: 6 }}>
@@ -77,32 +84,32 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
         <Text variant="secondary" color="secondaryText" mb={2}>
           APY
         </Text>
-        {marketName.toLowerCase() === 'sol' ? (
-          ' - '
-        ) : (
-          <VaultAPYTooltip
-            marketName={marketName}
-            opApy={opApy}
-            lyraApy={lyraApy}
-            apyMultiplier={apyMultiplier}
-            stakedLyraBalance={stakedLyraBalance}
-          >
-            <TokenAPYRangeText
-              tokenNameOrAddress={['stkLyra', 'OP']}
-              variant="secondary"
-              color="primaryText"
-              leftValue={formatPercentage(opApy + lyraApy, true)}
-              rightValue={formatPercentage(maxApy, true)}
-            />
-          </VaultAPYTooltip>
-        )}
+        <VaultAPYTooltip
+          market={market}
+          opApy={opApy}
+          lyraApy={lyraApy}
+          apyMultiplier={apyMultiplier}
+          stakedLyraBalance={stakedLyraBalance}
+        >
+          <TokenAPYRangeText
+            tokenNameOrAddress={tokenNameOrAddress}
+            variant="secondary"
+            color="primaryText"
+            leftValue={formatPercentage(opApy + lyraApy, true)}
+            rightValue={formatPercentage(maxApy, true)}
+          />
+        </VaultAPYTooltip>
       </Flex>
       {lyraApy > 0 ? (
         <Flex flexDirection="column" justifyContent="space-between">
           <Text variant="secondary" color="secondaryText" mb={2}>
             Pending stkLYRA
           </Text>
-          <TokenAmountText variant="secondary" tokenNameOrAddress="stkLyra" amount={lyraRewards} />
+          <TokenAmountText
+            variant="secondary"
+            tokenNameOrAddress="stkLyra"
+            amount={isDepositPeriod ? 0 : lyraRewards}
+          />
         </Flex>
       ) : null}
       {opApy > 0 ? (
@@ -119,14 +126,15 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
 
 const VaultRewardsMarketRows = withSuspense(
   () => {
-    const network = useNetwork() // TODO: @dillon Use network again and replace Network.Optimism
-    const epochs = useLatestRewardEpoch(Network.Optimism, true)
+    const network = useNetwork()
+    const epochs = useLatestRewardEpoch(network, true)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account
     const markets = useMemo(() => {
       return globalRewardEpoch
         ? globalRewardEpoch.markets.filter(market => {
-            const { lyra, op } = globalRewardEpoch.totalVaultRewards(market.address)
+            const lyra = findLyraRewardEpochToken(globalRewardEpoch.totalVaultRewards(market.address) ?? [])
+            const op = findOpRewardEpochToken(globalRewardEpoch.totalVaultRewards(market.address) ?? [])
             return lyra > 0 || op > 0
           })
         : []
@@ -134,14 +142,19 @@ const VaultRewardsMarketRows = withSuspense(
     return (
       <>
         {globalRewardEpoch
-          ? markets.map(market => (
-              <VaultRewardsMarketRow
-                key={market.name}
-                market={market}
-                globalRewardEpoch={globalRewardEpoch}
-                accountRewardEpoch={accountRewardEpoch}
-              />
-            ))
+          ? markets.map(market => {
+              if (market.baseToken.symbol.toLowerCase() === 'ssol') {
+                return null
+              }
+              return (
+                <VaultRewardsMarketRow
+                  key={market.name}
+                  market={market}
+                  globalRewardEpoch={globalRewardEpoch}
+                  accountRewardEpoch={accountRewardEpoch}
+                />
+              )
+            })
           : null}
       </>
     )

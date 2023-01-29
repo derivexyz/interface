@@ -3,7 +3,10 @@ import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import Flex from '@lyra/ui/components/Flex'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
+import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
+
+import useNetwork from '@/app/hooks/account/useNetwork'
 
 import ClaimableRewardsCardSection from './ClaimableRewardsCardSection'
 import PendingRewardsCardSection from './PendingRewardsCardSection'
@@ -16,6 +19,7 @@ type Props = MarginProps
 
 const RewardsBreakdownCard = ({ ...marginProps }: Props): CardElement => {
   const isMobile = useIsMobile()
+  const network = useNetwork()
   return (
     <Card flexDirection="column" {...marginProps}>
       <Flex flexDirection={isMobile ? 'column' : 'row'}>
@@ -30,7 +34,7 @@ const RewardsBreakdownCard = ({ ...marginProps }: Props): CardElement => {
       <CardSeparator />
       <ShortCollateralRewardsCardSection />
       <CardSeparator />
-      <WethLyraStakingRewardsCardSection />
+      {network === Network.Optimism ? <WethLyraStakingRewardsCardSection /> : null}
     </Card>
   )
 }

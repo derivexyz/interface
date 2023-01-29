@@ -19,6 +19,7 @@ import withSuspense from '@/app/hooks/data/withSuspense'
 import useTradeBalances from '@/app/hooks/market/useTradeBalances'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
@@ -108,10 +109,12 @@ const TradeForm = withSuspense(
     const stakedLyraBalance = epochs?.account?.stakedLyraBalance ?? 0
     const tradingRewards = global?.tradingRewards(fromBigNumber(trade.fee), stakedLyraBalance)
     const [isFeeRebateOpen, setIsFeeRebateOpen] = useState(false)
+    const lyraTradingRewards = findLyraRewardEpochToken(tradingRewards ?? [])
+    const opTradingRewards = findOpRewardEpochToken(tradingRewards ?? [])
     const feeRewardsStr = tradingRewards
       ? filterNulls([
-          tradingRewards.lyra ? formatBalance(tradingRewards.lyra, 'LYRA', { maxDps: 3 }) : null,
-          tradingRewards.op ? formatBalance(tradingRewards.op, 'OP', { maxDps: 3 }) : null,
+          lyraTradingRewards > 0 ? formatBalance(lyraTradingRewards, 'LYRA', { maxDps: 3 }) : null,
+          opTradingRewards > 0 ? formatBalance(opTradingRewards, 'OP', { maxDps: 3 }) : null,
         ]).join(', ')
       : null
 

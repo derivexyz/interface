@@ -3,16 +3,17 @@ import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import BigNumberInput from '@lyra/ui/components/Input/BigNumberInput'
 import Modal from '@lyra/ui/components/Modal'
 import Text from '@lyra/ui/components/Text'
-import formatBalance from '@lyra/ui/utils/formatBalance'
-import formatPercentage from '@lyra/ui/utils/formatPercentage'
+import formatNumber from '@lyra/ui/utils/formatNumber'
 import React, { useState } from 'react'
 
+import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import { ZERO_BN } from '@/app/constants/bn'
 import { Vault } from '@/app/constants/vault'
 import StakeFormButton from '@/app/containers/rewards/StakeCardBody/StakeCardBodyButton'
+import formatAPY from '@/app/utils/formatAPY'
+import formatAPYRange from '@/app/utils/formatAPYRange'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
-import AmountUpdateText from '../../../components/common/AmountUpdateText'
 import RowItem from '../../../components/common/RowItem'
 
 type Props = {
@@ -22,18 +23,28 @@ type Props = {
 }
 
 const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
-  const { market, lyraBalances } = vault
+  const { market, lyraBalances, marketBalances } = vault
   const [amount, setAmount] = useState(ZERO_BN)
 
-  const lyraBalance = lyraBalances.ethereumLyra.add(lyraBalances.optimismLyra)
+  const lyraBalance = lyraBalances.ethereumLyra
   const stakedLyraBalance = lyraBalances.ethereumStkLyra.add(lyraBalances.optimismStkLyra)
   const newStakedLyraBalance = stakedLyraBalance.add(amount)
-  const myApy =
+  const totalApy = vault.apy.reduce((total, token) => total + token.amount, 0)
+  const minTotalApy = vault.minApy.reduce((total, token) => total + token.amount, 0)
+
+  const newTotalApy =
     vault.globalRewardEpoch?.vaultApy(
       market.address,
       fromBigNumber(newStakedLyraBalance),
-      fromBigNumber(vault.marketBalances.liquidityToken.balance)
-    ) ?? vault.minApy
+      fromBigNumber(marketBalances.liquidityToken.balance)
+    ) ?? []
+
+  const newApyMultiplier =
+    vault.globalRewardEpoch?.vaultApyMultiplier(
+      market.address,
+      fromBigNumber(newStakedLyraBalance),
+      fromBigNumber(marketBalances.liquidityToken.balance)
+    ) ?? 1
 
   return (
     <>
@@ -41,7 +52,6 @@ const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
         <Text variant="secondary" color="secondaryText" width="100%" mb={6}>
           Stake LYRA to boost your {market.baseToken.symbol} Vault rewards. Staking boosts apply to all vaults.
         </Text>
-        <RowItem mb={4} label="Stakeable Balance" value={formatBalance(lyraBalance, 'LYRA')} />
         <RowItem
           mb={4}
           label="Amount to Stake"
@@ -56,32 +66,28 @@ const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
             />
           }
         />
-        {stakedLyraBalance.gt(0) ? (
-          <RowItem
-            label="Staked Balance"
-            value={
-              <AmountUpdateText
-                variant="secondary"
-                prevAmount={stakedLyraBalance}
-                newAmount={newStakedLyraBalance}
-                symbol="stkLYRA"
-              />
-            }
-          />
-        ) : null}
+        <RowItem
+          label="Balance"
+          value={
+            <AmountUpdateText
+              prevAmount={lyraBalance}
+              newAmount={lyraBalance.gt(amount) ? lyraBalance.sub(amount) : ZERO_BN}
+              symbol="LYRA"
+              variant="secondary"
+            />
+          }
+        />
       </CardSection>
       <CardSeparator />
       <CardSection>
-        <RowItem
-          mb={4}
-          label="APY Range"
-          value={`${formatPercentage(vault.minApy.total, true)} - ${formatPercentage(vault.maxApy.total, true)}`}
-        />
+        <RowItem mb={4} label="APY Range" value={`${formatAPYRange(vault.minApy, vault.maxApy)}`} />
         <RowItem
           mb={6}
           label="Your APY"
-          value={formatPercentage(myApy.total, true)}
-          valueColor={vault.minApy.total > 0 && myApy.total > vault.minApy.total ? 'primaryText' : 'text'}
+          value={`${formatAPY(newTotalApy, { showSymbol: false })}${
+            newApyMultiplier > 1.01 ? ` (${formatNumber(newApyMultiplier)}x)` : ''
+          }`}
+          valueColor={minTotalApy > 0 && totalApy > minTotalApy ? 'primaryText' : 'text'}
         />
         <StakeFormButton amount={amount} onClose={onClose} />
       </CardSection>

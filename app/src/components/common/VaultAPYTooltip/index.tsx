@@ -5,6 +5,7 @@ import Tooltip, { TooltipElement } from '@lyra/ui/components/Tooltip'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
+import { Market, Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { STAKING_REWARDS_DOC_URL } from '@/app/constants/links'
@@ -13,7 +14,7 @@ import useOptimismToken from '@/app/hooks/data/useOptimismToken'
 
 type Props = {
   children: React.ReactNode
-  marketName: string
+  market: Market
   lyraApy: number
   opApy: number
   apyMultiplier?: number
@@ -21,7 +22,7 @@ type Props = {
 } & FlexProps
 
 export default function VaultAPYTooltip({
-  marketName,
+  market,
   children,
   lyraApy,
   opApy,
@@ -36,7 +37,8 @@ export default function VaultAPYTooltip({
       tooltip={
         <Box>
           <Text variant="secondary" color="secondaryText" mb={4}>
-            Earn staked LYRA and/or OP tokens when you deposit sUSD to the {marketName} Vault.
+            Earn staked LYRA {market.lyra.network === Network.Optimism ? 'and/or OP tokens' : null} when you deposit{' '}
+            {market.quoteToken.symbol} to the {market.name} Vault.
           </Text>
           {apyMultiplier && apyMultiplier > 1 && stakedLyraBalance && stakedLyraBalance > 0 ? (
             <Text variant="secondary" color="secondaryText" mb={4}>

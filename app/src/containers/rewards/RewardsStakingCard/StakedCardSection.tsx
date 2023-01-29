@@ -26,6 +26,7 @@ import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
 import useClaimableBalancesL1 from '@/app/hooks/rewards/useClaimableBalanceL1'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
 import useLyraAccountStaking from '@/app/hooks/rewards/useLyraAccountStaking'
+import { findLyraRewardEpochToken } from '@/app/utils/findRewardToken'
 
 import ClaimAndMigrateModal from '../ClaimAndMigrateModal'
 import ClaimStakingRewardsModal from '../ClaimStakingRewardsModal'
@@ -119,11 +120,12 @@ const StakedLyraAPYText = withSuspense(
   () => {
     const network = useNetwork()
     const globalEpoch = useLatestRewardEpoch(network)?.global
-    const stakingApy = globalEpoch ? globalEpoch.stakingApy : null
+    const stakingApyLyra = findLyraRewardEpochToken(globalEpoch?.stakingApy ?? [])
+    const stakingApyTotal = globalEpoch?.stakingApy.reduce((total, apy) => total + apy.amount, 0) ?? 0
     return (
-      <StakeAPYTooltip alignItems="center" lyraApy={stakingApy?.lyra ?? 0}>
+      <StakeAPYTooltip alignItems="center" lyraApy={stakingApyLyra}>
         <Text variant="secondary" color="primaryText">
-          {formatPercentage(stakingApy?.total ?? 0, true)}
+          {formatPercentage(stakingApyTotal, true)}
         </Text>
       </StakeAPYTooltip>
     )
@@ -221,12 +223,12 @@ const StakedCardSection = ({ ...marginProps }: Props): CardElement => {
           </Text>
           <StakingRewardsText />
         </Box>
-        {/* <Box>
+        <Box>
           <Text variant="secondary" color="secondaryText" mb={2}>
             APY
           </Text>
           <StakedLyraAPYText />
-        </Box> */}
+        </Box>
       </Grid>
       <StakedCardSectionButton
         onStakeOpen={() => setIsStakeOpen(true)}

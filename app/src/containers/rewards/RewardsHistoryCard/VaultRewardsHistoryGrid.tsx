@@ -10,6 +10,7 @@ import React, { useMemo } from 'react'
 
 import MarketImage from '@/app/components/common/MarketImage'
 import TokenAmountText from '@/app/components/common/TokenAmountText'
+import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 import formatTokenName from '@/app/utils/formatTokenName'
 
 import VaultAPYTooltip from '../../../components/common/VaultAPYTooltip'
@@ -24,11 +25,12 @@ type RowProps = {
 }
 
 const VaultRewardsHistoryMarketRow = ({ accountRewardEpoch, market }: RowProps) => {
-  const marketName = market.name
   const marketAddress = market.address
   const vaultTokens = accountRewardEpoch ? accountRewardEpoch.vaultTokenBalance(marketAddress) : 0
-  const { op: opRewards, lyra: lyraRewards } = accountRewardEpoch.vaultRewards(marketAddress)
-  const { op: opApy, lyra: lyraApy } = accountRewardEpoch.vaultApy(marketAddress)
+  const opRewards = findOpRewardEpochToken(accountRewardEpoch.vaultRewards(marketAddress))
+  const lyraRewards = findLyraRewardEpochToken(accountRewardEpoch.vaultRewards(marketAddress))
+  const opApy = findOpRewardEpochToken(accountRewardEpoch.vaultApy(marketAddress))
+  const lyraApy = findOpRewardEpochToken(accountRewardEpoch.vaultApy(marketAddress))
   const apyMultiplier = accountRewardEpoch.vaultApyMultiplier(marketAddress)
   const stakedLyraBalance = accountRewardEpoch.stakedLyraBalance
 
@@ -77,7 +79,7 @@ const VaultRewardsHistoryMarketRow = ({ accountRewardEpoch, market }: RowProps) 
           Avg. APY
         </Text>
         <VaultAPYTooltip
-          marketName={marketName}
+          market={market}
           opApy={opApy}
           lyraApy={lyraApy}
           apyMultiplier={apyMultiplier}
@@ -97,7 +99,9 @@ const VaultRewardsHistoryGrid = ({ accountRewardEpoch, ...marginProps }: Props) 
   const marketsWithRewards = useMemo(() => {
     return markets.filter(market => {
       const vaultRewards = accountRewardEpoch.vaultRewards(market.address)
-      return vaultRewards.lyra > 0 || vaultRewards.op > 0
+      const lyraVaultRewards = findLyraRewardEpochToken(vaultRewards)
+      const opVaultRewards = findOpRewardEpochToken(vaultRewards)
+      return lyraVaultRewards > 0 || opVaultRewards > 0
     })
   }, [accountRewardEpoch, markets])
   if (marketsWithRewards.length === 0) {

@@ -9,7 +9,6 @@ import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Network } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
@@ -17,6 +16,7 @@ import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/Toke
 import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 
 import FeeRebateModal from '../../common/FeeRebateModal'
 
@@ -24,15 +24,21 @@ type Props = MarginProps
 
 const TradingRewardsCardGrid = withSuspense(
   ({ ...styleProps }: Props) => {
-    const network = useNetwork() // TODO: @dillon Use network again and replace Network.Optimism
-    const epochs = useLatestRewardEpoch(Network.Optimism)
+    const network = useNetwork()
+    const epochs = useLatestRewardEpoch(network)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account
     const tradingFees = accountRewardEpoch?.tradingFees ?? 0
     const minTradingFeeRebate = globalRewardEpoch?.minTradingFeeRebate ?? 0
     const tradingFeeRebate = accountRewardEpoch?.tradingFeeRebate ?? minTradingFeeRebate
-    const { lyra: lyraRewardsCap, op: opRewardsCap } = globalRewardEpoch?.tradingRewardsCap ?? { lyra: 0, op: 0 }
-    const { lyra: lyraRewards, op: opRewards } = accountRewardEpoch?.tradingRewards ?? { lyra: 0, op: 0 }
+    const lyraRewardsCap = findLyraRewardEpochToken(globalRewardEpoch?.tradingRewardsCap ?? [])
+    const opRewardsCap = findOpRewardEpochToken(globalRewardEpoch?.tradingRewardsCap ?? [])
+    const lyraRewards = findLyraRewardEpochToken(accountRewardEpoch?.tradingRewards ?? [])
+    const opRewards = findOpRewardEpochToken(accountRewardEpoch?.tradingRewards ?? [])
+
+    // TODO: @dillon remove next epoch
+    const isDepositPeriod = globalRewardEpoch?.isDepositPeriod
+
     return (
       <Grid
         {...styleProps}
@@ -59,7 +65,11 @@ const TradingRewardsCardGrid = withSuspense(
             <Text variant="secondary" color="secondaryText" mb={2}>
               Pending stkLYRA
             </Text>
-            <TokenAmountText variant="secondary" tokenNameOrAddress="stkLyra" amount={lyraRewards} />
+            <TokenAmountText
+              variant="secondary"
+              tokenNameOrAddress="stkLyra"
+              amount={isDepositPeriod ? 0 : lyraRewards}
+            />
           </Flex>
         ) : null}
         {opRewardsCap > 0 ? (

@@ -9,6 +9,7 @@ import { AccountRewardEpoch } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
+import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 
 type Props = {
   accountRewardEpoch: AccountRewardEpoch
@@ -16,11 +17,9 @@ type Props = {
   PaddingProps
 
 const TradingRewardsHistoryGrid = ({ accountRewardEpoch, ...marginProps }: Props) => {
-  const {
-    tradingRewards: { op: opRewards, lyra: lyraRewards },
-    tradingFees,
-    tradingFeeRebate,
-  } = accountRewardEpoch
+  const lyraRewards = findLyraRewardEpochToken(accountRewardEpoch.tradingRewards)
+  const opRewards = findOpRewardEpochToken(accountRewardEpoch.tradingRewards)
+  const { tradingFees, tradingFeeRebate } = accountRewardEpoch
   if (!opRewards || !lyraRewards) {
     return null
   }

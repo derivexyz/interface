@@ -350,9 +350,10 @@ export class Account {
         wethLyraStakingRewardsContract.earned(this.address), // @dillon: keep this here for now because some people are yet to claim from old system
         this.lyra.latestGlobalRewardEpoch(),
       ])
-    const opRewards = toBigNumber(
-      (await latestGlobalRewardEpoch?.accountRewardEpoch(this.address))?.wethLyraStaking.opRewards ?? 0
-    )
+    const accountRewardEpoch = await latestGlobalRewardEpoch?.accountRewardEpoch(this.address)
+    const opRewardsAmount =
+      accountRewardEpoch?.wethLyraStaking?.rewards?.find(token => token.symbol.toLowerCase() === 'op')?.amount ?? 0
+    const opRewards = toBigNumber(opRewardsAmount)
     return {
       unstakedLPTokenBalance,
       allowance,

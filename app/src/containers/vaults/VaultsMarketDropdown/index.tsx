@@ -1,7 +1,7 @@
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import { DropdownIconButtonElement } from '@lyra/ui/components/Button/DropdownIconButton'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import MarketImage from '@/app/components/common/MarketImage'
 import { PageId } from '@/app/constants/pages'
@@ -18,10 +18,6 @@ const VaultsMarketDropdown = ({ vaults, selectedVault, ...styleProps }: Props): 
   const selectedMarket = selectedVault.market
   const [isOpen, setIsOpen] = useState(false)
   const onClose = useCallback(() => setIsOpen(false), [])
-  const filteredMarkets = useMemo(
-    () => vaults.map(v => v.market).filter(market => market.liveBoards().length > 0),
-    [vaults]
-  )
   return (
     <DropdownButton
       {...styleProps}
@@ -34,7 +30,7 @@ const VaultsMarketDropdown = ({ vaults, selectedVault, ...styleProps }: Props): 
       label={`${formatTokenName(selectedMarket.baseToken)} Vault`}
       leftIcon={<MarketImage market={selectedMarket} />}
     >
-      {filteredMarkets.map(market => (
+      {vaults.map(({ market }) => (
         <DropdownButtonListItem
           key={market.address}
           isSelected={market.address === selectedMarket.address}

@@ -1,40 +1,53 @@
 import { LYRA_API_URL } from '../constants/links'
+import { RewardEpochTokenAmount } from '../global_reward_epoch'
 import Lyra, { Deployment } from '../lyra'
 import fetchWithCache from './fetchWithCache'
 
 export type AccountRewardEpochData = {
-  account: string //indexed,
-  deployment: string // indexed
+  account: string // indexed,
+  deployment: Deployment // indexed
   startTimestamp: number // indexed
   endTimestamp: number
+  lastUpdated: number
+  stakingRewards: AccountStakingRewards
+  mmvRewards: AccountMMVRewards
+  tradingRewards: AccountTradingRewards
+  arrakisRewards?: AccountArrakisRewards
+}
+
+export type AccountStakingRewards = {
+  isIgnored: boolean
+  rewards: RewardEpochTokenAmount[]
   stkLyraDays: number
-  inflationaryRewards: {
-    lyra: number
-    op: number
+}
+
+export type AccountMMVRewards = {
+  [market: string]: {
+    lpDays: number
+    boostedLpDays: number
+    rewards: RewardEpochTokenAmount[]
     isIgnored: boolean
   }
-  lpDays: Record<string, number> // base
-  boostedLpDays: Record<string, number> // boosted
-  MMVRewards: Record<
-    string,
-    {
-      isIgnored: boolean
-      lyra: number
-      op: number
-    }
-  >
-  tradingRewards: {
-    effectiveRebateRate: number
-    lyraRebate: number
-    opRebate: number
-    tradingFees: number
-    totalCollatRebateDollars: number
+}
+
+export type AccountTradingRewards = {
+  fees: number
+  effectiveRebateRate: number
+  tradingRebateRewardDollars: number
+  shortCollateralRewardDollars: number
+  totalTradingRewardDollars: number
+  shortCallSeconds: number
+  shortPutSeconds: number
+  rewards: {
+    trading: RewardEpochTokenAmount[]
+    shortCollateral: RewardEpochTokenAmount[]
   }
-  wethLyraStakingRewards?: {
-    opRewards: number
-    gUniTokensStaked: number
-    percentShare: number
-  }
+}
+
+export type AccountArrakisRewards = {
+  rewards: RewardEpochTokenAmount[]
+  gUniTokensStaked: number
+  percentShare: number
 }
 
 export default async function fetchAccountRewardEpochData(
@@ -44,5 +57,5 @@ export default async function fetchAccountRewardEpochData(
   if (lyra.deployment !== Deployment.Mainnet) {
     return []
   }
-  return fetchWithCache(`${LYRA_API_URL}/accountRewards?network=${lyra.network}&account=${account}`)
+  return fetchWithCache(`${LYRA_API_URL}/rewards/account?network=${lyra.network}&account=${account}`)
 }

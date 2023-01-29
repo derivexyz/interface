@@ -1,6 +1,7 @@
 import CardSection from '@lyra/ui/components/Card/CardSection'
 import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import Flex from '@lyra/ui/components/Flex'
+import BigNumberInput from '@lyra/ui/components/Input/BigNumberInput'
 import Text from '@lyra/ui/components/Text'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
@@ -8,7 +9,6 @@ import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import React, { useState } from 'react'
 
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
-import VaultsFormSizeInput from '@/app/components/vaults/VaultsFormSizeInput'
 import { ZERO_BN } from '@/app/constants/bn'
 import { Vault } from '@/app/constants/vault'
 import fromBigNumber from '@/app/utils/fromBigNumber'
@@ -33,7 +33,16 @@ const VaultsWithdrawForm = ({ vault, onClose, ...styleProps }: Props) => {
       <CardSection {...styleProps}>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>
           <Text color="secondaryText">Amount</Text>
-          <VaultsFormSizeInput amount={amount} max={lpBalance} onChangeAmount={setAmount} />
+          <BigNumberInput
+            width="50%"
+            value={amount}
+            onChange={setAmount}
+            placeholder={ZERO_BN}
+            max={lpBalance}
+            min={ZERO_BN}
+            textAlign="right"
+            showMaxButton
+          />
         </Flex>
         <Flex alignItems="center" justifyContent="space-between">
           <Text color="secondaryText" variant="secondary">

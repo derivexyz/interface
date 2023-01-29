@@ -7,7 +7,6 @@ import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Network } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
@@ -17,22 +16,23 @@ import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import usePositionHistory from '@/app/hooks/position/usePositionHistory'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = MarginProps
 
 const ShortCollateralRewardsCardGrid = withSuspense(
   ({ ...styleProps }: MarginProps) => {
-    const network = useNetwork() // TODO: @dillon Use network again and replace Network.Optimism
-    const epochs = useLatestRewardEpoch(Network.Optimism, true)
+    const network = useNetwork()
+    const epochs = useLatestRewardEpoch(network, true)
     const positions = usePositionHistory(true)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account
-    const { lyra: lyraRewardsCap, op: opRewardsCap } = globalRewardEpoch?.tradingRewardsCap ?? { lyra: 0, op: 0 }
-    const { lyra: lyraRewards, op: opRewards } = accountRewardEpoch?.shortCollateralRewards ?? {
-      lyra: 0,
-      op: 0,
-    }
+    // @ TODO - DIllon to to loop through later
+    const lyraRewardsCap = findLyraRewardEpochToken(globalRewardEpoch?.tradingRewardsCap ?? [])
+    const opRewardsCap = findOpRewardEpochToken(globalRewardEpoch?.tradingRewardsCap ?? [])
+    const lyraRewards = findLyraRewardEpochToken(accountRewardEpoch?.shortCollateralRewards ?? [])
+    const opRewards = findLyraRewardEpochToken(accountRewardEpoch?.shortCollateralRewards ?? [])
 
     const shortPositions = useMemo(() => {
       if (!globalRewardEpoch) {
@@ -57,17 +57,23 @@ const ShortCollateralRewardsCardGrid = withSuspense(
       }
       return shortPositions.reduce(
         (sum, position) => {
-          const { lyra, op } = globalRewardEpoch.shortCollateralYieldPerDay(
+          const shortCollateralYields = globalRewardEpoch.shortCollateralYieldPerDay(
             fromBigNumber(position.size),
             fromBigNumber(position.delta),
             position.expiryTimestamp,
             position.market().baseToken.symbol
           )
+          // TODO @dillon - come back later
+          const lyra = findLyraRewardEpochToken(shortCollateralYields)
+          const op = findOpRewardEpochToken(shortCollateralYields)
           return { lyra: sum.lyra + lyra, op: sum.op + op }
         },
         { lyra: 0, op: 0 }
       )
     }, [shortPositions, globalRewardEpoch])
+
+    // TODO: @dillon remove next epoch
+    const isDepositPeriod = globalRewardEpoch?.isDepositPeriod
 
     return (
       <Grid
@@ -88,10 +94,14 @@ const ShortCollateralRewardsCardGrid = withSuspense(
           </Text>
           <Flex alignItems="center">
             <TokenAmountText variant="secondary" tokenNameOrAddress="stkLyra" amount={lyraYieldPerDay} />
-            <Text variant="secondary" mx={2}>
-              ·
-            </Text>
-            <TokenAmountText variant="secondary" tokenNameOrAddress="OP" amount={opYieldPerDay} />
+            {opRewardsCap > 0 ? (
+              <>
+                <Text variant="secondary" mx={2}>
+                  ·
+                </Text>
+                <TokenAmountText variant="secondary" tokenNameOrAddress="OP" amount={opYieldPerDay} />
+              </>
+            ) : null}
           </Flex>
         </Flex>
         {lyraRewardsCap > 0 ? (
@@ -99,7 +109,11 @@ const ShortCollateralRewardsCardGrid = withSuspense(
             <Text variant="secondary" color="secondaryText" mb={2}>
               Pending stkLYRA
             </Text>
-            <TokenAmountText variant="secondary" tokenNameOrAddress="stkLyra" amount={lyraRewards} />
+            <TokenAmountText
+              variant="secondary"
+              tokenNameOrAddress="stkLyra"
+              amount={isDepositPeriod ? 0 : lyraRewards}
+            />
           </Flex>
         ) : null}
         {opRewardsCap > 0 ? (

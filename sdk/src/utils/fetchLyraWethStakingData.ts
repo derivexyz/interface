@@ -59,7 +59,9 @@ const fetchLyraWethStakingData = async (
   const poolLyraValue = fromBigNumber(amount1Current) * lyraPrice
   const tvl = poolWethValue + poolLyraValue
   const tokenValue = supply ? tvl / fromBigNumber(supply) : 0
-  const opRewardRate = (globalRewardEpoch?.wethLyraStaking.op ?? 0) / SECONDS_IN_TWO_WEEKS
+  const opRewardRate =
+    (globalRewardEpoch?.wethLyraStaking.find(token => token.symbol.toLowerCase() === 'op')?.amount ?? 0) /
+    SECONDS_IN_TWO_WEEKS
   const yieldPerSecondPerToken = balanceOf ? opRewardRate / fromBigNumber(balanceOf) : 0
   const apy = tokenValue > 0 ? (yieldPerSecondPerToken * SECONDS_IN_YEAR * (opPrice ?? 0)) / tokenValue : 0
   return { apy, tokenValue }

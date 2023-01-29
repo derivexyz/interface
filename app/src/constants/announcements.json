@@ -36,18 +36,19 @@
     "expiryTimestamp": 1675170000
   },
   {
-    "id": "arbitrum-soft-launch",
-    "header": "Beta trading on Arbitrum",
-    "title": "Trading is now live on Arbitrum with limited liquidity.",
+    "id": "arbitrum-deposits",
+    "header": "Deposit to Arbitrum Vaults",
+    "title": "Deposit USDC into the new Arbitrum ETH vault to earn your share of more than 1m LYRA rewards in the first 2 week epoch.",
     "cta": [
       {
-        "label": "Start Trading",
-        "href": "/trade/arbitrum/weth-usdc",
+        "label": "Deposit",
+        "href": "/vaults/arbitrum/eth-usdc",
         "variant": "default"
       }
     ],
     "graphic": "images/arbitrum-circle.svg",
     "startTimestamp": 1674565200,
-    "expiryTimestamp": 1675170000
+    "expiryTimestamp": 1675206000,
+    "showCountdown": true
   }
 ]

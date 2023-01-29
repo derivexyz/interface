@@ -1,10 +1,4 @@
-import {
-  AccountLyraBalances,
-  AccountRewardEpoch,
-  AccountRewardEpochAPY,
-  GlobalRewardEpochAPY,
-  Network,
-} from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, AccountRewardEpoch, Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
 
 import { ZERO_ADDRESS, ZERO_BN } from '../constants/bn'
 import { Vault } from '../constants/vault'
@@ -12,11 +6,7 @@ import fromBigNumber from './fromBigNumber'
 import getEmptyMarketBalances from './getEmpyMarketBalances'
 import getLyraSDK from './getLyraSDK'
 
-const EMPTY_APY: GlobalRewardEpochAPY | AccountRewardEpochAPY = {
-  op: 0,
-  lyra: 0,
-  total: 0,
-}
+const EMPTY_APY: RewardEpochTokenAmount[] = []
 
 const EMPTY_LYRA_BALANCE: AccountLyraBalances = {
   ethereumLyra: ZERO_BN,
@@ -56,6 +46,7 @@ const fetchVault = async (network: Network, marketAddressOrName: string, walletA
   const minApy = globalRewardEpoch?.minVaultApy(marketAddressOrName) ?? EMPTY_APY
   const maxApy = globalRewardEpoch?.maxVaultApy(marketAddressOrName) ?? EMPTY_APY
   const apy = accountRewardEpoch?.vaultApy(marketAddressOrName) ?? minApy
+  const apyMultiplier = accountRewardEpoch?.vaultApyMultiplier(marketAddressOrName) ?? 1
 
   const liquidityToken = marketBalances.liquidityToken
 
@@ -77,6 +68,7 @@ const fetchVault = async (network: Network, marketAddressOrName: string, walletA
     minApy,
     maxApy,
     apy,
+    apyMultiplier,
     utilization,
     pendingDeposits,
     pendingWithdrawals,

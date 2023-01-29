@@ -161,6 +161,4 @@ export class LiquidityDeposit {
   market(): Market {
     return this.__market
   }
-
-  // TODO: @dillonlin add a way to retrieve multiple liquidity deposits from multiple markets
 }

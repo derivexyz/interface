@@ -12,12 +12,13 @@ import React, { useEffect, useMemo } from 'react'
 import { Flex } from 'rebass'
 
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
-import VaultsSelector from '@/app/components/common/VaultSelector'
+// import VaultsSelector from '@/app/components/common/VaultSelector'
 import { ZERO_BN } from '@/app/constants/bn'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLyraAccountStaking from '@/app/hooks/rewards/useLyraAccountStaking'
 import useMarkets from '@/app/hooks/rewards/useMarkets'
 import useUnstake from '@/app/hooks/rewards/useUnstake'
+import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 import toBigNumber from '@/app/utils/toBigNumber'
 
 import TokenImage from '../../common/TokenImage'
@@ -51,12 +52,16 @@ const UnstakeCardBodyBottomSection = withSuspense(
       newLyraStakingYieldPerDay,
       newOpStakingYieldPerDay,
     } = useMemo(() => {
-      const lyraStakingYieldPerDay = unstake?.stakingYieldPerDay.lyra ?? 0
-      const opStakingYieldPerDay = unstake?.stakingYieldPerDay.op ?? 0
-      const newLyraStakingYieldPerDay = unstake?.newStakingYieldPerDay.lyra ?? 0
-      const newOpStakingYieldPerDay = unstake?.newStakingYieldPerDay.op ?? 0
-      const vaultApy = vault?.address ? unstake?.vaultApy(vault?.address ?? '').total ?? 0 : 0
-      const newVaultApy = vault?.address ? unstake?.newVaultApy(vault?.address ?? '').total ?? 0 : 0
+      const lyraStakingYieldPerDay = findLyraRewardEpochToken(unstake?.stakingYieldPerDay ?? [])
+      const opStakingYieldPerDay = findOpRewardEpochToken(unstake?.stakingYieldPerDay ?? [])
+      const newLyraStakingYieldPerDay = findLyraRewardEpochToken(unstake?.newStakingYieldPerDay ?? [])
+      const newOpStakingYieldPerDay = findOpRewardEpochToken(unstake?.newStakingYieldPerDay ?? [])
+      const vaultApy = vault?.address
+        ? unstake?.vaultApy(vault?.address ?? '').reduce((total, token) => total + token.amount, 0) ?? 0
+        : 0
+      const newVaultApy = vault?.address
+        ? unstake?.newVaultApy(vault?.address ?? '').reduce((total, token) => total + token.amount, 0) ?? 0
+        : 0
       return {
         lyraStakingYieldPerDay,
         opStakingYieldPerDay,
@@ -96,7 +101,7 @@ const UnstakeCardBodyBottomSection = withSuspense(
             </Flex>
           </Flex>
         </Flex>
-        <Flex width="100%" mb={8}>
+        {/* <Flex width="100%" mb={8}>
           <VaultsSelector size="md" vaults={markets} onChangeVault={setVault} selectedVault={vault} ml={-2} />
           <Flex ml="auto" alignItems="center">
             <TokenImage size={20} nameOrAddress="OP" />
@@ -109,7 +114,7 @@ const UnstakeCardBodyBottomSection = withSuspense(
               color={newVaultApy < vaultApy ? 'errorText' : 'secondaryText'}
             />
           </Flex>
-        </Flex>
+        </Flex> */}
         {unstakeWindowEndTimestamp > currentTimestamp ? (
           <Flex width="100%" mb={8} alignItems="center" justifyContent="space-between">
             <Text variant="body" color="secondaryText">

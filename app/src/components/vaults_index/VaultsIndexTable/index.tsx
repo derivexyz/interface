@@ -6,7 +6,7 @@ import Table, { TableCellProps, TableColumn, TableData, TableElement } from '@ly
 import Text from '@lyra/ui/components/Text'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import formatBalance from '@lyra/ui/utils/formatBalance'
-import formatPercentage from '@lyra/ui/utils/formatPercentage'
+import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
@@ -18,6 +18,8 @@ import { PageId } from '@/app/constants/pages'
 import { Vault } from '@/app/constants/vault'
 import VaultsDepositFormModal from '@/app/containers/vaults/VaultsDepositFormModal'
 import filterNulls from '@/app/utils/filterNulls'
+import formatAPY from '@/app/utils/formatAPY'
+import formatAPYRange from '@/app/utils/formatAPYRange'
 import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
@@ -58,12 +60,13 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
   const rows: VaultsIndexTableData[] = useMemo(() => {
     return vaults.map(vault => {
       const { market, tvl, apy, liquidityTokenBalanceValue, pendingDeposits, pendingWithdrawals } = vault
+      const totalApy = apy.reduce((total, token) => total + token.amount, 0)
       return {
         vault,
         vaultName: formatTokenName(market.baseToken),
         balance: liquidityTokenBalanceValue,
         tvl,
-        apy: apy.total,
+        apy: totalApy,
         depositing: pendingDeposits.reduce((sum, d) => sum + fromBigNumber(d.value), 0),
         withdrawing: pendingWithdrawals.reduce((sum, d) => sum + fromBigNumber(d.balance), 0),
         onClick: () => {
@@ -84,14 +87,27 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
           Header: 'Vault',
           Cell: (props: TableCellProps<VaultsIndexTableData>) => {
             const {
-              vault: { market },
+              vault: { market, globalRewardEpoch },
             } = props.row.original
+
+            const isNew = globalRewardEpoch && globalRewardEpoch.id <= 1
+
             return (
               <Flex alignItems="center">
                 <MarketImage market={market} />
                 <Box ml={2}>
                   <Text variant="secondaryMedium">{props.cell.value} Vault</Text>
                   <Text variant="small" color="secondaryText">
+                    {isNew ? (
+                      <>
+                        <Text variant="smallMedium" as="span" color="primaryText">
+                          NEW
+                        </Text>{' '}
+                        ·{' '}
+                      </>
+                    ) : (
+                      ''
+                    )}
                     {getNetworkDisplayName(market.lyra.network)}
                   </Text>
                 </Box>
@@ -186,23 +202,20 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
           Header: 'Rewards APY',
           Cell: ({ cell }: TableCellProps<VaultsIndexTableData>) => {
             const { vault } = cell.row.original
+            const totalApy = vault.apy.reduce((total, token) => total + token.amount, 0)
+            const minTotalApy = vault.minApy.reduce((total, token) => total + token.amount, 0)
+            const { apyMultiplier } = vault
             return (
               <Box>
                 <Flex alignItems="center">
-                  <Text
-                    variant="secondary"
-                    color={vault.apy.total > 0 && vault.apy.total > vault.minApy.total ? 'primaryText' : 'text'}
-                  >
-                    {formatPercentage(cell.row.original.apy, true)}
+                  <Text variant="secondary" color={totalApy > 0 && totalApy > minTotalApy ? 'primaryText' : 'text'}>
+                    {formatAPY(totalApy > 0 ? vault.apy : vault.minApy, { showSymbol: false, showEmptyDash: true })}
+                    {apyMultiplier > 1.01 ? ` (${formatNumber(apyMultiplier)}x)` : ''}
                   </Text>
                 </Flex>
-                {vault.apy.total > 0 ? (
+                {totalApy > 0 ? (
                   <Text variant="small" color="secondaryText">
-                    {formatPercentage(vault.minApy.total, true)}
-                    {' - '}
-                    {formatPercentage(vault.maxApy.total, true)}
-                    {vault.minApy.op ? ' OP' : ''}
-                    {vault.minApy.lyra ? ', stkLYRA' : ''}
+                    {formatAPYRange(vault.minApy, vault.maxApy)}
                   </Text>
                 ) : null}
               </Box>
@@ -241,24 +254,26 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
               id: 'boost',
               width: 105,
               Cell: (props: TableCellProps<VaultsIndexTableData>) => {
-                const { vault } = props.cell.row.original
+                const { balance, vault } = props.cell.row.original
 
-                const { market, apy, maxApy } = vault
-
+                const { market } = vault
                 // Check for max boost with 1% buffer
-                const isMaxBoost = maxApy.total > 0 && apy.total * 1.01 > maxApy.total
+                const maxTotalApy = vault.maxApy.reduce((total, apy) => total + apy.amount, 0)
+                const totalApy = vault.apy.reduce((total, apy) => total + apy.amount, 0)
+                const isMaxBoost = maxTotalApy > 0 && totalApy * 1.01 > maxTotalApy
                 return (
                   <>
                     <Button
-                      label="Boost"
+                      label={isMaxBoost ? 'Boosted' : 'Boost'}
                       rightIcon={isMaxBoost ? IconType.Check : null}
                       variant="primary"
                       isDisabled={
                         isMaxBoost ||
-                        maxApy.total === 0 ||
+                        maxTotalApy === 0 ||
                         !!IGNORE_VAULTS_LIST.find(
                           ({ marketName, chain }) => marketName === market.name && chain === market.lyra.chain
-                        )
+                        ) ||
+                        balance === 0
                       }
                       onClick={e => {
                         setBoostModalVault(vault)

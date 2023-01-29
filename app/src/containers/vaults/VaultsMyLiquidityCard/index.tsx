@@ -7,7 +7,8 @@ import Grid from '@lyra/ui/components/Grid'
 import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import formatBalance from '@lyra/ui/utils/formatBalance'
-import formatPercentage from '@lyra/ui/utils/formatPercentage'
+import formatDuration from '@lyra/ui/utils/formatDuration'
+import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import React, { useCallback, useState } from 'react'
 
@@ -17,6 +18,8 @@ import VaultsPendingWithdrawalsTableOrList from '@/app/components/common/VaultsP
 import { IGNORE_VAULTS_LIST } from '@/app/constants/ignore'
 import { Vault } from '@/app/constants/vault'
 import VaultsBoostFormModal from '@/app/containers/vaults/VaultsBoostFormModal'
+import formatAPY from '@/app/utils/formatAPY'
+import formatAPYRange from '@/app/utils/formatAPYRange'
 
 import VaultsDepositFormModal from '../VaultsDepositFormModal'
 import VaultsWithdrawFormModal from '../VaultsWithdrawFormModal'
@@ -34,9 +37,14 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
   const onBoostClose = useCallback(() => setBoostModalOpen(false), [])
 
   // Check for max boost with 1% buffer
-  const isMaxBoost = vault.maxApy.total > 0 && vault.apy.total * 1.01 > vault.maxApy.total
+  const totalApy = vault.apy.reduce((total, token) => total + token.amount, 0)
+  const minTotalApy = vault.minApy.reduce((total, token) => total + token.amount, 0)
+  const maxTotalApy = vault.maxApy.reduce((total, token) => total + token.amount, 0)
+  const isMaxBoost = maxTotalApy > 0 && totalApy * 1.01 > maxTotalApy
 
-  const { market } = vault
+  const { market, globalRewardEpoch, apyMultiplier } = vault
+
+  const isNew = globalRewardEpoch && globalRewardEpoch.id <= 1
 
   return (
     <Card>
@@ -49,13 +57,19 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
           <LabelItem label="Balance" value={formatBalance(vault.liquidityToken.balance, vault.liquidityToken.symbol)} />
           <LabelItem
             label="Your APY"
-            valueColor={isMaxBoost ? 'primaryText' : 'text'}
-            value={formatPercentage(vault.apy.total, true)}
+            valueColor={minTotalApy > 0 && totalApy > minTotalApy ? 'primaryText' : 'text'}
+            value={`${formatAPY(vault.apy, { showSymbol: false, showEmptyDash: true })}${
+              apyMultiplier > 1.01 ? ` (${formatNumber(apyMultiplier)}x)` : ''
+            }`}
           />
-          {vault.minApy.total > 0 ? (
+          <LabelItem label="APY Range" value={formatAPYRange(vault.minApy, vault.maxApy, { showEmptyDash: true })} />
+          {isNew && globalRewardEpoch.startEarningTimestamp ? (
             <LabelItem
-              label="APY Range"
-              value={`${formatPercentage(vault.minApy.total, true)} - ${formatPercentage(vault.maxApy.total, true)}`}
+              label="Start Earning"
+              value={formatDuration(
+                Math.max(globalRewardEpoch.startEarningTimestamp - market.block.timestamp, 0),
+                true
+              )}
             />
           ) : null}
         </Grid>

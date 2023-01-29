@@ -10,7 +10,6 @@ import Countdown from '@lyra/ui/components/Text/CountdownText'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -20,31 +19,49 @@ import { PageId } from '@/app/constants/pages'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 import getPagePath from '@/app/utils/getPagePath'
 
 type Props = MarginProps
 
 const PendingRewardsCardGridItems = withSuspense(
   () => {
-    const network = useNetwork() // TODO: @dillon Use network again and replace Network.Optimism
-    const epochs = useLatestRewardEpoch(Network.Optimism, true)
+    const network = useNetwork()
+    const epochs = useLatestRewardEpoch(network, true)
     const account = epochs?.account
     const global = epochs?.global
     const epochEndTimestamp = global?.endTimestamp ?? 0
-    const opStakingRewards = account?.stakingRewards.op ?? 0
-    const opVaultRewards = account?.totalVaultRewards.op ?? 0
-    const opTradingRewards = account?.tradingRewards.op ?? 0
-    const opShortCollatRewards = account?.shortCollateralRewards.op ?? 0
-    const wethLyraStakingRewards = account?.wethLyraStaking.opRewards ?? 0
+    // TODO - @dillon refactor later with better solution
+    const opStakingRewards = findOpRewardEpochToken(account?.stakingRewards ?? [])
+    const opVaultRewards = findOpRewardEpochToken(account?.totalVaultRewards ?? [])
+    const opTradingRewards = findOpRewardEpochToken(account?.tradingRewards ?? [])
+    const opShortCollatRewards = findOpRewardEpochToken(account?.shortCollateralRewards ?? [])
+    const wethLyraStakingRewards = findOpRewardEpochToken(account?.wethLyraStaking.rewards ?? [])
     const opRewards =
       opStakingRewards + opVaultRewards + opTradingRewards + opShortCollatRewards + wethLyraStakingRewards
+    const stkLyraStakingRewards = findLyraRewardEpochToken(account?.stakingRewards ?? [])
+    const stkLyraVaultRewards = findLyraRewardEpochToken(account?.totalVaultRewards ?? [])
+    const stkLyraTradingRewards = findLyraRewardEpochToken(account?.tradingRewards ?? [])
+    const stkLyraShortCollatRewards = findLyraRewardEpochToken(account?.shortCollateralRewards ?? [])
+    const stkLyraRewards =
+      stkLyraStakingRewards + stkLyraVaultRewards + stkLyraTradingRewards + stkLyraShortCollatRewards
+
+    // TODO: @dillon remove flags later
+    const isDepositPeriod = global?.isDepositPeriod
     return (
       <>
         <Box>
           <Text variant="secondary" color="secondaryText" mb={2}>
-            Pending OP
+            Pending Rewards
           </Text>
-          <TokenAmountText tokenNameOrAddress="op" variant="secondary" amount={opRewards} />
+          {opRewards > 0 ? (
+            <TokenAmountText tokenNameOrAddress="op" variant="secondary" amount={isDepositPeriod ? 0 : opRewards} />
+          ) : null}
+          <TokenAmountText
+            tokenNameOrAddress="stkLyra"
+            variant="secondary"
+            amount={isDepositPeriod ? 0 : stkLyraRewards}
+          />
         </Box>
         <Box>
           <Text variant="secondary" color="secondaryText" mb={2}>
@@ -70,15 +87,18 @@ const PendingRewardsCardGridItems = withSuspense(
 const PendingStakedLyraText = withSuspense(
   () => {
     const network = useNetwork()
-    const account = useLatestRewardEpoch(network, true)?.account
+    const epochs = useLatestRewardEpoch(network, true)
+    const account = epochs?.account
+    // TODO: @dillon remove next epoch
+    const isDepositPeriod = epochs?.global.isDepositPeriod
     // Omit staking rewards due to 6mo lock
-    const lyraVaultRewards = account?.totalVaultRewards.lyra ?? 0
-    const lyraTradingRewards = account?.tradingRewards.lyra ?? 0
-    const lyraShortCollatRewards = account?.shortCollateralRewards.lyra ?? 0
+    const lyraVaultRewards = findLyraRewardEpochToken(account?.totalVaultRewards ?? [])
+    const lyraTradingRewards = findLyraRewardEpochToken(account?.tradingRewards ?? [])
+    const lyraShortCollatRewards = findLyraRewardEpochToken(account?.shortCollateralRewards ?? [])
     const lyraRewards = lyraVaultRewards + lyraTradingRewards + lyraShortCollatRewards
     return (
       <Text variant="heading" color="secondaryText">
-        {formatNumber(lyraRewards)} stkLYRA
+        {formatNumber(isDepositPeriod ? 0 : lyraRewards)} stkLYRA
       </Text>
     )
   },

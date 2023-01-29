@@ -7,6 +7,7 @@ import { IconType } from '@lyra/ui/components/Icon'
 import Image from '@lyra/ui/components/Image'
 import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
+import Countdown from '@lyra/ui/components/Text/CountdownText'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React, { useCallback } from 'react'
 
@@ -77,6 +78,12 @@ export default function PortfolioAnnouncementCard({
           <Flex alignItems="center">
             <Text mr={2} variant="heading" color="text">
               {announcement.header}
+              {announcement.showCountdown ? (
+                <>
+                  &nbsp;&nbsp;·&nbsp;&nbsp;
+                  <Countdown as="span" variant="heading" timestamp={announcement.expiryTimestamp} showSeconds />
+                </>
+              ) : null}
             </Text>
             <IconButton ml="auto" variant="light" icon={IconType.X} onClick={handleClickClose} />
           </Flex>

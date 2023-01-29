@@ -42,27 +42,37 @@ const VaultsStatsCard = withSuspense(
             Stats
           </Text>
           <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gridColumnGap: 6, gridRowGap: 6 }}>
+            {!isBoardsLive ? <LabelItem label="Status" value="Deposits only" valueColor="text" /> : null}
             <LabelItem
               label="30D Perf (Annualized)"
               value={isLiquidityData15DOld ? formatPercentage(tokenPriceChangeAnnualized) : 'Not enough data'}
               valueColor="text"
             />
-            <LabelItem
-              label="Pool Utilization"
-              value={isBoardsLive ? formatPercentage(utilization, true) : '-'}
-              valueColor="text"
-            />
+            {isBoardsLive ? (
+              <LabelItem
+                label="Pool Utilization"
+                value={isBoardsLive ? formatPercentage(utilization, true) : '-'}
+                valueColor="text"
+              />
+            ) : null}
             {isBoardsLive ? (
               <LabelItem label="Pending Deposits" value={formatTruncatedUSD(pendingDeposits)} valueColor="text" />
             ) : null}
             {isBoardsLive ? (
               <LabelItem label="Pending Withdrawals" value={formatTruncatedUSD(pendingWithdrawals)} valueColor="text" />
             ) : null}
-            <LabelItem label="Net Delta" value={`${netDelta.gt(0) ? '+' : ''}${formatNumber(netDelta, { dps: 3 })}`} />
-            <LabelItem
-              label="Net Vega"
-              value={`${netStdVega.gt(0) ? '+' : ''}${formatNumber(netStdVega, { dps: 3 })}`}
-            />
+            {isBoardsLive ? (
+              <LabelItem
+                label="Net Delta"
+                value={`${netDelta.gt(0) ? '+' : ''}${formatNumber(netDelta, { dps: 3 })}`}
+              />
+            ) : null}
+            {isBoardsLive ? (
+              <LabelItem
+                label="Net Vega"
+                value={`${netStdVega.gt(0) ? '+' : ''}${formatNumber(netStdVega, { dps: 3 })}`}
+              />
+            ) : null}
           </Grid>
         </CardBody>
       </Card>

@@ -8,6 +8,7 @@ export type FormatNumberOptions = {
   maxDps?: number
   precision?: number
   showSign?: boolean
+  showCommas?: boolean
 }
 
 // default to 0.1% precision
@@ -25,6 +26,7 @@ export default function formatNumber(value: number | BigNumber, options?: Format
     maxDps: _maxDps = 6,
     precision = DEFAULT_PRECISION,
     showSign = false,
+    showCommas = true,
   } = options ?? {}
 
   const minDps = dps !== undefined ? dps : _minDps
@@ -58,7 +60,7 @@ export default function formatNumber(value: number | BigNumber, options?: Format
   // commas for number part e.g. 1,000,000
   // padded zeroes for dp precision e.g. 0.1000
   const parts = roundedVal.toString().split('.')
-  const num = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') // add commas
+  const num = showCommas ? parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') : parts[0] // add commas
   const dec = (parts[1] || '').padEnd(minDps, '0')
   const numStr = dec != null && dec.length > 0 ? num + '.' + dec : num
   return roundedVal > 0 && showSign ? '+' + numStr : numStr

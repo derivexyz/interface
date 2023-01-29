@@ -35,12 +35,15 @@ const ShortYieldValue = withSuspense(
       market.baseToken.symbol
     )
     const isEnabled = !isLong && size.gt(0) && !!yieldPerDay
-    const isEarning = yieldPerDay && yieldPerDay.lyra + yieldPerDay.op > 0
+    const lyraYieldPerDay =
+      yieldPerDay?.find(token => ['lyra', 'stklyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
+    const opYieldPerDay = yieldPerDay?.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
+    const isEarning = yieldPerDay && lyraYieldPerDay + opYieldPerDay > 0
 
     const rewardsStr = yieldPerDay
       ? filterNulls([
-          yieldPerDay.lyra ? formatTruncatedBalance(yieldPerDay.lyra, 'LYRA') : null,
-          yieldPerDay.op ? formatTruncatedBalance(yieldPerDay.op, 'OP') : null,
+          opYieldPerDay ? formatTruncatedBalance(opYieldPerDay, 'LYRA') : null,
+          opYieldPerDay ? formatTruncatedBalance(opYieldPerDay, 'OP') : null,
         ]).join(', ')
       : null
 
@@ -59,11 +62,11 @@ const ShortYieldValue = withSuspense(
                   : `You are earning`}{' '}
                 an estimated daily rate of{' '}
                 <Text as="span" color={isEnabled && isEarning ? 'primaryText' : 'text'}>
-                  {formatBalance(yieldPerDay.lyra, 'LYRA', { maxDps: 2 })}
+                  {formatBalance(opYieldPerDay, 'LYRA', { maxDps: 2 })}
                 </Text>{' '}
                 and{' '}
                 <Text as="span" color={isEnabled && isEarning ? 'primaryText' : 'text'}>
-                  {formatBalance(yieldPerDay.op, 'OP', { maxDps: 2 })}
+                  {formatBalance(opYieldPerDay, 'OP', { maxDps: 2 })}
                 </Text>{' '}
                 until the option expires.
               </Text>

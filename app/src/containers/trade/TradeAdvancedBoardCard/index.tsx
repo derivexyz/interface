@@ -318,8 +318,8 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
 
   return (
     <Card>
-      <CardSection noPadding>
-        <Table columns={columns} data={rows} />
+      <CardSection noPadding={rows.length > 0}>
+        {rows.length > 0 ? <Table columns={columns} data={rows} /> : <Text color="secondaryText">No expiries</Text>}
       </CardSection>
     </Card>
   )

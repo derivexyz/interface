@@ -15,6 +15,7 @@ export type Announcement = {
   graphic?: string
   startTimestamp: number
   expiryTimestamp: number
+  showCountdown?: boolean
 }
 
 export default announcements as Announcement[]

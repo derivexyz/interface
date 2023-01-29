@@ -3,13 +3,12 @@ import {
   AccountLiquidityTokenBalance,
   AccountLyraBalances,
   AccountRewardEpoch,
-  AccountRewardEpochAPY,
   GlobalRewardEpoch,
-  GlobalRewardEpochAPY,
   LiquidityDeposit,
   LiquidityWithdrawal,
   Market,
   MarketLiquiditySnapshot,
+  RewardEpochTokenAmount,
 } from '@lyrafinance/lyra-js'
 
 export type Vault = {
@@ -22,9 +21,10 @@ export type Vault = {
   tvl: number
   liquidityTokenBalanceValue: number
   liquidityToken: AccountLiquidityTokenBalance
-  minApy: GlobalRewardEpochAPY
-  maxApy: GlobalRewardEpochAPY
-  apy: AccountRewardEpochAPY
+  minApy: RewardEpochTokenAmount[]
+  maxApy: RewardEpochTokenAmount[]
+  apy: RewardEpochTokenAmount[]
+  apyMultiplier: number
   utilization: number
   pendingDeposits: LiquidityDeposit[]
   pendingWithdrawals: LiquidityWithdrawal[]

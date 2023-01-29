@@ -15,7 +15,7 @@ export const createFetcherWithFetchId =
       return null
     }
     const data = await fetcher(...args)
-    console.debug('fetch', fetchId, args, { data })
+    console.debug('fetch', [fetchId, ...args], data)
     return data
   }
 
@@ -27,7 +27,7 @@ export const useMutate = <Data, Args extends FetchArg[]>(
   return useCallback(
     async (...args: Args) => {
       const data = await mutate<Data>([fetchId, ...args])
-      console.debug('mutate', fetchId, args, { data })
+      console.debug('mutate', [fetchId, ...args], data)
       return data !== undefined ? data : null
     },
     [mutate, fetchId]

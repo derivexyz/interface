@@ -5,7 +5,7 @@ import { Account, AccountBalances, AccountLiquidityTokenBalance, AccountLyraStak
 import { ZERO_BN } from '../constants/bn'
 import { LyraGlobalContractId } from '../constants/contracts'
 import { SECONDS_IN_DAY } from '../constants/time'
-import { GlobalRewardEpoch, GlobalRewardEpochAPY, GlobalRewardEpochTokens } from '../global_reward_epoch'
+import { GlobalRewardEpoch, RewardEpochTokenAmount } from '../global_reward_epoch'
 import Lyra from '../lyra'
 import buildTx from '../utils/buildTx'
 import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
@@ -38,8 +38,8 @@ export class LyraUnstake {
   stakedLyraBalance: BigNumber
   // Derived
   newStakedLyraBalance: BigNumber
-  newStakingYieldPerDay: GlobalRewardEpochTokens
-  stakingYieldPerDay: GlobalRewardEpochTokens
+  newStakingYieldPerDay: RewardEpochTokenAmount[]
+  stakingYieldPerDay: RewardEpochTokenAmount[]
   tradingFeeRebate: number
   newTradingFeeRebate: number
   disabledReason: UnstakeDisabledReason | null
@@ -71,28 +71,29 @@ export class LyraUnstake {
     const newStakedLyraPctShare =
       totalStakedLyraSupply > 0 ? fromBigNumber(this.newStakedLyraBalance) / totalStakedLyraSupply : 0
 
-    const totalLyraPerDay =
-      this.globalEpoch && this.globalEpoch.duration > 0
-        ? (this.globalEpoch.totalStakingRewards.lyra / this.globalEpoch.duration) * SECONDS_IN_DAY
-        : 0
-    const lyraPerDay = totalLyraPerDay * stakedLyraPctShare
-    const newLyraPerDay = totalLyraPerDay * newStakedLyraPctShare
+    this.stakingYieldPerDay =
+      this.globalEpoch?.totalStakingRewards.map(token => {
+        const totalTokensPerDay =
+          this.globalEpoch && this.globalEpoch.duration > 0
+            ? (token.amount / this.globalEpoch.duration) * SECONDS_IN_DAY
+            : 0
+        return {
+          ...token,
+          amount: totalTokensPerDay * stakedLyraPctShare,
+        }
+      }) ?? []
 
-    const totalOpPerDay =
-      this.globalEpoch && this.globalEpoch.duration > 0
-        ? (this.globalEpoch.totalStakingRewards.op / this.globalEpoch.duration) * SECONDS_IN_DAY
-        : 0
-    const opPerDay = totalOpPerDay * stakedLyraPctShare
-    const newOpPerDay = totalOpPerDay * newStakedLyraPctShare
-
-    this.stakingYieldPerDay = {
-      lyra: lyraPerDay,
-      op: opPerDay,
-    }
-    this.newStakingYieldPerDay = {
-      lyra: newLyraPerDay,
-      op: newOpPerDay,
-    }
+    this.newStakingYieldPerDay =
+      this.globalEpoch?.totalStakingRewards.map(token => {
+        const totalTokensPerDay =
+          this.globalEpoch && this.globalEpoch.duration > 0
+            ? (token.amount / this.globalEpoch.duration) * SECONDS_IN_DAY
+            : 0
+        return {
+          ...token,
+          amount: totalTokensPerDay * newStakedLyraPctShare,
+        }
+      }) ?? []
 
     this.tradingFeeRebate = this.globalEpoch?.tradingFeeRebate(fromBigNumber(this.stakedLyraBalance)) ?? 0
     this.newTradingFeeRebate = this.globalEpoch?.tradingFeeRebate(fromBigNumber(this.newStakedLyraBalance)) ?? 0
@@ -174,13 +175,9 @@ export class LyraUnstake {
 
   // Dynamic Fields
 
-  vaultApy(marketAddressOrName: string): GlobalRewardEpochAPY {
+  vaultApy(marketAddressOrName: string): RewardEpochTokenAmount[] {
     if (!this.globalEpoch) {
-      return {
-        total: 0,
-        lyra: 0,
-        op: 0,
-      }
+      return []
     }
     const market = findMarketX(this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
@@ -189,13 +186,9 @@ export class LyraUnstake {
     return this.globalEpoch.vaultApy(marketAddressOrName, currStakedLyraBalance, currVaultTokenBalance)
   }
 
-  newVaultApy(marketAddressOrName: string): GlobalRewardEpochAPY {
+  newVaultApy(marketAddressOrName: string): RewardEpochTokenAmount[] {
     if (!this.globalEpoch) {
-      return {
-        total: 0,
-        lyra: 0,
-        op: 0,
-      }
+      return []
     }
     const market = findMarketX(this.globalEpoch.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol

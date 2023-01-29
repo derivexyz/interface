@@ -3,6 +3,7 @@ import CardSection from '@lyra/ui/components/Card/CardSection'
 import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import Flex from '@lyra/ui/components/Flex'
 import { IconType } from '@lyra/ui/components/Icon'
+import BigNumberInput from '@lyra/ui/components/Input/BigNumberInput'
 import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
@@ -10,7 +11,6 @@ import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import React, { useState } from 'react'
 
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
-import VaultsFormSizeInput from '@/app/components/vaults/VaultsFormSizeInput'
 import { ZERO_BN } from '@/app/constants/bn'
 import { WITHDRAW_WARNING_DOC_URL } from '@/app/constants/links'
 import { Vault } from '@/app/constants/vault'
@@ -34,7 +34,17 @@ const VaultsDepositForm = ({ vault, onClose }: Props) => {
       <CardSection>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>
           <Text color="secondaryText">Amount</Text>
-          <VaultsFormSizeInput amount={amount} max={quoteBalance} onChangeAmount={setAmount} />
+          <BigNumberInput
+            width="50%"
+            value={amount}
+            onChange={setAmount}
+            placeholder={ZERO_BN}
+            max={quoteBalance}
+            decimals={market.quoteToken.decimals}
+            min={ZERO_BN}
+            textAlign="right"
+            showMaxButton
+          />
         </Flex>
         <Flex alignItems="center" justifyContent="space-between">
           <Text color="secondaryText" variant="secondary">
@@ -46,6 +56,7 @@ const VaultsDepositForm = ({ vault, onClose }: Props) => {
             isUSDFormat
             prevAmount={quoteBalance}
             newAmount={quoteBalance.sub(amount)}
+            decimals={market.quoteToken.decimals}
           />
         </Flex>
       </CardSection>
@@ -56,7 +67,7 @@ const VaultsDepositForm = ({ vault, onClose }: Props) => {
             Deposit Delay
           </Text>
           <Text variant="secondary">
-            {market.liveBoards().length === 0 || market.params.depositDelay === 0
+            {!market.liveBoards().length || !market.params.depositDelay
               ? 'None'
               : formatTruncatedDuration(market.params.depositDelay)}
           </Text>

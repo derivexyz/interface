@@ -8,9 +8,9 @@ import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import {
   AccountRewardEpoch,
-  AccountRewardEpochTokens,
   CollateralUpdateEvent,
   Position,
+  RewardEpochTokenAmount,
   SettleEvent,
   TradeEvent,
 } from '@lyrafinance/lyra-js'
@@ -38,7 +38,7 @@ export type TradeEventTableData = TableData<{
   timestamp: number
   premium: number
   fee: number
-  feeRebate: AccountRewardEpochTokens
+  feeRebate: RewardEpochTokenAmount[]
   pnl: number
   collateralValue: number
   collateralAmount: number
@@ -56,10 +56,7 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
       const accountRewardEpoch = accountRewardEpochs?.find(
         epoch => epoch.globalEpoch.startTimestamp < event.timestamp && epoch.globalEpoch.endTimestamp >= event.timestamp
       )
-      let feeRebate: AccountRewardEpochTokens = {
-        op: 0,
-        lyra: 0,
-      }
+      let feeRebate: RewardEpochTokenAmount[] = []
       let collateralValue = 0
       let collateralAmount = 0
       let premium = 0
@@ -179,9 +176,8 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
         Header: 'Premiums / Rebate',
         Cell: (props: TableCellProps<TradeEventTableData>) => {
           const { position, feeRebate } = props.row.original
+          const totalFeeRebate = feeRebate.reduce((sum, rebate) => sum + rebate.amount, 0)
           const market = position.market()
-          const lyraFeeRebate = feeRebate.lyra
-          const opFeeRebate = feeRebate.op
           return (
             <Box>
               <Text variant="secondary" color={props.cell.value ? 'text' : 'secondaryText'}>
@@ -189,9 +185,9 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
                   ? formatBalance(props.cell.value, market.quoteToken.symbol, { showSign: true, showDollars: true })
                   : '-'}
               </Text>
-              {lyraFeeRebate > 0 || opFeeRebate > 0 ? (
+              {totalFeeRebate > 0 ? (
                 <Text variant="small" color="secondaryText">
-                  {formatNumber(lyraFeeRebate, { maxDps: 3 })} LYRA, {formatNumber(opFeeRebate, { maxDps: 3 })} OP
+                  {feeRebate.map(rebate => formatNumber(rebate.amount, { maxDps: 3 })).join(', ')}
                 </Text>
               ) : null}
             </Box>

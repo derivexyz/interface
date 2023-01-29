@@ -1,7 +1,6 @@
 import { Chain } from '@lyrafinance/lyra-js'
 
 import filterNulls from '../utils/filterNulls'
-import isProd from '../utils/isProd'
 
 export type IgnoreStrike = {
   marketName: string
@@ -19,25 +18,13 @@ export type IgnoreMarket = {
   chain: Chain
 }
 
-export const IGNORE_STRIKE_LIST: IgnoreStrike[] = [
-  {
-    marketName: 'sBTC-sUSD',
-    strikeId: 36,
-    chain: Chain.Optimism,
-  },
-]
+export const IGNORE_STRIKE_LIST: IgnoreStrike[] = []
 
 export const IGNORE_VAULTS_LIST: IgnoreVault[] = filterNulls([
   {
     marketName: 'sSOL-sUSD',
     chain: Chain.Optimism,
   },
-  isProd()
-    ? {
-        marketName: 'ETH-USDC',
-        chain: Chain.Arbitrum,
-      }
-    : null,
 ])
 
 export const IGNORE_MARKETS_LIST: IgnoreMarket[] = filterNulls([

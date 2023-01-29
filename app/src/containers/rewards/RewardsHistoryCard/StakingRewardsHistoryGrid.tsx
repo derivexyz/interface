@@ -9,6 +9,7 @@ import { AccountRewardEpoch } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
+import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 
 type Props = {
   accountRewardEpoch: AccountRewardEpoch
@@ -16,12 +17,11 @@ type Props = {
   PaddingProps
 
 const StakingRewardsHistoryGrid = ({ accountRewardEpoch, ...marginProps }: Props) => {
-  const lyraRewards = accountRewardEpoch.stakingRewards.lyra
-  const opRewards = accountRewardEpoch.stakingRewards.op
-  const stakingRewards = accountRewardEpoch.stakingRewards
-  const lyraUnlockTimestamp = accountRewardEpoch.stakingRewardsUnlockTimestamp.lyra
-  const showStakingRewards = stakingRewards.lyra > 0 || stakingRewards.op > 0
-  const stakingApy = accountRewardEpoch.globalEpoch.stakingApy.total
+  const lyraRewards = findLyraRewardEpochToken(accountRewardEpoch.stakingRewards)
+  const opRewards = findOpRewardEpochToken(accountRewardEpoch.stakingRewards)
+  const lyraUnlockTimestamp = findLyraRewardEpochToken(accountRewardEpoch?.stakingRewardsUnlockTimestamp ?? [])
+  const showStakingRewards = lyraRewards > 0 || opRewards > 0
+  const stakingApy = accountRewardEpoch.globalEpoch.stakingApy.reduce((total, apy) => total + apy.amount, 0)
   if (!showStakingRewards) {
     return null
   }
