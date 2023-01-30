@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers'
+
 import { PoolHedgerParams } from '../admin'
 import { LyraContractId, LyraMarketContractId } from '../constants/contracts'
 import { LyraContractMap, LyraMarketContractMap } from '../constants/mappings'
@@ -23,6 +25,10 @@ type RequestGetAdapterState = MulticallRequest<
   LyraContractMap<Version.Newport, LyraContractId.ExchangeAdapter>,
   'getAdapterState'
 >
+type RequestGetTokenPrice = MulticallRequest<
+  LyraMarketContractMap<Version.Newport, LyraMarketContractId.LiquidityPool>,
+  'getTokenPrice'
+>
 
 export default async function fetchNewportMarketViews(lyra: Lyra): Promise<{
   marketViews: {
@@ -30,6 +36,7 @@ export default async function fetchNewportMarketViews(lyra: Lyra): Promise<{
     hedgerView: GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput
     adapterView: GMXAdapter.GMXAdapterStateStructOutput
     poolHedgerParams: PoolHedgerParams
+    tokenPrice: BigNumber
   }[]
   isGlobalPaused: boolean
   owner: string
@@ -68,6 +75,20 @@ export default async function fetchNewportMarketViews(lyra: Lyra): Promise<{
     }
   })
 
+  const tokenPriceRequests: RequestGetTokenPrice[] = allMarketAddresses.map(marketAddresses => {
+    const liquidityPool = getLyraMarketContract(
+      lyra,
+      marketAddresses,
+      Version.Newport,
+      LyraMarketContractId.LiquidityPool
+    )
+    return {
+      contract: liquidityPool,
+      function: 'getTokenPrice',
+      args: [],
+    }
+  })
+
   const {
     returnData: [owner, marketViewsRes, ...hedgerAndAdapterViews],
     blockNumber,
@@ -75,7 +96,7 @@ export default async function fetchNewportMarketViews(lyra: Lyra): Promise<{
     [
       RequestGlobalOwner,
       MulticallRequest<LyraContractMap<Version.Newport, LyraContractId.OptionMarketViewer>, 'getMarkets'>,
-      ...Array<RequestGetAdapterState | RequestGetHedgerState | RequestGetPoolHedgerParams>
+      ...Array<RequestGetAdapterState | RequestGetHedgerState | RequestGetPoolHedgerParams | RequestGetTokenPrice>
     ]
   >(lyra, [
     globalOwnerReq,
@@ -87,6 +108,7 @@ export default async function fetchNewportMarketViews(lyra: Lyra): Promise<{
     ...hedgerRequests,
     ...adapterRequests,
     ...hedgerParamsRequests,
+    ...tokenPriceRequests,
   ])
 
   const hedgerViews: GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput[] = hedgerAndAdapterViews.slice(
@@ -101,6 +123,10 @@ export default async function fetchNewportMarketViews(lyra: Lyra): Promise<{
     allMarketAddresses.length * 2,
     allMarketAddresses.length * 3
   )
+  const tokenPrices: BigNumber[] = hedgerAndAdapterViews.slice(
+    allMarketAddresses.length * 3,
+    allMarketAddresses.length * 4
+  )
   const { isPaused, markets } = marketViewsRes
   const marketViews = markets.map((marketView, i) => {
     return {
@@ -108,6 +134,7 @@ export default async function fetchNewportMarketViews(lyra: Lyra): Promise<{
       hedgerView: hedgerViews[i],
       adapterView: adapterViews[i],
       poolHedgerParams: poolHedgerParams[i],
+      tokenPrice: tokenPrices[i],
     }
   })
 

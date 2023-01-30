@@ -87,7 +87,7 @@ const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
           value={`${formatAPY(newTotalApy, { showSymbol: false })}${
             newApyMultiplier > 1.01 ? ` (${formatNumber(newApyMultiplier)}x)` : ''
           }`}
-          valueColor={minTotalApy > 0 && totalApy > minTotalApy ? 'primaryText' : 'text'}
+          valueColor={minTotalApy > 0 && totalApy > minTotalApy * 1.01 ? 'primaryText' : 'text'}
         />
         <StakeFormButton amount={amount} onClose={onClose} />
       </CardSection>

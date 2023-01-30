@@ -208,7 +208,10 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
             return (
               <Box>
                 <Flex alignItems="center">
-                  <Text variant="secondary" color={totalApy > 0 && totalApy > minTotalApy ? 'primaryText' : 'text'}>
+                  <Text
+                    variant="secondary"
+                    color={totalApy > 0 && totalApy > minTotalApy * 1.01 ? 'primaryText' : 'text'}
+                  >
                     {formatAPY(totalApy > 0 ? vault.apy : vault.minApy, { showSymbol: false, showEmptyDash: true })}
                     {apyMultiplier > 1.01 ? ` (${formatNumber(apyMultiplier)}x)` : ''}
                   </Text>

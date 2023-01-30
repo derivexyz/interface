@@ -167,6 +167,7 @@ export type MarketParameters = {
   tradingCutoff: number
   freeLiquidity: BigNumber
   NAV: BigNumber
+  tokenPrice: BigNumber
   netStdVega: BigNumber
   hedgerView: PoolHedgerView | null
   adapterView: ExchangeAdapterView | null
@@ -199,6 +200,7 @@ export class Market {
     marketView: MarketViewWithBoardsStructOutput,
     isGlobalPaused: boolean,
     owner: string,
+    tokenPrice: BigNumber,
     block: Block,
     // TODO @michaelxuwu remove this when parmas added to viewer
     hedgerView?: PoolHedgerView,
@@ -213,6 +215,7 @@ export class Market {
       marketView,
       isGlobalPaused,
       owner,
+      tokenPrice,
       hedgerView,
       adapterView,
       poolHedgerParams
@@ -257,6 +260,7 @@ export class Market {
     marketView: MarketViewWithBoardsStructOutput,
     isGlobalPaused: boolean,
     owner: string,
+    tokenPrice: BigNumber,
     hedgerView?: PoolHedgerView,
     adapterView?: ExchangeAdapterView,
     poolHedgerParams?: PoolHedgerParams
@@ -320,6 +324,7 @@ export class Market {
       tradingCutoff: tradeLimitParams.tradingCutoff.toNumber(),
       NAV: marketView.liquidity.NAV,
       freeLiquidity: marketView.liquidity.freeLiquidity,
+      tokenPrice,
       netStdVega: marketView.globalNetGreeks.netStdVega,
       isGlobalPaused,
       isMarketPaused: marketView.isPaused,
@@ -401,7 +406,7 @@ export class Market {
         fetchAvalonMarketView(lyra, marketAddressOrName),
         lyra.provider.getBlock('latest'),
       ])
-      return new Market(lyra, marketView, isGlobalPaused, owner, block)
+      return new Market(lyra, marketView, isGlobalPaused, owner, marketView.tokenPrice, block)
     } else {
       const market = (await Market.getAll(lyra)).find(market => market.isEqual(marketAddressOrName))
       if (!market) {
@@ -418,7 +423,7 @@ export class Market {
         lyra.provider.getBlock('latest'),
       ])
       return marketViews.map(({ marketView, isGlobalPaused, owner }) => {
-        return new Market(lyra, marketView, isGlobalPaused, owner, block)
+        return new Market(lyra, marketView, isGlobalPaused, owner, marketView.tokenPrice, block)
       })
     } else {
       return (await Market.getAll(lyra)).filter(market => marketAddresses.includes(market.address))
@@ -438,8 +443,18 @@ export class Market {
         lyra.provider.getBlock('latest'),
       ])
       const markets = marketViews.map(
-        ({ marketView, hedgerView, adapterView, poolHedgerParams }) =>
-          new Market(lyra, marketView, isGlobalPaused, owner, block, hedgerView, adapterView, poolHedgerParams)
+        ({ marketView, hedgerView, adapterView, poolHedgerParams, tokenPrice }) =>
+          new Market(
+            lyra,
+            marketView,
+            isGlobalPaused,
+            owner,
+            tokenPrice,
+            block,
+            hedgerView,
+            adapterView,
+            poolHedgerParams
+          )
       )
       return markets
     }

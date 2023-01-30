@@ -40,6 +40,23 @@ const EMPTY: Omit<MarketLiquiditySnapshot, 'timestamp'> = {
 }
 
 export default async function fetchLatestLiquidity(lyra: Lyra, market: Market): Promise<MarketLiquiditySnapshot> {
+  if (market.liveBoards().length === 0) {
+    // No boards, deposits only
+    return {
+      tvl: market.params.NAV,
+      freeLiquidity: market.params.NAV,
+      burnableLiquidity: ZERO_BN,
+      utilization: 0,
+      reservedCollatLiquidity: ZERO_BN,
+      pendingDeltaLiquidity: ZERO_BN,
+      usedDeltaLiquidity: ZERO_BN,
+      tokenPrice: market.params.tokenPrice,
+      pendingDeposits: ZERO_BN,
+      pendingWithdrawals: ZERO_BN,
+      timestamp: market.block.timestamp,
+    }
+  }
+
   const { data } = await lyra.subgraphClient.query<
     { marketTotalValueSnapshots: MarketTotalValueSnapshotQueryResult[] },
     { market: string }

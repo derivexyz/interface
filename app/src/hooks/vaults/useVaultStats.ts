@@ -35,14 +35,14 @@ export type VaultStats = {
 
 const fetcher = async (network: Network, marketAddress: string, period: number): Promise<VaultStats> => {
   const market = await getLyraSDK(network).market(marketAddress)
-  const [tradingVolumeHistory, liquidityHistory, netGreeksHistory] = await Promise.all([
+  const [tradingVolumeHistory, liquidityHistory, liquidity, netGreeksHistory, netGreeks] = await Promise.all([
     market.tradingVolumeHistory({ startTimestamp: market.block.timestamp - period }),
     market.liquidityHistory({ startTimestamp: market.block.timestamp - period }),
+    market.liquidity(),
     market.netGreeksHistory({ startTimestamp: market.block.timestamp - period }),
+    market.netGreeks(),
   ])
 
-  const liquidity = liquidityHistory[liquidityHistory.length - 1]
-  const netGreeks = netGreeksHistory[netGreeksHistory.length - 1]
   const tradingVolume = tradingVolumeHistory[tradingVolumeHistory.length - 1]
 
   const tvl = fromBigNumber(liquidity.tvl)

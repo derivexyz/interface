@@ -32,7 +32,7 @@ const EMPTY: Vault[] = []
 
 export default function useVaultsPageData(): Vault[] {
   const { account } = useWallet()
-  const [vaultStats] = useFetch(FetchId.VaultsTableData, [account], fetcher)
+  const [vaultStats] = useFetch(FetchId.VaultsTableData, [account], fetcher, { refreshInterval: 30 * 1000 })
   return vaultStats ?? EMPTY
 }
 

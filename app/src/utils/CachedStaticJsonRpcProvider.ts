@@ -19,8 +19,8 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
   callPromiseCache: Record<string, Promise<string>> = {}
   logsPromiseCache: Record<string, Promise<Log[]>> = {}
   blockPromiseCache: Record<string, Promise<Block>> = {}
-  // Refresh latest block every 3 seconds
-  latestBlockCacheTimeout = 3 * 1000
+  // Refresh latest block every 1 second
+  latestBlockCacheTimeout = 1 * 1000
   latestBlockUpdateTimestamp: number = 0
 
   constructor(urls: string[], chainId: number) {
@@ -90,6 +90,7 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
       }
     }
   }
+
   async call(
     transaction: Deferrable<TransactionRequest>,
     blockTag: BlockTag | Promise<BlockTag> | undefined = 'latest'
@@ -99,6 +100,7 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
     this.callPromiseCache[key] = this.callPromiseCache[key] ?? super.call(transaction, blockNumber)
     return this.callPromiseCache[key]
   }
+
   async getLogs(filter: Filter | FilterByBlockHash | Promise<Filter | FilterByBlockHash>): Promise<Log[]> {
     const resolvedFilter = await filter
     let key: string
@@ -111,6 +113,7 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
     this.logsPromiseCache[key] = this.logsPromiseCache[key] ?? super.getLogs(filter)
     return this.logsPromiseCache[key]
   }
+
   async getBlock(_blockHashOrBlockTag: BlockTag | Promise<BlockTag>, skipLatestBlockCache?: boolean): Promise<Block> {
     const blockHashOrBlockTag = await _blockHashOrBlockTag
     if (blockHashOrBlockTag === 'latest') {

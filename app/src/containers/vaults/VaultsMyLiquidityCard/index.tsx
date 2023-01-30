@@ -57,7 +57,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
           <LabelItem label="Balance" value={formatBalance(vault.liquidityToken.balance, vault.liquidityToken.symbol)} />
           <LabelItem
             label="Your APY"
-            valueColor={minTotalApy > 0 && totalApy > minTotalApy ? 'primaryText' : 'text'}
+            valueColor={minTotalApy > 0 && totalApy > minTotalApy * 1.01 ? 'primaryText' : 'text'}
             value={`${formatAPY(vault.apy, { showSymbol: false, showEmptyDash: true })}${
               apyMultiplier > 1.01 ? ` (${formatNumber(apyMultiplier)}x)` : ''
             }`}
