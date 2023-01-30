@@ -36,8 +36,8 @@ export const fetchLatestRewardEpoch = async (
   )
 }
 
-export default function useLatestRewardEpoch(network: Network, sortByDescending?: boolean): LatestRewardEpoch | null {
+export default function useLatestRewardEpoch(network: Network, sortByAscending?: boolean): LatestRewardEpoch | null {
   const account = useWalletAccount()
-  const [data] = useFetch(FetchId.LatestRewardEpoch, [network, account, sortByDescending], fetchLatestRewardEpoch)
+  const [data] = useFetch(FetchId.LatestRewardEpoch, [network, account, sortByAscending], fetchLatestRewardEpoch)
   return data ?? null
 }

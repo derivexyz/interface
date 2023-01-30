@@ -127,7 +127,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
 const VaultRewardsMarketRows = withSuspense(
   () => {
     const network = useNetwork()
-    const epochs = useLatestRewardEpoch(network, true)
+    const epochs = useLatestRewardEpoch(network)
     const globalRewardEpoch = epochs?.global
     const accountRewardEpoch = epochs?.account
     const markets = useMemo(() => {

@@ -27,7 +27,7 @@ type Props = MarginProps
 const PendingRewardsCardGridItems = withSuspense(
   () => {
     const network = useNetwork()
-    const epochs = useLatestRewardEpoch(network, true)
+    const epochs = useLatestRewardEpoch(network)
     const account = epochs?.account
     const global = epochs?.global
     const epochEndTimestamp = global?.endTimestamp ?? 0
@@ -87,7 +87,7 @@ const PendingRewardsCardGridItems = withSuspense(
 const PendingStakedLyraText = withSuspense(
   () => {
     const network = useNetwork()
-    const epochs = useLatestRewardEpoch(network, true)
+    const epochs = useLatestRewardEpoch(network)
     const account = epochs?.account
     // TODO: @dillon remove next epoch
     const isDepositPeriod = epochs?.global.isDepositPeriod
