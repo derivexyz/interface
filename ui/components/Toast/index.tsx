@@ -6,6 +6,7 @@ import { ButtonVariant } from '../Button'
 import IconButton from '../Button/IconButton'
 import IconOrImage from '../Icon/IconOrImage'
 import { IconType } from '../Icon/IconSVG'
+import BaseLink from '../Link/BaseLink'
 import Spinner from '../Spinner'
 
 export type ToastVariant = 'info' | 'success' | 'error' | 'warning'
@@ -44,7 +45,7 @@ export function createToast(options: CreateToastOptions): string {
       autoClose,
       closeOnClick: false,
       draggable: false,
-      progressStyle: { background: 'rgba(255, 255, 255, 0.4)' },
+      progressStyle: { background: 'rgba(255, 255, 255, 0.1)', height: '3.5px' },
     }
   )
   return toastId as string
@@ -74,7 +75,7 @@ export function updateToast(toastId: string, options: UpdateToastOptions) {
     toast.update(toastId, {
       ...updateOptions,
       autoClose,
-      progressStyle: { background: 'rgba(255, 255, 255, 0.4)' },
+      progressStyle: { background: 'rgba(255, 255, 255, 0.1)', height: '3.5px' },
       draggable: false,
       closeOnClick: false,
       render: ({ toastProps, closeToast }) => (
@@ -136,21 +137,22 @@ export default function Toast({
   return (
     <Flex
       onClick={() => {
-        if (href != null) {
-          window.open(href, target)
-        } else if (closeToast != null) {
+        if (closeToast) {
           closeToast()
         }
       }}
+      as={href ? BaseLink : 'div'}
+      href={href}
+      target={target}
       variant={getToastVariantKey(variant)}
       height={'100%'}
       alignItems="center"
       width="100%"
       py={2}
-      px={4}
+      px={3}
     >
       {icon ? (
-        <Box mr={4} minWidth={20}>
+        <Box mr={3} minWidth={20}>
           {typeof icon === 'string' ? (
             <IconOrImage size={20} color={variant === 'info' ? 'secondaryText' : 'white'} strokeWidth={2} src={icon} />
           ) : (
@@ -158,7 +160,7 @@ export default function Toast({
           )}
         </Box>
       ) : null}
-      <Text color="inherit" variant="secondary" fontWeight={'medium'}>
+      <Text mr={3} color="inherit" variant="secondary" fontWeight={'medium'}>
         {description}{' '}
         <Text
           as="span"
@@ -172,11 +174,12 @@ export default function Toast({
       </Text>
       <IconButton
         ml="auto"
-        minWidth={36}
         variant={getButtonVariant(variant)}
         icon={IconType.X}
         onClick={e => {
           if (closeToast) {
+            e.preventDefault()
+            e.nativeEvent.stopPropagation()
             e.stopPropagation()
             closeToast()
           }

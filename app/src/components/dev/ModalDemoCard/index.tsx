@@ -69,7 +69,7 @@ export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElem
               description: 'Default: This is a default toast.',
               hrefLabel: 'This is hrefLabel',
               href: '/portfolio',
-              target: 'blank',
+              autoClose: 5000,
             })
           }}
         />
@@ -85,7 +85,6 @@ export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElem
               description: 'Success: This is a success toast.',
               hrefLabel: 'This is hrefLabel',
               href: '/portfolio',
-              target: 'blank',
             })
           }}
         />
@@ -101,7 +100,6 @@ export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElem
               description: 'Error: This is an error toast.',
               hrefLabel: 'This is hrefLabel',
               href: '/portfolio',
-              target: 'blank',
             })
           }}
         />
@@ -117,7 +115,6 @@ export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElem
               description: 'Warning: This is a warning toast.',
               hrefLabel: 'This is hrefLabel.',
               href: '/portfolio',
-              target: 'blank',
             })
           }}
         />
