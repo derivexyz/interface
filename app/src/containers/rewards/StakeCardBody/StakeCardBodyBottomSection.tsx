@@ -5,7 +5,6 @@ import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import { LayoutProps } from '@lyra/ui/types'
-// import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import { Market } from '@lyrafinance/lyra-js'
 import React, { useEffect } from 'react'
@@ -19,7 +18,6 @@ import useMarkets from '@/app/hooks/rewards/useMarkets'
 import useStake from '@/app/hooks/rewards/useStake'
 import { findLyraRewardEpochToken } from '@/app/utils/findRewardToken'
 
-// import VaultsSelector from '../../../components/common/VaultSelector'
 import StakeFormButton from './StakeCardBodyButton'
 
 type StakeCardBodyBottomSectionProps = {
@@ -40,9 +38,6 @@ const StakeCardBodyBottomSection = withSuspense(
     }, [markets, vault, setVault])
     const stake = useStake(amount)
     const newLyraStakingYieldPerDay = findLyraRewardEpochToken(stake?.newStakingYieldPerDay ?? [])
-    const newVaultApy =
-      vault && stake ? stake.newVaultApy(vault.address).reduce((total, token) => total + token.amount, 0) : 0
-    const newVaultApyMultiplier = vault && stake ? stake.newVaultApyMultiplier(vault.address) : 1
     const newTradingFeeRebate = stake ? stake.newTradingFeeRebate : 0
     const newStakedLyraBalanceDelta = (stake?.newStakedLyraBalance ?? ZERO_BN).sub(stake?.stakedLyraBalance ?? ZERO_BN)
     return (
@@ -64,13 +59,6 @@ const StakeCardBodyBottomSection = withSuspense(
             {formatPercentage(newTradingFeeRebate, true)}
           </Text>
         </Flex>
-        {/* <Flex mb={6} justifyContent="space-between" alignItems="center">
-          <VaultsSelector size="md" vaults={markets} onChangeVault={setVault} selectedVault={vault} ml={-2} />
-          <Text color={newStakedLyraBalanceDelta.gt(0) ? 'primaryText' : 'text'}>
-            {formatPercentage(newVaultApy, true)}{' '}
-            {newVaultApyMultiplier > 1 ? `(${formatNumber(newVaultApyMultiplier)}x)` : ''}
-          </Text>
-        </Flex> */}
         <StakeFormButton amount={amount} onClose={onClose} />
       </ModalSection>
     )
