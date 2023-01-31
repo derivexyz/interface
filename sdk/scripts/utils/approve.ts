@@ -1,5 +1,5 @@
 import { Trade } from '../..'
-import { MAX_BN } from '../../constants/bn'
+import { MAX_BN } from '../../src/constants/bn'
 import getLyra from './getLyra'
 import getSigner from './getSigner'
 

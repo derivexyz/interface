@@ -1,5 +1,5 @@
-import { ONE_BN } from '../constants/bn'
-import fromBigNumber from '../utils/fromBigNumber'
+import { ONE_BN } from '../src/constants/bn'
+import fromBigNumber from '../src/utils/fromBigNumber'
 import getLyra from './utils/getLyra'
 
 export default async function quote(argv: string[]) {

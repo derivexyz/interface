@@ -1,7 +1,7 @@
-import { MAX_BN, ONE_BN } from '../constants/bn'
-import { Trade } from '../trade'
-import { TradeEvent } from '../trade_event'
-import printObject from '../utils/printObject'
+import { MAX_BN, ONE_BN } from '../src/constants/bn'
+import { Trade } from '../src/trade'
+import { TradeEvent } from '../src/trade_event'
+import printObject from '../src/utils/printObject'
 import getLyra from './utils/getLyra'
 import getSigner from './utils/getSigner'
 

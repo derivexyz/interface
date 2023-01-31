@@ -1,8 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import yargs from 'yargs'
 
-import fromBigNumber from '../utils/fromBigNumber'
-import toBigNumber from '../utils/toBigNumber'
+import fromBigNumber from '../src/utils/fromBigNumber'
+import toBigNumber from '../src/utils/toBigNumber'
 import getLyra from './utils/getLyra'
 
 export default async function admin(argv: string[]) {

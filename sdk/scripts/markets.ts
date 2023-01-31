@@ -2,7 +2,6 @@ import getLyra from './utils/getLyra'
 
 export default async function markets(argv: string[]) {
   const lyra = getLyra()
-  console.log(lyra.chain, lyra.version)
 
   // Fetch all markets
   const markets = await lyra.markets()

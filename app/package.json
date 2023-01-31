@@ -15,7 +15,7 @@
   "dependencies": {
     "@gnosis.pm/safe-apps-wagmi": "^1.0.3",
     "@lyra/ui": "^1.0.0",
-    "@lyrafinance/lyra-js": "^0.0.21",
+    "@lyrafinance/lyra-js": "^0.0.24",
     "@rainbow-me/rainbowkit": "0.8.1",
     "@socket.tech/plugin": "^1.0.0",
     "@spindl-xyz/attribution-lite": "^0.0.1",

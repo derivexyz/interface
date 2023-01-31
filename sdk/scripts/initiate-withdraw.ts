@@ -1,6 +1,6 @@
 import yargs from 'yargs'
 
-import toBigNumber from '../utils/toBigNumber'
+import toBigNumber from '../src/utils/toBigNumber'
 import getLyra from './utils/getLyra'
 import getSigner from './utils/getSigner'
 

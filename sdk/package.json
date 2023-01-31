@@ -1,6 +1,6 @@
 {
   "name": "@lyrafinance/lyra-js",
-  "version": "0.0.21",
+  "version": "0.0.24",
   "description": "A JavaScript SDK for Optimistic Ethereum and the Lyra Protocol.",
   "main": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
@@ -20,7 +20,7 @@
     "build": "tsc --project tsconfig.esm.json && tsc --project tsconfig.cjs.json",
     "tsc": "yarn build",
     "watch": "concurrently \"tsc --project tsconfig.esm.json --watch\" \"tsc --project tsconfig.cjs.json --watch\"",
-    "example": "env-cmd -f src/examples/.env.local ts-node --project tsconfig.node.json src/examples/index.ts",
+    "script": "env-cmd -f scripts/.env.local ts-node --project tsconfig.node.json scripts/index.ts",
     "generate-types": "ts-node --project tsconfig.node.json src/contracts/generate-types.ts",
     "sync": "ts-node --project tsconfig.node.json src/contracts/sync.ts",
     "format": "prettier --write \"src/**/*.ts\"",

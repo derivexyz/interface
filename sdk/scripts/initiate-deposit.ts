@@ -1,7 +1,7 @@
 import yargs from 'yargs'
 
-import { MAX_BN } from '../constants/bn'
-import toBigNumber from '../utils/toBigNumber'
+import { MAX_BN } from '../src/constants/bn'
+import toBigNumber from '../src/utils/toBigNumber'
 import getLyra from './utils/getLyra'
 import getSigner from './utils/getSigner'
 

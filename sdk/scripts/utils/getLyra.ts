@@ -1,9 +1,9 @@
 import { StaticJsonRpcProvider } from '@ethersproject/providers'
 
-import { Chain } from '../../constants/chain'
-import Lyra, { Version } from '../../lyra'
-import getLyraDeploymentChainId from '../../utils/getLyraDeploymentChainId'
-import getLyraDeploymentRPCURL from '../../utils/getLyraDeploymentRPCURL'
+import { Chain } from '../../src/constants/chain'
+import Lyra, { Version } from '../../src/lyra'
+import getLyraDeploymentChainId from '../../src/utils/getLyraDeploymentChainId'
+import getLyraDeploymentRPCURL from '../../src/utils/getLyraDeploymentRPCURL'
 import coerce from './coerce'
 
 export default function getLyra(): Lyra {

@@ -1,6 +1,6 @@
 import yargs from 'yargs'
 
-import fromBigNumber from '../utils/fromBigNumber'
+import fromBigNumber from '../src/utils/fromBigNumber'
 import getLyra from './utils/getLyra'
 
 export default async function market(argv: string[]) {

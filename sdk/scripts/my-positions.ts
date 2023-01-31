@@ -1,7 +1,7 @@
 import yargs from 'yargs'
 
-import fromBigNumber from '../utils/fromBigNumber'
-import printObject from '../utils/printObject'
+import fromBigNumber from '../src/utils/fromBigNumber'
+import printObject from '../src/utils/printObject'
 import getLyra from './utils/getLyra'
 
 export default async function myPositions(argv: string[]) {

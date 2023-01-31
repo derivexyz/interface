@@ -1,6 +1,6 @@
 import yargs from 'yargs'
 
-import printObject from '../utils/printObject'
+import printObject from '../src/utils/printObject'
 import getLyra from './utils/getLyra'
 
 export default async function events(argv: string[]): Promise<void> {

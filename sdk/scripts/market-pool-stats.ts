@@ -1,6 +1,6 @@
 import yargs from 'yargs'
 
-import { ZERO_BN } from '../constants/bn'
+import { ZERO_BN } from '../src/constants/bn'
 import getLyra from './utils/getLyra'
 
 export default async function marketPoolStats(argv: string[]) {
