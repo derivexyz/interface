@@ -1,6 +1,7 @@
 import '@rainbow-me/rainbowkit/styles.css'
 
 import ThemeProvider from '@lyra/ui/theme/ThemeProvider'
+import spindl from '@spindl-xyz/attribution-lite'
 import posthog from 'posthog-js'
 import React, { useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -25,25 +26,31 @@ import LocalStorageProvider from './providers/LocalStorageProvider'
 import { WalletProvider } from './providers/WalletProvider'
 import compare from './utils/compare'
 import { getDefaultMarket } from './utils/getDefaultMarket'
-import isProd from './utils/isProd'
 import logEvent from './utils/logEvent'
 import useDefaultNetwork from './utils/useDefaultNetwork'
 
-const POST_HOG_API_KEY = process.env.REACT_APP_POST_HOG_API_KEY
+// Initialize Spindl
+if (process.env.REACT_APP_SPINDL_API_KEY) {
+  spindl.configure({ API_KEY: process.env.REACT_APP_SPINDL_API_KEY })
+  console.debug('Spindl initialized')
+} else {
+  console.warn('Spindl failed to initialize')
+}
 
 console.debug('NODE_ENV', process.env.NODE_ENV)
 console.debug('REACT_APP_ENV', process.env.REACT_APP_ENV)
 
 function App(): JSX.Element {
-  // Initialize PostHog
   useEffect(() => {
-    if (POST_HOG_API_KEY) {
-      posthog.init(POST_HOG_API_KEY, {
+    // Initialize PostHog
+    if (process.env.REACT_APP_POST_HOG_API_KEY) {
+      posthog.init(process.env.REACT_APP_POST_HOG_API_KEY, {
         api_host: 'https://app.posthog.com',
         capture_pageview: false,
         autocapture: false,
       })
-    } else if (isProd()) {
+      console.debug('PostHog initialized')
+    } else {
       console.warn('PostHog failed to initialize')
     }
   }, [])
@@ -71,6 +78,14 @@ function App(): JSX.Element {
   // Log page views to PostHog
   useEffect(() => {
     logEvent(LogEvent.PageView)
+    if (process.env.REACT_APP_SPINDL_API_KEY) {
+      try {
+        spindl.configure({ API_KEY: process.env.REACT_APP_SPINDL_API_KEY })
+        spindl.pageView()
+      } catch (err) {
+        console.warn('Spindl pageView failed')
+      }
+    }
   }, [pathname])
 
   const defaultNetwork = useDefaultNetwork()

@@ -2828,6 +2828,11 @@
     superstruct "^0.14.2"
     tweetnacl "^1.0.3"
 
+"@spindl-xyz/attribution-lite@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@spindl-xyz/attribution-lite/-/attribution-lite-0.0.1.tgz#a78a9bb7e513bcbe8b4d77c3df59e9985f6e8196"
+  integrity sha512-CdbxmzREC1L/rPlpDWT0DUMVDgmNXgUGGIn0V3zjXyuN297YNS/dLQI/lStDbfDgYx3sK0VbmA3ayY2RkHaFuw==
+
 "@styled-system/background@^5.1.2":
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/@styled-system/background/-/background-5.1.2.tgz#75c63d06b497ab372b70186c0bf608d62847a2ba"

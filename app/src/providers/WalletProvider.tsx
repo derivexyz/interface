@@ -14,6 +14,7 @@ import {
   trustWallet,
   walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets'
+import spindl from '@spindl-xyz/attribution-lite'
 import { isAddress } from 'ethers/lib/utils.js'
 import nullthrows from 'nullthrows'
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -74,10 +75,21 @@ const wagmiClient = createClient({
   provider,
 })
 
-const WalletScreenModal = (): JSX.Element => {
+const WalletListener = (): JSX.Element => {
   const { connectedAccount, disconnect } = useWallet()
 
   const [blockData, setBlockData] = useState<ScreenWalletData | null>(null)
+
+  useEffect(() => {
+    if (connectedAccount && process.env.REACT_APP_SPINDL_API_KEY) {
+      try {
+        spindl.configure({ API_KEY: process.env.REACT_APP_SPINDL_API_KEY })
+        spindl.attribute(connectedAccount)
+      } catch (err) {
+        console.warn('Spindl attribute failed')
+      }
+    }
+  }, [connectedAccount])
 
   useAutoConnect()
   const prevAccountRef = useRef(connectedAccount)
@@ -171,8 +183,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }): JSX
     },
   })
 
-  const initialChain = isMainnet() ? wagmiChain.optimism : wagmiChain.optimismGoerli
-
   // Grab initial see arg from query parameters
   const [rawQuerySeeAddress] = useQueryParam('see')
   const querySeeAddress = rawQuerySeeAddress && isAddress(rawQuerySeeAddress) ? rawQuerySeeAddress : null
@@ -198,7 +208,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }): JSX
         chains={chains}
       >
         <WalletSeeContext.Provider value={value}>
-          <WalletScreenModal />
+          <WalletListener />
           {children}
         </WalletSeeContext.Provider>
       </RainbowKitProvider>
