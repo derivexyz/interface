@@ -32,10 +32,10 @@ function PortfolioOnboardingCard() {
             network: network,
             marketAddressOrName: getDefaultMarket(network),
           })}
+          width={200}
           size="lg"
           variant="primary"
           label="Start Trading"
-          width={280}
           rightIcon={IconType.ArrowRight}
         />
       </CardSection>
