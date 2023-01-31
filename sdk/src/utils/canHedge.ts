@@ -1,15 +1,14 @@
-import { BigNumber } from 'ethers'
-
 import { UNIT } from '../constants/bn'
-import { PoolHedgerView } from '../market'
+import { MarketToken, PoolHedgerView } from '../market'
+import { to18DecimalBN } from './convertBNDecimals'
 
-export default function canHedge(spotPrice: BigNumber, increasesPoolDelta: boolean, hedgerView: PoolHedgerView) {
+export default function canHedge(
+  increasesPoolDelta: boolean,
+  hedgerView: PoolHedgerView,
+  baseToken: MarketToken,
+  quoteToken: MarketToken
+) {
   const { expectedHedge, currentHedge, gmxView, futuresPoolHedgerParams } = hedgerView
-
-  if (!futuresPoolHedgerParams.vaultLiquidityCheckEnabled) {
-    return true
-  }
-
   const expectedHedgeAbs = expectedHedge.abs()
   const currentHedgeAbs = currentHedge.abs()
   if (!futuresPoolHedgerParams) {
@@ -30,18 +29,16 @@ export default function canHedge(spotPrice: BigNumber, increasesPoolDelta: boole
     return true
   }
 
-  // Figure out the amount of remaining dollars for the specific direction the pool needs to hedge
-  let remainingDollars: BigNumber
+  let remainingDeltas
   if (expectedHedge.gt(0)) {
-    const { remainingLongDollars } = gmxView
-    remainingDollars = remainingLongDollars
+    const { basePoolAmount, baseReservedAmount } = gmxView
+    // remaining is the amount of baseAsset that can be hedged (adjusted from base token decimals)
+    remainingDeltas = to18DecimalBN(basePoolAmount.sub(baseReservedAmount), baseToken.decimals)
   } else {
-    const { remainingShortDollars } = gmxView
-    remainingDollars = remainingShortDollars
+    const { quotePoolAmount, quoteReservedAmount } = gmxView
     // Adjusted from quote token decimals
+    remainingDeltas = to18DecimalBN(quotePoolAmount.sub(quoteReservedAmount), quoteToken.decimals)
   }
-  // Convert the dollar amount to deltas by dividing by spot.
-  const remainingDeltas = remainingDollars.div(spotPrice)
 
   const absHedgeDiff = expectedHedgeAbs.sub(currentHedgeAbs)
   if (remainingDeltas.lt(absHedgeDiff.mul(futuresPoolHedgerParams.marketDepthBuffer).div(UNIT))) {

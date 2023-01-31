@@ -6,7 +6,7 @@ import { getDelta } from '../utils/blackScholes'
 import canHedge from '../utils/canHedge'
 import fromBigNumber from '../utils/fromBigNumber'
 import getPriceVariance from '../utils/getPriceVariance'
-import getQuoteSpotPrice, { PriceType } from '../utils/getQuoteSpotPrice'
+import { PriceType } from '../utils/getQuoteSpotPrice'
 import getTimeToExpiryAnnualized from '../utils/getTimeToExpiryAnnualized'
 import toBigNumber from '../utils/toBigNumber'
 import { QuoteDisabledReason } from '.'
@@ -104,7 +104,7 @@ export default function getQuoteDisabledReason(
   // Check if hedger can hedge the additional delta risk introduced by the quote.
   // const hedgerView = option.market().hedgerView
   const hedgerView = option.market().params.hedgerView
-  if (hedgerView && !canHedge(getQuoteSpotPrice(market, priceType), option.delta.lt(0), hedgerView)) {
+  if (hedgerView && !canHedge(option.delta.lt(0), hedgerView, market.baseToken, market.quoteToken)) {
     return QuoteDisabledReason.UnableToHedgeDelta
   }
 
