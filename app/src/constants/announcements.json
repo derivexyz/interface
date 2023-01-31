@@ -34,7 +34,7 @@
     "graphic": "images/arbitrum-vaults.png",
     "graphicSize": [72, 96],
     "startTimestamp": 1674565200,
-    "expiryTimestamp": 1675206000,
+    "expiryTimestamp": 1675209600,
     "showCountdown": true
   }
 ]
