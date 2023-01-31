@@ -42,6 +42,19 @@
         color: black !important
       }
     </style>
+    <script>
+      const script = document.createElement('script');
+      const apiKey = 'c6e032153737552f8df914128154a3458cb26757c050f813d06aba4a1f315aa6'
+      const config = {} // Add any configuration parameters you'd like here
+      script.src = 'https://unpkg.com/@arcxmoney/analytics'
+      script.onload = function () {
+        ArcxAnalyticsSdk.init(apiKey, config).then(function (sdk) {
+          window.arcx = sdk
+        })
+      }
+    
+      document.head.appendChild(script)
+    </script>
   </head>
   <body className="ph-no-capture">
     <div id="root"></div>
