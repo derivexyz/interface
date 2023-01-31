@@ -2774,23 +2774,23 @@
   integrity sha512-WQ5sruMZoPTcK0SGfuuFXZB+uC7cjKReWrpkaPl9/9f6UcnU2AWZBge1OpPWhqi5NHQ1ai/Z6rvEc26D7anWmQ==
 
 "@socket.tech/plugin@^1.0.0":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@socket.tech/plugin/-/plugin-1.0.1.tgz#0202215fdfab3fecfa4437912bd39bf0339bc222"
-  integrity sha512-e0l6+mkCSTpfhw/n7zNJ3tngBwNZvGNO9M1KtybivjmQSNE9mFlzqYSXfhUrFAZ0C2YOddMaTqHT1VnO09QqjQ==
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@socket.tech/plugin/-/plugin-1.0.3.tgz#309471ff1a83543c2e57a6f48b1f3c69eadfcf3d"
+  integrity sha512-O9rHfc6kVd1zhVgQS/fVG7+Cpv51KWL4oDPSmOQnG3Pd89yu6pBk4QQ5Bx4zETnPyNubzzIijaRNBVdKWVxCAw==
   dependencies:
     "@react-spring/web" "^9.5.0"
     "@reduxjs/toolkit" "^1.8.2"
     "@socket.tech/ll-core" "^0.1.10"
-    "@socket.tech/socket-v2-sdk" "^1.21.0"
+    "@socket.tech/socket-v2-sdk" "^1.21.3"
     ethers "^5.6.9"
     react-feather "^2.0.10"
     react-redux "^8.0.2"
     swr "^1.3.0"
 
-"@socket.tech/socket-v2-sdk@^1.21.0":
-  version "1.21.0"
-  resolved "https://registry.yarnpkg.com/@socket.tech/socket-v2-sdk/-/socket-v2-sdk-1.21.0.tgz#12cf82b59c84eda7620ebd9eebe7f64eee567633"
-  integrity sha512-HymWCxG07Evc/LqE4FU9Uzt3GXbZSNT5gFEDGKFVGMUEMZu5V0MG1XORD4p3mrapqDO0e8N5VlUIRgyP3ezmzg==
+"@socket.tech/socket-v2-sdk@^1.21.3":
+  version "1.21.5"
+  resolved "https://registry.yarnpkg.com/@socket.tech/socket-v2-sdk/-/socket-v2-sdk-1.21.5.tgz#f1de9e7be93503ea7bb6e9b72ed24d391883c3f0"
+  integrity sha512-ufYyJSN9C32G1I2KB7srczgwXBPyZJ42BAmjblMHrOosDR9XynQ3tKu/inKxOSV9jG31bH0zp3EOBssokVWmoA==
   dependencies:
     "@socket.tech/ll-core" "^0.1.14"
     axios "^0.27.2"

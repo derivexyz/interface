@@ -10,17 +10,17 @@ import { Market } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import { VAULTS_CHART_HEIGHT } from '@/app/constants/layout'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useVaultStats from '@/app/hooks/vaults/useVaultStats'
 import formatTimestampTooltip from '@/app/utils/formatTimestampTooltip'
 import fromBigNumber from '@/app/utils/fromBigNumber'
-import getChartPeriodTimestamp from '@/app/utils/getChartPeriodTimestamp'
+import getChartIntervalSeconds from '@/app/utils/getChartIntervalSeconds'
 
 type Props = {
   market: Market
-  period: ChartPeriod
+  interval: ChartInterval
 } & MarginProps
 
 type PerfData = {
@@ -29,8 +29,8 @@ type PerfData = {
 }
 
 const VaultsChartNetDelta = withSuspense(
-  ({ market, period, ...styleProps }: Props) => {
-    const vaultStats = useVaultStats(market, getChartPeriodTimestamp(period))
+  ({ market, interval, ...styleProps }: Props) => {
+    const vaultStats = useVaultStats(market, getChartIntervalSeconds(interval))
     const netGreeksHistory = vaultStats?.netGreeksHistory
 
     const data: PerfData[] = useMemo(() => {
@@ -54,7 +54,7 @@ const VaultsChartNetDelta = withSuspense(
           {formatNumber(hoverData?.netDelta ?? fromBigNumber(vaultStats?.netGreeks.netDelta ?? ZERO_BN), { dps: 3 })}
         </Text>
         <Text variant="small" color="secondaryText">
-          {formatTimestampTooltip(hoverData?.timestamp ?? market.block.timestamp, period)}
+          {formatTimestampTooltip(hoverData?.timestamp ?? market.block.timestamp, interval)}
         </Text>
         <LineChart<PerfData>
           mt={1}
@@ -70,7 +70,7 @@ const VaultsChartNetDelta = withSuspense(
       </Flex>
     )
   },
-  ({ market, period, ...styleProps }: Props) => (
+  ({ market, interval, ...styleProps }: Props) => (
     <Box {...styleProps}>
       <TextShimmer width={100} variant="bodyLarge" />
       <TextShimmer width={60} variant="small" />

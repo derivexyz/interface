@@ -1,183 +1,145 @@
+import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
+import Center from '@lyra/ui/components/Center'
 import Flex from '@lyra/ui/components/Flex'
 import Modal from '@lyra/ui/components/Modal'
-import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
+import ModalBody from '@lyra/ui/components/Modal/ModalBody'
+import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
 import { Network } from '@lyrafinance/lyra-js'
-import { TokenInfo } from '@uniswap/token-lists'
+import { BigNumber } from 'ethers'
 import React, { useState } from 'react'
 
+import SocketBridge from '@/app/components/common/SocketBridge'
 import { LogEvent } from '@/app/constants/logEvents'
+import { SOCKET_NATIVE_TOKEN_ADDRESS } from '@/app/constants/token'
 import useEthBalance from '@/app/hooks/account/useEthBalance'
+import useWallet from '@/app/hooks/account/useWallet'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
+import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import logEvent from '@/app/utils/logEvent'
 
 import { ONBOARDING_MODAL_WIDTH } from '../../../constants/layout'
-import OnboardingModalStepOne from './OnboardingModalStepOne'
-import OnboardingModalStepTwo from './OnboardingModalStepTwo'
 
-export enum OnboardingMethod {
-  Bridge = 'Bridge',
-  Exchange = 'Exchange',
-  Card = 'Card',
-  Swap = 'Swap',
-}
-
-export enum OnboardingModalInsufficientToken {
-  Stable = 'Stable',
-  Base = 'Base',
-  Eth = 'Eth',
-}
-
-export enum OnboardingModalStep {
-  GetETH = 'GetETH',
-  GetTokens = 'GetTokens',
-}
+export type ToToken = { address: string; balance: BigNumber; symbol: string; network: Network }
 
 type Props = {
-  network: Network
   isOpen: boolean
   onClose: () => void
-  toToken?: TokenInfo | null
-  defaultSourceToken?: string
-  defaultDestToken?: string
-  step?: OnboardingModalStep
+  toToken: ToToken
+  context: string
 }
 
-type OnboardingModalCallToActionProps = {
-  network: Network
-  toToken?: TokenInfo | null
-  onboardingStep?: OnboardingModalStep
-  onClickOnboardingStep: (step: OnboardingModalStep) => void
-  onClose: () => void
-}
-
-const OnboardingModalTitle = ({
-  network,
-  step,
-  toToken,
-}: {
-  network: Network
-  step?: OnboardingModalStep
-  toToken?: TokenInfo | null
-}): JSX.Element => {
-  if (step === OnboardingModalStep.GetETH) {
+const OnboardingModalBody = withSuspense(
+  ({
+    toToken,
+    onClose,
+    isGetETHStep,
+    onChangeStep,
+    context,
+  }: Props & { isGetETHStep: boolean; onChangeStep: (isGetETHStep: boolean) => void }) => {
+    const ethBalance = useEthBalance(toToken.network)
+    const toTokenBalance = toToken.balance
+    const { chainId } = useWallet()
+    const toChainId = getChainIdForNetwork(toToken.network)
     return (
-      <Flex ml={[8, 2]} mt={[4, 0]} flexDirection="column">
-        <Text variant="secondary" color="secondaryText">
-          Step 1 of 2
+      <ModalBody height={654}>
+        <Text mb={6} variant="secondary" color="secondaryText">
+          {isGetETHStep
+            ? `You need ETH to transact on ${getNetworkDisplayName(
+                toToken.network
+              )}. You can deposit ETH from another network, or from an exchange.`
+            : `You need ${toToken.symbol} to ${context}. Bridge and swap your tokens to ${toToken.symbol} via Socket to continue.`}
         </Text>
-        <Text variant="heading">Deposit ETH to {network}</Text>
-      </Flex>
-    )
-  } else if (step === OnboardingModalStep.GetTokens) {
-    return (
-      <Flex ml={[8, 2]} mt={[4, 0]} flexDirection="column">
-        <Text variant="secondary" color="secondaryText">
-          Step 2 of 2
-        </Text>
-        {!toToken || ['susd', 'usdc', 'dai'].includes(toToken?.symbol.toLowerCase()) ? (
-          <Text variant="heading">Swap to Stables</Text>
-        ) : (
-          <Text variant="heading">Swap to Base Collateral</Text>
-        )}
-      </Flex>
-    )
-  }
-  return <></>
-}
-
-const OnboardingModalCallToAction = withSuspense(
-  ({ network, toToken, onboardingStep, onClickOnboardingStep, onClose }: OnboardingModalCallToActionProps) => {
-    const isStepOne = onboardingStep === OnboardingModalStep.GetETH
-    // TODO: @dappbeast re-implement check for specific markets
-    const hasToTokenBalance = false
-    const ethBalance = useEthBalance(Network.Optimism)
-    return (
-      <Flex mx={8} mb={6}>
-        <Button
-          width="100%"
-          size="lg"
-          label={isStepOne ? 'Cancel' : 'Previous Step'}
-          onClick={() => {
-            if (isStepOne) {
-              logEvent(LogEvent.OnboardingModalStepOneCancelClick)
-              onClose()
-            } else {
-              onClickOnboardingStep(OnboardingModalStep.GetETH)
-              logEvent(LogEvent.OnboardingModalStepTwoCancelClick)
+        <Box mb={6} width="100%" height={460}>
+          {isGetETHStep ? (
+            <SocketBridge
+              key="deposit"
+              title="Deposit"
+              defaultSourceNetwork={chainId}
+              destNetworks={[toChainId]}
+              defaultDestToken={SOCKET_NATIVE_TOKEN_ADDRESS}
+            />
+          ) : (
+            <SocketBridge
+              key="swap"
+              title="Swap"
+              defaultSourceNetwork={chainId}
+              destNetworks={[toChainId]}
+              defaultDestToken={toToken.address}
+            />
+          )}
+        </Box>
+        <Flex>
+          <Button
+            width="100%"
+            size="lg"
+            label={isGetETHStep ? 'Cancel' : 'Previous Step'}
+            onClick={() => {
+              if (isGetETHStep) {
+                logEvent(LogEvent.OnboardingModalStepOneCancelClick)
+                onClose()
+              } else {
+                logEvent(LogEvent.OnboardingModalStepTwoCancelClick)
+                onChangeStep(true)
+              }
+            }}
+            variant="default"
+          />
+          <Button
+            ml={4}
+            width="100%"
+            size="lg"
+            label={isGetETHStep ? 'Next Step' : 'Done'}
+            onClick={() => {
+              if (isGetETHStep) {
+                logEvent(LogEvent.OnboardingModalStepOneSuccessClick)
+                onChangeStep(false)
+              } else {
+                logEvent(LogEvent.OnboardingModalStepTwoSuccessClick)
+                onClose()
+              }
+            }}
+            variant={
+              isGetETHStep ? (ethBalance.gt(0) ? 'primary' : 'default') : toTokenBalance.gt(0) ? 'primary' : 'default'
             }
-          }}
-          variant="default"
-        />
-        <Button
-          ml={4}
-          width="100%"
-          size="lg"
-          label={isStepOne ? 'Next Step' : 'Done'}
-          onClick={() => {
-            if (isStepOne) {
-              logEvent(LogEvent.OnboardingModalStepOneSuccessClick)
-              onClickOnboardingStep(OnboardingModalStep.GetTokens)
-            } else {
-              logEvent(LogEvent.OnboardingModalStepTwoSuccessClick)
-              onClose()
-            }
-          }}
-          variant={isStepOne ? (ethBalance.gt(0) ? 'primary' : 'default') : hasToTokenBalance ? 'primary' : 'default'}
-        />
-      </Flex>
+          />
+        </Flex>
+      </ModalBody>
     )
   },
-  () => {
-    return (
-      <Flex mx={8} mb={6}>
-        <ButtonShimmer width="100%" size="lg" />
-        <ButtonShimmer width="100%" size="lg" ml={4} />
-      </Flex>
-    )
-  }
+  () => (
+    <ModalBody height={654}>
+      <Center height="100%" width="100%">
+        <Spinner />
+      </Center>
+    </ModalBody>
+  )
 )
 
-export default function OnboardingModal({
-  network,
-  isOpen,
-  onClose,
-  toToken,
-  step,
-  defaultSourceToken,
-  defaultDestToken,
-}: Props): JSX.Element {
-  const [onboardingStep, setOnboardingStep] = useState(step)
-  const isStepOne = onboardingStep === OnboardingModalStep.GetETH
-  const isStepTwo = onboardingStep === OnboardingModalStep.GetTokens
+export default function OnboardingModal(props: Props): JSX.Element {
+  const { isOpen, onClose, toToken } = props
+  const [isGetETHStep, setIsGetETHStep] = useState(false)
+  const { network } = toToken
   return (
     <Modal
       isOpen={isOpen}
-      onClose={() => {
-        setOnboardingStep(step)
-        onClose()
-      }}
-      title={<OnboardingModalTitle network={network} step={onboardingStep} toToken={toToken} />}
+      onClose={onClose}
+      title={
+        <Box>
+          <Text variant="secondary" color="secondaryText">
+            Step {isGetETHStep ? '1' : '2'} of 2
+          </Text>
+          <Text variant="heading">
+            {isGetETHStep ? `Deposit ETH to ${getNetworkDisplayName(network)}` : `Swap to ${toToken.symbol}`}
+          </Text>
+        </Box>
+      }
       width={ONBOARDING_MODAL_WIDTH}
       isMobileFullscreen
     >
-      {isStepOne ? (
-        <OnboardingModalStepOne defaultSourceToken={defaultSourceToken} defaultDestToken={defaultDestToken} />
-      ) : null}
-      {isStepTwo ? <OnboardingModalStepTwo toToken={toToken} /> : null}
-      <OnboardingModalCallToAction
-        network={network}
-        toToken={toToken}
-        onboardingStep={onboardingStep}
-        onClickOnboardingStep={setOnboardingStep}
-        onClose={onClose}
-      />
-      <Text variant="small" color="secondaryText" mx={8} mb={6}>
-        These are links to independent service providers for your convenience only. These do not constitute any
-        recommendation or endorsement of the providers' services. We have no relationship with them and have no control
-        over their operations. You are responsible for all risks and liabilities associated with interacting with them.
-      </Text>
+      <OnboardingModalBody isGetETHStep={isGetETHStep} onChangeStep={setIsGetETHStep} {...props} />
     </Modal>
   )
 }

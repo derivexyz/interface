@@ -1,30 +1,17 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import useThemeColor from '@lyra/ui/hooks/useThemeColor'
-import { Chain } from '@lyrafinance/lyra-js'
-import { Currency, Network } from '@socket.tech/plugin'
+import { Currency, Network, WidgetProps } from '@socket.tech/plugin'
 import { providers } from 'ethers'
 import React from 'react'
 import { SWRConfig } from 'swr'
 import { useSigner } from 'wagmi'
 
 import { LogEvent } from '@/app/constants/logEvents'
-import { NETWORK_CONFIGS } from '@/app/constants/networks'
-import { SOCKET_NATIVE_TOKEN_ADDRESS } from '@/app/constants/token'
 import hexToRGB from '@/app/utils/hexToRGB'
 import logEvent from '@/app/utils/logEvent'
 
-const DEFAULT_WIDTH = 500
+const DEFAULT_WIDTH = 400
 const DEFAULT_MOBILE_WIDTH = 300
-
-type Props = {
-  defaultSourceToken?: string
-  defaultDestToken?: string
-  defaultSourceNetwork?: number
-  defaultDestNetwork?: number
-  title?: string
-  enableRefuel?: boolean
-  enableSameChainSwaps?: boolean
-}
 
 type SocketCustomizationProps = {
   width?: number // Width of the widget in px
@@ -47,14 +34,7 @@ const SocketPlugin = React.lazy(
   () => import('@socket.tech/plugin').then(module => ({ default: module.Bridge }))
 )
 
-const SocketBridge = ({
-  title = 'Swap or Bridge',
-  defaultSourceToken = SOCKET_NATIVE_TOKEN_ADDRESS,
-  defaultDestToken,
-  defaultSourceNetwork = NETWORK_CONFIGS[Chain.Optimism].chainId,
-  defaultDestNetwork = NETWORK_CONFIGS[Chain.Optimism].chainId,
-  enableRefuel = true,
-}: Props): JSX.Element => {
+const SocketBridge = (props: Omit<WidgetProps, 'API_KEY'>): JSX.Element => {
   const isMobile = useIsMobile()
   const { data: signer } = useSigner({ suspense: true })
   const web3Provider = signer?.provider && new providers.Web3Provider((signer?.provider as any).provider)
@@ -83,16 +63,11 @@ const SocketBridge = ({
         <SocketPlugin
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
+          {...props}
           provider={web3Provider}
           API_KEY={process.env.REACT_APP_SOCKET_API_KEY ?? ''}
           customize={customize}
           enableSameChainSwaps={true}
-          defaultSourceNetwork={defaultSourceNetwork}
-          defaultDestNetwork={defaultDestNetwork}
-          defaultSourceToken={defaultSourceToken}
-          defaultDestToken={defaultDestToken}
-          enableRefuel={enableRefuel}
-          title={title}
           includeBridges={['hop', 'optimism-bridge']} // TODO: @dillonlin ask Socket guys to export types
           onBridgeSuccess={(data: any) => {
             logEvent(LogEvent.SocketBridgeSuccess, { ...data })

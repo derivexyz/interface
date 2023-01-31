@@ -5,6 +5,8 @@ import { MarginProps } from '@lyra/ui/types'
 import { Network } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
+import { ZERO_BN } from '@/app/constants/bn'
+
 import OnboardingModal from '../../../containers/common/OnboardingModal'
 
 export default function SocketDemoCard({ ...marginProps }: MarginProps) {
@@ -14,7 +16,17 @@ export default function SocketDemoCard({ ...marginProps }: MarginProps) {
       <CardBody>
         <Button size="lg" variant="primary" label="Open Onboarding Modal" onClick={() => setIsOpen(true)} />
       </CardBody>
-      <OnboardingModal network={Network.Optimism} isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <OnboardingModal
+        toToken={{
+          address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+          symbol: 'USDC',
+          network: Network.Optimism,
+          balance: ZERO_BN,
+        }}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        context="to make your first trade"
+      />
     </Card>
   )
 }

@@ -7,7 +7,6 @@ import React from 'react'
 
 import { STAKING_REWARDS_DOC_URL } from '@/app/constants/links'
 import TokenImage from '@/app/containers/common/TokenImage'
-import useOptimismToken from '@/app/hooks/data/useOptimismToken'
 
 type Props = {
   children: React.ReactNode
@@ -15,7 +14,6 @@ type Props = {
 } & FlexProps
 
 export default function StakeAPYTooltip({ children, lyraApy, ...flexProps }: Props): TooltipElement {
-  const stkLyraToken = useOptimismToken('stkLyra')
   return (
     <Tooltip
       tooltip={
@@ -26,7 +24,7 @@ export default function StakeAPYTooltip({ children, lyraApy, ...flexProps }: Pro
           <Flex alignItems="center" mb={2}>
             <TokenImage size={24} nameOrAddress="stkLyra" />
             <Text ml={2} variant="secondary" color="secondaryText">
-              {stkLyraToken?.symbol}
+              stkLYRA
             </Text>
             <Text variant="secondary" ml="auto" color="primaryText">
               {formatPercentage(lyraApy, true)}

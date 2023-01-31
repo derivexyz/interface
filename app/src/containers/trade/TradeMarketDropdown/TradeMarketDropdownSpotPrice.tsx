@@ -6,7 +6,7 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Market, SnapshotPeriod } from '@lyrafinance/lyra-js'
 import React from 'react'
 
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useSpotPriceHistory from '@/app/hooks/market/useSpotPriceHistory'
 
@@ -16,7 +16,7 @@ type Props = {
 
 const TradeMarketDropdownSpotPrice = withSuspense(
   ({ market }: Props) => {
-    const history = useSpotPriceHistory(market, ChartPeriod.OneDay, SnapshotPeriod.EightHours)
+    const history = useSpotPriceHistory(market, ChartInterval.OneDay, SnapshotPeriod.EightHours)
     const latestSnapshot = history[history.length - 1]
     const latestPrice = latestSnapshot.close
     const startPrice = history[0].close

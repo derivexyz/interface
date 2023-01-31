@@ -1,21 +1,21 @@
 import formatDate from '@lyra/ui/utils/formatDate'
 import formatDateTime from '@lyra/ui/utils/formatDateTime'
 
-import { ChartPeriod } from '../constants/chart'
+import { ChartInterval } from '../constants/chart'
 
-const formatTimestampTooltip = (timestamp: number, period: ChartPeriod): string => {
-  switch (period) {
-    case ChartPeriod.OneDay:
-    case ChartPeriod.ThreeDays:
+const formatTimestampTooltip = (timestamp: number, interval: ChartInterval): string => {
+  switch (interval) {
+    case ChartInterval.OneDay:
+    case ChartInterval.ThreeDays:
       return formatDateTime(timestamp, { hideMins: false, hideYear: true })
-    case ChartPeriod.OneWeek:
-    case ChartPeriod.TwoWeeks:
-    case ChartPeriod.OneMonth:
+    case ChartInterval.OneWeek:
+    case ChartInterval.TwoWeeks:
+    case ChartInterval.OneMonth:
       return formatDateTime(timestamp, { hideYear: true })
-    case ChartPeriod.ThreeMonths:
-    case ChartPeriod.SixMonths:
-    case ChartPeriod.OneYear:
-    case ChartPeriod.AllTime:
+    case ChartInterval.ThreeMonths:
+    case ChartInterval.SixMonths:
+    case ChartInterval.OneYear:
+    case ChartInterval.AllTime:
       return formatDate(timestamp)
   }
 }

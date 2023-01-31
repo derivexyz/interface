@@ -10,7 +10,7 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useSpotPriceHistory from '@/app/hooks/market/useSpotPriceHistory'
 import fromBigNumber from '@/app/utils/fromBigNumber'
@@ -32,7 +32,7 @@ type Props = {
   market: Market
   textVariant?: TextVariant
   hoverSpotPrice: number | null
-  period: ChartPeriod
+  interval: ChartInterval
   isCandleChart?: boolean
   hoverCandle?: OhlcData | null
 } & MarginProps
@@ -42,13 +42,13 @@ const SpotPriceChartTitle = withSuspense(
     market,
     textVariant = 'title',
     hoverSpotPrice,
-    period,
+    interval,
     hoverCandle,
     isCandleChart = false,
     ...styleProps
   }: Props) => {
     const isMobile = useIsMobile()
-    const history = useSpotPriceHistory(market, period)
+    const history = useSpotPriceHistory(market, interval)
     const latestSpotPrice = fromBigNumber(market.spotPrice)
     const spotPrice = hoverSpotPrice ?? latestSpotPrice
     const prevSpotPrice = history.length > 0 ? history[0].price : null
@@ -108,7 +108,7 @@ const SpotPriceChartTitle = withSuspense(
       </Box>
     )
   },
-  ({ textVariant = 'title', market, hoverSpotPrice, period, hoverCandle, ...styleProps }: Props) => (
+  ({ textVariant = 'title', market, hoverSpotPrice, interval, hoverCandle, ...styleProps }: Props) => (
     <Box {...styleProps}>
       <TextShimmer variant={textVariant} width={200} />
       <TextShimmer variant="smallMedium" width={50} />

@@ -6,20 +6,20 @@ import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import { Strike } from '@lyrafinance/lyra-js'
 import React from 'react'
 
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useIVHistory from '@/app/hooks/position/useIVHistory'
 
 type Props = {
   strike: Strike
-  period: ChartPeriod
+  interval: ChartInterval
   hoverImpliedVolatility: number | null
 } & MarginProps &
   LayoutProps
 
 const PositionIVChartTitle = withSuspense(
-  ({ strike, hoverImpliedVolatility, period, ...styleProps }: Props) => {
-    const data = useIVHistory(strike, period)
+  ({ strike, hoverImpliedVolatility, interval, ...styleProps }: Props) => {
+    const data = useIVHistory(strike, interval)
     const iv = hoverImpliedVolatility ?? data[data.length - 1].iv
     const prevIv = data[0].iv
     const pctChange = prevIv ? (iv - prevIv) / prevIv : 0

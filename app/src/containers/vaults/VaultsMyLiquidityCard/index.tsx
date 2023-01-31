@@ -6,8 +6,8 @@ import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import Grid from '@lyra/ui/components/Grid'
 import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
+import Countdown from '@lyra/ui/components/Text/CountdownText'
 import formatBalance from '@lyra/ui/utils/formatBalance'
-import formatDuration from '@lyra/ui/utils/formatDuration'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import React, { useCallback, useState } from 'react'
@@ -66,10 +66,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
           {isNew && globalRewardEpoch.startEarningTimestamp ? (
             <LabelItem
               label="Start Earning"
-              value={formatDuration(
-                Math.max(globalRewardEpoch.startEarningTimestamp - market.block.timestamp, 0),
-                true
-              )}
+              value={<Countdown variant="secondary" timestamp={globalRewardEpoch.startEarningTimestamp} showSeconds />}
             />
           ) : null}
         </Grid>

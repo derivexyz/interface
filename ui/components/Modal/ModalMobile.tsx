@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import Box from '../Box'
-import Center from '../Center'
 import Flex from '../Flex'
 import Text from '../Text'
 
@@ -79,13 +78,9 @@ export default function ModalMobile({ children, isFullscreen, isOpen, onClose, t
           // Block parent onClose trigger
           onClick={e => e.stopPropagation()}
         >
-          {typeof title === 'string' ? (
-            <Center p={4}>
-              <Text variant="heading">{title}</Text>
-            </Center>
-          ) : (
-            title
-          )}
+          <Flex alignItems="center" px={6} pt={6}>
+            {typeof title === 'string' ? <Text variant="heading">{title}</Text> : title}
+          </Flex>
           {children}
         </Box>
       </Flex>

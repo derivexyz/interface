@@ -3,7 +3,7 @@ import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonLis
 import { DropdownIconButtonElement } from '@lyra/ui/components/Button/DropdownIconButton'
 import { Market } from '@lyrafinance/lyra-js'
 import { getAddress } from 'ethers/lib/utils'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import MarketImage from '@/app/components/common/MarketImage'
 import MarketLabel from '@/app/components/common/MarketLabel'
@@ -29,7 +29,6 @@ const TradeMarketDropdown = ({
 }: Props): DropdownIconButtonElement => {
   const [isOpen, setIsOpen] = useState(false)
   const onClose = useCallback(() => setIsOpen(false), [])
-  const filteredMarkets = useMemo(() => markets.filter(market => market.liveBoards().length > 0), [markets])
   return (
     <DropdownButton
       {...styleProps}
@@ -42,7 +41,7 @@ const TradeMarketDropdown = ({
       label={getMarketDisplayName(selectedMarket)}
       leftIcon={<MarketImage market={selectedMarket} />}
     >
-      {filteredMarkets.map(market => (
+      {markets.map(market => (
         <DropdownButtonListItem
           onClick={() => {
             logEvent(LogEvent.BoardMarketSelect, { marketName: market.name, marketAddress: market.address })

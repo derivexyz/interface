@@ -2,7 +2,6 @@ import IconButton from '@lyra/ui/components/Button/IconButton'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Flex from '@lyra/ui/components/Flex'
-import Grid from '@lyra/ui/components/Grid'
 import { IconType } from '@lyra/ui/components/Icon'
 import Image from '@lyra/ui/components/Image'
 import Link from '@lyra/ui/components/Link'
@@ -43,7 +42,7 @@ const PortfolioAnnouncementCardPagination = ({
   )
 }
 
-const IMAGE_SIZE = [64, 72]
+const IMAGE_SIZE = [36, 72]
 
 export default function PortfolioAnnouncementCard({
   announcement,
@@ -65,34 +64,46 @@ export default function PortfolioAnnouncementCard({
   const isMobile = useIsMobile()
   return (
     <Card>
-      <CardBody flexDirection="row" alignItems="center">
-        {announcement.graphic ? (
+      <CardBody noPadding px={6} py={3} flexDirection="row" alignItems="center">
+        {announcement.graphic && !isMobile ? (
           <Image
             mr={4}
             src={getAssetSrc(announcement.graphic)}
             height={announcement.graphicSize ?? IMAGE_SIZE}
             minHeight={announcement.graphicSize ?? IMAGE_SIZE}
+            width={announcement.graphicSize ?? IMAGE_SIZE}
+            minWidth={announcement.graphicSize ?? IMAGE_SIZE}
           />
         ) : null}
         <Flex flexDirection="column" flexGrow={1}>
-          <Flex alignItems="center">
-            <Text mr={2} variant="heading" color="text">
+          <Flex mb={[2, 0]} alignItems="center">
+            {announcement.graphic && isMobile ? (
+              <Image
+                mr={3}
+                src={getAssetSrc(announcement.graphic)}
+                height={announcement.graphicSize ?? IMAGE_SIZE}
+                minHeight={announcement.graphicSize ?? IMAGE_SIZE}
+                width={announcement.graphicSize ?? IMAGE_SIZE}
+                minWidth={announcement.graphicSize ?? IMAGE_SIZE}
+              />
+            ) : null}
+            <Text mr={2} variant="bodyLarge" color="text">
               {announcement.header}
-              {announcement.showCountdown ? (
+              {announcement.showCountdown && !isMobile ? (
                 <>
-                  &nbsp;&nbsp;·&nbsp;&nbsp;
-                  <Countdown as="span" variant="heading" timestamp={announcement.expiryTimestamp} showSeconds />
+                  {' · '}
+                  <Countdown as="span" prefix="Ends in" timestamp={announcement.expiryTimestamp} showSeconds />
                 </>
               ) : null}
             </Text>
             <IconButton ml="auto" variant="light" icon={IconType.X} onClick={handleClickClose} />
           </Flex>
-          <Text variant="secondary" mt={2} color="secondaryText">
+          <Text mb={[2, 0]} variant="secondary" color="secondaryText">
             {announcement.title}
           </Text>
-          <Flex alignItems="center" mt={[2, 1]}>
+          <Flex alignItems="center">
             {announcement.cta.length > 0 ? (
-              <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'] }}>
+              <Flex>
                 {announcement.cta.map(cta => (
                   <Link
                     key={cta.href}
@@ -101,11 +112,12 @@ export default function PortfolioAnnouncementCard({
                     href={cta.href}
                     target={cta.target}
                     onClick={() => logEvent(LogEvent.NavPortfolioAnnouncementCTAClick, { id: announcement.id })}
+                    mr={3}
                   >
                     {cta.label}
                   </Link>
                 ))}
-              </Grid>
+              </Flex>
             ) : null}
             {!isMobile ? (
               <PortfolioAnnouncementCardPagination

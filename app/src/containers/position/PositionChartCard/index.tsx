@@ -7,8 +7,8 @@ import Flex from '@lyra/ui/components/Flex'
 import { Option } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo, useState } from 'react'
 
-import ChartPeriodSelector from '@/app/components/common/ChartPeriodSelector'
-import { ChartPeriod } from '@/app/constants/chart'
+import ChartIntervalSelector from '@/app/components/common/ChartIntervalSelector'
+import { ChartInterval } from '@/app/constants/chart'
 
 import SpotPriceChartTitle from '../../common/SpotPriceChartTitle'
 import SpotPriceLineChart from '../../common/SpotPriceLineChart'
@@ -42,10 +42,10 @@ const CHARTS: Pick<ToggleButtonItemProps<PositionChart>, 'id' | 'label'>[] = [
   },
 ]
 
-const CHART_PERIODS = [ChartPeriod.OneWeek, ChartPeriod.TwoWeeks, ChartPeriod.OneMonth, ChartPeriod.AllTime]
+const CHART_INTERVALS = [ChartInterval.OneWeek, ChartInterval.TwoWeeks, ChartInterval.OneMonth, ChartInterval.AllTime]
 
 const PositionChartCard = ({ option }: Props): CardElement => {
-  const [period, setPeriod] = useState(CHART_PERIODS[0])
+  const [interval, setInterval] = useState(CHART_INTERVALS[0])
   const [hoverOptionPrice, setHoverOptionPrice] = useState<number | null>(null)
   const [hoverImpliedVolatility, setHoverImpliedVolatility] = useState<number | null>(null)
   const [hoverSpotPrice, setHoverSpotPrice] = useState<number | null>(null)
@@ -56,14 +56,18 @@ const PositionChartCard = ({ option }: Props): CardElement => {
 
   const chartTitleComponent =
     chart === PositionChart.OptionPrice ? (
-      <PositionPriceChartTitle option={option} period={period} hoverOptionPrice={hoverOptionPrice} />
+      <PositionPriceChartTitle option={option} interval={interval} hoverOptionPrice={hoverOptionPrice} />
     ) : chart === PositionChart.ImpliedVolatility ? (
-      <PositionIVChartTitle strike={option.strike()} period={period} hoverImpliedVolatility={hoverImpliedVolatility} />
+      <PositionIVChartTitle
+        strike={option.strike()}
+        interval={interval}
+        hoverImpliedVolatility={hoverImpliedVolatility}
+      />
     ) : chart === PositionChart.SpotPrice ? (
       <SpotPriceChartTitle
         textVariant="heading"
         market={option.market()}
-        period={period}
+        interval={interval}
         hoverSpotPrice={hoverSpotPrice}
       />
     ) : null
@@ -73,7 +77,7 @@ const PositionChartCard = ({ option }: Props): CardElement => {
       <PositionPriceChart
         option={option}
         height={[120, 170]}
-        period={period}
+        interval={interval}
         hoverOptionPrice={hoverOptionPrice}
         onHover={setHoverOptionPrice}
       />
@@ -81,7 +85,7 @@ const PositionChartCard = ({ option }: Props): CardElement => {
       <PositionIVChart
         strike={option.strike()}
         height={[120, 170]}
-        period={period}
+        interval={interval}
         hoverImpliedVolatility={hoverImpliedVolatility}
         onHover={setHoverImpliedVolatility}
       />
@@ -89,7 +93,7 @@ const PositionChartCard = ({ option }: Props): CardElement => {
       <SpotPriceLineChart
         market={option.market()}
         height={[120, 170]}
-        period={period}
+        interval={interval}
         hoverSpotPrice={hoverSpotPrice}
         onHover={setHoverSpotPrice}
       />
@@ -114,7 +118,11 @@ const PositionChartCard = ({ option }: Props): CardElement => {
                 />
               ))}
             </DropdownButton>
-            <ChartPeriodSelector periods={CHART_PERIODS} selectedPeriod={period} onChangePeriod={setPeriod} />
+            <ChartIntervalSelector
+              intervals={CHART_INTERVALS}
+              selectedInterval={interval}
+              onChangeInterval={setInterval}
+            />
           </Flex>
         </Flex>
         {chartComponent}

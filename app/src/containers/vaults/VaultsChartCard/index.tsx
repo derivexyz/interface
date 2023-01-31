@@ -8,8 +8,8 @@ import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { Market } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo, useState } from 'react'
 
-import ChartPeriodSelector from '@/app/components/common/ChartPeriodSelector'
-import { ChartPeriod, VaultChart } from '@/app/constants/chart'
+import ChartIntervalSelector from '@/app/components/common/ChartIntervalSelector'
+import { ChartInterval, VaultChart } from '@/app/constants/chart'
 
 import VaultsChartNetDelta from './VaultsChartNetDelta'
 import VaultsChartOverviewSection from './VaultsChartOverviewSection'
@@ -40,41 +40,56 @@ export const VAULTS_CHARTS: { id: VaultChart; label: string }[] = [
   },
 ]
 
-const TVL_CHARTS_PERIODS = [ChartPeriod.OneMonth, ChartPeriod.ThreeMonths, ChartPeriod.SixMonths, ChartPeriod.AllTime]
-
-const VOLUME_CHARTS_PERIODS = [
-  ChartPeriod.OneMonth,
-  ChartPeriod.ThreeMonths,
-  ChartPeriod.SixMonths,
-  ChartPeriod.AllTime,
+const TVL_CHARTS_INTERVALS = [
+  ChartInterval.OneMonth,
+  ChartInterval.ThreeMonths,
+  ChartInterval.SixMonths,
+  ChartInterval.AllTime,
 ]
 
-const PERF_CHARTS_PERIODS = [ChartPeriod.OneMonth, ChartPeriod.ThreeMonths, ChartPeriod.SixMonths, ChartPeriod.OneYear]
+const VOLUME_CHARTS_INTERVALS = [
+  ChartInterval.OneMonth,
+  ChartInterval.ThreeMonths,
+  ChartInterval.SixMonths,
+  ChartInterval.AllTime,
+]
 
-const NET_DELTA_CHART_PERIODS = [ChartPeriod.ThreeDays, ChartPeriod.OneWeek, ChartPeriod.TwoWeeks, ChartPeriod.OneMonth]
+const PERF_CHARTS_INTERVALS = [
+  ChartInterval.OneMonth,
+  ChartInterval.ThreeMonths,
+  ChartInterval.SixMonths,
+  ChartInterval.OneYear,
+]
 
-const getPeriodsForChart = (chart: VaultChart): ChartPeriod[] => {
+const NET_DELTA_CHART_INTERVALS = [
+  ChartInterval.ThreeDays,
+  ChartInterval.OneWeek,
+  ChartInterval.TwoWeeks,
+  ChartInterval.OneMonth,
+]
+
+const getIntervalsForChart = (chart: VaultChart): ChartInterval[] => {
   switch (chart) {
     case VaultChart.TVL:
-      return TVL_CHARTS_PERIODS
+      return TVL_CHARTS_INTERVALS
     case VaultChart.Volume:
-      return VOLUME_CHARTS_PERIODS
+      return VOLUME_CHARTS_INTERVALS
     case VaultChart.Performance:
-      return PERF_CHARTS_PERIODS
+      return PERF_CHARTS_INTERVALS
     case VaultChart.NetDelta:
-      return NET_DELTA_CHART_PERIODS
+      return NET_DELTA_CHART_INTERVALS
   }
 }
 
 const VaultsChartCard = ({ market }: Props) => {
   const [chart, setChart] = useState(VaultChart.TVL)
   const selectedChart = useMemo(() => VAULTS_CHARTS.find(c => c.id === chart), [chart])
-  const [period, setPeriod] = useState(getPeriodsForChart(chart)[0])
+  const [interval, setInterval] = useState(getIntervalsForChart(chart)[0])
   const [isOpen, setIsOpen] = useState(false)
 
   const handleChangeChart = useCallback((chart: VaultChart) => {
     setChart(chart)
-    setPeriod(getPeriodsForChart(chart)[0])
+    setInterval(getIntervalsForChart(chart)[0])
   }, [])
 
   const onClose = useCallback(() => setIsOpen(false), [])
@@ -111,21 +126,21 @@ const VaultsChartCard = ({ market }: Props) => {
               )
             })}
           </DropdownButton>
-          <ChartPeriodSelector
+          <ChartIntervalSelector
             ml={['auto', null]}
-            periods={getPeriodsForChart(chart)}
-            selectedPeriod={period}
-            onChangePeriod={setPeriod}
+            intervals={getIntervalsForChart(chart)}
+            selectedInterval={interval}
+            onChangeInterval={setInterval}
           />
         </Flex>
         {chart === VaultChart.TVL ? (
-          <VaultsChartTVL market={market} period={period} />
+          <VaultsChartTVL market={market} interval={interval} />
         ) : chart === VaultChart.Volume ? (
-          <VaultsChartVolume market={market} period={period} />
+          <VaultsChartVolume market={market} interval={interval} />
         ) : chart === VaultChart.Performance ? (
-          <VaultsChartPerf market={market} period={period} />
+          <VaultsChartPerf market={market} interval={interval} />
         ) : chart === VaultChart.NetDelta ? (
-          <VaultsChartNetDelta market={market} period={period} />
+          <VaultsChartNetDelta market={market} interval={interval} />
         ) : null}
       </CardSection>
     </Card>

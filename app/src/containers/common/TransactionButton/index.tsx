@@ -5,6 +5,7 @@ import Link from '@lyra/ui/components/Link'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import { Network } from '@lyrafinance/lyra-js'
+import { BigNumber } from 'ethers'
 import React, { useCallback, useState } from 'react'
 
 import { TERMS_OF_USE_URL } from '@/app/constants/links'
@@ -21,12 +22,21 @@ import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 import isTermsOfUseEnabled from '@/app/utils/isTermsOfUseEnabled'
 
 import ConnectWalletButton from '../ConnectWalletButton'
+import OnboardingModal from '../OnboardingModal'
 
 type RequireTokenAllowance = {
   address: string
   symbol: string
   decimals: number
   onClick: () => void
+}
+
+type RequireTokenBalance = {
+  address: string
+  symbol: string
+  balance: BigNumber
+  requiredBalance: BigNumber
+  context: string
 }
 
 export type TransactionButtonProps = {
@@ -36,8 +46,7 @@ export type TransactionButtonProps = {
   label: string
   isDisabled?: boolean
   requireAllowance?: RequireTokenAllowance
-  // TODO: @dappbeast re-implement onboarding "swap" modal
-  // requireBalance?: RequireTokenBalance
+  requireBalance?: RequireTokenBalance
 } & MarginProps &
   Omit<LayoutProps, 'size'>
 
@@ -51,6 +60,7 @@ const TransactionButton = withSuspense(
         onClick,
         isDisabled,
         requireAllowance,
+        requireBalance,
         network,
         label,
         ...marginProps
@@ -65,6 +75,8 @@ const TransactionButton = withSuspense(
       const targetChainId = network === 'ethereum' ? 1 : getChainIdForNetwork(network)
       const screenData = useScreenTransaction(targetChainId, transactionType)
       const isReady = useIsReady(targetChainId)
+
+      const [isSwapOpen, setIsSwapOpen] = useState(false)
 
       const [isLoading, setIsLoading] = useState(false)
       const [isApproveLoading, setIsApproveLoading] = useState(false)
@@ -82,6 +94,8 @@ const TransactionButton = withSuspense(
         await onClick()
         setIsLoading(false)
       }, [onClick])
+
+      const onCloseSwap = useCallback(() => setIsSwapOpen(false), [])
 
       return (
         <Box {...marginProps}>
@@ -113,8 +127,22 @@ const TransactionButton = withSuspense(
           {!isReady ? (
             // Switch networks prompt
             <ConnectWalletButton mb={3} width="100%" size="lg" network={network} />
-          ) : // TODO: @dappbeast Swap prompt
-          requireAllowance ? (
+          ) : requireBalance && requireBalance.requiredBalance.gt(requireBalance.balance) && network !== 'ethereum' ? (
+            <Button
+              label={`Swap to ${requireBalance.symbol}`}
+              width="100%"
+              onClick={async () => {
+                if (isTermsAccepted || !isTermsOfUseEnabled()) {
+                  setIsSwapOpen(true)
+                } else {
+                  setIsTermsOpen(true)
+                }
+              }}
+              variant="primary"
+              size="lg"
+              mb={3}
+            />
+          ) : requireAllowance ? (
             // Approve prompt
             <Button
               label={`Allow Lyra to use your ${requireAllowance.symbol}`}
@@ -167,6 +195,14 @@ const TransactionButton = withSuspense(
             }}
             onClose={() => setIsTermsOpen(false)}
           />
+          {requireBalance && network !== 'ethereum' ? (
+            <OnboardingModal
+              toToken={{ ...requireBalance, network }}
+              isOpen={isSwapOpen}
+              onClose={onCloseSwap}
+              context={requireBalance.context}
+            />
+          ) : null}
         </Box>
       )
     }

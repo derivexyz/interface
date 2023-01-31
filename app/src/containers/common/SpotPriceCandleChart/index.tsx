@@ -6,24 +6,24 @@ import { Market, SnapshotPeriod } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import CandleChart from '@/app/components/trade/CandleChart'
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useSpotPriceHistory from '@/app/hooks/market/useSpotPriceHistory'
-import getChartPeriodStartTimestamp from '@/app/utils/getChartPeriodStartTimestamp'
+import getChartStartTimestamp from '@/app/utils/getChartStartTimestamp'
 
 type Props = {
   market: Market
-  period: ChartPeriod
+  interval: ChartInterval
   candleDuration: SnapshotPeriod
   onHover: (candle: OhlcData | null) => void
 } & MarginProps &
   LayoutProps
 
 const SpotPriceCandleChart = withSuspense(
-  ({ market, candleDuration, period, onHover, ...styleProps }: Props) => {
-    const spotPriceHistory = useSpotPriceHistory(market, ChartPeriod.SixMonths, candleDuration)
+  ({ market, candleDuration, interval, onHover, ...styleProps }: Props) => {
+    const spotPriceHistory = useSpotPriceHistory(market, ChartInterval.SixMonths, candleDuration)
     const showTimeRange = {
-      from: getChartPeriodStartTimestamp(market?.block.timestamp ?? 0, period) as Time,
+      from: getChartStartTimestamp(market?.block.timestamp ?? 0, interval) as Time,
       to: (market?.block.timestamp ?? 0) as Time,
     }
 
@@ -37,7 +37,7 @@ const SpotPriceCandleChart = withSuspense(
     )
     return <CandleChart data={candleSeriesData} showTimeRange={showTimeRange} onHover={onHover} {...styleProps} />
   },
-  ({ market, candleDuration, period, onHover, ...styleProps }: Props) => (
+  ({ market, candleDuration, interval, onHover, ...styleProps }: Props) => (
     <Center height="100%" {...styleProps}>
       <Spinner />
     </Center>
@@ -49,7 +49,7 @@ export default React.memo(SpotPriceCandleChart, (prevProps, nextProps) => {
     prevProps.market.address === nextProps.market.address &&
     prevProps.candleDuration === nextProps.candleDuration &&
     prevProps.market.spotPrice.eq(nextProps.market.spotPrice) &&
-    prevProps.period === nextProps.period &&
+    prevProps.interval === nextProps.interval &&
     prevProps.onHover === nextProps.onHover
   )
 })

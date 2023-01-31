@@ -1,4 +1,4 @@
-export enum ChartPeriod {
+export enum ChartInterval {
   OneDay = 'OneDay',
   ThreeDays = 'ThreeDays',
   OneWeek = 'OneWeek',

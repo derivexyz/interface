@@ -40,7 +40,8 @@ export default function useTradeBalances(market: Market): AccountBalances {
   const [balances] = useFetch(
     FetchId.TradeBalances,
     account ? [market.lyra.network, market.address, account] : null,
-    fetcher
+    fetcher,
+    { refreshInterval: 10 * 1000 } // 10 seconds
   )
   return useMemo(() => balances ?? getEmpty(ZERO_ADDRESS, market), [balances, market])
 }

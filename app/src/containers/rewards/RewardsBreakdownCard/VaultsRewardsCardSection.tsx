@@ -15,7 +15,6 @@ import MarketImage from '@/app/components/common/MarketImage'
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import TokenAPYRangeText from '@/app/components/common/TokenAPYRangeText'
-import VaultAPYTooltip from '@/app/components/common/VaultAPYTooltip'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useTradeBalances from '@/app/hooks/market/useTradeBalances'
@@ -84,21 +83,13 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
         <Text variant="secondary" color="secondaryText" mb={2}>
           APY
         </Text>
-        <VaultAPYTooltip
-          market={market}
-          opApy={opApy}
-          lyraApy={lyraApy}
-          apyMultiplier={apyMultiplier}
-          stakedLyraBalance={stakedLyraBalance}
-        >
-          <TokenAPYRangeText
-            tokenNameOrAddress={tokenNameOrAddress}
-            variant="secondary"
-            color="primaryText"
-            leftValue={formatPercentage(opApy + lyraApy, true)}
-            rightValue={formatPercentage(maxApy, true)}
-          />
-        </VaultAPYTooltip>
+        <TokenAPYRangeText
+          tokenNameOrAddress={tokenNameOrAddress}
+          variant="secondary"
+          color="primaryText"
+          leftValue={formatPercentage(opApy + lyraApy, true)}
+          rightValue={formatPercentage(maxApy, true)}
+        />
       </Flex>
       {lyraApy > 0 ? (
         <Flex flexDirection="column" justifyContent="space-between">

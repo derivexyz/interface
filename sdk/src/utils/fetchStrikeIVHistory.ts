@@ -53,6 +53,7 @@ export default async function fetchStrikeIVHistory(
       iv: fromBigNumber(BigNumber.from(snapshot.iv)),
       timestamp: snapshot.timestamp,
     })),
+    data[0].timestamp,
     endTimestamp
   )
 

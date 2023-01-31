@@ -4,14 +4,14 @@ import { LayoutProps, MarginProps, PaddingProps } from '@lyra/ui/types'
 import { Strike } from '@lyrafinance/lyra-js'
 import React from 'react'
 
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useIVHistory from '@/app/hooks/position/useIVHistory'
 import formatTimestampTooltip from '@/app/utils/formatTimestampTooltip'
 
 type Props = {
   strike: Strike
-  period: ChartPeriod
+  interval: ChartInterval
   hoverImpliedVolatility: number | null
   onHover: (pt: number | null) => void
 } & MarginProps &
@@ -19,8 +19,8 @@ type Props = {
   PaddingProps
 
 const PositionIVChart = withSuspense(
-  ({ strike, period, hoverImpliedVolatility, onHover, ...styleProps }: Props) => {
-    const data = useIVHistory(strike, period)
+  ({ strike, interval, hoverImpliedVolatility, onHover, ...styleProps }: Props) => {
+    const data = useIVHistory(strike, interval)
     const iv = hoverImpliedVolatility ?? data[data.length - 1].iv
     const prevIv = data[0].iv
     const pctChange = prevIv ? (iv - prevIv) / prevIv : 0
@@ -35,11 +35,11 @@ const PositionIVChart = withSuspense(
         onHover={pt => {
           onHover(pt?.iv ?? null)
         }}
-        renderTooltip={({ timestamp }) => formatTimestampTooltip(timestamp, period)}
+        renderTooltip={({ timestamp }) => formatTimestampTooltip(timestamp, interval)}
       />
     )
   },
-  ({ strike, period, hoverImpliedVolatility, onHover, ...styleProps }) => <Shimmer {...styleProps} />
+  ({ strike, interval, hoverImpliedVolatility, onHover, ...styleProps }) => <Shimmer {...styleProps} />
 )
 
 export default PositionIVChart

@@ -6,12 +6,14 @@ export enum FetchId {
   // accounts
   AccountENS = 'AccountENS',
   AccountEthBalance = 'AccountEthBalance',
+  AccountBalance = 'AccountBalance',
   AccountScreenTransaction = 'AccountScreenTransaction',
 
   // portfolio
   PortfolioPageData = 'PortfolioPageData',
   PortfolioMarketsTableData = 'PortfolioMarketsTableData',
   PortfolioOpenPositions = 'PortfolioOpenPositions',
+  PortfolioUserProfitLossHistory = 'PortfolioUserProfitLossHistory',
 
   // trade
   TradePageData = 'TradePageData',

@@ -5,7 +5,7 @@ import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useSpotPriceHistory from '@/app/hooks/market/useSpotPriceHistory'
 import emptyFunction from '@/app/utils/emptyFunction'
@@ -14,15 +14,15 @@ import fromBigNumber from '@/app/utils/fromBigNumber'
 
 type Props = {
   market: Market
-  period: ChartPeriod
+  interval: ChartInterval
   hoverSpotPrice: number | null
   onHover: (spotPrice: number | null) => void
 } & MarginProps &
   LayoutProps
 
 const SpotPriceLineChart = withSuspense(
-  ({ market, period, onHover = emptyFunction, hoverSpotPrice, ...styleProps }: Props) => {
-    const history = useSpotPriceHistory(market, period)
+  ({ market, interval, onHover = emptyFunction, hoverSpotPrice, ...styleProps }: Props) => {
+    const history = useSpotPriceHistory(market, interval)
     const defaultSpotPrice = market ? fromBigNumber(market.spotPrice) : null
     const spotPrice = hoverSpotPrice ?? defaultSpotPrice
     const prevSpotPrice = history.length > 0 ? history[0].price : null
@@ -35,11 +35,11 @@ const SpotPriceLineChart = withSuspense(
         dataKeys={[{ key: 'price', label: 'price' }]}
         onHover={pt => onHover(pt?.price ?? null)}
         lineColor={pctChange >= 0 ? 'primary' : 'error'}
-        renderTooltip={({ x }) => formatTimestampTooltip(x, period)}
+        renderTooltip={({ x }) => formatTimestampTooltip(x, interval)}
       />
     )
   },
-  ({ market, period, hoverSpotPrice, onHover, ...styleProps }: Props) => (
+  ({ market, interval, hoverSpotPrice, onHover, ...styleProps }: Props) => (
     <Center height="100%" {...styleProps}>
       <Spinner />
     </Center>

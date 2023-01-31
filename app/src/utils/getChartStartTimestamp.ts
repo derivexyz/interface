@@ -1,4 +1,4 @@
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 
 import {
   SECONDS_IN_DAY,
@@ -8,25 +8,25 @@ import {
   SECONDS_IN_YEAR,
 } from '../constants/time'
 
-export default function getChartPeriodStartTimestamp(blockTimestamp: number, period: ChartPeriod): number {
+export default function getChartStartTimestamp(blockTimestamp: number, period: ChartInterval): number {
   switch (period) {
-    case ChartPeriod.OneDay:
+    case ChartInterval.OneDay:
       return blockTimestamp - SECONDS_IN_DAY
-    case ChartPeriod.ThreeDays:
+    case ChartInterval.ThreeDays:
       return blockTimestamp - SECONDS_IN_DAY * 3
-    case ChartPeriod.OneWeek:
+    case ChartInterval.OneWeek:
       return blockTimestamp - SECONDS_IN_WEEK
-    case ChartPeriod.TwoWeeks:
+    case ChartInterval.TwoWeeks:
       return blockTimestamp - SECONDS_IN_WEEK * 2
-    case ChartPeriod.OneMonth:
+    case ChartInterval.OneMonth:
       return blockTimestamp - SECONDS_IN_MONTH
-    case ChartPeriod.ThreeMonths:
+    case ChartInterval.ThreeMonths:
       return blockTimestamp - SECONDS_IN_MONTH * 3
-    case ChartPeriod.SixMonths:
+    case ChartInterval.SixMonths:
       return blockTimestamp - SECONDS_IN_SIX_MONTHS
-    case ChartPeriod.OneYear:
+    case ChartInterval.OneYear:
       return blockTimestamp - SECONDS_IN_YEAR
-    case ChartPeriod.AllTime:
+    case ChartInterval.AllTime:
       return 0
   }
 }

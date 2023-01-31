@@ -8,15 +8,15 @@ import { MarginProps } from '@lyra/ui/types'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import React, { useMemo, useState } from 'react'
 
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import { VAULTS_INDEX_CHART_HEIGHT } from '@/app/constants/layout'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAggregateVaultStats from '@/app/hooks/vaults/useVaultsAggregatedStats'
 import formatTimestampTooltip from '@/app/utils/formatTimestampTooltip'
-import getChartPeriodTimestamp from '@/app/utils/getChartPeriodTimestamp'
+import getChartIntervalSeconds from '@/app/utils/getChartIntervalSeconds'
 
 type Props = {
-  period: ChartPeriod
+  interval: ChartInterval
 } & MarginProps
 
 type TVLData = {
@@ -25,8 +25,8 @@ type TVLData = {
 }
 
 const VaultsIndexChartTVL = withSuspense(
-  ({ period, ...styleProps }: Props) => {
-    const vaultStats = useAggregateVaultStats(getChartPeriodTimestamp(period))
+  ({ interval, ...styleProps }: Props) => {
+    const vaultStats = useAggregateVaultStats(getChartIntervalSeconds(interval))
     const data: TVLData[] = useMemo(() => vaultStats?.liquidityHistory ?? [], [vaultStats])
 
     const [hoverData, setHoverData] = useState<TVLData | null>(null)
@@ -39,7 +39,7 @@ const VaultsIndexChartTVL = withSuspense(
       <Flex {...styleProps} flexDirection="column">
         <Text variant="bodyLarge">{formatTruncatedUSD(hoverData?.tvl ?? vaultStats?.tvl ?? 0)}</Text>
         <Text variant="small" color="secondaryText">
-          {formatTimestampTooltip(hoverData?.timestamp ?? data[data.length - 1].timestamp, period)}
+          {formatTimestampTooltip(hoverData?.timestamp ?? data[data.length - 1].timestamp, interval)}
         </Text>
         <AreaChart<TVLData>
           mt={1}
@@ -55,7 +55,7 @@ const VaultsIndexChartTVL = withSuspense(
       </Flex>
     )
   },
-  ({ period, ...styleProps }: Props) => (
+  ({ interval, ...styleProps }: Props) => (
     <Box {...styleProps}>
       <TextShimmer width={100} variant="bodyLarge" />
       <TextShimmer width={60} variant="small" />

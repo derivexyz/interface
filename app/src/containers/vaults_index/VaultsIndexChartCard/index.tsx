@@ -7,28 +7,33 @@ import Flex from '@lyra/ui/components/Flex'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React, { useCallback, useState } from 'react'
 
-import ChartPeriodSelector from '@/app/components/common/ChartPeriodSelector'
-import { ChartPeriod, VaultIndexChart } from '@/app/constants/chart'
+import ChartIntervalSelector from '@/app/components/common/ChartIntervalSelector'
+import { ChartInterval, VaultIndexChart } from '@/app/constants/chart'
 
 import VaultsIndexChartOverviewSection from './VaultsIndexChartOverviewSection'
 import VaultsIndexChartTVL from './VaultsIndexChartTVL'
 import VaultsIndexChartVolume from './VaultsIndexChartVolume'
 
-const TVL_CHARTS_PERIODS = [ChartPeriod.OneMonth, ChartPeriod.ThreeMonths, ChartPeriod.SixMonths, ChartPeriod.AllTime]
-
-const VOLUME_CHARTS_PERIODS = [
-  ChartPeriod.OneMonth,
-  ChartPeriod.ThreeMonths,
-  ChartPeriod.SixMonths,
-  ChartPeriod.AllTime,
+const TVL_CHARTS_INTERVALS = [
+  ChartInterval.OneMonth,
+  ChartInterval.ThreeMonths,
+  ChartInterval.SixMonths,
+  ChartInterval.AllTime,
 ]
 
-const getPeriodsForChart = (chart: VaultIndexChart): ChartPeriod[] => {
+const VOLUME_CHARTS_INTERVALS = [
+  ChartInterval.OneMonth,
+  ChartInterval.ThreeMonths,
+  ChartInterval.SixMonths,
+  ChartInterval.AllTime,
+]
+
+const getIntervalsForChart = (chart: VaultIndexChart): ChartInterval[] => {
   switch (chart) {
     case VaultIndexChart.TVL:
-      return TVL_CHARTS_PERIODS
+      return TVL_CHARTS_INTERVALS
     case VaultIndexChart.Volume:
-      return VOLUME_CHARTS_PERIODS
+      return VOLUME_CHARTS_INTERVALS
   }
 }
 
@@ -45,10 +50,10 @@ export const VAULTS_INDEX_CHARTS: { id: VaultIndexChart; label: string }[] = [
 
 const VaultsIndexChartCard = () => {
   const [chart, setChart] = useState(VaultIndexChart.TVL)
-  const [period, setPeriod] = useState(getPeriodsForChart(chart)[0])
+  const [interval, setInterval] = useState(getIntervalsForChart(chart)[0])
   const handleChangeChart = useCallback((chart: VaultIndexChart) => {
     setChart(chart)
-    setPeriod(getPeriodsForChart(chart)[0])
+    setInterval(getIntervalsForChart(chart)[0])
   }, [])
   const selectedChart = VAULTS_INDEX_CHARTS.find(c => c.id === chart)
   const [isOpen, setIsOpen] = useState(false)
@@ -85,17 +90,17 @@ const VaultsIndexChartCard = () => {
               )
             })}
           </DropdownButton>
-          <ChartPeriodSelector
+          <ChartIntervalSelector
             ml={['auto', null]}
-            periods={getPeriodsForChart(chart)}
-            selectedPeriod={period}
-            onChangePeriod={setPeriod}
+            intervals={getIntervalsForChart(chart)}
+            selectedInterval={interval}
+            onChangeInterval={setInterval}
           />
         </Flex>
         {chart === VaultIndexChart.TVL ? (
-          <VaultsIndexChartTVL period={period} />
+          <VaultsIndexChartTVL interval={interval} />
         ) : chart === VaultIndexChart.Volume ? (
-          <VaultsIndexChartVolume period={period} />
+          <VaultsIndexChartVolume interval={interval} />
         ) : null}
       </CardSection>
     </Card>

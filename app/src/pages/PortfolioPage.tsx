@@ -9,8 +9,14 @@ import PortfolioPageHelper from '../page_helpers/PortfolioPageHelper'
 // /portfolio
 const PortfolioPage = withSuspense(
   () => {
-    const { marketData, openPositions } = usePortfolioPageData()
-    return <PortfolioPageHelper marketData={marketData} openPositions={openPositions} />
+    const { marketData, openPositions, portfolioOverview } = usePortfolioPageData()
+    return (
+      <PortfolioPageHelper
+        marketData={marketData}
+        openPositions={openPositions}
+        portfolioOverview={portfolioOverview}
+      />
+    )
   },
   () => <PageLoading />
 )

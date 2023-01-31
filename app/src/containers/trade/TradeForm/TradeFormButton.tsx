@@ -212,6 +212,21 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
             }
           : undefined
       }
+      requireBalance={
+        trade.disabledReason === TradeDisabledReason.InsufficientQuoteBalance
+          ? {
+              ...trade.quoteToken,
+              context: 'make your trade',
+              requiredBalance: trade.quoteToken.transfer,
+            }
+          : trade.disabledReason === TradeDisabledReason.InsufficientBaseBalance
+          ? {
+              ...trade.baseToken,
+              context: 'collateralize your covered call',
+              requiredBalance: trade.baseToken.transfer,
+            }
+          : undefined
+      }
       network={trade.lyra.network}
       transactionType={transactionType}
       onClick={handleClickTrade}

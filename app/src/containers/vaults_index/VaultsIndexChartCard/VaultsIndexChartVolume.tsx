@@ -8,15 +8,15 @@ import { MarginProps } from '@lyra/ui/types'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import React, { useMemo, useState } from 'react'
 
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import { VAULTS_INDEX_CHART_HEIGHT } from '@/app/constants/layout'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAggregateVaultStats from '@/app/hooks/vaults/useVaultsAggregatedStats'
 import formatTimestampTooltip from '@/app/utils/formatTimestampTooltip'
-import getChartPeriodTimestamp from '@/app/utils/getChartPeriodTimestamp'
+import getChartIntervalSeconds from '@/app/utils/getChartIntervalSeconds'
 
 type Props = {
-  period: ChartPeriod
+  interval: ChartInterval
 } & MarginProps
 
 type VolumeData = {
@@ -28,8 +28,8 @@ type VolumeData = {
 const MAX_BARS = 200
 
 const VaultsIndexChartVolume = withSuspense(
-  ({ period, ...styleProps }: Props) => {
-    const vaultStats = useAggregateVaultStats(getChartPeriodTimestamp(period))
+  ({ interval, ...styleProps }: Props) => {
+    const vaultStats = useAggregateVaultStats(getChartIntervalSeconds(interval))
 
     const data: VolumeData[] = useMemo(() => {
       const snapshots: VolumeData[] =
@@ -73,14 +73,14 @@ const VaultsIndexChartVolume = withSuspense(
         </Text>
         <Text variant="small" color="secondaryText">
           {hoverData
-            ? `${formatTimestampTooltip(hoverData.x, period)} - ${formatTimestampTooltip(
+            ? `${formatTimestampTooltip(hoverData.x, interval)} - ${formatTimestampTooltip(
                 hoverData.endTimestamp,
-                period
+                interval
               )}`
             : `${formatTimestampTooltip(
-                endTimestamp - getChartPeriodTimestamp(period),
-                period
-              )} - ${formatTimestampTooltip(endTimestamp, period)}`}
+                endTimestamp - getChartIntervalSeconds(interval),
+                interval
+              )} - ${formatTimestampTooltip(endTimestamp, interval)}`}
         </Text>
         <BarChart<VolumeData>
           mt={1}
@@ -94,7 +94,7 @@ const VaultsIndexChartVolume = withSuspense(
       </Flex>
     )
   },
-  ({ period, ...styleProps }: Props) => (
+  ({ interval, ...styleProps }: Props) => (
     <Box {...styleProps}>
       <TextShimmer width={100} variant="bodyLarge" />
       <TextShimmer width={60} variant="small" />

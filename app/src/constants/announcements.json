@@ -1,20 +1,5 @@
 [
   {
-    "id": "welcome",
-    "header": "Welcome to Lyra",
-    "title": "Buy and sell crypto options with low fees and subsecond transaction speeds.",
-    "cta": [
-      {
-        "label": "Start Trading",
-        "href": "/trade",
-        "variant": "default"
-      }
-    ],
-    "graphic": "images/logo.png",
-    "startTimestamp": 0,
-    "expiryTimestamp": 10000000000
-  },
-  {
     "id": "migrate-stklyra",
     "header": "Migrate Staked LYRA",
     "title": "Stakers must migrate their staked LYRA from Optimism to Ethereum mainnet to continue earning rewards.",
@@ -47,7 +32,7 @@
       }
     ],
     "graphic": "images/arbitrum-vaults.png",
-    "graphicSize": [64, 96],
+    "graphicSize": [72, 96],
     "startTimestamp": 1674565200,
     "expiryTimestamp": 1675206000,
     "showCountdown": true

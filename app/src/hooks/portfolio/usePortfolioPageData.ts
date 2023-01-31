@@ -1,5 +1,6 @@
 import { Market, Network, Position, SnapshotPeriod } from '@lyrafinance/lyra-js'
 
+import { ZERO_BN } from '@/app/constants/bn'
 import { FetchId } from '@/app/constants/fetch'
 import { SECONDS_IN_DAY, SECONDS_IN_MONTH } from '@/app/constants/time'
 import fetchMarkets from '@/app/utils/fetchMarkets'
@@ -14,6 +15,7 @@ import useFetch from '../data/useFetch'
 export type PortfolioPageData = {
   marketData: PortfolioMarketData[]
   openPositions: Position[]
+  portfolioOverview: PortfolioOverview
 }
 
 export type PortfolioMarketData = {
@@ -26,15 +28,30 @@ export type PortfolioMarketData = {
   tvl: number
 }
 
+export type PortfolioOverview = {
+  unrealizedPnl: number
+  netDelta: number
+  netVega: number
+  lockedCollateral: number
+}
+
 const EMPTY: PortfolioPageData = {
   marketData: [],
   openPositions: [],
+  portfolioOverview: {
+    lockedCollateral: 0,
+    unrealizedPnl: 0,
+    netDelta: 0,
+    netVega: 0,
+  },
 }
 
 const fetcher = async (network: Network, owner: string | null): Promise<PortfolioPageData> => {
   const maybeFetchPositions = async (): Promise<Position[]> => (owner ? getLyraSDK(network).openPositions(owner) : [])
 
-  const [markets, openPositions] = await Promise.all([fetchMarkets([network]), maybeFetchPositions()])
+  const [allMarkets, openPositions] = await Promise.all([fetchMarkets([network]), maybeFetchPositions()])
+
+  const markets = allMarkets.filter(market => market.liveBoards().length > 0)
 
   if (!markets.length) {
     return EMPTY
@@ -42,7 +59,6 @@ const fetcher = async (network: Network, owner: string | null): Promise<Portfoli
 
   const timestamp = markets[0].block.timestamp
 
-  // TODO: @dappbeast Replace with SDK spot price feed
   const histories = await Promise.all(
     markets.map(async market =>
       Promise.all([
@@ -51,6 +67,19 @@ const fetcher = async (network: Network, owner: string | null): Promise<Portfoli
         market.liquidity(),
       ])
     )
+  )
+  const openPositionStrikes = await Promise.all(openPositions.map(position => position.strike()))
+  const unrealizedPnl = openPositions.reduce((unrealisedPnl, openPosition) => {
+    return unrealisedPnl.add(openPosition.pnl().unrealizedPnl)
+  }, ZERO_BN)
+  const netDelta = openPositions.reduce((netDelta, openPosition) => {
+    return netDelta.add(openPosition.delta)
+  }, ZERO_BN)
+  const netVega = openPositionStrikes.reduce((netVega, strike) => netVega.add(strike.vega), ZERO_BN)
+  const lockedCollateral = openPositions.reduce(
+    (lockedCollateral, openPosition) =>
+      openPosition.collateral ? lockedCollateral.add(openPosition.collateral?.value) : lockedCollateral,
+    ZERO_BN
   )
 
   return {
@@ -78,6 +107,12 @@ const fetcher = async (network: Network, owner: string | null): Promise<Portfoli
       }
     }),
     openPositions: openPositions.sort((a, b) => a.expiryTimestamp - b.expiryTimestamp),
+    portfolioOverview: {
+      unrealizedPnl: fromBigNumber(unrealizedPnl),
+      netDelta: fromBigNumber(netDelta),
+      netVega: fromBigNumber(netVega),
+      lockedCollateral: fromBigNumber(lockedCollateral),
+    },
   }
 }
 

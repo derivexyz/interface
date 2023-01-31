@@ -7,20 +7,20 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Option } from '@lyrafinance/lyra-js'
 import React from 'react'
 
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useOptionPriceHistory from '@/app/hooks/position/useOptionPriceHistory'
 
 type Props = {
   option: Option
   hoverOptionPrice: number | null
-  period: ChartPeriod
+  interval: ChartInterval
 } & MarginProps &
   PaddingProps
 
 const PositionPriceChartTitle = withSuspense(
-  ({ option, hoverOptionPrice, period, ...styleProps }: Props) => {
-    const history = useOptionPriceHistory(option, period)
+  ({ option, hoverOptionPrice, interval, ...styleProps }: Props) => {
+    const history = useOptionPriceHistory(option, interval)
     if (history.length === 0) {
       return null
     }
@@ -37,7 +37,7 @@ const PositionPriceChartTitle = withSuspense(
       </Box>
     )
   },
-  ({ option, hoverOptionPrice, period, ...styleProps }) => (
+  ({ option, hoverOptionPrice, interval, ...styleProps }) => (
     <Box {...styleProps}>
       <TextShimmer variant="heading" />
       <TextShimmer variant="smallMedium" width={100} />

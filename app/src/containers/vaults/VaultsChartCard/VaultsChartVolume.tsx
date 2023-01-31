@@ -9,17 +9,17 @@ import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import { Market } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
 
-import { ChartPeriod } from '@/app/constants/chart'
+import { ChartInterval } from '@/app/constants/chart'
 import { VAULTS_CHART_HEIGHT } from '@/app/constants/layout'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useVaultStats from '@/app/hooks/vaults/useVaultStats'
 import formatTimestampTooltip from '@/app/utils/formatTimestampTooltip'
 import fromBigNumber from '@/app/utils/fromBigNumber'
-import getChartPeriodTimestamp from '@/app/utils/getChartPeriodTimestamp'
+import getChartIntervalSeconds from '@/app/utils/getChartIntervalSeconds'
 
 type Props = {
   market: Market
-  period: ChartPeriod
+  interval: ChartInterval
 } & MarginProps
 
 type VolumeData = {
@@ -31,8 +31,8 @@ type VolumeData = {
 const MAX_BARS = 200
 
 const VaultsChartVolume = withSuspense(
-  ({ market, period, ...styleProps }: Props) => {
-    const vaultStats = useVaultStats(market, getChartPeriodTimestamp(period))
+  ({ market, interval, ...styleProps }: Props) => {
+    const vaultStats = useVaultStats(market, getChartIntervalSeconds(interval))
     const tradingVolumeHistory = vaultStats?.tradingVolumeHistory
 
     const data: VolumeData[] = useMemo(() => {
@@ -75,14 +75,14 @@ const VaultsChartVolume = withSuspense(
         </Text>
         <Text variant="small" color="secondaryText">
           {hoverData
-            ? `${formatTimestampTooltip(hoverData.x, period)} - ${formatTimestampTooltip(
+            ? `${formatTimestampTooltip(hoverData.x, interval)} - ${formatTimestampTooltip(
                 hoverData.endTimestamp,
-                period
+                interval
               )}`
             : `${formatTimestampTooltip(
-                market.block.timestamp - getChartPeriodTimestamp(period),
-                period
-              )} - ${formatTimestampTooltip(market.block.timestamp, period)}`}
+                market.block.timestamp - getChartIntervalSeconds(interval),
+                interval
+              )} - ${formatTimestampTooltip(market.block.timestamp, interval)}`}
         </Text>
         <BarChart<VolumeData>
           mt={1}
@@ -96,7 +96,7 @@ const VaultsChartVolume = withSuspense(
       </Flex>
     )
   },
-  ({ market, period, ...styleProps }: Props) => (
+  ({ market, interval, ...styleProps }: Props) => (
     <Box {...styleProps}>
       <TextShimmer width={100} variant="bodyLarge" />
       <TextShimmer width={60} variant="small" />

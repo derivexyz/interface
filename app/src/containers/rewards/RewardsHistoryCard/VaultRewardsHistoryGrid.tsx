@@ -13,8 +13,6 @@ import TokenAmountText from '@/app/components/common/TokenAmountText'
 import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 import formatTokenName from '@/app/utils/formatTokenName'
 
-import VaultAPYTooltip from '../../../components/common/VaultAPYTooltip'
-
 type Props = {
   accountRewardEpoch: AccountRewardEpoch
 } & MarginProps
@@ -78,17 +76,9 @@ const VaultRewardsHistoryMarketRow = ({ accountRewardEpoch, market }: RowProps) 
         <Text variant="secondary" color="secondaryText" mb={2}>
           Avg. APY
         </Text>
-        <VaultAPYTooltip
-          market={market}
-          opApy={opApy}
-          lyraApy={lyraApy}
-          apyMultiplier={apyMultiplier}
-          stakedLyraBalance={stakedLyraBalance}
-        >
-          <Text variant="secondary" color="primaryText">
-            {formatPercentage(opApy + lyraApy, true)} {apyMultiplier > 1 ? `(${formatNumber(apyMultiplier)}x)` : ''}
-          </Text>
-        </VaultAPYTooltip>
+        <Text variant="secondary" color="primaryText">
+          {formatPercentage(opApy + lyraApy, true)} {apyMultiplier > 1 ? `(${formatNumber(apyMultiplier)}x)` : ''}
+        </Text>
       </Flex>
     </Grid>
   )

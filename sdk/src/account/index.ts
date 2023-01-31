@@ -100,6 +100,11 @@ export type ClaimableBalanceL1 = {
   newStkLyra: BigNumber
 }
 
+export type AccountPnlSnapshot = {
+  timestamp: number
+  livePnl: number
+}
+
 export class Account {
   private lyra: Lyra
   address: string
