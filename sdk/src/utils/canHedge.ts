@@ -38,7 +38,6 @@ export default function canHedge(spotPrice: BigNumber, increasesPoolDelta: boole
   } else {
     const { remainingShortDollars } = gmxView
     remainingDollars = remainingShortDollars
-    // Adjusted from quote token decimals
   }
   // Convert the dollar amount to deltas by dividing by spot.
   const remainingDeltas = remainingDollars.div(spotPrice)
