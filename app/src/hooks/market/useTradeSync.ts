@@ -3,6 +3,7 @@ import { AccountBalances, Option, Position, Trade } from '@lyrafinance/lyra-js'
 import { useMemo } from 'react'
 
 import { ZERO_ADDRESS } from '@/app/constants/bn'
+import { ITERATIONS } from '@/app/constants/contracts'
 
 import useWalletAccount from '../account/useWalletAccount'
 
@@ -32,6 +33,7 @@ export default function useTradeSync({
       setToCollateral: setToCollateral ?? undefined,
       isBaseCollateral,
       slippage,
+      iterations: ITERATIONS,
     })
   }, [option, account, isBuy, size, balances, position, setToCollateral, isBaseCollateral, slippage])
 }

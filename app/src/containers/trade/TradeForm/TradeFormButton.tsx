@@ -5,6 +5,7 @@ import { Market, Trade, TradeDisabledReason } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 
 import { MAX_BN } from '@/app/constants/bn'
+import { ITERATIONS } from '@/app/constants/contracts'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
@@ -143,7 +144,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       return
     }
 
-    const proposedTrade = await await market.trade(
+    const proposedTrade = await market.trade(
       account.address,
       trade.option().strike().id,
       trade.option().isCall,
@@ -154,6 +155,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
         setToCollateral: trade.collateral?.amount,
         isBaseCollateral: trade.collateral?.isBase,
         positionId: position?.id,
+        iterations: ITERATIONS,
       }
     )
 
