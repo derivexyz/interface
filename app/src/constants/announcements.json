@@ -21,20 +21,19 @@
     "expiryTimestamp": 1675170000
   },
   {
-    "id": "arbitrum-deposits",
-    "header": "Arbitrum Deposits Now Live",
-    "title": "Deposit USDC into the new Arbitrum ETH vault to earn your share of more than 1m LYRA rewards in the first 2 week epoch.",
+    "id": "arbitrum-trading",
+    "header": "Trade on Arbitrum",
+    "title": "Trade ETH options on Arbitrum. Integrating with GMX.",
     "cta": [
       {
-        "label": "Deposit",
-        "href": "/vaults/arbitrum/eth-usdc",
+        "label": "Trade",
+        "href": "/trade/arbitrum/eth-usdc",
         "variant": "default"
       }
     ],
     "graphic": "images/arbitrum-vaults.png",
     "graphicSize": [72, 96],
-    "startTimestamp": 1674565200,
-    "expiryTimestamp": 1675209600,
-    "showCountdown": true
+    "startTimestamp": 1675206000,
+    "expiryTimestamp": 1677589200
   }
 ]
