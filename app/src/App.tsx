@@ -1,6 +1,7 @@
 import '@rainbow-me/rainbowkit/styles.css'
 
 import ThemeProvider from '@lyra/ui/theme/ThemeProvider'
+import * as Sentry from '@sentry/react'
 import spindl from '@spindl-xyz/attribution-lite'
 import posthog from 'posthog-js'
 import React, { useEffect } from 'react'
@@ -26,6 +27,7 @@ import LocalStorageProvider from './providers/LocalStorageProvider'
 import { WalletProvider } from './providers/WalletProvider'
 import compare from './utils/compare'
 import { getDefaultMarket } from './utils/getDefaultMarket'
+import initSentry from './utils/initSentry'
 import logEvent from './utils/logEvent'
 import useDefaultNetwork from './utils/useDefaultNetwork'
 
@@ -39,6 +41,9 @@ if (process.env.REACT_APP_SPINDL_API_KEY) {
 
 console.debug('NODE_ENV', process.env.NODE_ENV)
 console.debug('REACT_APP_ENV', process.env.REACT_APP_ENV)
+
+// Initialize Sentry
+initSentry()
 
 function App(): JSX.Element {
   useEffect(() => {
@@ -91,51 +96,53 @@ function App(): JSX.Element {
   const defaultNetwork = useDefaultNetwork()
 
   return (
-    <LocalStorageProvider>
-      <SWRConfig
-        value={{
-          suspense: true,
-          revalidateOnFocus: false,
-          errorRetryCount: 0,
-          shouldRetryOnError: false,
-          revalidateOnMount: true,
-          refreshWhenHidden: false,
-          refreshWhenOffline: false,
-          compare,
-        }}
-      >
-        <ThemeProvider>
-          <WalletProvider>
-            <Layout>
-              <Routes>
-                <Route index element={<Navigate to="/portfolio" />} />
-                <Route path="/portfolio" element={<PortfolioPage />} />
-                <Route path="/portfolio/history" element={<PortfolioHistoryPageHelper />} />
-                <Route
-                  path="/trade"
-                  element={<Navigate to={`/trade/${defaultNetwork}/${getDefaultMarket(defaultNetwork)}`} />}
-                />
-                <Route path="/trade/:network/:marketAddressOrName" element={<TradePage />} />
-                <Route path="/vaults" element={<VaultsIndexPage />} />
-                <Route path="/vaults/:network/:marketAddressOrName" element={<VaultsPage />} />
-                <Route path="/vaults/history" element={<VaultsHistoryPage />} />
-                <Route path="/position/:network/:marketAddressOrName/:positionId" element={<PositionPage />} />
-                <Route path="/rewards" element={<RewardsPage />} />
-                <Route path="/rewards/history" element={<RewardsHistoryPage />} />
-                <Route path="/storybook" element={<StoryBookPage />} />
-                <Route
-                  path="/admin"
-                  element={<Navigate to={`/admin/${defaultNetwork}/${getDefaultMarket(defaultNetwork)}`} />}
-                />
-                <Route path="/admin/:network/:marketAddressOrName" element={<AdminMarketPage />} />
-                <Route path="/admin/:network/:marketAddressOrName/:boardId" element={<AdminBoardPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </Layout>
-          </WalletProvider>
-        </ThemeProvider>
-      </SWRConfig>
-    </LocalStorageProvider>
+    <Sentry.ErrorBoundary>
+      <LocalStorageProvider>
+        <SWRConfig
+          value={{
+            suspense: true,
+            revalidateOnFocus: false,
+            errorRetryCount: 0,
+            shouldRetryOnError: false,
+            revalidateOnMount: true,
+            refreshWhenHidden: false,
+            refreshWhenOffline: false,
+            compare,
+          }}
+        >
+          <ThemeProvider>
+            <WalletProvider>
+              <Layout>
+                <Routes>
+                  <Route index element={<Navigate to="/portfolio" />} />
+                  <Route path="/portfolio" element={<PortfolioPage />} />
+                  <Route path="/portfolio/history" element={<PortfolioHistoryPageHelper />} />
+                  <Route
+                    path="/trade"
+                    element={<Navigate to={`/trade/${defaultNetwork}/${getDefaultMarket(defaultNetwork)}`} />}
+                  />
+                  <Route path="/trade/:network/:marketAddressOrName" element={<TradePage />} />
+                  <Route path="/vaults" element={<VaultsIndexPage />} />
+                  <Route path="/vaults/:network/:marketAddressOrName" element={<VaultsPage />} />
+                  <Route path="/vaults/history" element={<VaultsHistoryPage />} />
+                  <Route path="/position/:network/:marketAddressOrName/:positionId" element={<PositionPage />} />
+                  <Route path="/rewards" element={<RewardsPage />} />
+                  <Route path="/rewards/history" element={<RewardsHistoryPage />} />
+                  <Route path="/storybook" element={<StoryBookPage />} />
+                  <Route
+                    path="/admin"
+                    element={<Navigate to={`/admin/${defaultNetwork}/${getDefaultMarket(defaultNetwork)}`} />}
+                  />
+                  <Route path="/admin/:network/:marketAddressOrName" element={<AdminMarketPage />} />
+                  <Route path="/admin/:network/:marketAddressOrName/:boardId" element={<AdminBoardPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </Layout>
+            </WalletProvider>
+          </ThemeProvider>
+        </SWRConfig>
+      </LocalStorageProvider>
+    </Sentry.ErrorBoundary>
   )
 }
 

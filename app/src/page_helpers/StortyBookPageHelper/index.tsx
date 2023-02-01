@@ -9,6 +9,7 @@ import React from 'react'
 
 import CardDemo from '@/app/components/dev/CardDemo'
 import ChartDemoCard from '@/app/components/dev/ChartDemoCard'
+import SentryDemoCard from '@/app/components/dev/SentryDemoCard'
 import SocketDemoCard from '@/app/components/dev/SocketDemoCard'
 import TooltipDemoCard from '@/app/components/dev/TooltipDemoCard'
 
@@ -88,6 +89,10 @@ export default function StortyBookPageHelper(): JSX.Element {
           Socket
         </Text>
         <SocketDemoCard />
+        <Text ml={6} variant="title">
+          Sentry
+        </Text>
+        <SentryDemoCard />
       </PageGrid>
     </Page>
   )
