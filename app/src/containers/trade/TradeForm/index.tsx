@@ -4,7 +4,6 @@ import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import Center from '@lyra/ui/components/Center'
 import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
-import filterNulls from '@lyra/ui/utils/filterNulls'
 import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Market, Option, Position } from '@lyrafinance/lyra-js'
@@ -18,14 +17,10 @@ import TradeFormSizeInput from '@/app/containers/trade/TradeForm/TradeFormSizeIn
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useTradeBalances from '@/app/hooks/market/useTradeBalances'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
-import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
-import { findLyraRewardEpochToken, findOpRewardEpochToken } from '@/app/utils/findRewardToken'
 import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
 
-import FeeRebateModal from '../../common/FeeRebateModal'
-import ShortYieldValue from '../../common/ShortYieldValue'
 import TradeFormButton from './TradeFormButton'
 import TradeFormCollateralSection from './TradeFormCollateralSection'
 import TradeFormPayoffSection from './TradeFormPayoffSection'
@@ -47,7 +42,6 @@ const TradeForm = withSuspense(
 
     // TODO: @dappbeast parallelize requests
     const balances = useTradeBalances(market)
-    const epochs = useLatestRewardEpoch(option.lyra.network, false)
 
     const isLong = position ? position.isLong : isBuy
 
@@ -104,19 +98,6 @@ const TradeForm = withSuspense(
     })
 
     const pnl = useMemo(() => trade.pnl(), [trade])
-
-    const global = epochs?.global
-    const stakedLyraBalance = epochs?.account?.stakedLyraBalance ?? 0
-    const tradingRewards = global?.tradingRewards(fromBigNumber(trade.fee), stakedLyraBalance)
-    const [isFeeRebateOpen, setIsFeeRebateOpen] = useState(false)
-    const lyraTradingRewards = findLyraRewardEpochToken(tradingRewards ?? [])
-    const opTradingRewards = findOpRewardEpochToken(tradingRewards ?? [])
-    const feeRewardsStr = tradingRewards
-      ? filterNulls([
-          lyraTradingRewards > 0 ? formatBalance(lyraTradingRewards, 'LYRA', { maxDps: 3 }) : null,
-          opTradingRewards > 0 ? formatBalance(opTradingRewards, 'OP', { maxDps: 3 }) : null,
-        ]).join(', ')
-      : null
 
     return (
       <>
@@ -214,36 +195,6 @@ const TradeForm = withSuspense(
             valueColor="text"
             textVariant="secondary"
           />
-          {epochs ? (
-            <RowItem
-              label="Est. Rewards"
-              value={
-                <>
-                  <Text
-                    variant="secondary"
-                    color={feeRewardsStr ? 'primaryText' : 'secondaryText'}
-                    onClick={() => setIsFeeRebateOpen(true)}
-                    sx={{ ':hover': { opacity: 0.5, cursor: 'pointer' } }}
-                  >
-                    {feeRewardsStr ? feeRewardsStr : '-'}
-                  </Text>
-                  <FeeRebateModal
-                    network={trade.lyra.network}
-                    isOpen={isFeeRebateOpen}
-                    onClose={() => setIsFeeRebateOpen(false)}
-                  />
-                </>
-              }
-              mb={5}
-            />
-          ) : null}
-          {epochs && !trade.isLong ? (
-            <RowItem
-              mb={5}
-              label="Short Yield / Day"
-              value={<ShortYieldValue textVariant="secondary" tradeOrPosition={trade} option={option} />}
-            />
-          ) : null}
           {!trade.isOpen ? (
             <RowItem
               mb={5}

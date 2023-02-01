@@ -6,7 +6,6 @@ import List from '@lyra/ui/components/List'
 import Modal from '@lyra/ui/components/Modal'
 import Token from '@lyra/ui/components/Token'
 import { ModalContext } from '@lyra/ui/theme/ModalProvider'
-import { Network } from '@lyrafinance/lyra-js'
 import React, { useCallback, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -101,9 +100,7 @@ export default function LayoutMobileBottomNav(): JSX.Element {
             />
             <DropdownButtonListItem
               onClick={() => {
-                navigate(
-                  getPagePath({ page: PageId.Trade, network, marketAddressOrName: getDefaultMarket(Network.Optimism) })
-                )
+                navigate(getPagePath({ page: PageId.Trade, network, marketAddressOrName: getDefaultMarket(network) }))
                 onClose()
               }}
               label="Trade"
