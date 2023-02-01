@@ -164,7 +164,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
     if (proposedTrade.disabledReason) {
       createToast({
         variant: 'error',
-        description: `Trade Failed: ${getTradeDisabledMessage(TradeDisabledReason.Unknown)}`,
+        description: `Trade Failed: ${getTradeDisabledMessage(proposedTrade.disabledReason)}`,
         icon: IconType.AlertTriangle,
       })
       return
