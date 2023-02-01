@@ -40,7 +40,7 @@ export default function canHedge(spotPrice: BigNumber, increasesPoolDelta: boole
     remainingDollars = remainingShortDollars
   }
   // Convert the dollar amount to deltas by dividing by spot.
-  const remainingDeltas = remainingDollars.div(spotPrice)
+  const remainingDeltas = remainingDollars.div(spotPrice).mul(UNIT)
 
   const absHedgeDiff = expectedHedgeAbs.sub(currentHedgeAbs)
   if (remainingDeltas.lt(absHedgeDiff.mul(futuresPoolHedgerParams.marketDepthBuffer).div(UNIT))) {

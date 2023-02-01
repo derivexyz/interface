@@ -3,9 +3,10 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { ONE_BN, UNIT } from '../constants/bn'
 import { Option } from '../option'
 import { getDelta } from '../utils/blackScholes'
+import canHedge from '../utils/canHedge'
 import fromBigNumber from '../utils/fromBigNumber'
 import getPriceVariance from '../utils/getPriceVariance'
-import { PriceType } from '../utils/getQuoteSpotPrice'
+import getQuoteSpotPrice, { PriceType } from '../utils/getQuoteSpotPrice'
 import getTimeToExpiryAnnualized from '../utils/getTimeToExpiryAnnualized'
 import toBigNumber from '../utils/toBigNumber'
 import { QuoteDisabledReason } from '.'
@@ -19,7 +20,8 @@ export default function getQuoteDisabledReason(
   newBaseIv: BigNumber,
   isBuy: boolean,
   isForceClose: boolean,
-  priceType: PriceType
+  priceType: PriceType,
+  isOpen: boolean
 ): QuoteDisabledReason | null {
   const market = option.market()
   const board = option.board()
@@ -100,12 +102,11 @@ export default function getQuoteDisabledReason(
     return QuoteDisabledReason.InsufficientLiquidity
   }
 
-  // // Check if hedger can hedge the additional delta risk introduced by the quote.
-  // // const hedgerView = option.market().hedgerView
-  // const hedgerView = option.market().params.hedgerView
-  // if (hedgerView && !canHedge(getQuoteSpotPrice(market, priceType), option.delta.lt(0), hedgerView)) {
-  //   return QuoteDisabledReason.UnableToHedgeDelta
-  // }
+  // Check if hedger can hedge the additional delta risk introduced by the quote.
+  const hedgerView = option.market().params.hedgerView
+  if (hedgerView && isOpen && !canHedge(getQuoteSpotPrice(market, priceType), option.delta.lt(0), hedgerView)) {
+    return QuoteDisabledReason.UnableToHedgeDelta
+  }
 
   // Disable quote for opening and closing in the case where the feeds differ by a great amount, but allow force closes.
   const { adapterView } = option.market().params
