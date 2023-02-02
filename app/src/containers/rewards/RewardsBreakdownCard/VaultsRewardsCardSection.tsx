@@ -52,9 +52,6 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
     accountRewardEpoch?.vaultApy(marketAddress) ?? globalRewardEpoch.minVaultApy(marketAddress)
   )
   const maxApy = globalRewardEpoch.maxVaultApy(marketAddress).reduce((sum, tokens) => sum + tokens.amount, 0)
-  const apyMultiplier = accountRewardEpoch ? accountRewardEpoch.vaultApyMultiplier(marketAddress) : 1
-  const stakedLyraBalance = accountRewardEpoch ? accountRewardEpoch.stakedLyraBalance : 0
-
   const tokenNameOrAddress = market.lyra.network === Network.Optimism ? ['stkLyra', 'OP'] : ['stkLyra']
 
   // TODO: @dillon remove next epoch
@@ -161,6 +158,7 @@ const VaultRewardsMarketRows = withSuspense(
 )
 
 const VaultsRewardsCardSection = ({ ...marginProps }: Props): CardElement => {
+  const walletNetwork = useNetwork()
   return (
     <CardSection {...marginProps}>
       <Text variant="heading" mb={8}>
@@ -168,8 +166,9 @@ const VaultsRewardsCardSection = ({ ...marginProps }: Props): CardElement => {
       </Text>
       <VaultRewardsMarketRows />
       <Text maxWidth={['100%', '75%']} variant="secondary" color="secondaryText">
-        Lyra's vault program rewards liquidity providers with Staked LYRA and OP tokens every 2 weeks. Liquidity
-        providers can stake LYRA to boost their rewards.
+        Lyra's vault program rewards liquidity providers with Staked{' '}
+        {walletNetwork === Network.Optimism ? 'and OP' : ''} tokens every 2 weeks. Liquidity providers can stake LYRA to
+        boost their rewards.
       </Text>
     </CardSection>
   )

@@ -9,6 +9,7 @@ import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
@@ -95,6 +96,7 @@ const TradingRewardsCardGrid = withSuspense(
 
 const TradingRewardsCardSection = ({ ...marginProps }: MarginProps): CardElement => {
   const [isOpen, setIsOpen] = useState(false)
+  const walletNetwork = useNetwork()
   return (
     <CardSection {...marginProps}>
       <Text mb={8} variant="heading">
@@ -105,8 +107,9 @@ const TradingRewardsCardSection = ({ ...marginProps }: MarginProps): CardElement
         <Button label="View Fee Tiers" onClick={() => setIsOpen(true)} />
       </Flex>
       <Text maxWidth={['100%', '75%']} variant="secondary" color="secondaryText">
-        Lyra's fee rebate program allows traders to earn back part of their fees as Staked LYRA and OP tokens every 2
-        weeks. Traders can stake LYRA to unlock a higher fee rebate tier.
+        Lyra's fee rebate program allows traders to earn back part of their fees as Staked LYRA{' '}
+        {walletNetwork === Network.Optimism ? 'and OP' : ''} tokens every 2 weeks. Traders can stake LYRA to unlock a
+        higher fee rebate tier.
       </Text>
       <FeeRebateModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </CardSection>

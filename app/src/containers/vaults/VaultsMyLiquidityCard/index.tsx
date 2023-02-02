@@ -45,7 +45,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
   const { market, globalRewardEpoch, apyMultiplier } = vault
 
   const isNew = globalRewardEpoch && globalRewardEpoch.id <= 1
-
+  const isStartEarningInFuture = market.block.timestamp < (globalRewardEpoch?.startEarningTimestamp ?? 0)
   return (
     <Card>
       <CardSection>
@@ -63,7 +63,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
             }`}
           />
           <LabelItem label="APY Range" value={formatAPYRange(vault.minApy, vault.maxApy, { showEmptyDash: true })} />
-          {isNew && globalRewardEpoch.startEarningTimestamp ? (
+          {isNew && globalRewardEpoch.startEarningTimestamp && isStartEarningInFuture ? (
             <LabelItem
               label="Start Earning"
               value={<Countdown variant="secondary" timestamp={globalRewardEpoch.startEarningTimestamp} showSeconds />}

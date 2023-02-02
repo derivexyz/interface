@@ -7,6 +7,7 @@ import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatUSD from '@lyra/ui/utils/formatUSD'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
@@ -138,6 +139,7 @@ const ShortCollateralRewardsCardGrid = withSuspense(
 )
 
 const ShortCollateralRewardsCardSection = ({ ...marginProps }: Props): CardElement => {
+  const walletNetwork = useNetwork()
   return (
     <CardSection {...marginProps}>
       <Text mb={8} variant="heading">
@@ -145,8 +147,9 @@ const ShortCollateralRewardsCardSection = ({ ...marginProps }: Props): CardEleme
       </Text>
       <ShortCollateralRewardsCardGrid mb={8} />
       <Text maxWidth={['100%', '75%']} variant="secondary" color="secondaryText">
-        Lyra's shorting program rewards traders for selling calls and puts with Staked LYRA and OP tokens every 2 weeks.
-        This program is not subject to boosts.
+        Lyra's shorting program rewards traders for selling calls and puts with Staked LYRA{' '}
+        {walletNetwork === Network.Optimism ? 'and OP' : ''} tokens every 2 weeks. This program is not subject to
+        boosts.
       </Text>
     </CardSection>
   )

@@ -55,7 +55,8 @@ const FeeRebateModalBody = withSuspense(
           </Flex>
           <Text variant="secondary" color="secondaryText">
             The Lyra Protocol's trading rewards program allows traders to earn back part of their trading fees as Staked
-            LYRA and OP tokens every 2 weeks. Traders can stake LYRA to unlock a higher fee rebate.
+            LYRA {walletNetwork === Network.Optimism ? 'and OP' : ''} tokens every 2 weeks. Traders can stake LYRA to
+            unlock a higher fee rebate.
           </Text>
         </CardSection>
         <CardSection noPadding>
