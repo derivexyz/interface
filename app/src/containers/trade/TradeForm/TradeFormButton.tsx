@@ -14,6 +14,7 @@ import useMutateTrade from '@/app/hooks/mutations/useMutateTrade'
 import useMutateTradeApprove from '@/app/hooks/mutations/useMutateTradeApprove'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import getTradeLogData from '@/app/utils/getTradeLogData'
+import logError from '@/app/utils/logError'
 import logEvent from '@/app/utils/logEvent'
 
 import TransactionButton from '../../common/TransactionButton'
@@ -167,6 +168,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
         description: `Trade Failed: ${getTradeDisabledMessage(proposedTrade.disabledReason)}`,
         icon: IconType.AlertTriangle,
       })
+      logError(proposedTrade.disabledReason, { trade: getTradeLogData(trade), account })
       return
     }
 

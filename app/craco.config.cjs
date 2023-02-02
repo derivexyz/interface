@@ -37,7 +37,7 @@ module.exports = {
             authToken: process.env.REACT_APP_SENTRY_AUTH_TOKEN,
             org: process.env.REACT_APP_SENTRY_ORG,
             project: process.env.REACT_APP_SENTRY_PROJECT,
-            include: './.next',
+            include: './build',
             ignore: ['node_modules'],
           })
         )

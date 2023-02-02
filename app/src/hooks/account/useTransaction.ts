@@ -16,6 +16,7 @@ import getExplorerUrl from '@/app/utils/getExplorerUrl'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import isMainnet from '@/app/utils/isMainnet'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
+import logError from '@/app/utils/logError'
 import mainnetProvider from '@/app/utils/mainnetProvider'
 import postTransaction from '@/app/utils/postTransaction'
 
@@ -55,6 +56,9 @@ const reportError = (
   }
   // Uppercase first letter
   message = message.charAt(0).toUpperCase() + message.slice(1)
+
+  // Log error to Sentry
+  logError(message, { error, transactionReceipt, network })
 
   // TODO: Add support toast which directs users to discord
   const args: CreateToastOptions = {
