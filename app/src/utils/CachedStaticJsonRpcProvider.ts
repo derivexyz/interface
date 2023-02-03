@@ -28,7 +28,7 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
       {
         url: urls[0],
         throttleLimit: 1, // Disable retries
-        timeout: 3 * 1000, // 3 seconds
+        timeout: 7.5 * 1000, // 7.5 second timeout
       },
       chainId
     )
