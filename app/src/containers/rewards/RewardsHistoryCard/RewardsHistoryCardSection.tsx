@@ -6,6 +6,7 @@ import formatDate from '@lyra/ui/utils/formatDate'
 import { AccountRewardEpoch } from '@lyrafinance/lyra-js'
 import React from 'react'
 
+import ShortCollateralRewardsHistoryGrid from './ShortCollateralRewardsHistoryGrid'
 import StakingRewardsHistoryGrid from './StakingRewardsHistoryGrid'
 import TradingRewardsHistoryGrid from './TradingRewardsHistoryGrid'
 import VaultRewardsHistoryGrid from './VaultRewardsHistoryGrid'
@@ -27,6 +28,7 @@ const RewardsHistoryCardSection = ({ accountRewardEpoch, epochNumber, ...marginP
       </Box>
       <StakingRewardsHistoryGrid accountRewardEpoch={accountRewardEpoch} mt={8} />
       <TradingRewardsHistoryGrid accountRewardEpoch={accountRewardEpoch} mt={8} />
+      <ShortCollateralRewardsHistoryGrid accountRewardEpoch={accountRewardEpoch} mt={8} />
       <VaultRewardsHistoryGrid accountRewardEpoch={accountRewardEpoch} mt={8} />
     </CardSection>
   )

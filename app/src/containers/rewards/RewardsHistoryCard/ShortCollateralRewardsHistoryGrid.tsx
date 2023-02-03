@@ -3,9 +3,8 @@ import Flex from '@lyra/ui/components/Flex'
 import Grid from '@lyra/ui/components/Grid'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps, PaddingProps } from '@lyra/ui/types'
-import formatDate from '@lyra/ui/utils/formatDate'
-import formatPercentage from '@lyra/ui/utils/formatPercentage'
-import { AccountRewardEpoch, Network } from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch } from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
@@ -17,25 +16,19 @@ type Props = {
 } & MarginProps &
   PaddingProps
 
-const StakingRewardsHistoryGrid = ({ accountRewardEpoch, ...marginProps }: Props) => {
+const ShortCollateralRewardsHistoryGrid = ({ accountRewardEpoch, ...marginProps }: Props) => {
   const network = useNetwork()
-  const lyraRewards = findLyraRewardEpochToken(accountRewardEpoch.stakingRewards)
-  const opRewards = findOpRewardEpochToken(accountRewardEpoch.stakingRewards)
-  const lyraUnlockTimestamp = findLyraRewardEpochToken(accountRewardEpoch?.stakingRewardsUnlockTimestamp ?? [])
-  const showStakingRewards = lyraRewards > 0 || opRewards > 0
-  const stakingApy = accountRewardEpoch.globalEpoch.stakingApy.reduce((total, apy) => total + apy.amount, 0)
-  if (!showStakingRewards) {
-    return null
-  }
+  const lyraRewards = findLyraRewardEpochToken(accountRewardEpoch.shortCollateralRewards ?? [])
+  const opRewards = findOpRewardEpochToken(accountRewardEpoch.shortCollateralRewards ?? [])
   return (
     <Box {...marginProps}>
       <Text variant="heading2" mb={4}>
-        Staking Rewards
+        Short Collateral Rewards
       </Text>
       <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 4, gridRowGap: 6 }}>
         <Flex flexDirection="column">
           <Text variant="secondary" color="secondaryText" mb={2}>
-            stkLYRA Rewards (Locked)
+            stkLYRA Rewards
           </Text>
           <TokenAmountText variant="secondary" tokenNameOrAddress="stkLyra" amount={lyraRewards} />
         </Flex>
@@ -47,21 +40,9 @@ const StakingRewardsHistoryGrid = ({ accountRewardEpoch, ...marginProps }: Props
             <TokenAmountText variant="secondary" tokenNameOrAddress="op" amount={opRewards} />
           </Flex>
         ) : null}
-        <Flex flexDirection="column">
-          <Text variant="secondary" color="secondaryText" mb={2}>
-            LYRA Unlock
-          </Text>
-          <Text variant="secondary">{formatDate(lyraUnlockTimestamp)}</Text>
-        </Flex>
-        <Flex flexDirection="column">
-          <Text variant="secondary" color="secondaryText" mb={2}>
-            Avg. APY
-          </Text>
-          <Text variant="secondary">{formatPercentage(stakingApy, true)}</Text>
-        </Flex>
       </Grid>
     </Box>
   )
 }
 
-export default StakingRewardsHistoryGrid
+export default ShortCollateralRewardsHistoryGrid
