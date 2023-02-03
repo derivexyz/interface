@@ -42,7 +42,7 @@ const ShortYieldValue = withSuspense(
 
     const rewardsStr = yieldPerDay
       ? filterNulls([
-          opYieldPerDay ? formatTruncatedBalance(opYieldPerDay, 'LYRA') : null,
+          lyraYieldPerDay ? formatTruncatedBalance(lyraYieldPerDay, 'LYRA') : null,
           opYieldPerDay ? formatTruncatedBalance(opYieldPerDay, 'OP') : null,
         ]).join(', ')
       : null
