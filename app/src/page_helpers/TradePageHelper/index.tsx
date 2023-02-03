@@ -43,7 +43,7 @@ type Props = {
 
 export default function TradePageHelper({ markets, selectedMarket, openPositions }: Props): JSX.Element {
   const isMobile = useIsMobile()
-  const [selectedOption, setSelectedOption] = useState<Option | null>(null)
+  const [selectedStrikeId, setSelectedStrikeId] = useState<number | null>(null)
   const [selectedBoard, setSelectedBoard] = useSelectedBoardSync(selectedMarket) // sync hook
   const [isCall, setIsCall] = useState(true)
   const [isBuy, setIsBuy] = useState(true)
@@ -51,7 +51,8 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
   const [traderSettings, setTraderSettings] = useTraderSettings()
   const positionCardRef = useRef<HTMLElement>()
   const positionButtonRef = useRef<HTMLElement>()
-  const selectedStrikeId = selectedOption?.strike().id ?? null
+  const selectedOption = selectedStrikeId !== null ? selectedMarket.liveOption(selectedStrikeId, isCall) : null
+
   const isAdvancedMode = traderSettings.isAdvancedMode
 
   const navigate = useNavigate()
@@ -88,7 +89,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
 
   const handleTrade = useCallback(
     (market: Market, positionId: number) => {
-      setSelectedOption(null)
+      setSelectedStrikeId(null)
       if (isAdvancedMode) {
         window.scrollBy({ top: document.body.scrollHeight })
       } else {
@@ -102,7 +103,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
         )
       }
     },
-    [navigate, setSelectedOption, isAdvancedMode]
+    [navigate, setSelectedStrikeId, isAdvancedMode]
   )
 
   const handleChangeMarket = useCallback(
@@ -110,7 +111,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
       if (newMarket.address !== selectedMarket.address) {
         // Reset selected board + option when market changes
         setSelectedBoard(null)
-        setSelectedOption(null)
+        setSelectedStrikeId(null)
         navigate(
           getPagePath({
             page: PageId.Trade,
@@ -127,11 +128,11 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
     (newOption: Option) => {
       const isSelect = selectedStrikeId !== newOption.strike().id
       if (isSelect) {
-        setSelectedOption(newOption)
+        setSelectedStrikeId(newOption.strike().id)
         setIsTradeModalOpen(true)
       } else {
         setIsTradeModalOpen(false)
-        setSelectedOption(null)
+        setSelectedStrikeId(null)
       }
       logEvent(isSelect ? LogEvent.BoardOptionSelect : LogEvent.BoardOptionDeselect, {
         marketName: selectedMarket.name,
@@ -152,11 +153,11 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
       setIsBuy(newIsBuy)
       setIsCall(newIsCall)
       if (isSelect) {
-        setSelectedOption(newOption)
+        setSelectedStrikeId(newOption.strike().id)
         setIsTradeModalOpen(true)
       } else {
         setIsTradeModalOpen(false)
-        setSelectedOption(null)
+        setSelectedStrikeId(null)
       }
       logEvent(isSelect ? LogEvent.BoardOptionSelect : LogEvent.BoardOptionDeselect, {
         marketName: selectedMarket.name,
@@ -260,7 +261,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
             onToggleCall={newIsCall => {
               if (newIsCall !== isCall) {
                 // Reset selected option
-                setSelectedOption(null)
+                setSelectedStrikeId(null)
               }
               setIsCall(newIsCall)
             }}
@@ -271,7 +272,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
             onSelectBoard={newBoard => {
               if (newBoard.id !== selectedBoard?.id) {
                 // Reset selected option
-                setSelectedOption(null)
+                setSelectedStrikeId(null)
               }
               setSelectedBoard(newBoard)
             }}
@@ -296,7 +297,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
             isOpen={isTradeModalOpen}
             onClose={() => {
               setIsTradeModalOpen(false)
-              setSelectedOption(null)
+              setSelectedStrikeId(null)
             }}
           />
         ) : null}
