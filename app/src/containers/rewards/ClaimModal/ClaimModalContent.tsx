@@ -9,7 +9,7 @@ import React from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useAccountWethLyraStaking from '@/app/hooks/rewards/useAccountWethLyraStaking'
+import useAccountWethLyraStakingL2 from '@/app/hooks/rewards/useAccountWethLyraStakingL2'
 import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
 
 type Props = {
@@ -35,7 +35,7 @@ const ClaimModalContent = withSuspense(
     onClickWethLyra,
   }: Props) => {
     const claimableBalances = useClaimableBalances()
-    const wethLyraAccount = useAccountWethLyraStaking()
+    const wethLyraAccount = useAccountWethLyraStakingL2()
     const isDistributorRewardsDisabled = isWethLyraChecked
     const isWethLyraDisabled = isOpChecked || isNewStkLyraChecked || isOldStkLyraChecked
     return (

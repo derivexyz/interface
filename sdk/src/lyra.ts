@@ -4,7 +4,6 @@ import { PopulatedTransaction } from '@ethersproject/contracts'
 import { JsonRpcProvider, TransactionReceipt } from '@ethersproject/providers'
 import fetch from 'cross-fetch'
 
-import { WethLyraStaking } from '.'
 import { Account } from './account'
 import { AccountRewardEpoch } from './account_reward_epoch'
 import { Admin } from './admin'
@@ -37,6 +36,7 @@ import getLyraDeploymentForChain from './utils/getLyraDeploymentForChain'
 import getLyraDeploymentProvider from './utils/getLyraDeploymentProvider'
 import getLyraDeploymentSubgraphURI from './utils/getLyraDeploymentSubgraphURI'
 import getNetworkForChain from './utils/getLyraNetworkForChain'
+import { WethLyraStaking } from './weth_lyra_staking'
 
 export type LyraConfig = {
   provider: JsonRpcProvider

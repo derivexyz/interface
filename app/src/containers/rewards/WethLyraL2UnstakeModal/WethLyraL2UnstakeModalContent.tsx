@@ -6,17 +6,18 @@ import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 import { Flex } from 'rebass'
 
-import { WETH_LYRA_L1_LIQUIDITY_URL } from '@/app/constants/links'
+import { WETH_LYRA_L2_LIQUIDITY_URL } from '@/app/constants/links'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useAccountWethLyraStaking, {
-  useMutateAccountWethLyraStaking,
-} from '@/app/hooks/rewards/useAccountWethLyraStaking'
+import useAccountWethLyraStakingL2, {
+  useMutateAccountWethLyraStakingL2,
+} from '@/app/hooks/rewards/useAccountWethLyraStakingL2'
 import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'
@@ -27,25 +28,25 @@ type Props = {
   onUnstake: () => void
 }
 
-const WethLyraUnstakeModalContent = withSuspense(
+const WethLyraL2UnstakeModalContent = withSuspense(
   ({ amount, onChange, onUnstake }: Props) => {
-    const accountWethLyraStaking = useAccountWethLyraStaking()
-    const mutateAccountWethLyraStaking = useMutateAccountWethLyraStaking()
-    const execute = useTransaction('ethereum')
+    const accountWethLyraStaking = useAccountWethLyraStakingL2()
+    const mutateAccountWethLyraStakingL2 = useMutateAccountWethLyraStakingL2()
+    const execute = useTransaction(Network.Optimism)
     const account = useWalletAccount()
     const isDisabled = amount.isZero() || accountWethLyraStaking?.stakedLPTokenBalance.isZero()
 
     const handleClickUnstake = useCallback(async () => {
       if (account) {
-        const tx = await lyraOptimism.account(account).unstakeWethLyra(amount)
+        const tx = await lyraOptimism.account(account).unstakeWethLyraL2(amount)
         execute(tx, {
           onComplete: () => {
-            mutateAccountWethLyraStaking()
+            mutateAccountWethLyraStakingL2()
             onUnstake()
           },
         })
       }
-    }, [account, amount, execute, mutateAccountWethLyraStaking, onUnstake])
+    }, [account, amount, execute, mutateAccountWethLyraStakingL2, onUnstake])
 
     return (
       <>
@@ -66,8 +67,8 @@ const WethLyraUnstakeModalContent = withSuspense(
           />
         </Flex>
         <TransactionButton
-          network={'ethereum'}
-          transactionType={TransactionType.UnstakeWethLyraL1}
+          network={Network.Optimism}
+          transactionType={TransactionType.UnstakeWethLyraL2}
           width="100%"
           mb={3}
           isDisabled={isDisabled}
@@ -79,7 +80,7 @@ const WethLyraUnstakeModalContent = withSuspense(
           label="Remove Liquidity"
           rightIcon={IconType.ArrowUpRight}
           size="lg"
-          href={WETH_LYRA_L1_LIQUIDITY_URL + '/remove'}
+          href={WETH_LYRA_L2_LIQUIDITY_URL + '/remove'} // TODO: @dillon LEAP-44 update this link
           target="_blank"
         />
       </>
@@ -101,4 +102,4 @@ const WethLyraUnstakeModalContent = withSuspense(
   )
 )
 
-export default WethLyraUnstakeModalContent
+export default WethLyraL2UnstakeModalContent

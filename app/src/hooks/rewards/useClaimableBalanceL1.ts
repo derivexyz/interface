@@ -10,6 +10,7 @@ import useFetch, { useMutate } from '../data/useFetch'
 
 const EMPTY: ClaimableBalanceL1 = {
   newStkLyra: ZERO_BN,
+  lyra: ZERO_BN,
 }
 
 const fetchClaimableBalanceL1 = async (account: string): Promise<ClaimableBalanceL1> =>

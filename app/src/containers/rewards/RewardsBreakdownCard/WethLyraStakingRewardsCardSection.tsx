@@ -1,7 +1,9 @@
 import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
 import CardSection from '@lyra/ui/components/Card/CardSection'
+import Flex from '@lyra/ui/components/Flex'
 import Grid from '@lyra/ui/components/Grid'
+import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
@@ -16,15 +18,26 @@ import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/Toke
 import { ZERO_BN } from '@/app/constants/bn'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccountWethLyraStaking from '@/app/hooks/rewards/useAccountWethLyraStaking'
+import useAccountWethLyraStakingL2 from '@/app/hooks/rewards/useAccountWethLyraStakingL2'
 import useWethLyraStaking from '@/app/hooks/rewards/useWethLyraStaking'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
+import ClaimWethLyraStakingRewardsModal from '../ClaimWethLyraStakingRewardsModal'
+import WethLyraL2UnstakeModal from '../WethLyraL2UnstakeModal'
 import WethLyraStakeModal from '../WethLyraStakeModal'
 import WethLyraUnstakeModal from '../WethLyraUnstakeModal'
 
+type ClaimButtonProps = {
+  onOpenModal: () => void
+}
+
+type UnstakeOldButtonProps = {
+  onOpenModal: () => void
+}
+
 const WethLyraRewardsGridItems = withSuspense(
   () => {
-    const accountStaking = useAccountWethLyraStaking()
+    const accountWethLyraStaking = useAccountWethLyraStaking()
     const wethLyraStaking = useWethLyraStaking()
     return (
       <>
@@ -33,10 +46,11 @@ const WethLyraRewardsGridItems = withSuspense(
             Your Staked LP Tokens
           </Text>
           <Text>
-            {formatNumber(accountStaking?.stakedLPTokenBalance ?? 0)}
-            {accountStaking?.stakedLPTokenBalance.gt(0)
+            {formatNumber(accountWethLyraStaking?.stakedLPTokenBalance ?? 0)}
+            {accountWethLyraStaking?.stakedLPTokenBalance.gt(0)
               ? ` (${formatUSD(
-                  fromBigNumber(accountStaking?.stakedLPTokenBalance ?? ZERO_BN) * (wethLyraStaking?.lpTokenValue ?? 0)
+                  fromBigNumber(accountWethLyraStaking?.stakedLPTokenBalance ?? ZERO_BN) *
+                    (wethLyraStaking?.lpTokenValue ?? 0)
                 )})`
               : null}
           </Text>
@@ -55,9 +69,13 @@ const WethLyraRewardsGridItems = withSuspense(
         </Box>
         <Box>
           <Text variant="secondary" color="secondaryText" mb={2}>
-            OP Rewards
+            LYRA Rewards
           </Text>
-          <TokenAmountText tokenNameOrAddress="op" variant="secondary" amount={accountStaking?.opRewards ?? 0} />
+          <TokenAmountText
+            tokenNameOrAddress="lyra"
+            variant="secondary"
+            amount={accountWethLyraStaking?.rewards ?? 0}
+          />
         </Box>
       </>
     )
@@ -70,21 +88,49 @@ const WethLyraRewardsGridItems = withSuspense(
   )
 )
 
+const WethLyraStakingRewardsL1ClaimButton = withSuspense(
+  ({ onOpenModal }: ClaimButtonProps) => {
+    const accountWethLyraStaking = useAccountWethLyraStaking()
+    const rewards = accountWethLyraStaking?.rewards ?? ZERO_BN
+    return rewards.gt(ZERO_BN) ? <Button label="Claim" size="lg" variant="primary" onClick={onOpenModal} /> : null
+  },
+  () => <ButtonShimmer size="lg" width={250} />
+)
+
+const UnstakeOldWethLyraButton = withSuspense(
+  ({ onOpenModal }: UnstakeOldButtonProps) => {
+    const wethLyraStakingL2 = useAccountWethLyraStakingL2()
+    const oldStakedAmount = wethLyraStakingL2?.stakedLPTokenBalance ?? ZERO_BN
+    return oldStakedAmount.gt(ZERO_BN) ? (
+      <Button label="Unstake L2 WETH/LYRA" size="lg" variant="warning" onClick={onOpenModal} />
+    ) : null
+  },
+  () => <ButtonShimmer size="lg" width={250} />
+)
+
 export default function WethLyraStakingRewardsCardSection() {
   const isMobile = useIsMobile()
   const [isStakeModalOpen, setIsStakeModalOpen] = useState(false)
   const [isUnstakeModalOpen, setIsUnstakeModalOpen] = useState(false)
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
+  const [isOldUnstakeModalOpen, setIsOldUnstakeModalOpen] = useState(false)
   return (
     <CardSection>
-      <Text mb={8} variant="heading">
-        WETH/LYRA Rewards
-      </Text>
+      <Flex flexDirection="row">
+        <Text variant="heading" as="span" color="primaryText">
+          NEW
+        </Text>
+        <Text ml={2} mb={8} variant="heading">
+          WETH/LYRA Rewards
+        </Text>
+      </Flex>
+
       <Grid mb={8} sx={{ gridTemplateColumns: `${isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr 1fr'}`, gridColumnGap: 4 }}>
         <WethLyraRewardsGridItems />
       </Grid>
       <Text mb={8} maxWidth={['100%', '75%']} variant="secondary" color="secondaryText">
         Lyra's WETH/LYRA program rewards WETH/LYRA liquidity providers on the Uniswap v3 pool via Arrakis Finance.
-        Liquidity providers earn OP tokens.
+        Liquidity providers earn LYRA tokens.
       </Text>
       <Grid sx={{ gridTemplateColumns: `${isMobile ? '1fr' : '1fr 1fr 1fr 1fr'}`, gridColumnGap: 4 }}>
         <Button
@@ -95,9 +141,13 @@ export default function WethLyraStakingRewardsCardSection() {
           onClick={() => setIsStakeModalOpen(!isStakeModalOpen)}
         />
         <Button label="Unstake" size="lg" onClick={() => setIsUnstakeModalOpen(!isUnstakeModalOpen)} />
+        <WethLyraStakingRewardsL1ClaimButton onOpenModal={() => setIsClaimModalOpen(!isClaimModalOpen)} />
+        <UnstakeOldWethLyraButton onOpenModal={() => setIsOldUnstakeModalOpen(!isOldUnstakeModalOpen)} />
       </Grid>
       <WethLyraStakeModal isOpen={isStakeModalOpen} onClose={() => setIsStakeModalOpen(false)} />
       <WethLyraUnstakeModal isOpen={isUnstakeModalOpen} onClose={() => setIsUnstakeModalOpen(false)} />
+      <ClaimWethLyraStakingRewardsModal isOpen={isClaimModalOpen} onClose={() => setIsClaimModalOpen(false)} />
+      <WethLyraL2UnstakeModal isOpen={isOldUnstakeModalOpen} onClose={() => setIsOldUnstakeModalOpen(false)} />
     </CardSection>
   )
 }

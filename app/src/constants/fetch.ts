@@ -41,6 +41,7 @@ export enum FetchId {
   LyraStaking = 'LyraStaking',
   LyraAccountStaking = 'LyraAccountStaking',
   WethLyraStaking = 'WethLyraStaking',
+  AccountWethLyraStakingL2 = 'AccountWethLyraStakingL2',
   AccountWethLyraStaking = 'AccountWethLyraStaking',
   ClaimableBalanceL2 = 'ClaimableBalanceL2',
   ClaimableBalanceL1 = 'ClaimableBalanceL1',

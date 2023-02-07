@@ -8,9 +8,9 @@ import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import useOptimismToken from '@/app/hooks/data/useOptimismToken'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useAccountWethLyraStaking, {
-  useMutateAccountWethLyraStaking,
-} from '@/app/hooks/rewards/useAccountWethLyraStaking'
+import useAccountWethLyraStakingL2, {
+  useMutateAccountWethLyraStakingL2,
+} from '@/app/hooks/rewards/useAccountWethLyraStakingL2'
 import useClaimableBalances, { useMutateClaimableBalances } from '@/app/hooks/rewards/useClaimableBalance'
 import filterNulls from '@/app/utils/filterNulls'
 import { lyraOptimism } from '@/app/utils/lyra'
@@ -34,8 +34,8 @@ const ClaimButton = withSuspense(
     const execute = useTransaction(Network.Optimism)
     const mutateClaimableBalance = useMutateClaimableBalances()
     const claimableBalances = useClaimableBalances()
-    const wethLyraAccount = useAccountWethLyraStaking()
-    const mutateWethLyraAccount = useMutateAccountWethLyraStaking()
+    const wethLyraAccount = useAccountWethLyraStakingL2()
+    const mutateWethLyraAccount = useMutateAccountWethLyraStakingL2()
     const isSelectedBalanceZero = ZERO_BN.add(isOpChecked ? claimableBalances.op : ZERO_BN)
       .add(isNewStkLyraChecked ? claimableBalances.newStkLyra : ZERO_BN)
       .add(isOldStkLyraChecked ? claimableBalances.oldStkLyra : ZERO_BN)
@@ -43,7 +43,7 @@ const ClaimButton = withSuspense(
       .isZero()
 
     const handleWethLyraClaim = async () => {
-      const tx = await account.claimWethLyraRewards()
+      const tx = await account.claimWethLyraRewardsL2()
       await execute(tx, {
         onComplete: () => {
           mutateWethLyraAccount()

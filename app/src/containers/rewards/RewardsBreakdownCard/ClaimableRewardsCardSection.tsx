@@ -17,7 +17,7 @@ import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/Toke
 import { ZERO_BN } from '@/app/constants/bn'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useAccountWethLyraStaking from '@/app/hooks/rewards/useAccountWethLyraStaking'
+import useAccountWethLyraStakingL2 from '@/app/hooks/rewards/useAccountWethLyraStakingL2'
 import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
 
 import ClaimModal from '../ClaimModal'
@@ -40,7 +40,7 @@ const ClaimableRewardsText = withSuspense(
   () => {
     const network = useNetwork()
     const claimableBalance = useClaimableBalances()
-    const wethLyraAccount = useAccountWethLyraStaking()
+    const wethLyraAccount = useAccountWethLyraStakingL2()
     const claimableStkLyra = claimableBalance.newStkLyra.add(wethLyraAccount?.rewards ?? ZERO_BN)
     return (
       <>
@@ -72,7 +72,7 @@ const ClaimableRewardsText = withSuspense(
 const OpenClaimModalButton = withSuspense(
   ({ onClick }: { onClick: () => void }) => {
     const claimableBalance = useClaimableBalances()
-    const wethLyraAccount = useAccountWethLyraStaking()
+    const wethLyraAccount = useAccountWethLyraStakingL2()
     return (
       <Button
         size="lg"

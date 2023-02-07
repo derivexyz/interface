@@ -8,6 +8,6 @@ import useFetch from '../data/useFetch'
 const fetchWethLyraStaking = async (): Promise<WethLyraStaking> => await lyraOptimism.wethLyraStaking()
 
 export default function useWethLyraStaking(): WethLyraStaking | null {
-  const [wethLyraStaking] = useFetch(FetchId.WethLyraStaking, [], fetchWethLyraStaking)
-  return wethLyraStaking
+  const [wethLyraStakingL2] = useFetch(FetchId.WethLyraStaking, [], fetchWethLyraStaking)
+  return wethLyraStakingL2
 }

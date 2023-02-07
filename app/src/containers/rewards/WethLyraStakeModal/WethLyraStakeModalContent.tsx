@@ -6,11 +6,10 @@ import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import { Network } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 import { Flex } from 'rebass'
 
-import { ARRAKIS_LIQUIDITY_URL } from '@/app/constants/links'
+import { WETH_LYRA_L1_LIQUIDITY_URL } from '@/app/constants/links'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
@@ -32,7 +31,7 @@ const WethLyraStakeModalContent = withSuspense(
   ({ amount, onChange, onStake }: Props) => {
     const accountWethLyraStaking = useAccountWethLyraStaking()
     const mutateAccountWethLyraStaking = useMutateAccountWethLyraStaking()
-    const execute = useTransaction(Network.Optimism)
+    const execute = useTransaction('ethereum')
     const account = useWalletAccount()
     const isApprove =
       accountWethLyraStaking?.unstakedLPTokenBalance.gt(0) && accountWethLyraStaking?.allowance.lt(amount)
@@ -84,13 +83,13 @@ const WethLyraStakeModalContent = withSuspense(
           rightIcon={IconType.ArrowUpRight}
           size="lg"
           variant={accountWethLyraStaking?.unstakedLPTokenBalance.gt(0) ? 'default' : 'primary'}
-          href={ARRAKIS_LIQUIDITY_URL + '/add'}
+          href={WETH_LYRA_L1_LIQUIDITY_URL + '/add'}
           target="_blank"
           mb={3}
         />
         <TransactionButton
-          network={Network.Optimism}
-          transactionType={TransactionType.StakeWethLyra}
+          network={'ethereum'}
+          transactionType={TransactionType.StakeWethLyraL1}
           width="100%"
           isDisabled={!isApprove && isDisabled}
           label={isApprove ? 'Allow Lyra to stake your LP Tokens' : 'Stake'}
