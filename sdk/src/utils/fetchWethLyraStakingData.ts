@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers'
 
-import { ZERO_BN } from '../constants/bn'
 import {
   LYRA_ETHEREUM_MAINNET_ADDRESS,
   LyraGlobalContractId,
@@ -45,44 +44,38 @@ const fetchWethLyraStakingData = async (
 
   const getUnderlyingBalancesCallData = arrakisVaultContract.interface.encodeFunctionData('getUnderlyingBalances')
   const totalSupplyCallData = wethLyraStakingContract.interface.encodeFunctionData('totalSupply')
-  const rewardPerTokenCallData = wethLyraStakingContract.interface.encodeFunctionData('rewardPerToken')
-  const rewardsDurationCallData = wethLyraStakingContract.interface.encodeFunctionData('rewardsDuration')
+  const rewardRateCallData = wethLyraStakingContract.interface.encodeFunctionData('rewardRate')
 
-  const [[amount0Current, amount1Current], [supply], [rewardPerToken], [rewardsDuration]] =
-    await callContractWithMulticall<[[BigNumber, BigNumber], [BigNumber], [BigNumber], [BigNumber]]>(
-      lyra,
-      [
-        {
-          contract: arrakisVaultContract,
-          callData: getUnderlyingBalancesCallData,
-          functionFragment: 'getUnderlyingBalances',
-        },
-        {
-          contract: arrakisVaultContract,
-          callData: totalSupplyCallData,
-          functionFragment: 'totalSupply',
-        },
-        {
-          contract: wethLyraStakingContract,
-          callData: rewardPerTokenCallData,
-          functionFragment: 'rewardPerToken',
-        },
-        {
-          contract: wethLyraStakingContract,
-          callData: rewardsDurationCallData,
-          functionFragment: 'rewardsDuration',
-        },
-      ],
-      lyra.ethereumProvider
-    )
+  const [[amount0Current, amount1Current], [supply], [rewardRate]] = await callContractWithMulticall<
+    [[BigNumber, BigNumber], [BigNumber], [BigNumber], [BigNumber]]
+  >(
+    lyra,
+    [
+      {
+        contract: arrakisVaultContract,
+        callData: getUnderlyingBalancesCallData,
+        functionFragment: 'getUnderlyingBalances',
+      },
+      {
+        contract: wethLyraStakingContract,
+        callData: totalSupplyCallData,
+        functionFragment: 'totalSupply',
+      },
+      {
+        contract: wethLyraStakingContract,
+        callData: rewardRateCallData,
+        functionFragment: 'rewardRate',
+      },
+    ],
+    lyra.ethereumProvider
+  )
 
   const poolLyraValue = fromBigNumber(amount0Current) * lyraPrice
   const poolWethValue = fromBigNumber(amount1Current) * wethPrice
   const tvl = poolWethValue + poolLyraValue
   const tokenValue = supply ? tvl / fromBigNumber(supply) : 0
-  const rewardsPerSecondPerToken = rewardsDuration.gt(0) ? rewardPerToken.div(rewardsDuration) : ZERO_BN
-  const apy =
-    tokenValue > 0 ? (fromBigNumber(rewardsPerSecondPerToken) * SECONDS_IN_YEAR * (lyraPrice ?? 0)) / tokenValue : 0
+  const rewardsPerSecondPerToken = supply.gt(0) ? fromBigNumber(rewardRate) / fromBigNumber(supply) : 0
+  const apy = tokenValue > 0 ? (rewardsPerSecondPerToken * SECONDS_IN_YEAR * (lyraPrice ?? 0)) / tokenValue : 0
   return { apy, tokenValue }
 }
 

@@ -3,7 +3,6 @@ import Button from '@lyra/ui/components/Button'
 import CardSection from '@lyra/ui/components/Card/CardSection'
 import Flex from '@lyra/ui/components/Flex'
 import Grid from '@lyra/ui/components/Grid'
-import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
@@ -88,25 +87,19 @@ const WethLyraRewardsGridItems = withSuspense(
   )
 )
 
-const WethLyraStakingRewardsL1ClaimButton = withSuspense(
-  ({ onOpenModal }: ClaimButtonProps) => {
-    const accountWethLyraStaking = useAccountWethLyraStaking()
-    const rewards = accountWethLyraStaking?.rewards ?? ZERO_BN
-    return rewards.gt(ZERO_BN) ? <Button label="Claim" size="lg" variant="primary" onClick={onOpenModal} /> : null
-  },
-  () => <ButtonShimmer size="lg" width={250} />
-)
+const WethLyraStakingRewardsL1ClaimButton = withSuspense(({ onOpenModal }: ClaimButtonProps) => {
+  const accountWethLyraStaking = useAccountWethLyraStaking()
+  const rewards = accountWethLyraStaking?.rewards ?? ZERO_BN
+  return rewards.gt(ZERO_BN) ? <Button label="Claim" size="lg" variant="primary" onClick={onOpenModal} /> : null
+})
 
-const UnstakeOldWethLyraButton = withSuspense(
-  ({ onOpenModal }: UnstakeOldButtonProps) => {
-    const wethLyraStakingL2 = useAccountWethLyraStakingL2()
-    const oldStakedAmount = wethLyraStakingL2?.stakedLPTokenBalance ?? ZERO_BN
-    return oldStakedAmount.gt(ZERO_BN) ? (
-      <Button label="Unstake L2 WETH/LYRA" size="lg" variant="warning" onClick={onOpenModal} />
-    ) : null
-  },
-  () => <ButtonShimmer size="lg" width={250} />
-)
+const UnstakeOldWethLyraButton = withSuspense(({ onOpenModal }: UnstakeOldButtonProps) => {
+  const wethLyraStakingL2 = useAccountWethLyraStakingL2()
+  const oldStakedAmount = wethLyraStakingL2?.stakedLPTokenBalance ?? ZERO_BN
+  return oldStakedAmount.gt(ZERO_BN) ? (
+    <Button label="Unstake L2 WETH/LYRA" size="lg" variant="warning" onClick={onOpenModal} />
+  ) : null
+})
 
 export default function WethLyraStakingRewardsCardSection() {
   const isMobile = useIsMobile()
