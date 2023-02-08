@@ -1,5 +1,6 @@
 import { CollateralUpdateEvent, Trade, TradeEvent } from '@lyrafinance/lyra-js'
 
+import fromBigNumber from './fromBigNumber'
 import { LogData } from './logEvent'
 
 export default function getTradeLogData(trade: Trade | TradeEvent | CollateralUpdateEvent): LogData {
@@ -7,16 +8,16 @@ export default function getTradeLogData(trade: Trade | TradeEvent | CollateralUp
     marketName: trade.marketName,
     expiryTimestamp: trade.expiryTimestamp,
     strikeId: trade.strikeId,
-    strikePrice: trade.strikePrice,
+    strikePrice: fromBigNumber(trade.strikePrice),
     isCall: trade.isCall,
     isBuy: !(trade instanceof CollateralUpdateEvent) ? trade.isBuy : undefined,
     isLong: !(trade instanceof CollateralUpdateEvent) ? trade.isLong : undefined,
     isOpen: !(trade instanceof CollateralUpdateEvent) ? trade.isOpen : undefined,
     positionId: trade.positionId,
-    premium: !(trade instanceof CollateralUpdateEvent) ? trade.premium : undefined,
-    fee: !(trade instanceof CollateralUpdateEvent) ? trade.fee : undefined,
-    size: !(trade instanceof CollateralUpdateEvent) ? trade.size : undefined,
-    iv: !(trade instanceof CollateralUpdateEvent) ? trade.iv : undefined,
+    premium: !(trade instanceof CollateralUpdateEvent) ? fromBigNumber(trade.premium) : undefined,
+    fee: !(trade instanceof CollateralUpdateEvent) ? fromBigNumber(trade.fee) : undefined,
+    size: !(trade instanceof CollateralUpdateEvent) ? fromBigNumber(trade.size) : undefined,
+    iv: !(trade instanceof CollateralUpdateEvent) ? fromBigNumber(trade.iv) : undefined,
     slippage: trade instanceof Trade ? trade.slippage : undefined,
     setToCollateral:
       trade instanceof Trade
