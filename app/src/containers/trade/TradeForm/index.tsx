@@ -50,6 +50,7 @@ const TradeForm = withSuspense(
     const quoteBalance = balances.quoteAsset
     const baseBalance = balances.baseAsset
     const isBaseCollateral = isCoveredCall
+    const showBaseBalance = isBaseCollateral && !isLong && option.isCall
 
     const [size, setSize] = useState<BigNumber>(ZERO_BN)
 
@@ -173,12 +174,12 @@ const TradeForm = withSuspense(
               <AmountUpdateText
                 variant="secondary"
                 prevAmount={
-                  isBaseCollateral
+                  showBaseBalance
                     ? fromBigNumber(baseBalance.balance, baseBalance.decimals)
                     : fromBigNumber(quoteBalance.balance, quoteBalance.decimals)
                 }
                 newAmount={
-                  isBaseCollateral
+                  showBaseBalance
                     ? fromBigNumber(
                         baseBalance.balance.sub(trade.baseToken.transfer).add(trade.baseToken.receive),
                         baseBalance.decimals
@@ -188,8 +189,8 @@ const TradeForm = withSuspense(
                         quoteBalance.decimals
                       )
                 }
-                isUSDFormat={!isBaseCollateral}
-                symbol={isBaseCollateral ? trade.baseToken.symbol : trade.quoteToken.symbol}
+                isUSDFormat={!showBaseBalance}
+                symbol={showBaseBalance ? trade.baseToken.symbol : trade.quoteToken.symbol}
               />
             }
             valueColor="text"
