@@ -1,19 +1,18 @@
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
-import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { TransactionType } from '@/app/constants/screen'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import useTransaction from '@/app/hooks/account/useTransaction'
-import useWalletAccount from '@/app/hooks/account/useWalletAccount'
-import useOptimismToken from '@/app/hooks/data/useOptimismToken'
+import useNetworkToken from '@/app/hooks/data/useNetworkToken'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useAccount from '@/app/hooks/market/useAccount'
 import useAccountWethLyraStakingL2, {
   useMutateAccountWethLyraStakingL2,
 } from '@/app/hooks/rewards/useAccountWethLyraStakingL2'
 import useClaimableBalances, { useMutateClaimableBalances } from '@/app/hooks/rewards/useClaimableBalance'
 import filterNulls from '@/app/utils/filterNulls'
-import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -27,11 +26,11 @@ type Props = {
 
 const ClaimButton = withSuspense(
   ({ isOpChecked, isOldStkLyraChecked, isNewStkLyraChecked, isWethLyraChecked, onClaim }: Props) => {
-    const owner = useWalletAccount()
-    const account = lyraOptimism.account(owner ?? '')
-    const op = useOptimismToken('op')
-    const stkLyra = useOptimismToken('stkLyra')
-    const execute = useTransaction(Network.Optimism)
+    const network = useNetwork()
+    const account = useAccount(network)
+    const stkLyra = useNetworkToken(network, 'stkLyra')
+    const op = useNetworkToken(network, 'op')
+    const execute = useTransaction(network)
     const mutateClaimableBalance = useMutateClaimableBalances()
     const claimableBalances = useClaimableBalances()
     const wethLyraAccount = useAccountWethLyraStakingL2()
@@ -43,15 +42,17 @@ const ClaimButton = withSuspense(
       .isZero()
 
     const handleWethLyraClaim = async () => {
-      const tx = await account.claimWethLyraRewardsL2()
-      await execute(tx, {
-        onComplete: () => {
-          mutateWethLyraAccount()
-          if (onClaim) {
-            onClaim()
-          }
-        },
-      })
+      const tx = await account?.claimWethLyraRewardsL2()
+      if (tx) {
+        await execute(tx, {
+          onComplete: () => {
+            mutateWethLyraAccount()
+            if (onClaim) {
+              onClaim()
+            }
+          },
+        })
+      }
     }
 
     const handleDistributorClaim = async () => {
@@ -60,20 +61,22 @@ const ClaimButton = withSuspense(
         isNewStkLyraChecked ? stkLyra?.address : null,
         isOldStkLyraChecked ? '0xdE48b1B5853cc63B1D05e507414D3E02831722F8' : null,
       ])
-      const tx = await account.claim(tokens)
-      await execute(tx, {
-        onComplete: () => {
-          mutateClaimableBalance()
-          if (onClaim) {
-            onClaim()
-          }
-        },
-      })
+      const tx = await account?.claim(tokens)
+      if (tx) {
+        await execute(tx, {
+          onComplete: () => {
+            mutateClaimableBalance()
+            if (onClaim) {
+              onClaim()
+            }
+          },
+        })
+      }
     }
 
     return (
       <TransactionButton
-        network={Network.Optimism}
+        network={network}
         transactionType={TransactionType.ClaimRewards}
         width="100%"
         label={

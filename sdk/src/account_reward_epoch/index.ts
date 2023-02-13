@@ -76,14 +76,19 @@ export class AccountRewardEpoch {
     })
     this.totalVaultRewards = Object.values(marketVaultRewardsMap)
     this.tradingFeeRebate = this.globalEpoch.tradingFeeRebate(this.stakedLyraBalance)
-    this.tradingFees = this.accountEpoch.tradingRewards.fees
+    const integratorTradingFees = this.accountEpoch.integratorTradingRewards?.fees ?? 0
+    this.tradingFees = integratorTradingFees > 0 ? integratorTradingFees : this.accountEpoch.tradingRewards.fees
     this.tradingRewards = this.globalEpoch.tradingRewards(this.tradingFees, this.stakedLyraBalance)
+    const integratorShortCollateralRewardDollars =
+      this.accountEpoch.integratorTradingRewards?.shortCollateralRewardDollars ?? 0
     this.shortCollateralRewards = this.globalEpoch.shortCollateralRewards(
-      this.accountEpoch.tradingRewards.shortCollateralRewardDollars
+      integratorShortCollateralRewardDollars > 0
+        ? integratorShortCollateralRewardDollars
+        : this.accountEpoch.tradingRewards.shortCollateralRewardDollars
     )
     const claimAddedTags = parseClaimAddedTags(claimAddedEvents)
 
-    // TODO @dillon - refactor this later
+    // TODO @dillon: refactor this later
     const lyraTradingRewards =
       this.tradingRewards.find(token => ['lyra', 'stklyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
     const lyraShortCollateralRewards =

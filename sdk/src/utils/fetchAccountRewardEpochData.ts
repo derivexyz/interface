@@ -13,6 +13,7 @@ export type AccountRewardEpochData = {
   mmvRewards: AccountMMVRewards
   tradingRewards: AccountTradingRewards
   arrakisRewards?: AccountArrakisRewards
+  integratorTradingRewards?: AccountTradingRewards
 }
 
 export type AccountStakingRewards = {

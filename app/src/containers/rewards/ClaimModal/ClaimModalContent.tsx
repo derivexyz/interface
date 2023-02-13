@@ -5,9 +5,11 @@ import Flex from '@lyra/ui/components/Flex'
 import Checkbox from '@lyra/ui/components/Input/Checkbox'
 import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
+import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import TokenAmountText from '@/app/components/common/TokenAmountText'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccountWethLyraStakingL2 from '@/app/hooks/rewards/useAccountWethLyraStakingL2'
 import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
@@ -34,13 +36,14 @@ const ClaimModalContent = withSuspense(
     onClickOldStkLyra,
     onClickWethLyra,
   }: Props) => {
+    const network = useNetwork()
     const claimableBalances = useClaimableBalances()
     const wethLyraAccount = useAccountWethLyraStakingL2()
     const isDistributorRewardsDisabled = isWethLyraChecked
     const isWethLyraDisabled = isOpChecked || isNewStkLyraChecked || isOldStkLyraChecked
     return (
       <Box>
-        {claimableBalances.oldStkLyra.gt(0) ? (
+        {network === Network.Optimism && claimableBalances.oldStkLyra.gt(0) ? (
           <Card
             variant="nested"
             mb={6}
@@ -98,7 +101,7 @@ const ClaimModalContent = withSuspense(
             </CardBody>
           </Card>
         ) : null}
-        {claimableBalances.op.gt(0) ? (
+        {network === Network.Optimism && claimableBalances.op.gt(0) ? (
           <Card
             variant="nested"
             mb={6}
@@ -123,7 +126,7 @@ const ClaimModalContent = withSuspense(
             </CardBody>
           </Card>
         ) : null}
-        {wethLyraAccount?.rewards.gt(0) ? (
+        {network === Network.Optimism && wethLyraAccount?.rewards.gt(0) ? (
           <Card
             variant="nested"
             mb={6}

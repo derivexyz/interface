@@ -33,7 +33,7 @@ const ShortCollateralRewardsCardGrid = withSuspense(
     const lyraRewardsCap = findLyraRewardEpochToken(globalRewardEpoch?.tradingRewardsCap ?? [])
     const opRewardsCap = findOpRewardEpochToken(globalRewardEpoch?.tradingRewardsCap ?? [])
     const lyraRewards = findLyraRewardEpochToken(accountRewardEpoch?.shortCollateralRewards ?? [])
-    const opRewards = findLyraRewardEpochToken(accountRewardEpoch?.shortCollateralRewards ?? [])
+    const opRewards = findOpRewardEpochToken(accountRewardEpoch?.shortCollateralRewards ?? [])
 
     const shortPositions = useMemo(() => {
       if (!globalRewardEpoch) {

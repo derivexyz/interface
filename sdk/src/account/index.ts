@@ -10,10 +10,12 @@ import {
   LyraContractId,
   LyraGlobalContractId,
   LyraMarketContractId,
+  NEW_STAKED_LYRA_ARBITRUM_ADDRESS,
   NEW_STAKED_LYRA_OPTIMISM_ADDRESS,
   OLD_STAKED_LYRA_OPTIMISM_ADDRESS,
   OP_OPTIMISM_MAINNET_ADDRESS,
 } from '../constants/contracts'
+import { Network } from '../constants/network'
 import { LiquidityDeposit } from '../liquidity_deposit'
 import { LiquidityWithdrawal } from '../liquidity_withdrawal'
 import Lyra from '../lyra'
@@ -233,7 +235,10 @@ export class Account {
 
   async claimableRewardsL2(): Promise<ClaimableBalanceL2> {
     const distributorContract = getGlobalContract(this.lyra, LyraGlobalContractId.MultiDistributor)
-    const newStkLyraAddress = getAddress(NEW_STAKED_LYRA_OPTIMISM_ADDRESS)
+    const newStkLyraAddress =
+      this.lyra.network === Network.Arbitrum
+        ? getAddress(NEW_STAKED_LYRA_ARBITRUM_ADDRESS)
+        : getAddress(NEW_STAKED_LYRA_OPTIMISM_ADDRESS)
     const oldStkLyraAddress = getAddress(OLD_STAKED_LYRA_OPTIMISM_ADDRESS)
     const opAddress =
       this.lyra.deployment === Deployment.Mainnet ? OP_OPTIMISM_MAINNET_ADDRESS : LYRA_OPTIMISM_KOVAN_ADDRESS
