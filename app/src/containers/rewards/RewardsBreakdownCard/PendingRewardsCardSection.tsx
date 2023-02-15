@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom'
 import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import { PageId } from '@/app/constants/pages'
+import { SECONDS_IN_HOUR } from '@/app/constants/time'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
@@ -31,6 +32,7 @@ const PendingRewardsCardGridItems = withSuspense(
     const account = epochs?.account
     const global = epochs?.global
     const epochEndTimestamp = global?.endTimestamp ?? 0
+    const countdownTimestamp = epochEndTimestamp + SECONDS_IN_HOUR * 4
     // TODO - @dillon refactor later with better solution
     const opStakingRewards = findOpRewardEpochToken(account?.stakingRewards ?? [])
     const opVaultRewards = findOpRewardEpochToken(account?.totalVaultRewards ?? [])
@@ -63,9 +65,9 @@ const PendingRewardsCardGridItems = withSuspense(
         </Box>
         <Box>
           <Text variant="secondary" color="secondaryText" mb={2}>
-            Countdown
+            {Date.now() / 1000 > epochEndTimestamp ? 'Claimable In' : 'Countdown'}
           </Text>
-          <Countdown timestamp={epochEndTimestamp} fallback="Waiting for Rewards" variant="secondary" />
+          <Countdown timestamp={countdownTimestamp} fallback="Waiting for Rewards" variant="secondary" />
         </Box>
       </>
     )
