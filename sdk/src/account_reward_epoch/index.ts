@@ -1,6 +1,5 @@
 import { AccountBalances, AccountLiquidityTokenBalance, AccountLyraBalances } from '../account'
 import { Deployment, LyraGlobalContractId } from '../constants/contracts'
-import { Network } from '../constants/network'
 import { ClaimAddedEvent } from '../contracts/common/typechain/MultiDistributor'
 import { GlobalRewardEpoch } from '../global_reward_epoch'
 import { RewardEpochTokenAmount } from '../global_reward_epoch'
@@ -97,12 +96,11 @@ export class AccountRewardEpoch {
     const opShortCollateralRewards =
       this.shortCollateralRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
     const isTradingPending =
-      (lyraTradingRewards + lyraShortCollateralRewards > 0 && !claimAddedTags.tradingRewards.LYRA) ||
+      (lyraTradingRewards + lyraShortCollateralRewards > 0 && !claimAddedTags.tradingRewards.stkLYRA) ||
       (opTradingRewards + opShortCollateralRewards > 0 && !claimAddedTags.tradingRewards.OP)
 
     // ignore lyra rewards due to 6mo lock
     const isStakingPending = false
-
     const isVaultsPending = globalEpoch.markets.every(market => {
       const vaultRewards = this.vaultRewards(market.address)
       const marketKey = market.baseToken.symbol
@@ -111,11 +109,10 @@ export class AccountRewardEpoch {
         vaultRewards.find(token => ['lyra', 'stklyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
       const opVaultRewards = vaultRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
       return (
-        (lyraVaultRewards && !claimAddedTags.vaultRewards[marketKey]?.LYRA) ||
+        (lyraVaultRewards && !claimAddedTags.vaultRewards[marketKey]?.stkLYRA) ||
         (opVaultRewards && !claimAddedTags.vaultRewards[marketKey]?.OP)
       )
     })
-
     this.isPendingRewards = !this.globalEpoch.isComplete || isTradingPending || isStakingPending || isVaultsPending
 
     this.wethLyraStakingL2 = this.accountEpoch.arrakisRewards ?? {
@@ -131,16 +128,11 @@ export class AccountRewardEpoch {
     if (lyra.deployment !== Deployment.Mainnet) {
       return []
     }
-    const distributorContract =
-      lyra.network === Network.Optimism
-        ? getGlobalContract(lyra, LyraGlobalContractId.MultiDistributor, lyra.optimismProvider)
-        : null
+    const distributorContract = getGlobalContract(lyra, LyraGlobalContractId.MultiDistributor, lyra.provider)
     const claimAddedEvents =
-      lyra.network === Network.Optimism
-        ? (await distributorContract?.queryFilter(
-            distributorContract.filters.ClaimAdded(null, address, null, null, null)
-          )) ?? []
-        : []
+      (await distributorContract?.queryFilter(
+        distributorContract.filters.ClaimAdded(null, address, null, null, null)
+      )) ?? []
     const [accountEpochDatas, globalEpochs, lyraBalances, balances] = await Promise.all([
       fetchAccountRewardEpochData(lyra, address),
       GlobalRewardEpoch.getAll(lyra),
