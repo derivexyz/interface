@@ -11,7 +11,7 @@ import fetchAccountRewardEpochData, {
 import findMarketX from '../utils/findMarketX'
 import fromBigNumber from '../utils/fromBigNumber'
 import getGlobalContract from '../utils/getGlobalContract'
-import parseClaimAddedTags from './parseClaimAddedTags'
+import parseClaimAddedTags, { LYRA_TO_STKLYRA_TIMESTAMP } from './parseClaimAddedTags'
 
 export class AccountRewardEpoch {
   private vaultTokenBalances: Record<string, AccountLiquidityTokenBalance>
@@ -88,6 +88,8 @@ export class AccountRewardEpoch {
     const claimAddedTags = parseClaimAddedTags(claimAddedEvents)
 
     // TODO @dillon: refactor this later
+    const useStkLyraClaimAddedTag = this.accountEpoch.startTimestamp >= LYRA_TO_STKLYRA_TIMESTAMP
+    const checkClaimAddedTags = this.accountEpoch.startTimestamp >= LYRA_TO_STKLYRA_TIMESTAMP
     const lyraTradingRewards =
       this.tradingRewards.find(token => ['lyra', 'stklyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
     const lyraShortCollateralRewards =
@@ -96,11 +98,17 @@ export class AccountRewardEpoch {
     const opShortCollateralRewards =
       this.shortCollateralRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
     const isTradingPending =
-      (lyraTradingRewards + lyraShortCollateralRewards > 0 && !claimAddedTags.tradingRewards.stkLYRA) ||
-      (opTradingRewards + opShortCollateralRewards > 0 && !claimAddedTags.tradingRewards.OP)
+      (lyraTradingRewards + lyraShortCollateralRewards > 0 &&
+        (checkClaimAddedTags
+          ? useStkLyraClaimAddedTag
+            ? !claimAddedTags.tradingRewards.stkLYRA
+            : !claimAddedTags.tradingRewards.LYRA
+          : false)) ||
+      (opTradingRewards + opShortCollateralRewards > 0 && checkClaimAddedTags
+        ? !claimAddedTags.tradingRewards.OP
+        : false)
 
     // ignore lyra rewards due to 6mo lock
-    const isStakingPending = false
     const isVaultsPending = globalEpoch.markets.every(market => {
       const vaultRewards = this.vaultRewards(market.address)
       const marketKey = market.baseToken.symbol
@@ -109,11 +117,16 @@ export class AccountRewardEpoch {
         vaultRewards.find(token => ['lyra', 'stklyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
       const opVaultRewards = vaultRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
       return (
-        (lyraVaultRewards && !claimAddedTags.vaultRewards[marketKey]?.stkLYRA) ||
-        (opVaultRewards && !claimAddedTags.vaultRewards[marketKey]?.OP)
+        (lyraVaultRewards &&
+          (checkClaimAddedTags
+            ? useStkLyraClaimAddedTag
+              ? !claimAddedTags.vaultRewards[marketKey]?.stkLYRA
+              : !claimAddedTags.vaultRewards[marketKey]?.LYRA
+            : false)) ||
+        (opVaultRewards && checkClaimAddedTags ? !claimAddedTags.vaultRewards[marketKey]?.OP : false)
       )
     })
-    this.isPendingRewards = !this.globalEpoch.isComplete || isTradingPending || isStakingPending || isVaultsPending
+    this.isPendingRewards = !this.globalEpoch.isComplete || isTradingPending || isVaultsPending
 
     this.wethLyraStakingL2 = this.accountEpoch.arrakisRewards ?? {
       rewards: [],

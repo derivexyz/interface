@@ -44,17 +44,19 @@ type StakedCardSectionButtonProps = {
 const StakedLyraBalanceText = withSuspense(
   (): CardElement => {
     const lyraAccountStaking = useLyraAccountStaking()
-    const { optimismOldStkLyra, optimismStkLyra, ethereumStkLyra } = useMemo(() => {
+    const { optimismOldStkLyra, optimismStkLyra, ethereumStkLyra, arbitrumStkLyra } = useMemo(() => {
       const optimismOldStkLyra = lyraAccountStaking?.lyraBalances.optimismOldStkLyra ?? ZERO_BN
       const ethereumStkLyra = lyraAccountStaking?.lyraBalances.ethereumStkLyra ?? ZERO_BN
       const optimismStkLyra = lyraAccountStaking?.lyraBalances.optimismStkLyra ?? ZERO_BN
+      const arbitrumStkLyra = lyraAccountStaking?.lyraBalances.arbitrumStkLyra ?? ZERO_BN
       return {
         optimismOldStkLyra,
         optimismStkLyra,
         ethereumStkLyra,
+        arbitrumStkLyra,
       }
     }, [lyraAccountStaking])
-    const balance = optimismOldStkLyra.add(optimismStkLyra).add(ethereumStkLyra)
+    const balance = optimismOldStkLyra.add(optimismStkLyra).add(ethereumStkLyra).add(arbitrumStkLyra)
     return (
       <Tooltip
         title="Staked LYRA"

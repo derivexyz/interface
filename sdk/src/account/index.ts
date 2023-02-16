@@ -89,9 +89,11 @@ export type AccountWethLyraStaking = {
 export type AccountLyraBalances = {
   ethereumLyra: BigNumber
   optimismLyra: BigNumber
+  arbitrumLyra: BigNumber
   optimismOldStkLyra: BigNumber
   ethereumStkLyra: BigNumber
   optimismStkLyra: BigNumber
+  arbitrumStkLyra: BigNumber
 }
 
 export type AccountLyraAllowances = {
@@ -174,9 +176,11 @@ export class Account {
     return {
       ethereumLyra: lyraBalances.mainnetLYRA,
       optimismLyra: lyraBalances.opLYRA,
+      arbitrumLyra: lyraBalances.arbitrumLYRA,
       optimismOldStkLyra: lyraBalances.opOldStkLYRA,
       ethereumStkLyra: lyraBalances.mainnetStkLYRA,
       optimismStkLyra: lyraBalances.opStkLYRA,
+      arbitrumStkLyra: lyraBalances.arbitrumStkLYRA,
     }
   }
 

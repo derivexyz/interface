@@ -14,6 +14,8 @@ const EMPTY_LYRA_BALANCE: AccountLyraBalances = {
   optimismOldStkLyra: ZERO_BN,
   ethereumStkLyra: ZERO_BN,
   optimismStkLyra: ZERO_BN,
+  arbitrumLyra: ZERO_BN,
+  arbitrumStkLyra: ZERO_BN,
 }
 
 const fetchVault = async (network: Network, marketAddressOrName: string, walletAddress?: string): Promise<Vault> => {
