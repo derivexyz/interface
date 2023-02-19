@@ -1,4 +1,4 @@
-import Lyra, { Version } from '@lyrafinance/lyra-js'
+import Lyra from '@lyrafinance/lyra-js'
 
 import { NETWORK_CONFIGS } from '../constants/networks'
 import CachedStaticJsonRpcProvider from './CachedStaticJsonRpcProvider'
@@ -27,7 +27,8 @@ export const lyraOptimism = new Lyra({
   ethereumProvider: mainnetProvider,
 })
 
-export const lyraArbitrum = new Lyra(
-  { provider: arbitrumProvider, optimismProvider: optimismProvider, ethereumProvider: mainnetProvider },
-  Version.Newport
-)
+export const lyraArbitrum = new Lyra({
+  provider: arbitrumProvider,
+  optimismProvider: optimismProvider,
+  ethereumProvider: mainnetProvider,
+})
