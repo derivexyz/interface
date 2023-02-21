@@ -33,7 +33,7 @@ type Props = {
   collateral: TradeCollateral
   collateralAmount: BigNumber
   onChangeCollateralAmount: (size: BigNumber) => void
-  onToggleCoveredCall: (isCoveredCall: boolean) => void
+  onToggleCoveredCall?: (isCoveredCall: boolean) => void
 } & MarginProps
 
 const NUM_STEPS = 200
@@ -85,7 +85,9 @@ const TradeFormCollateralSection = ({
   const onOpen = useCallback(() => setIsOpen(true), [])
   const onSelectCollateral = useCallback(
     (isCoveredCall: boolean) => {
-      onToggleCoveredCall(isCoveredCall)
+      if (onToggleCoveredCall) {
+        onToggleCoveredCall(isCoveredCall)
+      }
       onClose()
     },
     [onClose, onToggleCoveredCall]

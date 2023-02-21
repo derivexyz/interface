@@ -709,11 +709,11 @@ const theme = {
       color: 'text',
       '&:not(.disabled):hover': {
         bg: 'hover',
-        borderColor: 'hover',
+        borderColor: 'buttonHover',
       },
       '&:not(.disabled):active': {
         bg: 'active',
-        borderColor: 'active',
+        borderColor: 'buttonActive',
       },
     },
     defaultTransparent: {
@@ -746,6 +746,10 @@ const theme = {
       color: 'secondaryText',
       borderColor: 'secondaryText',
       '&:not(.disabled):hover': {
+        color: 'text',
+        borderColor: 'secondaryText',
+      },
+      '&:not(.disabled):active': {
         color: 'text',
         borderColor: 'secondaryText',
       },

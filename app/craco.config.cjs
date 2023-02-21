@@ -25,6 +25,14 @@ module.exports = {
           new BundleAnalyzerPlugin({ analyzerMode: process.env.REACT_APP_INTERACTIVE_ANALYZE ? 'server' : 'json' })
         )
       }
+      if (process.env.NODE_ENV !== 'production') {
+        webpackConfig.devtool = 'eval-cheap-module-source-map'
+        webpackConfig.ignoreWarnings = [
+          {
+            message: /Failed to parse source map/,
+          },
+        ]
+      }
       webpackConfig.plugins.push(
         new webpack.ProvidePlugin({
           Buffer: ['buffer', 'Buffer'],

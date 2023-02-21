@@ -12,6 +12,7 @@ import React, { useState } from 'react'
 import PositionStatusText from '@/app/components/common/PositionStatusText'
 import { UNIT, ZERO_BN } from '@/app/constants/bn'
 import ShortYieldValue from '@/app/containers/common/ShortYieldValue'
+import TradeCollateralFormModal from '@/app/containers/trade/TradeCollateralFormModal'
 import TradeFormModal from '@/app/containers/trade/TradeFormModal'
 import useWallet from '@/app/hooks/account/useWallet'
 
@@ -31,7 +32,8 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
   const equity = position.isLong ? currentPrice.mul(size).div(UNIT) : position?.collateral?.value ?? ZERO_BN
 
   const [isBuy, setIsBuy] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isTradeFormOpen, setIsTradeFormOpen] = useState(false)
+  const [isCollateralFormOpen, setIsCollateralFormOpen] = useState(false)
 
   const { account, isOverride } = useWallet()
   const isOwner = account === position.owner && !isOverride
@@ -85,27 +87,40 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
               label="Open Position"
               onClick={() => {
                 setIsBuy(position.isLong)
-                setIsOpen(true)
+                setIsTradeFormOpen(true)
               }}
             />
             <Button
               variant="error"
-              isOutline
               size="lg"
+              isOutline
               label="Close Position"
               onClick={() => {
                 setIsBuy(!position.isLong)
-                setIsOpen(true)
+                setIsTradeFormOpen(true)
               }}
+            />
+            <Button
+              variant="default"
+              size="lg"
+              label="Adjust Collateral"
+              onClick={() => setIsCollateralFormOpen(true)}
             />
           </Grid>
         ) : null}
       </CardBody>
       <TradeFormModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        onTrade={() => setIsOpen(false)}
+        isOpen={isTradeFormOpen}
+        onClose={() => setIsTradeFormOpen(false)}
+        onTrade={() => setIsTradeFormOpen(false)}
         isBuy={isBuy}
+        position={position}
+        option={option}
+      />
+      <TradeCollateralFormModal
+        isOpen={isCollateralFormOpen}
+        onClose={() => setIsCollateralFormOpen(false)}
+        onTrade={() => setIsCollateralFormOpen(false)}
         position={position}
         option={option}
       />
