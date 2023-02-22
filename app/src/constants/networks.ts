@@ -26,6 +26,7 @@ const INFURA_PROJECT_ID = nullthrows(
   'Missing REACT_APP_INFURA_PROJECT_ID in environment variables'
 )
 const ALCHEMY_PROJECT_ID = process.env.REACT_APP_ALCHEMY_PROJECT_ID
+const REACT_APP_ALCHEMY_ARBITRUM_PROJECT_ID = process.env.REACT_APP_ALCHEMY_ARBITRUM_PROJECT_ID
 
 export const NETWORK_CONFIGS: Record<Chain, NetworkConfig> = {
   [Chain.Optimism]: {
@@ -57,7 +58,12 @@ export const NETWORK_CONFIGS: Record<Chain, NetworkConfig> = {
     chainId: 42161,
     network: Network.Arbitrum,
     walletRpcUrl: 'https://arb1.arbitrum.io/rpc',
-    readRpcUrls: [`https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`],
+    readRpcUrls: filterNulls([
+      `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+      REACT_APP_ALCHEMY_ARBITRUM_PROJECT_ID
+        ? `https://arb-mainnet.g.alchemy.com/v2/${REACT_APP_ALCHEMY_ARBITRUM_PROJECT_ID}`
+        : null,
+    ]),
     blockExplorerUrl: 'https://arbiscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
   },
