@@ -2,6 +2,8 @@ import { FilterByBlockHash } from '@ethersproject/abstract-provider'
 import { Block, BlockTag, Filter, Log, StaticJsonRpcProvider, TransactionRequest } from '@ethersproject/providers'
 import { deepCopy, Deferrable, fetchJson } from 'ethers/lib/utils'
 
+import logError from './logError'
+
 function getResult(payload: { error?: { code?: number; data?: any; message?: string }; result?: any }): any {
   if (payload.error) {
     const error: any = new Error(payload.error.message)
@@ -77,6 +79,7 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
         return result
       } catch (error) {
         console.error(error)
+        logError(error, { url, request })
         if (i === this.urls.length - 1) {
           // Throw on last request failure
           this.emit('debug', {
