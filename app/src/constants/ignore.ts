@@ -25,11 +25,19 @@ export const IGNORE_VAULTS_LIST: IgnoreVault[] = filterNulls([
     marketName: 'sSOL-sUSD',
     chain: Chain.Optimism,
   },
+  {
+    marketName: 'WBTC-USDC',
+    chain: Chain.Arbitrum,
+  },
 ])
 
 export const IGNORE_MARKETS_LIST: IgnoreMarket[] = filterNulls([
   {
     marketName: 'sSOL-sUSD',
     chain: Chain.Optimism,
+  },
+  {
+    marketName: 'WBTC-USDC',
+    chain: Chain.Arbitrum,
   },
 ])
