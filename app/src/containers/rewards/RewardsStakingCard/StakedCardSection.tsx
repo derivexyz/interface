@@ -66,6 +66,9 @@ const StakedLyraBalanceText = withSuspense(
             {optimismStkLyra.gt(0) ? (
               <RowItem mt={3} label="Optimism" value={formatBalance(optimismStkLyra, 'stkLYRA')} />
             ) : null}
+            {arbitrumStkLyra.gt(0) ? (
+              <RowItem mt={3} label="Arbitrum" value={formatBalance(arbitrumStkLyra, 'stkLYRA')} />
+            ) : null}
             {optimismOldStkLyra.gt(0) ? (
               <RowItem
                 mt={3}
