@@ -44,8 +44,9 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
 
   const { market, globalRewardEpoch, apyMultiplier } = vault
 
-  const isNew = globalRewardEpoch && globalRewardEpoch.id <= 1
-  const isStartEarningInFuture = market.block.timestamp < (globalRewardEpoch?.startEarningTimestamp ?? 0)
+  const isNew = globalRewardEpoch?.startTimestamp === 1676419200 && market.baseToken.symbol == 'WBTC'
+  const isStartEarningInFuture =
+    market.block.timestamp < (globalRewardEpoch?.startEarningTimestamp ?? 0) && market.baseToken.symbol === 'WBTC'
   return (
     <Card>
       <CardSection>

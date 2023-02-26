@@ -90,7 +90,7 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
               vault: { market, globalRewardEpoch },
             } = props.row.original
 
-            const isNew = globalRewardEpoch && globalRewardEpoch.id <= 1
+            const isNew = globalRewardEpoch?.startTimestamp === 1676419200 && market.baseToken.symbol == 'WBTC'
 
             return (
               <Flex alignItems="center">

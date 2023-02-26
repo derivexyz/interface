@@ -14,8 +14,8 @@ const fetcher = async (walletAddress?: string): Promise<Vault[]> => {
   const vaults = await Promise.all(
     Object.values(Network).map(async network => {
       const lyra = getLyraSDK(network)
-      const marketAddresses = await lyra.marketAddresses()
-      return await Promise.all(marketAddresses.map(marketAddress => fetchVault(network, marketAddress, walletAddress)))
+      const markets = await lyra.markets()
+      return await Promise.all(markets.map(market => fetchVault(network, market, walletAddress)))
     })
   )
   return vaults

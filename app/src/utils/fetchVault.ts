@@ -1,4 +1,4 @@
-import { AccountLyraBalances, AccountRewardEpoch, Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, AccountRewardEpoch, Market, Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
 
 import { ZERO_ADDRESS, ZERO_BN } from '../constants/bn'
 import { Vault } from '../constants/vault'
@@ -18,13 +18,12 @@ const EMPTY_LYRA_BALANCE: AccountLyraBalances = {
   arbitrumStkLyra: ZERO_BN,
 }
 
-const fetchVault = async (network: Network, marketAddressOrName: string, walletAddress?: string): Promise<Vault> => {
+const fetchVault = async (network: Network, market: Market, walletAddress?: string): Promise<Vault> => {
   const lyra = getLyraSDK(network)
-  const market = await lyra.market(marketAddressOrName)
   const account = lyra.account(walletAddress ?? ZERO_ADDRESS)
 
   const fetchAccountBalances = async () =>
-    account ? account.marketBalances(marketAddressOrName) : getEmptyMarketBalances(ZERO_ADDRESS, market)
+    account ? account.marketBalances(market.address) : getEmptyMarketBalances(ZERO_ADDRESS, market)
 
   const fetchLyraBalances = async () => (account ? account.lyraBalances() : EMPTY_LYRA_BALANCE)
 
@@ -33,8 +32,8 @@ const fetchVault = async (network: Network, marketAddressOrName: string, walletA
     lyra.latestGlobalRewardEpoch(),
     fetchAccountBalances(),
     fetchLyraBalances(),
-    account.liquidityDeposits(marketAddressOrName),
-    account.liquidityWithdrawals(marketAddressOrName),
+    account.liquidityDeposits(market.address),
+    account.liquidityWithdrawals(market.address),
   ])
 
   const pendingDeposits = deposits.filter(d => d.isPending)
@@ -45,10 +44,10 @@ const fetchVault = async (network: Network, marketAddressOrName: string, walletA
     accountRewardEpoch = await globalRewardEpoch.accountRewardEpoch(walletAddress)
   }
 
-  const minApy = globalRewardEpoch?.minVaultApy(marketAddressOrName) ?? EMPTY_APY
-  const maxApy = globalRewardEpoch?.maxVaultApy(marketAddressOrName) ?? EMPTY_APY
-  const apy = accountRewardEpoch?.vaultApy(marketAddressOrName) ?? minApy
-  const apyMultiplier = accountRewardEpoch?.vaultApyMultiplier(marketAddressOrName) ?? 1
+  const minApy = globalRewardEpoch?.minVaultApy(market.address) ?? EMPTY_APY
+  const maxApy = globalRewardEpoch?.maxVaultApy(market.address) ?? EMPTY_APY
+  const apy = accountRewardEpoch?.vaultApy(market.address) ?? minApy
+  const apyMultiplier = accountRewardEpoch?.vaultApyMultiplier(market.address) ?? 1
 
   const liquidityToken = marketBalances.liquidityToken
 

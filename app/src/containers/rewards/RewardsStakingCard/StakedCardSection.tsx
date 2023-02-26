@@ -179,8 +179,6 @@ const StakedCardSectionButton = withSuspense(
           gridGap: 3,
         }}
       >
-        <Button size="lg" mr={2} label="Stake" variant="primary" onClick={onStakeOpen} />
-        <Button size="lg" mr={2} label="Unstake" variant="default" onClick={onUnstakeOpen} />
         {claimableBalancesL1.newStkLyra.gt(ZERO_BN) ? (
           <Button
             size="lg"
@@ -190,6 +188,13 @@ const StakedCardSectionButton = withSuspense(
             onClick={onClaimL1Open}
           />
         ) : null}
+        <Button
+          size="lg"
+          label="Stake"
+          variant={claimableBalancesL1.newStkLyra.gt(ZERO_BN) ? 'default' : 'primary'}
+          onClick={onStakeOpen}
+        />
+        <Button size="lg" label="Unstake" variant="default" onClick={onUnstakeOpen} />
       </Grid>
     )
   },
