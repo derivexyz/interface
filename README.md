@@ -27,3 +27,11 @@ yarn start
 ```
 yarn build
 ```
+
+### Kwenta Contribution
+
+Kwenta contributors are welcome to fork this repository and submit pull requests against the `kwenta/lyra-interface:dev` branch.
+
+The `master` branch will be regularly synchronized in line with changes incoming from the `lyra-finance/interface:master` branch by the devDAO PM. 
+
+Once changes in the `dev` branch have been thoroughly tested and approved, new releases to the Kwenta-hosted Lyra frontend will be pushed to the `deploy` branch.
