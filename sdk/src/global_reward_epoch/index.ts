@@ -2,7 +2,7 @@ import { Block } from '@ethersproject/providers'
 
 import { Deployment, Market, MarketLiquiditySnapshot } from '..'
 import { AccountRewardEpoch } from '../account_reward_epoch'
-import { SECONDS_IN_DAY, SECONDS_IN_WEEK, SECONDS_IN_YEAR } from '../constants/time'
+import { SECONDS_IN_DAY, SECONDS_IN_TWO_WEEKS, SECONDS_IN_WEEK, SECONDS_IN_YEAR } from '../constants/time'
 import Lyra from '../lyra'
 import { LyraStaking } from '../lyra_staking'
 import fetchGlobalRewardEpochData, { GlobalRewardEpochData } from '../utils/fetchGlobalRewardEpochData'
@@ -246,7 +246,11 @@ export class GlobalRewardEpoch {
   ): RewardEpochTokenAmount[] {
     const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
-
+    const isNewBTCVault = market.baseToken.symbol.toLowerCase() === 'wbtc' && this.epoch.startTimestamp === 1676419200
+    const newBTCVaultDurationSeconds =
+      Math.max(0, this.endTimestamp + SECONDS_IN_TWO_WEEKS - 1677456000) -
+      Math.max(0, this.endTimestamp + SECONDS_IN_TWO_WEEKS - this.blockTimestamp)
+    const progressDays = isNewBTCVault ? newBTCVaultDurationSeconds / SECONDS_IN_DAY : this.progressDays
     const vaultTokenBalance = _vaultTokenBalance
 
     const totalAvgVaultTokens = this.totalAverageVaultTokens(marketAddressOrName)
@@ -257,7 +261,7 @@ export class GlobalRewardEpoch {
     }
 
     const x = mmvConfig.x
-    const totalAvgScaledStkLyra = this.progressDays ? scaledStkLyraDays / this.progressDays : 0
+    const totalAvgScaledStkLyra = progressDays ? scaledStkLyraDays / progressDays : 0
 
     const effectiveLpTokensPerLpToken = getEffectiveLiquidityTokens(
       vaultTokenBalance,
@@ -282,7 +286,6 @@ export class GlobalRewardEpoch {
     const totalQueuedVaultTokens =
       tokenPrice > 0 ? fromBigNumber(this.marketsLiquidity[marketIdx].pendingDeposits) / tokenPrice : 0
     const totalAvgAndQueuedVaultTokens = totalAvgVaultTokens + totalQueuedVaultTokens
-
     const vaultTokensPerDollar = tokenPrice > 0 ? 1 / tokenPrice : 0
     const pctSharePerDollar = totalAvgAndQueuedVaultTokens > 0 ? vaultTokensPerDollar / totalAvgAndQueuedVaultTokens : 0
 
@@ -347,13 +350,23 @@ export class GlobalRewardEpoch {
   totalAverageVaultTokens(marketAddressOrName: string): number {
     const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
-    return this.progressDays ? (this.epoch.totalLpTokenDays[marketKey] ?? 0) / this.progressDays : 0
+    const isNewBTCVault = market.baseToken.symbol.toLowerCase() === 'wbtc' && this.epoch.startTimestamp === 1676419200
+    const newBTCVaultDurationSeconds =
+      Math.max(0, this.endTimestamp + SECONDS_IN_TWO_WEEKS - 1677456000) -
+      Math.max(0, this.endTimestamp + SECONDS_IN_TWO_WEEKS - this.blockTimestamp)
+    const progressDays = isNewBTCVault ? newBTCVaultDurationSeconds / SECONDS_IN_DAY : this.progressDays
+    return progressDays ? (this.epoch.totalLpTokenDays[marketKey] ?? 0) / progressDays : 0
   }
 
   totalAverageBoostedVaultTokens(marketAddressOrName: string): number {
     const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
-    return this.progressDays ? (this.epoch.totalBoostedLpTokenDays[marketKey] ?? 0) / this.progressDays : 0
+    const isNewBTCVault = market.baseToken.symbol.toLowerCase() === 'wbtc' && this.epoch.startTimestamp === 1676419200
+    const newBTCVaultDurationSeconds =
+      Math.max(0, this.endTimestamp + SECONDS_IN_TWO_WEEKS - 1677456000) -
+      Math.max(0, this.endTimestamp + SECONDS_IN_TWO_WEEKS - this.blockTimestamp)
+    const progressDays = isNewBTCVault ? newBTCVaultDurationSeconds / SECONDS_IN_DAY : this.progressDays
+    return progressDays ? (this.epoch.totalBoostedLpTokenDays[marketKey] ?? 0) / progressDays : 0
   }
 
   tradingFeeRebate(stakedLyraBalance: number): number {
