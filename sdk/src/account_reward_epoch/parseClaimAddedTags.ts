@@ -31,13 +31,13 @@ export default function parseClaimAddedEvents(
     const rewardTokenAddress = event.rewardToken
     if (tag.startsWith(ClaimAddedProgramTags.MMV)) {
       const [_program, marketKey] = tag.split('-')
-      const token = globalRewardEpoch.MMVConfig[marketKey].tokens.find(
+      const token = globalRewardEpoch.MMVConfig[marketKey]?.tokens?.find(
         token => token.address.toLowerCase() === rewardTokenAddress
       )
       if (!vaultRewards[marketKey]) {
         vaultRewards[marketKey] = []
       }
-      const claimableToken = vaultRewards[marketKey].find(t => t.address.toLowerCase() === rewardTokenAddress)
+      const claimableToken = vaultRewards[marketKey]?.find(t => t.address.toLowerCase() === rewardTokenAddress)
       if (!claimableToken) {
         vaultRewards[marketKey] = token ? [...vaultRewards[marketKey], { ...token, amount }] : vaultRewards[marketKey]
         return
