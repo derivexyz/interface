@@ -90,9 +90,9 @@ export class AccountRewardEpoch {
     // TODO @dillon: refactor this later
     const checkClaimAddedTags = this.accountEpoch.startTimestamp >= LYRA_TO_STKLYRA_TIMESTAMP
     const lyraTradingRewards =
-      this.tradingRewards.find(token => ['lyra', 'stklyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
+      this.tradingRewards.find(token => ['lyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
     const lyraShortCollateralRewards =
-      this.shortCollateralRewards.find(token => ['lyra', 'stklyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
+      this.shortCollateralRewards.find(token => ['lyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
     const opTradingRewards = this.tradingRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
     const opShortCollateralRewards =
       this.shortCollateralRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
@@ -108,8 +108,7 @@ export class AccountRewardEpoch {
       const vaultRewards = this.vaultRewards(market.address)
       const marketKey = market.baseToken.symbol
       // TODO @dillon - refactor this later
-      const lyraVaultRewards =
-        vaultRewards.find(token => ['lyra', 'stklyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
+      const lyraVaultRewards = vaultRewards.find(token => ['lyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
       const opVaultRewards = vaultRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
       return (
         (lyraVaultRewards && (checkClaimAddedTags ? !claimAddedTags.vaultRewards[marketKey]?.LYRA : false)) ||
