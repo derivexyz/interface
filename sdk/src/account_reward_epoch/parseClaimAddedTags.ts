@@ -1,6 +1,7 @@
 import { ClaimAddedEvent, RewardEpochTokenAmount } from '..'
 import { GlobalRewardEpochData } from '../utils/fetchGlobalRewardEpochData'
 import fromBigNumber from '../utils/fromBigNumber'
+import getUniqueRewardTokenAmounts from '../utils/getUniqueRewardTokenAmounts'
 
 enum ClaimAddedProgramTags {
   MMV = 'MMV',
@@ -84,20 +85,7 @@ export default function parseClaimAddedEvents(
       claimableToken.amount += amount
     }
   })
-
-  const totalRewards = Object.values(
-    [...tradingRewards, ...wethLyraRewards, ...stakingRewards, ...Object.values(vaultRewards).flat()].reduce(
-      (map, rewardTokenAmount) => {
-        if (!map[rewardTokenAmount.address]) {
-          map[rewardTokenAmount.address] = rewardTokenAmount
-          return map
-        }
-        map[rewardTokenAmount.address].amount += rewardTokenAmount.amount
-        return map
-      },
-      {} as Record<string, RewardEpochTokenAmount>
-    )
-  )
+  const totalRewards = getUniqueRewardTokenAmounts([...Object.values(vaultRewards).flat(), ...tradingRewards])
 
   return { vaultRewards, tradingRewards, stakingRewards, wethLyraRewards, totalRewards }
 }

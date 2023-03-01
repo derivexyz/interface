@@ -5,15 +5,13 @@ import Icon, { IconType } from '@lyra/ui/components/Icon'
 import Modal from '@lyra/ui/components/Modal'
 import ModalSection from '@lyra/ui/components/Modal/ModalSection'
 import Text from '@lyra/ui/components/Text'
-import { AccountRewardEpoch, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch } from '@lyrafinance/lyra-js'
 import React from 'react'
 import { useState } from 'react'
-import { useMemo } from 'react'
 
 import RowItem from '@/app/components/common/RowItem'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
-import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
 import formatRewardTokenAmounts from '@/app/utils/formatRewardTokenAmounts'
 import formatTokenName from '@/app/utils/formatTokenName'
@@ -30,34 +28,13 @@ type Props = {
 
 export default function ClaimModal({ accountRewardEpoch, isOpen, onClose }: Props) {
   const [isVaultExpanded, setIsVaultExpanded] = useState(false)
-  const account = useWalletAccount()
   const execute = useTransaction(accountRewardEpoch.lyra.network)
   const mutateRewardsPageData = useMutateRewardsPageData()
-  const allRewardTokenAmounts = useMemo(
-    () => [
-      ...Object.values(accountRewardEpoch.claimableRewards.vaultRewards).flat(),
-      ...accountRewardEpoch.claimableRewards.tradingRewards,
-    ],
-    [accountRewardEpoch]
-  )
+  const { tradingRewards, totalRewards } = accountRewardEpoch.claimableRewards
   const emptyVaultRewards = accountRewardEpoch.globalEpoch
     .totalVaultRewards(accountRewardEpoch.globalEpoch.markets[0].address)
     .map(t => ({ ...t, amount: 0 }))
-  const totalRewards = useMemo(() => {
-    const rewardMap: Record<string, RewardEpochTokenAmount> = {}
-    return Object.values(
-      allRewardTokenAmounts.reduce((map, rewardTokenAmount) => {
-        if (!map[rewardTokenAmount.symbol]) {
-          return {
-            ...map,
-            [rewardTokenAmount.symbol]: rewardTokenAmount,
-          }
-        }
-        map[rewardTokenAmount.symbol].amount += rewardTokenAmount.amount
-        return map
-      }, rewardMap)
-    )
-  }, [allRewardTokenAmounts])
+  const emptyTradingRewards = accountRewardEpoch.globalEpoch.tradingRewards(0, 0)
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Claim Rewards" width={450} centerTitle>
@@ -112,16 +89,13 @@ export default function ClaimModal({ accountRewardEpoch, isOpen, onClose }: Prop
               )
             })}
         </Collapsible>
-
-        {accountRewardEpoch.claimableRewards.tradingRewards.some(reward => reward.amount > 0) ? (
-          <RowItem
-            mx={6}
-            my={6}
-            textVariant="bodyLarge"
-            label="Trading Rewards"
-            value={formatRewardTokenAmounts(accountRewardEpoch.claimableRewards.tradingRewards)}
-          />
-        ) : null}
+        <RowItem
+          mx={6}
+          my={6}
+          textVariant="bodyLarge"
+          label="Trading Rewards"
+          value={formatRewardTokenAmounts(tradingRewards.length ? tradingRewards : emptyTradingRewards)}
+        />
       </ModalSection>
       <CardSeparator />
       <ModalSection>
@@ -135,8 +109,8 @@ export default function ClaimModal({ accountRewardEpoch, isOpen, onClose }: Prop
         mb={6}
         network={accountRewardEpoch.lyra.network}
         transactionType={TransactionType.ClaimRewards}
-        label={'Claim'}
-        isDisabled={account === accountRewardEpoch.account && totalRewards.every(reward => reward.amount === 0)}
+        label="Claim"
+        isDisabled={totalRewards.every(reward => reward.amount === 0)}
         onClick={async () => {
           const tx = await getLyraSDK(accountRewardEpoch.lyra.network).claimRewards(
             accountRewardEpoch.account,

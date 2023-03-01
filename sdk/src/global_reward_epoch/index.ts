@@ -282,7 +282,7 @@ export class GlobalRewardEpoch {
   totalVaultRewards(marketAddressOrName: string): RewardEpochTokenAmount[] {
     const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
-    return this.epoch.globalMMVRewards[marketKey]
+    return this.epoch.globalMMVRewards[marketKey] ?? []
   }
 
   totalAverageVaultTokens(marketAddressOrName: string): number {

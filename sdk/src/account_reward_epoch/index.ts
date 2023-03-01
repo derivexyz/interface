@@ -29,6 +29,7 @@ import fetchClaimEvents from '../utils/fetchClaimEvents'
 import findMarketX from '../utils/findMarketX'
 import fromBigNumber from '../utils/fromBigNumber'
 import getGlobalContract from '../utils/getGlobalContract'
+import getUniqueRewardTokenAmounts from '../utils/getUniqueRewardTokenAmounts'
 import multicall, { MulticallRequest } from '../utils/multicall'
 import parseClaimAddedEvents from './parseClaimAddedTags'
 
@@ -158,16 +159,8 @@ export class AccountRewardEpoch {
       ? claimAddedEvents.filter(ev => ev.blockNumber >= latestClaimedEvent.blockNumber)
       : claimAddedEvents
     this.claimableRewards = parseClaimAddedEvents(claimableClaimAddedEvents, globalEpoch.epoch)
-    this.totalClaimableVaultRewards = Object.values(
-      Object.values(this.claimableRewards.vaultRewards)
-        .flat()
-        .reduce((map, rewardToken) => {
-          if (!map[rewardToken.address]) {
-            return { ...map, [rewardToken.address]: rewardToken }
-          }
-          map[rewardToken.address].amount += rewardToken.amount
-          return map
-        }, {} as Record<string, RewardEpochTokenAmount>)
+    this.totalClaimableVaultRewards = getUniqueRewardTokenAmounts(
+      Object.values(this.claimableRewards.vaultRewards).flat()
     )
   }
 
@@ -189,7 +182,7 @@ export class AccountRewardEpoch {
     )
     // HACK @michaelxuwu - Filter claimAdded mistake
     const claimAddedEvents = _claimAddedEvents.filter(
-      event => event.rewardToken !== '0xCb9f85730f57732fc899fb158164b9Ed60c77D49'
+      event => event.rewardToken.toLowerCase() !== '0xCb9f85730f57732fc899fb158164b9Ed60c77D49'.toLowerCase()
     )
     return accountEpochDatas
       .map(accountEpochData => {

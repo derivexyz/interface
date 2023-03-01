@@ -224,7 +224,7 @@ const RewardsVaultsPageHelper = ({ market, latestRewardEpoch, accountRewardEpoch
                       ml="auto"
                       tokenAmounts={vaultRewards.length ? vaultRewards : epochEmptyVaultRewards}
                       hideTokenImages
-                      showDash={false}
+                      showDash={true}
                     />
                   </Grid>
                 )

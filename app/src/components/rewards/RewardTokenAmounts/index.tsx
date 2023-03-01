@@ -13,6 +13,7 @@ type Props = {
   size?: number
   variant?: TextVariant
   showDash?: boolean
+  hideZeroAmount?: boolean
   hideTokenImages?: boolean
 } & MarginProps
 
@@ -22,6 +23,7 @@ export default function RewardTokenAmounts({
   variant = 'body',
   showDash = true,
   hideTokenImages = false,
+  hideZeroAmount = false,
   ...styleProps
 }: Props) {
   const rewardsText = useMemo(
@@ -30,7 +32,7 @@ export default function RewardTokenAmounts({
   )
   const isRewardAmountZero = tokenAmounts.reduce((totalAmount, tokenAmount) => totalAmount + tokenAmount.amount, 0) <= 0
 
-  if (showDash && isRewardAmountZero) {
+  if (showDash && (tokenAmounts.length === 0 || (hideZeroAmount && isRewardAmountZero))) {
     return (
       <Text variant={variant} {...styleProps}>
         -
