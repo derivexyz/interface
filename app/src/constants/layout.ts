@@ -22,3 +22,6 @@ export const MIN_TRADE_POSITION_CARD_HEIGHT = 140
 export const TRADE_SPOT_LINE_CHART_HEIGHT = [120, 140]
 export const TRADE_SPOT_CANDLE_CHART_HEIGHT = [160, 240]
 export const ADMIN_TRANSACTIONS_CARD_WIDTH = 560
+
+export const REWARDS_CARD_GRID_COLUMN_TEMPLATE = ['1fr 36px', '1.1fr 0.9fr 1.1fr 0.9fr 36px']
+export const REWARDS_HISTORY_GRID_COLUMN_TEMPLATE = ['1fr 1fr 1fr', '0.5fr 0.5fr 1fr']

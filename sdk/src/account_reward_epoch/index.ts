@@ -1,20 +1,64 @@
+import { BigNumber, PopulatedTransaction } from 'ethers'
+import { getAddress } from 'ethers/lib/utils'
+
 import { AccountBalances, AccountLiquidityTokenBalance, AccountLyraBalances } from '../account'
-import { Deployment, LyraGlobalContractId } from '../constants/contracts'
-import { ClaimAddedEvent } from '../contracts/common/typechain/MultiDistributor'
+import { ZERO_BN } from '../constants/bn'
+import {
+  Deployment,
+  LYRA_ARBITRUM_MAINNET_ADDRESS,
+  LYRA_OPTIMISM_KOVAN_ADDRESS,
+  LYRA_OPTIMISM_MAINNET_ADDRESS,
+  LyraGlobalContractId,
+  NEW_STAKED_LYRA_ARBITRUM_ADDRESS,
+  NEW_STAKED_LYRA_OPTIMISM_ADDRESS,
+  OLD_STAKED_LYRA_OPTIMISM_ADDRESS,
+  OP_OPTIMISM_MAINNET_ADDRESS,
+} from '../constants/contracts'
+import { LyraGlobalContractMap } from '../constants/mappings'
+import { Network } from '../constants/network'
 import { GlobalRewardEpoch } from '../global_reward_epoch'
 import { RewardEpochTokenAmount } from '../global_reward_epoch'
 import Lyra from '../lyra'
+import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
 import fetchAccountRewardEpochData, {
   AccountArrakisRewards,
   AccountRewardEpochData,
 } from '../utils/fetchAccountRewardEpochData'
+import fetchClaimAddedEvents from '../utils/fetchClaimAddedEvents'
+import fetchClaimEvents from '../utils/fetchClaimEvents'
 import findMarketX from '../utils/findMarketX'
 import fromBigNumber from '../utils/fromBigNumber'
 import getGlobalContract from '../utils/getGlobalContract'
-import parseClaimAddedTags, { LYRA_TO_STKLYRA_TIMESTAMP } from './parseClaimAddedTags'
+import multicall, { MulticallRequest } from '../utils/multicall'
+import parseClaimAddedEvents from './parseClaimAddedTags'
+
+export type ClaimAddedEvent = {
+  amount: BigNumber
+  blockNumber: number
+  claimer: string
+  epochTimestamp: number
+  rewardToken: string
+  tag: string
+  timestamp: number
+}
+
+export type ClaimEvent = {
+  amount: BigNumber
+  blockNumber: number
+  claimer: string
+  rewardToken: string
+  timestamp: number
+}
+
+type ClaimableRewards = {
+  vaultRewards: Record<string, RewardEpochTokenAmount[]>
+  tradingRewards: RewardEpochTokenAmount[]
+  stakingRewards: RewardEpochTokenAmount[]
+  wethLyraRewards: RewardEpochTokenAmount[]
+  totalRewards: RewardEpochTokenAmount[]
+}
 
 export class AccountRewardEpoch {
-  private vaultTokenBalances: Record<string, AccountLiquidityTokenBalance>
   lyra: Lyra
   account: string
   globalEpoch: GlobalRewardEpoch
@@ -29,6 +73,11 @@ export class AccountRewardEpoch {
   tradingRewards: RewardEpochTokenAmount[]
   shortCollateralRewards: RewardEpochTokenAmount[]
   wethLyraStakingL2: AccountArrakisRewards
+  claimableRewards: ClaimableRewards
+  totalClaimableVaultRewards: RewardEpochTokenAmount[]
+  lyraBalances: AccountLyraBalances
+  vaultTokenBalances: Record<string, AccountLiquidityTokenBalance>
+
   constructor(
     lyra: Lyra,
     account: string,
@@ -36,17 +85,17 @@ export class AccountRewardEpoch {
     globalEpoch: GlobalRewardEpoch,
     balances: AccountBalances[],
     lyraBalances: AccountLyraBalances,
-    claimAddedEvents: ClaimAddedEvent[]
+    claimAddedEvents: ClaimAddedEvent[],
+    claimedEvents: ClaimEvent[]
   ) {
     this.lyra = lyra
     this.account = account
     this.globalEpoch = globalEpoch
     this.accountEpoch = accountEpoch
+    this.lyraBalances = lyraBalances
     const avgStkLyraBalance =
-      this.globalEpoch.progressDays > 0
-        ? this.accountEpoch.stakingRewards.stkLyraDays / this.globalEpoch.progressDays
-        : 0
-    this.stakedLyraBalance = this.globalEpoch.isComplete
+      globalEpoch.progressDays > 0 ? accountEpoch.stakingRewards.stkLyraDays / globalEpoch.progressDays : 0
+    this.stakedLyraBalance = globalEpoch.isComplete
       ? avgStkLyraBalance
       : fromBigNumber(lyraBalances.ethereumStkLyra.add(lyraBalances.optimismStkLyra))
     this.vaultTokenBalances = balances.reduce(
@@ -57,13 +106,14 @@ export class AccountRewardEpoch {
       {}
     )
 
-    this.stakingRewards = this.accountEpoch.stakingRewards.rewards
-    this.stakingRewardsUnlockTimestamp = this.accountEpoch.stakingRewards?.rewards?.map(token => {
+    this.stakingRewards = accountEpoch.stakingRewards.rewards
+    this.stakingRewardsUnlockTimestamp = accountEpoch.stakingRewards?.rewards?.map(token => {
       return {
         ...token,
-        amount: this.globalEpoch.endTimestamp,
+        amount: globalEpoch.endTimestamp,
       }
     })
+
     const marketVaultRewards = globalEpoch.markets.map(market => this.vaultRewards(market.address)).flat()
     const marketVaultRewardsMap: { [tokenAddress: string]: RewardEpochTokenAmount } = {}
     marketVaultRewards.forEach(vaultReward => {
@@ -74,53 +124,51 @@ export class AccountRewardEpoch {
       }
     })
     this.totalVaultRewards = Object.values(marketVaultRewardsMap)
-    this.tradingFeeRebate = this.globalEpoch.tradingFeeRebate(this.stakedLyraBalance)
-    const integratorTradingFees = this.accountEpoch.integratorTradingRewards?.fees ?? 0
-    this.tradingFees = integratorTradingFees > 0 ? integratorTradingFees : this.accountEpoch.tradingRewards.fees
-    this.tradingRewards = this.globalEpoch.tradingRewards(this.tradingFees, this.stakedLyraBalance)
+    this.tradingFeeRebate = globalEpoch.tradingFeeRebate(this.stakedLyraBalance)
+    const integratorTradingFees = accountEpoch.integratorTradingRewards?.fees ?? 0
+    this.tradingFees = integratorTradingFees > 0 ? integratorTradingFees : accountEpoch.tradingRewards.fees
+    this.tradingRewards = globalEpoch.tradingRewards(this.tradingFees, this.stakedLyraBalance)
     const integratorShortCollateralRewardDollars =
       this.accountEpoch.integratorTradingRewards?.shortCollateralRewardDollars ?? 0
-    this.shortCollateralRewards = this.globalEpoch.shortCollateralRewards(
+    this.shortCollateralRewards = globalEpoch.shortCollateralRewards(
       integratorShortCollateralRewardDollars > 0
         ? integratorShortCollateralRewardDollars
         : this.accountEpoch.tradingRewards.shortCollateralRewardDollars
     )
-    const claimAddedTags = parseClaimAddedTags(claimAddedEvents)
-
-    // TODO @dillon: refactor this later
-    const checkClaimAddedTags = this.accountEpoch.startTimestamp >= LYRA_TO_STKLYRA_TIMESTAMP
-    const lyraTradingRewards =
-      this.tradingRewards.find(token => ['lyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
-    const lyraShortCollateralRewards =
-      this.shortCollateralRewards.find(token => ['lyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
-    const opTradingRewards = this.tradingRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
-    const opShortCollateralRewards =
-      this.shortCollateralRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
-    const isTradingPending =
-      (lyraTradingRewards + lyraShortCollateralRewards > 0 &&
-        (checkClaimAddedTags ? !claimAddedTags.tradingRewards.LYRA : false)) ||
-      (opTradingRewards + opShortCollateralRewards > 0 && checkClaimAddedTags
-        ? !claimAddedTags.tradingRewards.OP
-        : false)
-
-    // ignore lyra rewards due to 6mo lock
-    const isVaultsPending = globalEpoch.markets.some(market => {
-      const vaultRewards = this.vaultRewards(market.address)
-      const marketKey = market.baseToken.symbol
-      // TODO @dillon - refactor this later
-      const lyraVaultRewards = vaultRewards.find(token => ['lyra'].includes(token.symbol.toLowerCase()))?.amount ?? 0
-      const opVaultRewards = vaultRewards.find(token => ['op'].includes(token.symbol.toLowerCase()))?.amount ?? 0
-      return (
-        (lyraVaultRewards && (checkClaimAddedTags ? !claimAddedTags.vaultRewards[marketKey]?.LYRA : false)) ||
-        (opVaultRewards && (checkClaimAddedTags ? !claimAddedTags.vaultRewards[marketKey]?.OP : false))
-      )
-    })
-    this.isPendingRewards = !this.globalEpoch.isComplete || isTradingPending || isVaultsPending
+    const claimAddedCurrEpoch = claimAddedEvents.filter(ev => ev.epochTimestamp === globalEpoch.startTimestamp)
+    const claimableRewardsThisEpoch = parseClaimAddedEvents(claimAddedCurrEpoch, globalEpoch.epoch)
+    const isTradingPending = claimableRewardsThisEpoch.tradingRewards.some(
+      rewardTokenAmount => rewardTokenAmount.amount > 0
+    )
+    const isVaultsPending = Object.values(claimableRewardsThisEpoch.vaultRewards)
+      .flat()
+      .some(rewardTokenAmount => rewardTokenAmount.amount > 0)
+    this.isPendingRewards = !this.globalEpoch.isComplete && (isTradingPending || isVaultsPending)
     this.wethLyraStakingL2 = this.accountEpoch.arrakisRewards ?? {
       rewards: [],
       gUniTokensStaked: 0,
       percentShare: 0,
     }
+
+    // Get claimable rewards across all previous epochs
+    const latestClaimedEvent = claimedEvents.length
+      ? claimedEvents.sort((a, b) => b.blockNumber - a.blockNumber)[0]
+      : null
+    const claimableClaimAddedEvents = latestClaimedEvent
+      ? claimAddedEvents.filter(ev => ev.blockNumber >= latestClaimedEvent.blockNumber)
+      : claimAddedEvents
+    this.claimableRewards = parseClaimAddedEvents(claimableClaimAddedEvents, globalEpoch.epoch)
+    this.totalClaimableVaultRewards = Object.values(
+      Object.values(this.claimableRewards.vaultRewards)
+        .flat()
+        .reduce((map, rewardToken) => {
+          if (!map[rewardToken.address]) {
+            return { ...map, [rewardToken.address]: rewardToken }
+          }
+          map[rewardToken.address].amount += rewardToken.amount
+          return map
+        }, {} as Record<string, RewardEpochTokenAmount>)
+    )
   }
 
   // Getters
@@ -129,17 +177,20 @@ export class AccountRewardEpoch {
     if (lyra.deployment !== Deployment.Mainnet) {
       return []
     }
-    const distributorContract = getGlobalContract(lyra, LyraGlobalContractId.MultiDistributor, lyra.provider)
-    const claimAddedEvents =
-      (await distributorContract?.queryFilter(
-        distributorContract.filters.ClaimAdded(null, address, null, null, null)
-      )) ?? []
-    const [accountEpochDatas, globalEpochs, lyraBalances, balances] = await Promise.all([
-      fetchAccountRewardEpochData(lyra, address),
-      GlobalRewardEpoch.getAll(lyra),
-      lyra.account(address).lyraBalances(),
-      lyra.account(address).balances(),
-    ])
+    const [accountEpochDatas, globalEpochs, lyraBalances, balances, _claimAddedEvents, claimEvents] = await Promise.all(
+      [
+        fetchAccountRewardEpochData(lyra, address),
+        GlobalRewardEpoch.getAll(lyra),
+        lyra.account(address).lyraBalances(),
+        lyra.account(address).balances(),
+        fetchClaimAddedEvents(lyra.chain, address),
+        fetchClaimEvents(lyra.chain, address),
+      ]
+    )
+    // HACK @michaelxuwu - Filter claimAdded mistake
+    const claimAddedEvents = _claimAddedEvents.filter(
+      event => event.rewardToken !== '0xCb9f85730f57732fc899fb158164b9Ed60c77D49'
+    )
     return accountEpochDatas
       .map(accountEpochData => {
         const globalEpoch = globalEpochs.find(
@@ -150,10 +201,6 @@ export class AccountRewardEpoch {
         if (!globalEpoch) {
           throw new Error('Missing corresponding global epoch for account epoch')
         }
-        // Find claims added for or after epoch
-        const epochClaimAddedEvents = claimAddedEvents.filter(
-          claimAdded => claimAdded.args.epochTimestamp.toNumber() === globalEpoch.startTimestamp
-        )
         return new AccountRewardEpoch(
           lyra,
           address,
@@ -161,7 +208,8 @@ export class AccountRewardEpoch {
           globalEpoch,
           balances,
           lyraBalances,
-          epochClaimAddedEvents
+          claimAddedEvents,
+          claimEvents
         )
       })
       .sort((a, b) => a.globalEpoch.endTimestamp - b.globalEpoch.endTimestamp)
@@ -178,6 +226,69 @@ export class AccountRewardEpoch {
     const epochs = await AccountRewardEpoch.getByOwner(lyra, address)
     const epoch = epochs.find(epoch => epoch.globalEpoch.startTimestamp === startTimestamp)
     return epoch ?? null
+  }
+
+  static async getClaimableBalances(lyra: Lyra, address: string) {
+    const distributorContract = getGlobalContract(lyra, LyraGlobalContractId.MultiDistributor)
+    const newStkLyraAddress =
+      lyra.network === Network.Arbitrum
+        ? getAddress(NEW_STAKED_LYRA_ARBITRUM_ADDRESS)
+        : getAddress(NEW_STAKED_LYRA_OPTIMISM_ADDRESS)
+    const lyraAddress =
+      lyra.network === Network.Arbitrum
+        ? getAddress(LYRA_ARBITRUM_MAINNET_ADDRESS)
+        : getAddress(LYRA_OPTIMISM_MAINNET_ADDRESS)
+    const oldStkLyraAddress = getAddress(OLD_STAKED_LYRA_OPTIMISM_ADDRESS)
+    const opAddress = lyra.deployment === Deployment.Mainnet ? OP_OPTIMISM_MAINNET_ADDRESS : LYRA_OPTIMISM_KOVAN_ADDRESS
+    const {
+      returnData: [newStkLyraClaimableBalance, oldStkLyraClaimableBalance, opClaimableBalance, lyraClaimableBalance],
+    } = await multicall<
+      [
+        MulticallRequest<LyraGlobalContractMap[LyraGlobalContractId.MultiDistributor], 'claimableBalances'>,
+        MulticallRequest<LyraGlobalContractMap[LyraGlobalContractId.MultiDistributor], 'claimableBalances'>,
+        MulticallRequest<LyraGlobalContractMap[LyraGlobalContractId.MultiDistributor], 'claimableBalances'>,
+        MulticallRequest<LyraGlobalContractMap[LyraGlobalContractId.MultiDistributor], 'claimableBalances'>
+      ]
+    >(lyra, [
+      {
+        contract: distributorContract,
+        function: 'claimableBalances',
+        args: [address, newStkLyraAddress],
+      },
+      {
+        contract: distributorContract,
+        function: 'claimableBalances',
+        args: [address, oldStkLyraAddress],
+      },
+      {
+        contract: distributorContract,
+        function: 'claimableBalances',
+        args: [address, opAddress],
+      },
+      {
+        contract: distributorContract,
+        function: 'claimableBalances',
+        args: [address, lyraAddress],
+      },
+    ])
+    return {
+      newStkLyra: newStkLyraClaimableBalance ?? ZERO_BN,
+      oldStkLyra: oldStkLyraClaimableBalance ?? ZERO_BN,
+      op: opClaimableBalance ?? ZERO_BN,
+      lyra: lyraClaimableBalance ?? ZERO_BN,
+    }
+  }
+
+  static async claim(lyra: Lyra, address: string, tokenAddresses: string[]): Promise<PopulatedTransaction> {
+    const distributorContract = getGlobalContract(lyra, LyraGlobalContractId.MultiDistributor)
+    const calldata = distributorContract.interface.encodeFunctionData('claim', [tokenAddresses])
+    return await buildTxWithGasEstimate(
+      lyra.provider,
+      lyra.provider.network.chainId,
+      distributorContract.address,
+      address,
+      calldata
+    )
   }
 
   // Dynamic Fields
@@ -237,5 +348,15 @@ export class AccountRewardEpoch {
         amount,
       }
     })
+  }
+
+  claimableVaultRewards(marketAddressOrName: string): RewardEpochTokenAmount[] {
+    const market = findMarketX(this.globalEpoch.markets, marketAddressOrName)
+    const marketKey = market.baseToken.symbol
+    const claimableVaultRewards = this.claimableRewards.vaultRewards[marketKey]
+    if (!claimableVaultRewards) {
+      return this.globalEpoch.totalVaultRewards(market.address).map(t => ({ ...t, amount: 0 }))
+    }
+    return claimableVaultRewards
   }
 }

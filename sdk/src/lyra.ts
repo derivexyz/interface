@@ -15,9 +15,7 @@ import { Network } from './constants/network'
 import { GlobalRewardEpoch } from './global_reward_epoch'
 import { LiquidityDeposit } from './liquidity_deposit'
 import { LiquidityWithdrawal } from './liquidity_withdrawal'
-import { LyraStake } from './lyra_stake'
 import { LyraStaking } from './lyra_staking'
-import { LyraUnstake } from './lyra_unstake'
 import { Market, MarketContractAddresses, MarketQuotes, MarketTradeOptions } from './market'
 import { Option, OptionQuotes } from './option'
 import { Position, PositionFilter, PositionLeaderboard, PositionLeaderboardFilter } from './position'
@@ -37,7 +35,7 @@ import getLyraDeploymentProvider from './utils/getLyraDeploymentProvider'
 import getLyraDeploymentSubgraphURI from './utils/getLyraDeploymentSubgraphURI'
 import getNetworkForChain from './utils/getLyraNetworkForChain'
 import getVersionForChain from './utils/getVersionForChain'
-import { WethLyraStaking } from './weth_lyra_staking'
+import { AccountWethLyraStaking, WethLyraStaking } from './weth_lyra_staking'
 
 export type LyraConfig = {
   provider: JsonRpcProvider
@@ -243,6 +241,10 @@ export default class Lyra {
     return await LiquidityDeposit.getByOwner(this, marketAddressOrName, owner)
   }
 
+  async approveDeposit(marketAddressOrName: string, address: string): Promise<PopulatedTransaction | null> {
+    return await LiquidityDeposit.approve(this, marketAddressOrName, address)
+  }
+
   async deposit(
     beneficiary: string,
     marketAddressOrName: string,
@@ -273,21 +275,44 @@ export default class Lyra {
 
   // Rewards
 
+  async claimRewards(address: string, tokenAddresses: string[]) {
+    return await AccountRewardEpoch.claim(this, address, tokenAddresses)
+  }
+
+  async claimableRewards(address: string) {
+    return await AccountRewardEpoch.getClaimableBalances(this, address)
+  }
+
   async lyraStaking(): Promise<LyraStaking> {
     return await LyraStaking.get(this)
   }
 
-  async stake(address: string, amount: BigNumber): Promise<LyraStake> {
-    return await LyraStake.get(this, address, amount)
+  async lyraStakingAccount(address: string) {
+    return await LyraStaking.getByOwner(this, address)
+  }
+
+  async approveStaking(address: string) {
+    return await LyraStaking.approve(this, address)
+  }
+
+  async stake(address: string, amount: BigNumber) {
+    return await LyraStaking.stake(this, address, amount)
+  }
+
+  async unstake(address: string, amount: BigNumber) {
+    return await LyraStaking.unstake(this, address, amount)
+  }
+
+  async claimableStakingRewards(address: string) {
+    return LyraStaking.claimableRewards(this, address)
+  }
+
+  async claimStakingRewards(address: string) {
+    return await LyraStaking.claim(this, address)
   }
 
   async requestUnstake(address: string): Promise<PopulatedTransaction> {
-    const account = this.account(address)
-    return await account.requestUnstake()
-  }
-
-  async unstake(address: string, amount: BigNumber): Promise<LyraUnstake> {
-    return await LyraUnstake.get(this, address, amount)
+    return await LyraStaking.requestUnstake(this, address)
   }
 
   async globalRewardEpochs(): Promise<GlobalRewardEpoch[]> {
@@ -304,5 +329,29 @@ export default class Lyra {
 
   async wethLyraStaking(): Promise<WethLyraStaking> {
     return await WethLyraStaking.get(this)
+  }
+
+  async wethLyraStakingAccount(address: string): Promise<AccountWethLyraStaking> {
+    return await WethLyraStaking.getByOwner(this, address)
+  }
+
+  async approveWethLyraStaking(address: string) {
+    return await WethLyraStaking.approve(this, address)
+  }
+
+  async claimableWethLyraRewards(address: string) {
+    return WethLyraStaking.claimableRewards(this, address)
+  }
+
+  async claimWethLyraRewards(address: string) {
+    return await WethLyraStaking.claim(this, address)
+  }
+
+  async stakeWethLyra(address: string, amount: BigNumber) {
+    return await WethLyraStaking.stake(this, address, amount)
+  }
+
+  async unstakeWethLyra(address: string, amount: BigNumber) {
+    return await WethLyraStaking.unstake(this, address, amount)
   }
 }

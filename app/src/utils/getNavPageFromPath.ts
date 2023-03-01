@@ -17,7 +17,7 @@ export const getNavPageFromPath = (path: string): PageId | null => {
   } else if (rootPath === 'vaults') {
     return PageId.Vaults
   } else if (rootPath === 'rewards') {
-    return PageId.Rewards
+    return PageId.RewardsIndex
   } else {
     return null
   }

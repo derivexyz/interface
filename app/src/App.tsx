@@ -16,8 +16,11 @@ import AdminMarketPage from './pages/AdminPage'
 import NotFoundPage from './pages/NotFoundPage'
 import PortfolioPage from './pages/PortfolioPage'
 import PositionPage from './pages/PositionPage'
-import RewardsHistoryPage from './pages/RewardsHistoryPage'
-import RewardsPage from './pages/RewardsPage'
+import RewardsEthLyraLPPage from './pages/RewardsEthLyraLPPage'
+import RewardsIndexPage from './pages/RewardsIndexPage'
+import RewardsShortsPage from './pages/RewardsShortsPage'
+import RewardsTradingPage from './pages/RewardsTradingPage'
+import RewardsVaultsPage from './pages/RewardsVaultsPage'
 import StoryBookPage from './pages/StoryBookPage'
 import TradePage from './pages/TradePage'
 import VaultsHistoryPage from './pages/VaultsHistoryPage'
@@ -126,8 +129,12 @@ function App(): JSX.Element {
                   <Route path="/vaults/:network/:marketAddressOrName" element={<VaultsPage />} />
                   <Route path="/vaults/history" element={<VaultsHistoryPage />} />
                   <Route path="/position/:network/:marketAddressOrName/:positionId" element={<PositionPage />} />
-                  <Route path="/rewards" element={<RewardsPage />} />
-                  <Route path="/rewards/history" element={<RewardsHistoryPage />} />
+                  <Route path="/rewards" element={<RewardsIndexPage />} />
+                  <Route path="/rewards/trading" element={<Navigate to={`/rewards/trading/${defaultNetwork}`} />} />
+                  <Route path="/rewards/trading/:network" element={<RewardsTradingPage />} />
+                  <Route path="/rewards/vaults/:network/:marketAddressOrName" element={<RewardsVaultsPage />} />
+                  <Route path="/rewards/shorts/:network" element={<RewardsShortsPage />} />
+                  <Route path="/rewards/eth-lyra" element={<RewardsEthLyraLPPage />} />
                   <Route path="/storybook" element={<StoryBookPage />} />
                   <Route
                     path="/admin"

@@ -28,11 +28,11 @@ export type GlobalRewardEpochData = {
   tradingRewardConfig: GlobalTradingRewardsConfig
   MMVConfig: GlobalMMVConfig
   stakingRewardConfig: GlobalStakingConfig
-  wethLyraStakingL2RewardConfig?: GlobalArrakisConfig
+  wethLyraStakingRewardConfig?: GlobalArrakisConfig
 }
 
 export type GlobalTradingRewards = {
-  totalRewards: RewardEpochTokenAmount[]
+  totalRewards?: RewardEpochTokenAmount[]
   totalFees: number
   totalTradingRebateRewards: RewardEpochTokenAmount[]
   totalShortCollateralRewards: RewardEpochTokenAmount[]
@@ -79,9 +79,11 @@ export type GlobalStakingConfig = RewardEpochTokenConfig[]
 
 export type GlobalArrakisConfig = RewardEpochTokenConfig[]
 
+const EMPTY: GlobalRewardEpochData[] = []
+
 export default async function fetchGlobalRewardEpochData(lyra: Lyra): Promise<GlobalRewardEpochData[]> {
   if (lyra.deployment !== Deployment.Mainnet) {
-    return []
+    return EMPTY
   }
   return fetchWithCache(`${LYRA_API_URL}/rewards/global?network=${lyra.network}`)
 }

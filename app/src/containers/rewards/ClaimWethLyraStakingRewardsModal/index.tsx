@@ -2,25 +2,36 @@ import Modal from '@lyra/ui/components/Modal'
 import ModalBody from '@lyra/ui/components/Modal/ModalBody'
 import React from 'react'
 
+import RowItem from '@/app/components/common/RowItem'
+import TokenAmountText from '@/app/components/common/TokenAmountText'
+import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useClaimableWethLyraRewards from '@/app/hooks/rewards/useClaimableWethLyraRewards'
 
 import ClaimWethLyraStakingRewardsButton from './ClaimWethLyraStakingRewardsButton'
-import ClaimWethLyraStakingRewardsModalContent from './ClaimWethLyraStakingRewardsModalContent'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
 }
 
-const ClaimWethLyraStakingRewardsModal = withSuspense(({ isOpen, onClose }: Props): JSX.Element => {
+const ClaimableBalanceText = withSuspense(
+  () => {
+    const claimableBalance = useClaimableWethLyraRewards()
+    return <TokenAmountText tokenNameOrAddress="lyra" amount={claimableBalance} />
+  },
+  () => <TokenAmountTextShimmer width={50} />
+)
+
+const ClaimWethLyraStakingRewardsModal = ({ isOpen, onClose }: Props): JSX.Element => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Claim L1 Weth/Lyra Rewards">
+    <Modal isOpen={isOpen} onClose={onClose} title="Claim Lyra" centerTitle>
       <ModalBody>
-        <ClaimWethLyraStakingRewardsModalContent />
+        <RowItem my={8} label="Claimable" value={<ClaimableBalanceText />} />
         <ClaimWethLyraStakingRewardsButton onClaim={onClose} />
       </ModalBody>
     </Modal>
   )
-})
+}
 
 export default ClaimWethLyraStakingRewardsModal

@@ -14,8 +14,8 @@ import RowItem from '@/app/components/common/RowItem'
 import { ZERO_BN } from '@/app/constants/bn'
 import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
 import TradeFormSizeInput from '@/app/containers/trade/TradeForm/TradeFormSizeInput'
+import useAccountBalances from '@/app/hooks/account/useAccountBalances'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useTradeBalances from '@/app/hooks/market/useTradeBalances'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
 import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
@@ -41,7 +41,7 @@ const TradeForm = withSuspense(
     const market = option.market()
 
     // TODO: @dappbeast parallelize requests
-    const balances = useTradeBalances(market)
+    const balances = useAccountBalances(market)
 
     const isLong = position ? position.isLong : isBuy
 

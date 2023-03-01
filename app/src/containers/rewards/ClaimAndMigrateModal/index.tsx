@@ -9,10 +9,9 @@ import formatBalance from '@lyra/ui/utils/formatBalance'
 import React from 'react'
 
 import RowItem from '@/app/components/common/RowItem'
-import { ZERO_BN } from '@/app/constants/bn'
+import useAccountLyraBalances from '@/app/hooks/account/useAccountLyraBalances'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
-import useLyraAccountStaking from '@/app/hooks/rewards/useLyraAccountStaking'
 
 import ClaimStkLyraButton from './ClaimStkLyraButton'
 import MigrateStkLyraButton from './MigrateStkLyraButton'
@@ -24,8 +23,8 @@ type Props = {
 
 const ClaimAndMigrateModal = withSuspense(({ isOpen, onClose, ...styleProps }: Props): JSX.Element => {
   const claimableBalances = useClaimableBalances()
-  const lyraAccountStaking = useLyraAccountStaking()
-  const oldStkLyraBalance = lyraAccountStaking?.lyraBalances.optimismOldStkLyra ?? ZERO_BN
+  const lyraBalances = useAccountLyraBalances()
+  const oldStkLyraBalance = lyraBalances.optimismOldStkLyra
   const hasClaimableOldStkLyra = claimableBalances.oldStkLyra.gt(0)
   const hasOldStkLyra = oldStkLyraBalance.gt(0)
 

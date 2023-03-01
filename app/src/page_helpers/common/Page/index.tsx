@@ -14,6 +14,7 @@ type Props = {
   desktopHeader?: React.ReactNode
   mobileHeader?: React.ReactNode
   mobileCollapsedHeader?: string | TextElement | (TextElement | null)[] | null
+  noHeaderPadding?: boolean
 }
 
 export default function Page({
@@ -25,6 +26,7 @@ export default function Page({
   desktopHeader,
   mobileHeader,
   mobileCollapsedHeader,
+  noHeaderPadding = false,
 }: Props): JSX.Element {
   const isMobile = useIsMobile()
   return isMobile ? (
@@ -42,6 +44,7 @@ export default function Page({
       showBackButton={showBackButton}
       header={desktopHeader ?? header}
       rightColumn={desktopRightColumn}
+      noHeaderPadding={noHeaderPadding}
     >
       {children}
     </PageDesktop>

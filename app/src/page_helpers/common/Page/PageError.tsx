@@ -5,14 +5,15 @@ import React from 'react'
 import Layout from '../Layout'
 
 type Props = {
+  errorCode?: '404' | '500'
   error: string | React.ReactNode
 }
 
-const PageError = ({ error }: Props): JSX.Element => {
+const PageError = ({ errorCode = '404', error }: Props): JSX.Element => {
   return (
     <Layout>
       <Center alignSelf="stretch" height="100%" flexDirection="column">
-        <Text variant="largeTitle">404</Text>
+        <Text variant="largeTitle">{errorCode}</Text>
         {typeof error === 'string' ? <Text color="secondaryText">{error}</Text> : error}
       </Center>
     </Layout>

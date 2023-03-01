@@ -7,9 +7,11 @@ const lightColors = {
   hover: '#E8E8E880', // 50%
   active: '#E8E8E8CC', // 80%
   cardBg: '#FEFEFE73', // 45%
+  cardHoverBg: '#313c47', // 75%
   cardElevatedBg: '#FEFEFE',
   cardNestedBg: '#E8E8E8CC', // 80%
   cardNestedHover: '#CFCECE80',
+  cardOutline: '#3A4047',
 
   // default button
   buttonBg: '#E8E8E899', // 60%
@@ -115,9 +117,11 @@ const darkColors = {
   hover: '#3A445033', // 20%
   active: '#3A445066', // 40%
   cardBg: '#25303BBF', // 75%
+  cardHoverBg: '#313c47', // 75%
   cardElevatedBg: '#1B252D',
   cardNestedBg: '#3A445099',
-  cardNestedHover: '#3e4a56',
+  cardNestedHover: '#2D3741',
+  cardOutline: '#3A4047',
 
   // primary button
   primaryButtonBg: '#57B29C',
@@ -396,6 +400,12 @@ const theme = {
       overflow: 'hidden',
       boxShadow: (theme: Theme) => `0px 0px 40px ${theme.colors ? theme.colors['elevatedShadowBg'] : ''}`,
       bg: 'modalBg',
+    },
+    cardOutlined: {
+      variant: 'variants.card',
+      bg: 'transparent',
+      border: `1px solid`,
+      borderColor: 'cardOutline',
     },
     cardSeparator: {
       bg: 'background',

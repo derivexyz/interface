@@ -1,72 +1,155 @@
+import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
+import Collapsible from '@lyra/ui/components/Collapsible'
+import Flex from '@lyra/ui/components/Flex'
+import Icon, { IconType } from '@lyra/ui/components/Icon'
 import Modal from '@lyra/ui/components/Modal'
-import ModalBody from '@lyra/ui/components/Modal/ModalBody'
-import React, { useState } from 'react'
+import ModalSection from '@lyra/ui/components/Modal/ModalSection'
+import Text from '@lyra/ui/components/Text'
+import { AccountRewardEpoch, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
+import React from 'react'
+import { useState } from 'react'
+import { useMemo } from 'react'
 
-import withSuspense from '@/app/hooks/data/withSuspense'
+import RowItem from '@/app/components/common/RowItem'
+import { TransactionType } from '@/app/constants/screen'
+import useTransaction from '@/app/hooks/account/useTransaction'
+import useWalletAccount from '@/app/hooks/account/useWalletAccount'
+import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
+import formatRewardTokenAmounts from '@/app/utils/formatRewardTokenAmounts'
+import formatTokenName from '@/app/utils/formatTokenName'
+import getLyraSDK from '@/app/utils/getLyraSDK'
+import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 
-import ClaimButton from './ClaimButton'
-import ClaimModalContent from './ClaimModalContent'
+import TransactionButton from '../../common/TransactionButton'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
+  accountRewardEpoch: AccountRewardEpoch
 }
 
-const ClaimModal = withSuspense(({ isOpen, onClose }: Props): JSX.Element => {
-  const [isNewStkLyraChecked, setIsNewStkLyraChecked] = useState(false)
-  const [isOldStkLyraChecked, setIsOldStkLyraChecked] = useState(false)
-  const [isOpChecked, setIsOpChecked] = useState(false)
-  const [isWethLyraChecked, setIsWethLyraChecked] = useState(false)
-  const [isLyraChecked, setIsLyraChecked] = useState(false)
-
-  const handleClickLyra = () => {
-    setIsLyraChecked(!isLyraChecked)
-    setIsWethLyraChecked(false)
-  }
-  const handleClickNewStkLyra = () => {
-    setIsNewStkLyraChecked(!isNewStkLyraChecked)
-    setIsWethLyraChecked(false)
-  }
-  const handleClickOp = () => {
-    setIsOpChecked(!isOpChecked)
-    setIsWethLyraChecked(false)
-  }
-  const handleClickOldStkLyra = () => {
-    setIsOldStkLyraChecked(!isOldStkLyraChecked)
-    setIsWethLyraChecked(false)
-  }
-  const handleClickWethLyra = () => {
-    setIsWethLyraChecked(!isWethLyraChecked)
-    setIsOpChecked(false)
-    setIsNewStkLyraChecked(false)
-  }
+export default function ClaimModal({ accountRewardEpoch, isOpen, onClose }: Props) {
+  const [isVaultExpanded, setIsVaultExpanded] = useState(false)
+  const account = useWalletAccount()
+  const execute = useTransaction(accountRewardEpoch.lyra.network)
+  const mutateRewardsPageData = useMutateRewardsPageData()
+  const allRewardTokenAmounts = useMemo(
+    () => [
+      ...Object.values(accountRewardEpoch.claimableRewards.vaultRewards).flat(),
+      ...accountRewardEpoch.claimableRewards.tradingRewards,
+    ],
+    [accountRewardEpoch]
+  )
+  const emptyVaultRewards = accountRewardEpoch.globalEpoch
+    .totalVaultRewards(accountRewardEpoch.globalEpoch.markets[0].address)
+    .map(t => ({ ...t, amount: 0 }))
+  const totalRewards = useMemo(() => {
+    const rewardMap: Record<string, RewardEpochTokenAmount> = {}
+    return Object.values(
+      allRewardTokenAmounts.reduce((map, rewardTokenAmount) => {
+        if (!map[rewardTokenAmount.symbol]) {
+          return {
+            ...map,
+            [rewardTokenAmount.symbol]: rewardTokenAmount,
+          }
+        }
+        map[rewardTokenAmount.symbol].amount += rewardTokenAmount.amount
+        return map
+      }, rewardMap)
+    )
+  }, [allRewardTokenAmounts])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Claim Rewards">
-      <ModalBody>
-        <ClaimModalContent
-          isLyraChecked={isLyraChecked}
-          isOpChecked={isOpChecked}
-          isNewStkLyraChecked={isNewStkLyraChecked}
-          isOldStkLyraChecked={isOldStkLyraChecked}
-          isWethLyraChecked={isWethLyraChecked}
-          onClickLyra={handleClickLyra}
-          onClickOp={handleClickOp}
-          onClickNewStkLyra={handleClickNewStkLyra}
-          onClickWethLyra={handleClickWethLyra}
-          onClickOldStkLyra={handleClickOldStkLyra}
-        />
-        <ClaimButton
-          isLyraChecked={isLyraChecked}
-          isOpChecked={isOpChecked}
-          isNewStkLyraChecked={isNewStkLyraChecked}
-          isOldStkLyraChecked={isOldStkLyraChecked}
-          isWethLyraChecked={isWethLyraChecked}
-          onClaim={onClose}
-        />
-      </ModalBody>
+    <Modal isOpen={isOpen} onClose={onClose} title="Claim Rewards" width={450} centerTitle>
+      <ModalSection noPadding mb={8}>
+        <Flex px={6} pt={6} mb={10}>
+          <Text color="secondaryText">
+            Your rewards for Vaults, Trading and Shorts are claimable all at once, which saves on transaction fees. Here
+            is the breakdown of your claimable rewards for each program you are participating in.
+          </Text>
+        </Flex>
+        <Collapsible
+          isExpanded={isVaultExpanded}
+          noPadding
+          onClickHeader={() => setIsVaultExpanded(!isVaultExpanded)}
+          header={
+            <RowItem
+              width="100%"
+              m={6}
+              textVariant="bodyLarge"
+              label={'Vaults Rewards'}
+              value={
+                <Flex ml="auto">
+                  <Text variant="bodyLarge">
+                    {formatRewardTokenAmounts(
+                      accountRewardEpoch.totalClaimableVaultRewards.length
+                        ? accountRewardEpoch.totalClaimableVaultRewards
+                        : emptyVaultRewards
+                    )}
+                  </Text>
+                  <Icon ml={2} icon={isVaultExpanded ? IconType.ChevronUp : IconType.ChevronDown} />
+                </Flex>
+              }
+            />
+          }
+        >
+          {accountRewardEpoch.globalEpoch.markets
+            .filter(market => market.baseToken.symbol !== 'sSOL')
+            .map(market => {
+              const vaultRewards = accountRewardEpoch.claimableVaultRewards(market.address)
+              return (
+                <RowItem
+                  key={market.address}
+                  my={3}
+                  mx={6}
+                  label={`${formatTokenName(market.baseToken)} · ${getNetworkDisplayName(market.lyra.network)}`}
+                  value={formatRewardTokenAmounts(
+                    vaultRewards.length
+                      ? vaultRewards
+                      : accountRewardEpoch.globalEpoch.totalVaultRewards(market.address).map(t => ({ ...t, amount: 0 }))
+                  )}
+                />
+              )
+            })}
+        </Collapsible>
+
+        {accountRewardEpoch.claimableRewards.tradingRewards.some(reward => reward.amount > 0) ? (
+          <RowItem
+            mx={6}
+            my={6}
+            textVariant="bodyLarge"
+            label="Trading Rewards"
+            value={formatRewardTokenAmounts(accountRewardEpoch.claimableRewards.tradingRewards)}
+          />
+        ) : null}
+      </ModalSection>
+      <CardSeparator />
+      <ModalSection>
+        <Flex my={6} alignItems="center">
+          <Text color="secondaryText">Total</Text>
+          <Text ml="auto">{formatRewardTokenAmounts(totalRewards)}</Text>
+        </Flex>
+      </ModalSection>
+      <TransactionButton
+        mx={6}
+        mb={6}
+        network={accountRewardEpoch.lyra.network}
+        transactionType={TransactionType.ClaimRewards}
+        label={'Claim'}
+        isDisabled={account === accountRewardEpoch.account && totalRewards.every(reward => reward.amount === 0)}
+        onClick={async () => {
+          const tx = await getLyraSDK(accountRewardEpoch.lyra.network).claimRewards(
+            accountRewardEpoch.account,
+            totalRewards.map(token => token.address)
+          )
+          await execute(tx, {
+            onComplete: () => {
+              mutateRewardsPageData()
+              onClose()
+            },
+          })
+        }}
+      />
     </Modal>
   )
-})
-
-export default ClaimModal
+}

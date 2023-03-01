@@ -6,29 +6,31 @@ import React from 'react'
 
 import { SECONDS_IN_HOUR } from '@/app/constants/time'
 import useNetwork from '@/app/hooks/account/useNetwork'
-import withSuspense from '@/app/hooks/data/withSuspense'
-import useLatestRewardEpoch from '@/app/hooks/rewards/useLatestRewardEpoch'
+import { LatestRewardEpoch } from '@/app/hooks/rewards/useLatestRewardEpoch'
 
-const RewardsLastUpdatedAlert = withSuspense(() => {
+type Props = {
+  latestRewardEpochs: LatestRewardEpoch[]
+}
+
+const RewardsLastUpdatedAlert = ({ latestRewardEpochs }: Props) => {
   const network = useNetwork()
-  const epochs = useLatestRewardEpoch(network)
-  const currentTimestamp = epochs?.global.blockTimestamp ?? 0
-  const lastUpdatedTimestamp = epochs?.global.lastUpdatedTimestamp ?? 0
+  const latestRewardEpoch = latestRewardEpochs.find(epochs => epochs.global.lyra.network === network)
+  const currentTimestamp = latestRewardEpoch?.global.blockTimestamp ?? 0
+  const lastUpdatedTimestamp = latestRewardEpoch?.global.lastUpdatedTimestamp ?? 0
   const lastUpdatedDuration = currentTimestamp - lastUpdatedTimestamp
-  if (lastUpdatedDuration > SECONDS_IN_HOUR) {
-    return (
-      <Flex ml={6}>
-        <Alert
-          title="Warning"
-          icon={IconType.AlertTriangle}
-          description={`Rewards were last updated ${formatDuration(lastUpdatedDuration)} ago and may be outdated.`}
-          variant="warning"
-        />
-      </Flex>
-    )
-  } else {
+  if (lastUpdatedDuration <= SECONDS_IN_HOUR) {
     return null
   }
-})
+  return (
+    <Flex ml={6}>
+      <Alert
+        title="Warning"
+        icon={IconType.AlertTriangle}
+        description={`Rewards were last updated ${formatDuration(lastUpdatedDuration)} ago and may be outdated.`}
+        variant="warning"
+      />
+    </Flex>
+  )
+}
 
 export default RewardsLastUpdatedAlert

@@ -9,12 +9,12 @@ import React, { useState } from 'react'
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import { ZERO_BN } from '@/app/constants/bn'
 import { Vault } from '@/app/constants/vault'
-import StakeFormButton from '@/app/containers/rewards/StakeCardBody/StakeCardBodyButton'
 import formatAPY from '@/app/utils/formatAPY'
 import formatAPYRange from '@/app/utils/formatAPYRange'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import RowItem from '../../../components/common/RowItem'
+import StakeFormButton from '../../rewards/StakeModal/StakeFormButton'
 
 type Props = {
   isOpen: boolean

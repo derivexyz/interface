@@ -5,7 +5,9 @@ import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useClaimableBalancesL1, { useMutateClaimableBalancesL1 } from '@/app/hooks/rewards/useClaimableBalanceL1'
+import useClaimableStakingRewards, {
+  useMutateClaimableStakingRewards,
+} from '@/app/hooks/rewards/useClaimableStakingRewards'
 import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'
@@ -16,14 +18,16 @@ type Props = {
 
 const ClaimButton = withSuspense(
   ({ onClaim }: Props) => {
-    const owner = useWalletAccount()
-    const account = lyraOptimism.account(owner ?? '')
+    const account = useWalletAccount()
     const execute = useTransaction('ethereum')
-    const mutateClaimableBalance = useMutateClaimableBalancesL1()
-    const claimableBalances = useClaimableBalancesL1()
+    const mutateClaimableBalance = useMutateClaimableStakingRewards()
+    const claimableBalances = useClaimableStakingRewards()
 
     const handleStkLyraClaim = async () => {
-      const tx = await account.claimStakedLyraRewards()
+      if (!account) {
+        return
+      }
+      const tx = await lyraOptimism.claimStakingRewards(account)
       await execute(tx, {
         onComplete: () => {
           mutateClaimableBalance()
@@ -42,7 +46,7 @@ const ClaimButton = withSuspense(
         transactionType={TransactionType.ClaimStakedLyraRewards}
         network="ethereum"
         label="Claim"
-        isDisabled={claimableBalances.newStkLyra.isZero()}
+        isDisabled={claimableBalances.isZero()}
         onClick={async () => await handleStkLyraClaim()}
       />
     )

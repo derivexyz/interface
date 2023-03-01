@@ -4,11 +4,12 @@ import React from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { TransactionType } from '@/app/constants/screen'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useClaimableBalances, { useMutateClaimableBalances } from '@/app/hooks/rewards/useClaimableBalance'
-import { lyraOptimism } from '@/app/utils/lyra'
+import getLyraSDK from '@/app/utils/getLyraSDK'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -18,15 +19,18 @@ type Props = {
 
 const ClaimStkLyraButton = withSuspense(
   ({ onClaim }: Props) => {
-    const owner = useWalletAccount()
-    const account = lyraOptimism.account(owner ?? '')
+    const account = useWalletAccount()
+    const network = useNetwork()
     const execute = useTransaction(Network.Optimism)
     const mutateClaimableBalance = useMutateClaimableBalances()
     const claimableBalances = useClaimableBalances()
     const isSelectedBalanceZero = ZERO_BN.add(claimableBalances.oldStkLyra).isZero()
 
     const handleDistributorClaim = async () => {
-      const tx = await account.claim(['0xdE48b1B5853cc63B1D05e507414D3E02831722F8'])
+      if (!account) {
+        return
+      }
+      const tx = await getLyraSDK(network).claimRewards(account, ['0xdE48b1B5853cc63B1D05e507414D3E02831722F8'])
       await execute(tx, {
         onComplete: () => {
           mutateClaimableBalance()

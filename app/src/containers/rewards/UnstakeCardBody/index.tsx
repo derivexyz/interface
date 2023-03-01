@@ -4,7 +4,7 @@ import Spinner from '@lyra/ui/components/Spinner'
 import React from 'react'
 
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useLyraAccountStaking from '@/app/hooks/rewards/useLyraAccountStaking'
+import useLyraStakingAccount from '@/app/hooks/rewards/useLyraAccountStaking'
 
 import UnstakeCardBodyRequestUnstakeSection from './UnstakeCardBodyRequestSection'
 import UnstakeCardBodyUnstakeSection from './UnstakeCardBodyUnstakeSection'
@@ -15,7 +15,7 @@ type Props = {
 
 const UnstakeCardBody = withSuspense(
   ({ onClose }: Props) => {
-    const lyraAccountStaking = useLyraAccountStaking()
+    const lyraAccountStaking = useLyraStakingAccount()
     return (
       <>
         {lyraAccountStaking?.isInUnstakeWindow ? (
@@ -28,7 +28,7 @@ const UnstakeCardBody = withSuspense(
   },
   () => {
     return (
-      <CardBody justifyContent="center" alignItems="center" noPadding>
+      <CardBody justifyContent="center" alignItems="center">
         <Center>
           <Spinner />
         </Center>

@@ -3,7 +3,7 @@ import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React from 'react'
 
-export type CardVariant = 'default' | 'elevated' | 'nested' | 'modal'
+export type CardVariant = 'default' | 'elevated' | 'nested' | 'modal' | 'outline'
 
 export type CardProps = {
   children?: React.ReactNode
@@ -26,6 +26,8 @@ const getVariant = (variant: CardVariant, isDarkMode: boolean, isMobile: boolean
       return 'cardNested'
     case 'elevated':
       return 'cardElevated'
+    case 'outline':
+      return 'cardOutlined'
     case 'modal':
       return 'cardModal'
   }
@@ -48,6 +50,20 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           textDecoration: 'none',
           color: 'text',
           overflow: 'hidden',
+          ':hover':
+            onClick || href
+              ? {
+                  bg: 'cardNestedHover',
+                  cursor: 'pointer',
+                }
+              : null,
+          ':active':
+            onClick || href
+              ? {
+                  bg: 'active',
+                  cursor: 'pointer',
+                }
+              : null,
           ...(styleProps as any)?.sx,
         }}
         variant={getVariant(variant, isDarkMode, isMobile)}

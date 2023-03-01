@@ -19,13 +19,21 @@ type Props = {
   header?: React.ReactNode
   showBackButton?: boolean
   backHref?: string
+  noHeaderPadding?: boolean
 }
 
-export default function PageDesktop({ children, rightColumn, header, showBackButton, backHref }: Props): JSX.Element {
+export default function PageDesktop({
+  children,
+  rightColumn,
+  header,
+  showBackButton,
+  backHref,
+  noHeaderPadding = false,
+}: Props): JSX.Element {
   const navigate = useNavigate()
 
   const headerComponent = (
-    <Box px={6} pb={4}>
+    <Box px={noHeaderPadding ? 0 : 6} pb={4}>
       {showBackButton ? (
         <Flex>
           <Button

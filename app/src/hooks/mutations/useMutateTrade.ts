@@ -1,7 +1,7 @@
 import { Trade } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
-import { useMutateTradeBalances } from '../market/useTradeBalances'
+import { useMutateTradeBalances } from '../account/useAccountBalances'
 import { useMutateTradePageData } from '../market/useTradePageData'
 import { useMutatePositionPageData } from '../position/usePositionPageData'
 

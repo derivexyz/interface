@@ -8,13 +8,13 @@ import useWalletAccount from '../account/useWalletAccount'
 import useFetch, { useMutate } from '../data/useFetch'
 
 const fetchAccountWethLyraStaking = async (account: string): Promise<AccountWethLyraStaking> => {
-  return await lyraOptimism.account(account).wethLyraStaking()
+  return await lyraOptimism.wethLyraStakingAccount(account)
 }
 
 export default function useAccountWethLyraStaking(): AccountWethLyraStaking | null {
   const account = useWalletAccount()
   const [accountStaking] = useFetch(
-    FetchId.AccountWethLyraStaking,
+    FetchId.WethLyraStakingAccount,
     account ? [account] : null,
     fetchAccountWethLyraStaking
   )
@@ -22,7 +22,7 @@ export default function useAccountWethLyraStaking(): AccountWethLyraStaking | nu
 }
 
 export const useMutateAccountWethLyraStaking = (): (() => Promise<AccountWethLyraStaking | null>) => {
-  const mutate = useMutate(FetchId.AccountWethLyraStaking, fetchAccountWethLyraStaking)
+  const mutate = useMutate(FetchId.WethLyraStakingAccount, fetchAccountWethLyraStaking)
   const account = useWalletAccount()
   return useCallback(async () => (account ? await mutate(account) : null), [mutate, account])
 }

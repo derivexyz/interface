@@ -1,5 +1,6 @@
 import Card, { CardElement } from '@lyra/ui/components/Card'
 import CardSection from '@lyra/ui/components/Card/CardSection'
+import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
@@ -62,6 +63,7 @@ export default function TableDemoCard({ ...marginProps }: MarginProps): CardElem
       <CardSection noPadding isHorizontal flexGrow={1}>
         <Table columns={tableColumns} data={data} />
       </CardSection>
+      <CardSeparator isVertical />
       <CardSection noPadding isHorizontal flexGrow={1}>
         <Table columns={tableColumns} data={data} isOutline />
       </CardSection>

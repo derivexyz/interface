@@ -46,7 +46,7 @@ export type AccountTradingRewards = {
 }
 
 export type AccountArrakisRewards = {
-  rewards: RewardEpochTokenAmount[]
+  rewards?: RewardEpochTokenAmount[]
   gUniTokensStaked: number
   percentShare: number
 }

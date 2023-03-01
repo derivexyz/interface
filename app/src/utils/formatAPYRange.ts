@@ -5,6 +5,7 @@ import formatTokenName from './formatTokenName'
 
 type FormatAPYRangeOptions = {
   showEmptyDash?: boolean
+  showSymbol?: boolean
 }
 
 export default function formatAPYRange(
@@ -23,6 +24,12 @@ export default function formatAPYRange(
     maxTotalApy === 0
   ) {
     return options?.showEmptyDash ? '-' : ''
+  }
+
+  const showSymbol = options?.showSymbol ?? true
+
+  if (!showSymbol) {
+    return `${formatPercentage(minTotalApy, true)} - ${formatPercentage(maxTotalApy, true)}`
   }
 
   return `${formatPercentage(minTotalApy, true)} - ${formatPercentage(maxTotalApy, true)} ${minApys

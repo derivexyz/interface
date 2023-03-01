@@ -15,8 +15,8 @@ import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import RowItem from '@/app/components/common/RowItem'
 import { ZERO_BN } from '@/app/constants/bn'
 import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
+import useAccountBalances from '@/app/hooks/account/useAccountBalances'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useTradeBalances from '@/app/hooks/market/useTradeBalances'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getSoftMaxCollateral from '@/app/utils/getSoftMaxCollateral'
@@ -39,7 +39,7 @@ type Props = {
 const TradeCollateralFormModal = withSuspense(({ isOpen, onClose, onTrade, option, position }: Props) => {
   const market = option.market()
   // TODO: @dappbeast parallelize requests
-  const balances = useTradeBalances(market)
+  const balances = useAccountBalances(market)
   const quoteBalance = balances.quoteAsset
   const baseBalance = balances.baseAsset
   const isBaseCollateral = position.collateral?.isBase

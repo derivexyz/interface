@@ -7,7 +7,7 @@ import useWalletAccount from '../account/useWalletAccount'
 import useFetch from '../data/useFetch'
 import { fetchAccountRewardEpochs } from './useAccountRewardEpochs'
 
-type LatestRewardEpoch = {
+export type LatestRewardEpoch = {
   global: GlobalRewardEpoch
   account?: AccountRewardEpoch | null
 }

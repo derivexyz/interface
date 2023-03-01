@@ -2,12 +2,11 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { MarginProps } from '@lyra/ui/types'
 import React, { useCallback } from 'react'
 
-import { MAX_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
 import { Vault } from '@/app/constants/vault'
 import useTransaction from '@/app/hooks/account/useTransaction'
-import useAccount from '@/app/hooks/market/useAccount'
+import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import useMutateVaultDepositAndWithdraw from '@/app/hooks/mutations/useMutateVaultDepositAndWithdraw'
 import logEvent from '@/app/utils/logEvent'
 
@@ -22,7 +21,7 @@ type Props = {
 const VaultsDepositFormButton = ({ vault, amount, onDeposit, ...styleProps }: Props) => {
   const { market, marketBalances } = vault
   const quoteAsset = marketBalances.quoteAsset
-  const account = useAccount(market.lyra.network)
+  const account = useWalletAccount()
 
   const mutateDeposit = useMutateVaultDepositAndWithdraw()
 
@@ -32,7 +31,7 @@ const VaultsDepositFormButton = ({ vault, amount, onDeposit, ...styleProps }: Pr
       console.warn('Account does not exist')
       return
     }
-    const tx = await account.approveDeposit(market.address, MAX_BN)
+    const tx = await market.approveDeposit(account)
     await execute(tx, {
       onComplete: async () => {
         logEvent(LogEvent.VaultDepositApproveSuccess)
@@ -40,14 +39,14 @@ const VaultsDepositFormButton = ({ vault, amount, onDeposit, ...styleProps }: Pr
       },
       onError: error => logEvent(LogEvent.VaultDepositApproveError, { error: error?.message }),
     })
-  }, [account, market.address, execute, mutateDeposit])
+  }, [account, market, execute, mutateDeposit])
 
   const handleClickDeposit = useCallback(async () => {
     if (!account || !market) {
       console.warn('Account does not exist')
       return
     }
-    await execute(market.deposit(account.address, amount), {
+    await execute(market.deposit(account, amount), {
       onComplete: async () => {
         logEvent(LogEvent.VaultDepositSuccess)
         await mutateDeposit()

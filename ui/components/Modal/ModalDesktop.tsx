@@ -19,9 +19,17 @@ export type Props = {
   children?: React.ReactNode
   noPadding?: boolean
   width?: ResponsiveValue
+  centerTitle?: boolean
 }
 
-export default function ModalDesktop({ isOpen, onClose, title, children, width = DESKTOP_MODAL_WIDTH }: Props) {
+export default function ModalDesktop({
+  isOpen,
+  onClose,
+  title,
+  children,
+  width = DESKTOP_MODAL_WIDTH,
+  centerTitle = false,
+}: Props) {
   return isOpen
     ? ReactDOM.createPortal(
         <Flex
@@ -42,10 +50,17 @@ export default function ModalDesktop({ isOpen, onClose, title, children, width =
               onClick={e => {
                 e.stopPropagation()
               }}
+              sx={{ ':hover': null, ':active': null }}
             >
               <ModalSection noPadding variant="elevated" noSpacing>
                 <Flex px={6} pt={4} width="100%" bg="modalBg" alignItems="center">
-                  {typeof title === 'string' ? <Text variant="heading">{title}</Text> : title}
+                  {typeof title === 'string' ? (
+                    <Text ml={centerTitle ? 'auto' : 0} variant="heading">
+                      {title}
+                    </Text>
+                  ) : (
+                    title
+                  )}
                   {onClose ? (
                     <IconButton
                       ml="auto"

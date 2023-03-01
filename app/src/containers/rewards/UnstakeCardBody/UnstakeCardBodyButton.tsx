@@ -2,18 +2,20 @@ import { BigNumber } from '@ethersproject/bignumber'
 import Box from '@lyra/ui/components/Box'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import { MarginProps } from '@lyra/ui/types'
-import { Network, UnstakeDisabledReason } from '@lyrafinance/lyra-js'
-import React, { useCallback, useMemo } from 'react'
+import { Network } from '@lyrafinance/lyra-js'
+import React, { useCallback } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
+import useAccountLyraBalances from '@/app/hooks/account/useAccountLyraBalances'
 import useTransaction from '@/app/hooks/account/useTransaction'
+import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useAccount from '@/app/hooks/market/useAccount'
-import useLyraAccountStaking, { useMutateAccountStaking } from '@/app/hooks/rewards/useLyraAccountStaking'
-import useUnstake from '@/app/hooks/rewards/useUnstake'
+import useLyraStakingAccount, { useMutateAccountStaking } from '@/app/hooks/rewards/useLyraAccountStaking'
+import { useMutateLyraStaking } from '@/app/hooks/rewards/useLyraStaking'
 import logEvent from '@/app/utils/logEvent'
+import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -24,52 +26,49 @@ type Props = {
 
 const UnstakeCardBodyButton = withSuspense(
   ({ amount, onClose, ...styleProps }: Props) => {
-    const lyraAccountStaking = useLyraAccountStaking()
-    const unstake = useUnstake(amount ?? ZERO_BN)
-    const account = useAccount(Network.Optimism)
+    const lyraAccountStaking = useLyraStakingAccount()
+    const lyraBalances = useAccountLyraBalances()
+    const account = useWalletAccount()
     const execute = useTransaction(Network.Optimism)
-    const { insufficientBalance } = useMemo(() => {
-      const insufficientBalance = unstake?.disabledReason === UnstakeDisabledReason.InsufficientBalance
-      const notInUnstakeWindow = unstake?.disabledReason === UnstakeDisabledReason.NotInUnstakeWindow
-      return {
-        insufficientBalance,
-        notInUnstakeWindow,
-      }
-    }, [unstake])
-
     const mutateAccountStaking = useMutateAccountStaking()
+    const mutateLyraStaking = useMutateLyraStaking()
+
     const handleClickRequestUnstake = useCallback(async () => {
-      if (!account || !unstake) {
+      if (!account) {
         console.warn('Account or unstake does not exist')
         return
       }
-      logEvent(LogEvent.UnstakeLyraSubmit, { unstakeAmount: unstake.amount })
-      const tx = await account.requestUnstake()
+      logEvent(LogEvent.UnstakeLyraSubmit, { unstakeAmount: amount })
+      const tx = await lyraOptimism.requestUnstake(account)
       await execute(tx, {
         onComplete: async () => {
-          logEvent(LogEvent.UnstakeLyraSuccess, { unstakeAmount: unstake.amount })
+          logEvent(LogEvent.UnstakeLyraSuccess, { unstakeAmount: amount })
           await Promise.all([mutateAccountStaking()])
         },
         onError: error => {
-          logEvent(LogEvent.UnstakeLyraError, { unstakeAmount: unstake.amount, error: error?.message })
+          logEvent(LogEvent.UnstakeLyraError, { unstakeAmount: amount, error: error?.message })
         },
       })
-    }, [account, execute, mutateAccountStaking, unstake])
+    }, [amount, account, execute, mutateAccountStaking])
 
     const handleClickUnstake = useCallback(async () => {
       if (!account) {
         console.warn('Account does not exist')
         return
       }
-      if (unstake?.tx) {
-        await execute(unstake.tx, {
-          onComplete: async () => await Promise.all([mutateAccountStaking()]),
+      const tx = await lyraOptimism.unstake(account, amount ?? ZERO_BN)
+      if (tx) {
+        await execute(tx, {
+          onComplete: async () => await Promise.all([mutateAccountStaking(), mutateLyraStaking()]),
         })
       }
       onClose && onClose()
-    }, [account, execute, unstake, onClose, mutateAccountStaking])
+    }, [account, amount, execute, onClose, mutateAccountStaking, mutateLyraStaking])
+
+    const insufficientBalance = amount ? lyraBalances.ethereumStkLyra.lte(amount) : false
     const isCooldown = !!lyraAccountStaking?.isInCooldown
-    const hasUnstakeableBalance = (lyraAccountStaking?.lyraBalances.ethereumStkLyra ?? 0) <= 0
+    const hasUnstakeableBalance = lyraBalances.ethereumStkLyra.lte(0)
+
     return (
       <Box {...styleProps}>
         {!lyraAccountStaking?.isInUnstakeWindow ? (

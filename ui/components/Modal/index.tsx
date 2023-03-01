@@ -13,9 +13,10 @@ export type Props = {
   isMobileFullscreen?: boolean
   noPadding?: boolean
   width?: ResponsiveValue
+  centerTitle?: boolean
 }
 
-export default function Modal({ isOpen, isMobileFullscreen, onClose, title, children, width }: Props) {
+export default function Modal({ isOpen, isMobileFullscreen, onClose, title, children, width, centerTitle }: Props) {
   const isMobile = useIsMobile()
   if (isMobile) {
     return (
@@ -25,7 +26,7 @@ export default function Modal({ isOpen, isMobileFullscreen, onClose, title, chil
     )
   } else {
     return (
-      <ModalDesktop isOpen={isOpen} onClose={onClose} title={title} width={width}>
+      <ModalDesktop isOpen={isOpen} onClose={onClose} title={title} width={width} centerTitle={centerTitle}>
         {children}
       </ModalDesktop>
     )

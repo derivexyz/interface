@@ -21,6 +21,18 @@ const getPositionPath = (args: PageArgsMap[PageId.Position]): string => {
   return `/position/${args.network}/${args.marketAddressOrName}/${args.positionId}`.toLowerCase()
 }
 
+const getRewardsTradingPath = (args: PageArgsMap[PageId.RewardsTrading]): string => {
+  return `/rewards/trading/${args.network}`
+}
+
+const getRewardsVaultsPath = (args: PageArgsMap[PageId.RewardsVaults]): string => {
+  return `/rewards/vaults/${args.network}/${args.marketAddressOrName}`
+}
+
+const getRewardsShortsPath = (args: PageArgsMap[PageId.RewardsShorts]): string => {
+  return `/rewards/shorts/${args.network}`
+}
+
 // TODO: @dappbeast Fix page path typescript in switch statement
 export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathArgs<T>): string => {
   const page = args.page as PageId
@@ -45,10 +57,16 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
       return '/vaults/history'
     case PageId.Vaults:
       return getVaultPath(args as PageArgsMap[PageId.Vaults])
-    case PageId.Rewards:
+    case PageId.RewardsIndex:
       return '/rewards'
-    case PageId.RewardsHistory:
-      return '/rewards/history'
+    case PageId.RewardsTrading:
+      return getRewardsTradingPath(args as PageArgsMap[PageId.RewardsTrading])
+    case PageId.RewardsVaults:
+      return getRewardsVaultsPath(args as PageArgsMap[PageId.RewardsVaults])
+    case PageId.RewardsShorts:
+      return getRewardsShortsPath(args as PageArgsMap[PageId.RewardsShorts])
+    case PageId.RewardsEthLyraLp:
+      return '/rewards/eth-lyra'
     case PageId.NotFound:
       return '/404'
   }

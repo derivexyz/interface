@@ -38,7 +38,7 @@ const WethLyraStakeModalContent = withSuspense(
     const isDisabled = amount.lte(0) || accountWethLyraStaking?.unstakedLPTokenBalance.eq(0)
     const handleClickStake = useCallback(async () => {
       if (account) {
-        const tx = await lyraOptimism.account(account).stakeWethLyra(amount)
+        const tx = await lyraOptimism.stakeWethLyra(account, amount)
         await execute(tx, {
           onComplete: async () => {
             await mutateAccountWethLyraStaking()
@@ -50,7 +50,7 @@ const WethLyraStakeModalContent = withSuspense(
 
     const handleClickApprove = useCallback(async () => {
       if (account) {
-        const tx = await lyraOptimism.account(account).approveWethLyraTokens()
+        const tx = await lyraOptimism.approveWethLyraStaking(account)
         execute(tx, {
           onComplete: async () => {
             await mutateAccountWethLyraStaking()

@@ -6,8 +6,9 @@ export enum FetchId {
   // accounts
   AccountENS = 'AccountENS',
   AccountEthBalance = 'AccountEthBalance',
-  AccountBalance = 'AccountBalance',
   AccountScreenTransaction = 'AccountScreenTransaction',
+  AccountBalances = 'AccountBalances',
+  AccountLyraBalances = 'AccountLyraBalances',
 
   // portfolio
   PortfolioPageData = 'PortfolioPageData',
@@ -17,7 +18,6 @@ export enum FetchId {
 
   // trade
   TradePageData = 'TradePageData',
-  TradeBalances = 'TradeBalances',
 
   // position
   PositionPageData = 'PositionPageData',
@@ -33,18 +33,23 @@ export enum FetchId {
 
   // rewards
   // TODO: @dappbeast simplify account hooks
+  RewardsPageData = 'RewardsPageData',
+  RewardsIndexPageData = 'RewardsIndexPageData',
+  RewardsShortsPageData = 'RewardsShortsPageData',
+  RewardsEthLyraLPPageData = 'RewardsEthLyraLPPageData',
   Markets = 'Markets',
   AccountRewardEpochs = 'AccountRewardEpochs',
   LatestRewardEpoch = 'LatestRewardEpoch',
-  Stake = 'Stake',
-  Unstake = 'Unstake',
   LyraStaking = 'LyraStaking',
-  LyraAccountStaking = 'LyraAccountStaking',
+  LyraStakingAccount = 'LyraStakingAccount',
   WethLyraStaking = 'WethLyraStaking',
-  AccountWethLyraStakingL2 = 'AccountWethLyraStakingL2',
-  AccountWethLyraStaking = 'AccountWethLyraStaking',
+  WethLyraStakingL2Account = 'WethLyraStakingL2Account',
+  WethLyraStakingAccount = 'WethLyraStakingAccount',
   ClaimableBalanceL2 = 'ClaimableBalanceL2',
-  ClaimableBalanceL1 = 'ClaimableBalanceL1',
+  ClaimableStakingRewards = 'ClaimableStakingRewards',
+  ClaimableWethLyraRewards = 'ClaimableWethLyraRewards',
+  TokenSupply = 'TokenSupply',
+  NetworkTradingVolume = 'NetworkTradingVolume',
 
   // shared
   PositionHistory = 'PositionHistory',

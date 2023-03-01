@@ -1,17 +1,19 @@
 import Box from '@lyra/ui/components/Box'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import { MarginProps } from '@lyra/ui/types'
-import { Network } from '@lyrafinance/lyra-js'
+import { LyraStaking, Network } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
+import useAccountLyraBalances, { useMutateAccountLyraBalances } from '@/app/hooks/account/useAccountLyraBalances'
 import useTransaction from '@/app/hooks/account/useTransaction'
+import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useAccount from '@/app/hooks/market/useAccount'
-import useLyraAccountStaking, { useMutateAccountStaking } from '@/app/hooks/rewards/useLyraAccountStaking'
+import { useMutateAccountStaking } from '@/app/hooks/rewards/useLyraAccountStaking'
 import logEvent from '@/app/utils/logEvent'
+import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -19,37 +21,34 @@ type Props = MarginProps
 
 const MigrateStkLyraButton = withSuspense(
   ({ ...styleProps }: Props) => {
-    const lyraAccountStaking = useLyraAccountStaking()
-    const amount = lyraAccountStaking?.lyraBalances.optimismOldStkLyra ?? ZERO_BN
-    const account = useAccount(Network.Optimism)
+    const lyraBalances = useAccountLyraBalances()
+    const amount = lyraBalances.optimismOldStkLyra
+    const account = useWalletAccount()
     const execute = useTransaction(Network.Optimism)
-    const { insufficientAllowance, insufficientBalance } = useMemo(() => {
-      const migrationAllowance = lyraAccountStaking?.lyraAllowances.migrationAllowance ?? ZERO_BN
-      const optimismOldStkLyra = lyraAccountStaking?.lyraBalances.optimismOldStkLyra ?? ZERO_BN
-      const insufficientAllowance = migrationAllowance.lte(ZERO_BN)
-      const insufficientBalance = optimismOldStkLyra.lte(ZERO_BN)
-      return {
-        insufficientAllowance,
-        insufficientBalance,
-      }
-    }, [lyraAccountStaking])
+    const { insufficientAllowance, insufficientBalance } = useMemo(
+      () => ({
+        insufficientAllowance: lyraBalances.migrationAllowance.lte(ZERO_BN),
+        insufficientBalance: lyraBalances.optimismOldStkLyra.lte(ZERO_BN),
+      }),
+      [lyraBalances]
+    )
     const mutateAccountStaking = useMutateAccountStaking()
-
+    const mutateAccountLyraBalances = useMutateAccountLyraBalances()
     const handleClickApprove = useCallback(async () => {
       if (!account) {
         console.warn('Account does not exist')
         return null
       }
       logEvent(LogEvent.MigrateStakeLyraApproveSubmit)
-      const tx = await account.approveMigrateStakedLyra()
+      const tx = await LyraStaking.approveMigrate(lyraOptimism, account)
       await execute(tx, {
         onComplete: async () => {
           logEvent(LogEvent.MigrateStakeLyraApproveSuccess)
-          await mutateAccountStaking()
+          await Promise.all([mutateAccountLyraBalances(), mutateAccountStaking()])
         },
         onError: error => logEvent(LogEvent.MigrateStakeLyraApproveError, { error: error?.message }),
       })
-    }, [account, execute, mutateAccountStaking])
+    }, [account, execute, mutateAccountStaking, mutateAccountLyraBalances])
 
     const handleClickMigrate = useCallback(async () => {
       if (!account) {
@@ -57,15 +56,15 @@ const MigrateStkLyraButton = withSuspense(
         return
       }
       logEvent(LogEvent.MigrateStakeLyraSubmit)
-      const tx = await account.migrateStakedLyra()
+      const tx = await LyraStaking.migrateStakedLyra(lyraOptimism, account)
       await execute(tx, {
         onComplete: async () => {
           logEvent(LogEvent.MigrateStakeLyraSuccess)
-          await mutateAccountStaking()
+          await Promise.all([mutateAccountStaking(), mutateAccountLyraBalances()])
         },
         onError: error => logEvent(LogEvent.MigrateStakeLyraError, { error: error?.message }),
       })
-    }, [account, execute, mutateAccountStaking])
+    }, [account, execute, mutateAccountStaking, mutateAccountLyraBalances])
 
     const migrateButton = (
       <TransactionButton

@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import CardSection from '@lyra/ui/components/Card/CardSection'
+import ModalSection from '@lyra/ui/components/Modal/ModalSection'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
@@ -7,13 +7,11 @@ import { MarginProps } from '@lyra/ui/types'
 import { LayoutProps } from '@lyra/ui/types'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import React from 'react'
-import { Flex } from 'rebass'
 
-import { ZERO_BN } from '@/app/constants/bn'
+import RowItem from '@/app/components/common/RowItem'
+import useAccountLyraBalances from '@/app/hooks/account/useAccountLyraBalances'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useLyraAccountStaking from '@/app/hooks/rewards/useLyraAccountStaking'
 
-import TokenImage from '../../common/TokenImage'
 import UnstakeCardBodyAmountInput from './UnstakeCardBodyAmountInput'
 
 type UnstakeCardBodyTopSectionProps = {
@@ -24,25 +22,16 @@ type UnstakeCardBodyTopSectionProps = {
 
 const UnstakeCardBodyTopSectionBalance = withSuspense(
   () => {
-    const lyraAccountStaking = useLyraAccountStaking()
-    return (
-      <Flex alignItems="center" ml="auto">
-        <TokenImage nameOrAddress="stkLyra" />
-        <Text variant="body" color="secondaryText" ml={2}>
-          {formatNumber(lyraAccountStaking?.lyraBalances.ethereumStkLyra ?? 0)}
-        </Text>
-      </Flex>
-    )
+    const lyraBalances = useAccountLyraBalances()
+    return <Text>{formatNumber(lyraBalances.ethereumStkLyra)} stkLYRA</Text>
   },
-  () => {
-    return <TextShimmer variant="body" ml="auto" />
-  }
+  () => <TextShimmer variant="body" width={60} />
 )
 
 const UnstakeCardBodyTopSectionInput = withSuspense(
   ({ amount, onChangeAmount, ...styleProps }: UnstakeCardBodyTopSectionProps) => {
-    const lyraAccountStaking = useLyraAccountStaking()
-    const maxStakeBalance = lyraAccountStaking?.lyraBalances.ethereumStkLyra ?? ZERO_BN
+    const lyraBalances = useAccountLyraBalances()
+    const maxStakeBalance = lyraBalances.ethereumStkLyra
     return (
       <UnstakeCardBodyAmountInput
         {...styleProps}
@@ -61,24 +50,19 @@ const UnstakeCardBodyTopSectionInput = withSuspense(
 
 const UnstakeCardBodyTopSection = ({ amount, onChangeAmount, ...styleProps }: UnstakeCardBodyTopSectionProps) => {
   return (
-    <CardSection {...styleProps}>
-      <Text variant="body" color="secondaryText" width="100%" mb={4}>
+    <ModalSection {...styleProps}>
+      <Text variant="body" color="secondaryText" width="100%" mb={10}>
         Your staked LYRA can now be unstaked. If you do not unstake within 2 days, the staking period resets and you'll
         have to wait 14 days.
       </Text>
-      <Flex width="100%" my={4}>
-        <Text variant="body" color="secondaryText">
-          Unstakeable Balance
-        </Text>
-        <UnstakeCardBodyTopSectionBalance />
-      </Flex>
-      <Flex width="100%" mb={4}>
-        <Text variant="body" color="secondaryText" sx={{ alignSelf: 'center' }}>
-          Amount to Unstake
-        </Text>
-        <UnstakeCardBodyTopSectionInput amount={amount} onChangeAmount={onChangeAmount} />
-      </Flex>
-    </CardSection>
+      <RowItem
+        mb={6}
+        textVariant="body"
+        label="Amount to Unstake"
+        value={<UnstakeCardBodyTopSectionInput amount={amount} onChangeAmount={onChangeAmount} />}
+      />
+      <RowItem textVariant="body" label="Staked Balance" value={<UnstakeCardBodyTopSectionBalance />} />
+    </ModalSection>
   )
 }
 

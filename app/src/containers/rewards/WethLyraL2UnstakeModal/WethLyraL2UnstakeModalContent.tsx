@@ -6,7 +6,7 @@ import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import { Network } from '@lyrafinance/lyra-js'
+import { Network, WethLyraStaking } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 import { Flex } from 'rebass'
 
@@ -38,7 +38,7 @@ const WethLyraL2UnstakeModalContent = withSuspense(
 
     const handleClickUnstake = useCallback(async () => {
       if (account) {
-        const tx = await lyraOptimism.account(account).unstakeWethLyraL2(amount)
+        const tx = await WethLyraStaking.unstakeL2(lyraOptimism, account, amount)
         execute(tx, {
           onComplete: () => {
             mutateAccountWethLyraStakingL2()

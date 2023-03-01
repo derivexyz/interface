@@ -8,7 +8,9 @@ type Props = {
   label: string | React.ReactNode
   value: string | React.ReactNode
   valueColor?: TextColor
+  textVariant?: TextVariant
   valueTextVariant?: TextVariant
+  labelTextVariant?: TextVariant
   noPadding?: boolean
 } & MarginProps &
   LayoutProps
@@ -18,13 +20,17 @@ export default function LabelItem({
   value,
   valueColor,
   noPadding,
-  valueTextVariant = 'secondary',
+  textVariant = 'secondary',
+  valueTextVariant: _valueTextVariant,
+  labelTextVariant: _labelTextVariant,
   ...styleProps
 }: Props) {
+  const valueTextVariant = _valueTextVariant ?? textVariant
+  const labelTextVariant = _labelTextVariant ?? textVariant
   return (
     <Flex flexDirection="column" {...styleProps}>
       {typeof label === 'string' ? (
-        <Text variant="secondary" color="secondaryText" mb={!noPadding ? 2 : 0}>
+        <Text variant={labelTextVariant} color="secondaryText" mb={!noPadding ? 2 : 0}>
           {label}
         </Text>
       ) : (

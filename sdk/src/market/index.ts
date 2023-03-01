@@ -80,6 +80,7 @@ export type MarketNetGreeksSnapshot = {
 export type MarketTradingVolumeSnapshot = {
   premiumVolume: BigNumber
   notionalVolume: BigNumber
+  totalShortOpenInterestUSD: BigNumber
   vaultFees: BigNumber
   vaultFeeComponents: {
     spotPriceFees: BigNumber
@@ -609,6 +610,10 @@ export class Market {
   }
 
   // Transactions
+
+  async approveDeposit(address: string) {
+    return await LiquidityDeposit.approve(this.lyra, this.address, address)
+  }
 
   async deposit(beneficiary: string, amount: BigNumber): Promise<PopulatedTransaction> {
     return await LiquidityDeposit.deposit(this.lyra, this.address, beneficiary, amount)

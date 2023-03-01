@@ -98,9 +98,9 @@ export default function LayoutDesktopNav(): JSX.Element {
               textVariant="bodyMedium"
               variant="secondary"
               mx={4}
-              href={getPagePath({ page: PageId.Rewards })}
+              href={getPagePath({ page: PageId.RewardsIndex })}
               onClick={() => logEvent(LogEvent.NavStakeTabClick)}
-              color={page !== PageId.Rewards ? 'secondaryText' : 'text'}
+              color={page !== PageId.RewardsIndex ? 'secondaryText' : 'text'}
             >
               Rewards
             </Link>

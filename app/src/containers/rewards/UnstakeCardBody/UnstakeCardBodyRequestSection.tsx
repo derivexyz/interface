@@ -6,13 +6,13 @@ import Text from '@lyra/ui/components/Text'
 import Countdown from '@lyra/ui/components/Text/CountdownText'
 import { MarginProps } from '@lyra/ui/types'
 import { LayoutProps } from '@lyra/ui/types'
+import formatNumber from '@lyra/ui/utils/formatNumber'
 import React from 'react'
-import { Flex } from 'rebass'
 
-import TokenAmountText from '@/app/components/common/TokenAmountText'
-import TokenAmountTextShimmer from '@/app/components/common/TokenAmountText/TokenAmountTextShimmer'
+import RowItem from '@/app/components/common/RowItem'
+import useAccountLyraBalances from '@/app/hooks/account/useAccountLyraBalances'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useLyraAccountStaking from '@/app/hooks/rewards/useLyraAccountStaking'
+import useLyraStakingAccount from '@/app/hooks/rewards/useLyraAccountStaking'
 
 import UnstakeCardBodyButton from './UnstakeCardBodyButton'
 
@@ -20,43 +20,38 @@ type Props = LayoutProps & MarginProps
 
 const UnstakeCardBodyRequestUnstakeSectionBalance = withSuspense(
   () => {
-    const lyraAccountStaking = useLyraAccountStaking()
-    const amount = lyraAccountStaking?.lyraBalances.ethereumStkLyra.add(
-      lyraAccountStaking?.lyraBalances.optimismStkLyra
-    )
-    return <TokenAmountText tokenNameOrAddress={'stkLyra'} amount={amount ?? 0} />
+    const lyraBalances = useAccountLyraBalances()
+    return <Text>{formatNumber(lyraBalances.ethereumStkLyra)} stkLYRA</Text>
   },
-  () => <TokenAmountTextShimmer />
+  () => <TextShimmer width={60} />
 )
 
 const UnstakeCardBodyRequestUnstakeSectionCountdown = withSuspense(
   () => {
-    const lyraAccountStaking = useLyraAccountStaking()
+    const lyraAccountStaking = useLyraStakingAccount()
     return <Countdown timestamp={lyraAccountStaking?.unstakeWindowStartTimestamp ?? 0} fallback="14d" ml="auto" />
   },
-  () => {
-    return <TextShimmer />
-  }
+  () => <TextShimmer width={40} />
 )
 
 const UnstakeCardBodyRequestUnstakeSection = ({ ...styleProps }: Props) => {
   return (
     <ModalSection {...styleProps}>
-      <Text variant="body" color="secondaryText" width="100%" mb={4}>
+      <Text variant="body" color="secondaryText" width="100%" mb={10}>
         Staked LYRA has a 14 day unstaking period. Boosts for vault and trading rewards will also be disabled.
       </Text>
-      <Flex width="100%" my={4} alignItems="center" justifyContent="space-between">
-        <Text variant="body" color="secondaryText">
-          Unstakeable Balance
-        </Text>
-        <UnstakeCardBodyRequestUnstakeSectionBalance />
-      </Flex>
-      <Flex width="100%" mb={8} alignItems="center" justifyContent="space-between">
-        <Text variant="body" color="secondaryText">
-          Unstakeable In
-        </Text>
-        <UnstakeCardBodyRequestUnstakeSectionCountdown />
-      </Flex>
+      <RowItem
+        textVariant="body"
+        mb={6}
+        label="Staked Balance"
+        value={<UnstakeCardBodyRequestUnstakeSectionBalance />}
+      />
+      <RowItem
+        textVariant="body"
+        mb={8}
+        label="Unstakeable In"
+        value={<UnstakeCardBodyRequestUnstakeSectionCountdown />}
+      />
       <Alert
         mb={3}
         variant="warning"

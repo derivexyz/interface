@@ -1,43 +1,103 @@
-import { ClaimAddedEvent } from '../contracts/common/typechain/MultiDistributor'
+import { ClaimAddedEvent, RewardEpochTokenAmount } from '..'
+import { GlobalRewardEpochData } from '../utils/fetchGlobalRewardEpochData'
+import fromBigNumber from '../utils/fromBigNumber'
 
 enum ClaimAddedProgramTags {
   MMV = 'MMV',
+  // TRADING tag includes fee rebates + short collateral rewards
   TRADING = 'TRADING',
   STAKING = 'STAKING',
-}
-enum ClaimAddedRewardTags {
-  OP = 'OP',
-  LYRA = 'LYRA',
-  stkLYRA = 'stkLYRA',
+  WETHLYRA = 'UNI-STAKING-OP',
 }
 
-export const LYRA_TO_STKLYRA_TIMESTAMP = 1675209600 // Note: we switched over to use stkLYRA in the claim added tags on this specific timestamp
-
-export default function parseClaimAddedTags(claimAddedEvents: ClaimAddedEvent[]): {
-  vaultRewards: Record<string, Record<ClaimAddedRewardTags, boolean>>
-  tradingRewards: Record<ClaimAddedRewardTags, boolean>
-  stakingRewards: Record<ClaimAddedRewardTags, boolean>
+export default function parseClaimAddedEvents(
+  claimAddedEvents: ClaimAddedEvent[],
+  globalRewardEpoch: GlobalRewardEpochData
+): {
+  vaultRewards: Record<string, RewardEpochTokenAmount[]>
+  tradingRewards: RewardEpochTokenAmount[]
+  stakingRewards: RewardEpochTokenAmount[]
+  wethLyraRewards: RewardEpochTokenAmount[]
+  totalRewards: RewardEpochTokenAmount[]
 } {
-  const vaultRewards: Record<string, Record<ClaimAddedRewardTags, boolean>> = {}
-  const tradingRewards: Record<ClaimAddedRewardTags, boolean> = { OP: false, LYRA: false, stkLYRA: false }
-  const stakingRewards: Record<ClaimAddedRewardTags, boolean> = { OP: false, LYRA: false, stkLYRA: false }
+  const vaultRewards: Record<string, RewardEpochTokenAmount[]> = {}
+  let tradingRewards: RewardEpochTokenAmount[] = []
+  let stakingRewards: RewardEpochTokenAmount[] = []
+  let wethLyraRewards: RewardEpochTokenAmount[] = []
 
-  claimAddedEvents.map(event => {
-    const tag = event.args.tag
+  claimAddedEvents.forEach(event => {
+    const tag = event.tag
+    const amount = fromBigNumber(event.amount)
+    const rewardTokenAddress = event.rewardToken
     if (tag.startsWith(ClaimAddedProgramTags.MMV)) {
-      const [_tag, marketKey, token] = tag.split('-')
+      const [_program, marketKey] = tag.split('-')
+      const token = globalRewardEpoch.MMVConfig[marketKey].tokens.find(
+        token => token.address.toLowerCase() === rewardTokenAddress
+      )
       if (!vaultRewards[marketKey]) {
-        vaultRewards[marketKey] = { OP: false, LYRA: false, stkLYRA: false }
+        vaultRewards[marketKey] = []
       }
-      vaultRewards[marketKey][token as ClaimAddedRewardTags] = true
+      const claimableToken = vaultRewards[marketKey].find(t => t.address.toLowerCase() === rewardTokenAddress)
+      if (!claimableToken) {
+        vaultRewards[marketKey] = token ? [...vaultRewards[marketKey], { ...token, amount }] : vaultRewards[marketKey]
+        return
+      }
+      claimableToken.amount += amount
     } else if (tag.startsWith(ClaimAddedProgramTags.TRADING)) {
-      const [_tag, token] = tag.split('-')
-      tradingRewards[token as ClaimAddedRewardTags] = true
+      const token = globalRewardEpoch.tradingRewardConfig.tokens.find(
+        token => token.address.toLowerCase() === rewardTokenAddress
+      )
+      if (!token) {
+        return
+      }
+      const claimableToken = tradingRewards.find(t => t.address.toLowerCase() === rewardTokenAddress)
+      if (!claimableToken) {
+        tradingRewards = [...tradingRewards, { ...token, amount }]
+        return
+      }
+      claimableToken.amount += amount
     } else if (tag.startsWith(ClaimAddedProgramTags.STAKING)) {
-      const [_tag, token] = tag.split('-')
-      stakingRewards[token as ClaimAddedRewardTags] = true
+      const token = globalRewardEpoch.stakingRewardConfig.find(
+        token => token.address.toLowerCase() === rewardTokenAddress
+      )
+      if (!token) {
+        return
+      }
+      const claimableToken = stakingRewards.find(t => t.address.toLowerCase() === rewardTokenAddress)
+      if (!claimableToken) {
+        stakingRewards = [...stakingRewards, { ...token, amount }]
+        return
+      }
+      claimableToken.amount += amount
+    } else if (tag.startsWith(ClaimAddedProgramTags.WETHLYRA)) {
+      const token = globalRewardEpoch.wethLyraStakingRewardConfig?.find(
+        token => token.address.toLowerCase() === rewardTokenAddress
+      )
+      if (!token) {
+        return
+      }
+      const claimableToken = wethLyraRewards.find(t => t.address.toLowerCase() === rewardTokenAddress)
+      if (!claimableToken) {
+        wethLyraRewards = [...wethLyraRewards, { ...token, amount }]
+        return
+      }
+      claimableToken.amount += amount
     }
   })
 
-  return { vaultRewards, tradingRewards, stakingRewards }
+  const totalRewards = Object.values(
+    [...tradingRewards, ...wethLyraRewards, ...stakingRewards, ...Object.values(vaultRewards).flat()].reduce(
+      (map, rewardTokenAmount) => {
+        if (!map[rewardTokenAmount.address]) {
+          map[rewardTokenAmount.address] = rewardTokenAmount
+          return map
+        }
+        map[rewardTokenAmount.address].amount += rewardTokenAmount.amount
+        return map
+      },
+      {} as Record<string, RewardEpochTokenAmount>
+    )
+  )
+
+  return { vaultRewards, tradingRewards, stakingRewards, wethLyraRewards, totalRewards }
 }
