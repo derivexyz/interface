@@ -54,8 +54,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
   const maxApy = globalRewardEpoch.maxVaultApy(marketAddress).reduce((sum, tokens) => sum + tokens.amount, 0)
   const tokenNameOrAddress = market.lyra.network === Network.Optimism ? ['stkLyra', 'OP'] : ['stkLyra']
 
-  // TODO: @dillon remove next epoch
-  const isDepositPeriod = globalRewardEpoch.isDepositPeriod || market.baseToken.symbol.toLowerCase() === 'wbtc'
+  const isDepositPeriod = globalRewardEpoch.isDepositPeriod
 
   return (
     <Grid mb={8} sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 4, gridRowGap: 6 }}>
