@@ -5,8 +5,10 @@ import { PopulatedTransaction } from '@ethersproject/contracts'
 import { MAX_BN, ONE_BN, UNIT, ZERO_BN } from '../constants/bn'
 import {
   Deployment,
+  LYRA_ARBITRUM_MAINNET_ADDRESS,
   LYRA_ETHEREUM_MAINNET_ADDRESS,
   LYRA_OPTIMISM_KOVAN_ADDRESS,
+  LYRA_OPTIMISM_MAINNET_ADDRESS,
   LyraContractId,
   LyraGlobalContractId,
   LyraMarketContractId,
@@ -105,6 +107,7 @@ export type ClaimableBalanceL2 = {
   op: BigNumber
   oldStkLyra: BigNumber
   newStkLyra: BigNumber
+  lyra: BigNumber
 }
 
 export type ClaimableBalanceL1 = {
@@ -246,15 +249,22 @@ export class Account {
     const oldStkLyraAddress = getAddress(OLD_STAKED_LYRA_OPTIMISM_ADDRESS)
     const opAddress =
       this.lyra.deployment === Deployment.Mainnet ? OP_OPTIMISM_MAINNET_ADDRESS : LYRA_OPTIMISM_KOVAN_ADDRESS
-    const [newStkLyraClaimableBalance, oldStkLyraClaimableBalance, opClaimableBalance] = await Promise.all([
-      distributorContract.claimableBalances(this.address, newStkLyraAddress),
-      distributorContract.claimableBalances(this.address, oldStkLyraAddress),
-      distributorContract.claimableBalances(this.address, opAddress),
-    ])
+    const lyraAddress =
+      this.lyra.network === Network.Arbitrum
+        ? getAddress(LYRA_ARBITRUM_MAINNET_ADDRESS)
+        : getAddress(LYRA_OPTIMISM_MAINNET_ADDRESS)
+    const [newStkLyraClaimableBalance, oldStkLyraClaimableBalance, opClaimableBalance, lyraClaimableBalance] =
+      await Promise.all([
+        distributorContract.claimableBalances(this.address, newStkLyraAddress),
+        distributorContract.claimableBalances(this.address, oldStkLyraAddress),
+        distributorContract.claimableBalances(this.address, opAddress),
+        distributorContract.claimableBalances(this.address, lyraAddress),
+      ])
     return {
       newStkLyra: newStkLyraClaimableBalance ?? ZERO_BN,
       oldStkLyra: oldStkLyraClaimableBalance ?? ZERO_BN,
       op: opClaimableBalance ?? ZERO_BN,
+      lyra: lyraClaimableBalance ?? ZERO_BN,
     }
   }
 

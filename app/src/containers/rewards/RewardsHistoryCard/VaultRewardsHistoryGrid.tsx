@@ -30,7 +30,6 @@ const VaultRewardsHistoryMarketRow = ({ accountRewardEpoch, market }: RowProps) 
   const opApy = findOpRewardEpochToken(accountRewardEpoch.vaultApy(marketAddress))
   const lyraApy = findOpRewardEpochToken(accountRewardEpoch.vaultApy(marketAddress))
   const apyMultiplier = accountRewardEpoch.vaultApyMultiplier(marketAddress)
-  const stakedLyraBalance = accountRewardEpoch.stakedLyraBalance
 
   return (
     <Grid mb={4} sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 4, gridRowGap: 6 }}>
@@ -48,14 +47,9 @@ const VaultRewardsHistoryMarketRow = ({ accountRewardEpoch, market }: RowProps) 
       {lyraApy > 0 ? (
         <Flex flexDirection="column" justifyContent="space-between">
           <Text variant="secondary" color="secondaryText" mb={2}>
-            stkLYRA Rewards
+            LYRA Rewards
           </Text>
-          <TokenAmountText
-            variant="secondary"
-            color="secondaryText"
-            tokenNameOrAddress="stkLyra"
-            amount={lyraRewards}
-          />
+          <TokenAmountText variant="secondary" color="secondaryText" tokenNameOrAddress="lyra" amount={lyraRewards} />
         </Flex>
       ) : null}
       {opApy > 0 ? (

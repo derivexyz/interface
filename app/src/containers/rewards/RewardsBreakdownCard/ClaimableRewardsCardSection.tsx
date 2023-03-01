@@ -29,7 +29,7 @@ const ClaimableStakedLyraText = withSuspense(
     const claimableBalance = useClaimableBalances()
     return (
       <Text variant="heading" color={claimableBalance.newStkLyra.gt(0) ? 'primaryText' : 'secondaryText'}>
-        {formatNumber(claimableBalance.newStkLyra)} stkLYRA
+        {formatNumber(claimableBalance.newStkLyra)} LYRA
       </Text>
     )
   },
@@ -46,9 +46,9 @@ const ClaimableRewardsText = withSuspense(
       <>
         <Box flexGrow={1}>
           <Text variant="secondary" color="secondaryText" mb={2}>
-            Claimable stkLYRA
+            Claimable LYRA
           </Text>
-          <TokenAmountText variant="secondary" tokenNameOrAddress="stkLyra" amount={claimableStkLyra} />
+          <TokenAmountText variant="secondary" tokenNameOrAddress="lyra" amount={claimableStkLyra} />
         </Box>
         {network === Network.Optimism ? (
           <Box flexGrow={1}>
@@ -82,6 +82,7 @@ const OpenClaimModalButton = withSuspense(
         isDisabled={
           claimableBalance.newStkLyra.isZero() &&
           claimableBalance.oldStkLyra.isZero() &&
+          claimableBalance.lyra.isZero() &&
           claimableBalance.op.isZero() &&
           wethLyraAccount?.rewards.isZero()
         }

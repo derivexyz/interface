@@ -28,7 +28,7 @@ const ShortCollateralRewardsHistoryGrid = ({ accountRewardEpoch, ...marginProps 
       <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 4, gridRowGap: 6 }}>
         <Flex flexDirection="column">
           <Text variant="secondary" color="secondaryText" mb={2}>
-            stkLYRA Rewards
+            LYRA Rewards
           </Text>
           <TokenAmountText variant="secondary" tokenNameOrAddress="stkLyra" amount={lyraRewards} />
         </Flex>

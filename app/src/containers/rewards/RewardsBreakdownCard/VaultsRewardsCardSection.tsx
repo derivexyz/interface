@@ -52,7 +52,7 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
     accountRewardEpoch?.vaultApy(marketAddress) ?? globalRewardEpoch.minVaultApy(marketAddress)
   )
   const maxApy = globalRewardEpoch.maxVaultApy(marketAddress).reduce((sum, tokens) => sum + tokens.amount, 0)
-  const tokenNameOrAddress = market.lyra.network === Network.Optimism ? ['stkLyra', 'OP'] : ['stkLyra']
+  const tokenNameOrAddress = market.lyra.network === Network.Optimism ? ['lyra', 'OP'] : ['lyra']
 
   const isDepositPeriod = globalRewardEpoch.isDepositPeriod
 
@@ -90,13 +90,9 @@ const VaultRewardsMarketRow = ({ accountRewardEpoch, globalRewardEpoch, market }
       {lyraApy > 0 ? (
         <Flex flexDirection="column" justifyContent="space-between">
           <Text variant="secondary" color="secondaryText" mb={2}>
-            Pending stkLYRA
+            Pending LYRA
           </Text>
-          <TokenAmountText
-            variant="secondary"
-            tokenNameOrAddress="stkLyra"
-            amount={isDepositPeriod ? 0 : lyraRewards}
-          />
+          <TokenAmountText variant="secondary" tokenNameOrAddress="lyra" amount={isDepositPeriod ? 0 : lyraRewards} />
         </Flex>
       ) : null}
       {opApy > 0 ? (

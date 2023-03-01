@@ -64,13 +64,9 @@ const TradingRewardsCardGrid = withSuspense(
         {lyraRewardsCap > 0 ? (
           <Flex flexDirection="column" justifyContent="space-between">
             <Text variant="secondary" color="secondaryText" mb={2}>
-              Pending stkLYRA
+              Pending LYRA
             </Text>
-            <TokenAmountText
-              variant="secondary"
-              tokenNameOrAddress="stkLyra"
-              amount={isDepositPeriod ? 0 : lyraRewards}
-            />
+            <TokenAmountText variant="secondary" tokenNameOrAddress="lyra" amount={isDepositPeriod ? 0 : lyraRewards} />
           </Flex>
         ) : null}
         {opRewardsCap > 0 ? (

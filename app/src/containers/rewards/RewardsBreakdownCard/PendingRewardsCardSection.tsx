@@ -32,7 +32,7 @@ const PendingRewardsCardGridItems = withSuspense(
     const account = epochs?.account
     const global = epochs?.global
     const epochEndTimestamp = global?.endTimestamp ?? 0
-    const countdownTimestamp = epochEndTimestamp + SECONDS_IN_HOUR * 4
+    const countdownTimestamp = epochEndTimestamp + SECONDS_IN_HOUR * 5
     // TODO - @dillon refactor later with better solution
     const opStakingRewards = findOpRewardEpochToken(account?.stakingRewards ?? [])
     const opVaultRewards = findOpRewardEpochToken(account?.totalVaultRewards ?? [])
@@ -58,7 +58,7 @@ const PendingRewardsCardGridItems = withSuspense(
             <TokenAmountText tokenNameOrAddress="op" variant="secondary" amount={isDepositPeriod ? 0 : opRewards} />
           ) : null}
           <TokenAmountText
-            tokenNameOrAddress="stkLyra"
+            tokenNameOrAddress="lyra"
             variant="secondary"
             amount={isDepositPeriod ? 0 : stkLyraRewards}
           />
@@ -97,7 +97,7 @@ const PendingStakedLyraText = withSuspense(
     const lyraRewards = lyraVaultRewards + lyraTradingRewards + lyraShortCollatRewards
     return (
       <Text variant="heading" color="secondaryText">
-        {formatNumber(isDepositPeriod ? 0 : lyraRewards)} stkLYRA
+        {formatNumber(isDepositPeriod ? 0 : lyraRewards)} LYRA
       </Text>
     )
   },

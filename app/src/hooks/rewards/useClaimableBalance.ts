@@ -13,6 +13,7 @@ const EMPTY: ClaimableBalanceL2 = {
   oldStkLyra: ZERO_BN,
   newStkLyra: ZERO_BN,
   op: ZERO_BN,
+  lyra: ZERO_BN,
 }
 
 const fetchClaimableBalance = async (network: Network, account: string): Promise<ClaimableBalanceL2> => {

@@ -17,6 +17,7 @@ import filterNulls from '@/app/utils/filterNulls'
 import TransactionButton from '../../common/TransactionButton'
 
 type Props = {
+  isLyraChecked: boolean
   isOpChecked: boolean
   isOldStkLyraChecked: boolean
   isNewStkLyraChecked: boolean
@@ -25,11 +26,12 @@ type Props = {
 }
 
 const ClaimButton = withSuspense(
-  ({ isOpChecked, isOldStkLyraChecked, isNewStkLyraChecked, isWethLyraChecked, onClaim }: Props) => {
+  ({ isOpChecked, isOldStkLyraChecked, isNewStkLyraChecked, isWethLyraChecked, isLyraChecked, onClaim }: Props) => {
     const network = useNetwork()
     const account = useAccount(network)
     const stkLyra = useNetworkToken(network, 'stkLyra')
     const op = useNetworkToken(network, 'op')
+    const lyra = useNetworkToken(network, 'lyra')
     const execute = useTransaction(network)
     const mutateClaimableBalance = useMutateClaimableBalances()
     const claimableBalances = useClaimableBalances()
@@ -38,6 +40,7 @@ const ClaimButton = withSuspense(
     const isSelectedBalanceZero = ZERO_BN.add(isOpChecked ? claimableBalances.op : ZERO_BN)
       .add(isNewStkLyraChecked ? claimableBalances.newStkLyra : ZERO_BN)
       .add(isOldStkLyraChecked ? claimableBalances.oldStkLyra : ZERO_BN)
+      .add(isLyraChecked ? claimableBalances.lyra : ZERO_BN)
       .add(isWethLyraChecked && wethLyraAccount?.rewards.gt(0) ? wethLyraAccount?.rewards : ZERO_BN)
       .isZero()
 
@@ -59,6 +62,7 @@ const ClaimButton = withSuspense(
       const tokens = filterNulls([
         isOpChecked ? op?.address : null,
         isNewStkLyraChecked ? stkLyra?.address : null,
+        isLyraChecked ? lyra?.address : null,
         isOldStkLyraChecked ? '0xdE48b1B5853cc63B1D05e507414D3E02831722F8' : null,
       ])
       const tx = await account?.claim(tokens)
@@ -80,7 +84,7 @@ const ClaimButton = withSuspense(
         transactionType={TransactionType.ClaimRewards}
         width="100%"
         label={
-          !isOpChecked && !isNewStkLyraChecked && !isOldStkLyraChecked && !isWethLyraChecked
+          !isOpChecked && !isNewStkLyraChecked && !isOldStkLyraChecked && !isWethLyraChecked && !isLyraChecked
             ? 'Select Rewards'
             : 'Claim'
         }

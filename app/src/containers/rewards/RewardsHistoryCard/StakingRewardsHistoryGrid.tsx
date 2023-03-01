@@ -35,7 +35,7 @@ const StakingRewardsHistoryGrid = ({ accountRewardEpoch, ...marginProps }: Props
       <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 4, gridRowGap: 6 }}>
         <Flex flexDirection="column">
           <Text variant="secondary" color="secondaryText" mb={2}>
-            stkLYRA Rewards (Locked)
+            LYRA Rewards (Locked)
           </Text>
           <TokenAmountText variant="secondary" tokenNameOrAddress="stkLyra" amount={lyraRewards} />
         </Flex>
