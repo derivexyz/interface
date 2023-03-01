@@ -32,8 +32,4 @@ export const IGNORE_MARKETS_LIST: IgnoreMarket[] = filterNulls([
     marketName: 'sSOL-sUSD',
     chain: Chain.Optimism,
   },
-  {
-    marketName: 'WBTC-USDC',
-    chain: Chain.Arbitrum,
-  },
 ])
