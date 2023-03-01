@@ -29,7 +29,7 @@ const ClaimableStakedLyraText = withSuspense(
     const claimableBalance = useClaimableBalances()
     return (
       <Text variant="heading" color={claimableBalance.newStkLyra.gt(0) ? 'primaryText' : 'secondaryText'}>
-        {formatNumber(claimableBalance.newStkLyra)} LYRA
+        {formatNumber(claimableBalance.newStkLyra.add(claimableBalance?.lyra ?? ZERO_BN))} LYRA
       </Text>
     )
   },
@@ -41,7 +41,9 @@ const ClaimableRewardsText = withSuspense(
     const network = useNetwork()
     const claimableBalance = useClaimableBalances()
     const wethLyraAccount = useAccountWethLyraStakingL2()
-    const claimableStkLyra = claimableBalance.newStkLyra.add(wethLyraAccount?.rewards ?? ZERO_BN)
+    const claimableStkLyra = claimableBalance.newStkLyra
+      .add(wethLyraAccount?.rewards ?? ZERO_BN)
+      .add(claimableBalance?.lyra ?? ZERO_BN)
     return (
       <>
         <Box flexGrow={1}>
