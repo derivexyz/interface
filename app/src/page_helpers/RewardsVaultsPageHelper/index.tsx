@@ -132,7 +132,9 @@ const RewardsVaultsPageHelper = ({ market, latestRewardEpoch, accountRewardEpoch
                     value={`${formatAPY(vaultApy, {
                       showSymbol: false,
                       showEmptyDash: true,
-                    })} ${vaultApyMultiplier ? `(${formatNumber(vaultApyMultiplier)}x)` : ''}`}
+                    })} ${
+                      vaultApyMultiplier && vaultApyMultiplier > 1.01 ? `(${formatNumber(vaultApyMultiplier)}x)` : ''
+                    }`}
                     valueColor={vaultApy.reduce((total, t) => total + t.amount, 0) > 0 ? 'primaryText' : 'text'}
                   />
                   <LabelItem

@@ -1,5 +1,4 @@
-import { ClaimAddedEvent, RewardEpochTokenAmount } from '..'
-import { GlobalRewardEpochData } from '../utils/fetchGlobalRewardEpochData'
+import { ClaimAddedEvent, ClaimEvent, GlobalRewardEpoch, RewardEpochTokenAmount } from '..'
 import fromBigNumber from '../utils/fromBigNumber'
 import getUniqueRewardTokenAmounts from '../utils/getUniqueRewardTokenAmounts'
 
@@ -13,7 +12,8 @@ enum ClaimAddedProgramTags {
 
 export default function parseClaimAddedEvents(
   claimAddedEvents: ClaimAddedEvent[],
-  globalRewardEpoch: GlobalRewardEpochData
+  claimEvents: ClaimEvent[],
+  globalRewardEpochs: GlobalRewardEpoch[]
 ): {
   vaultRewards: Record<string, RewardEpochTokenAmount[]>
   tradingRewards: RewardEpochTokenAmount[]
@@ -30,9 +30,18 @@ export default function parseClaimAddedEvents(
     const tag = event.tag
     const amount = fromBigNumber(event.amount)
     const rewardTokenAddress = event.rewardToken
+    const globalRewardEpoch = globalRewardEpochs.find(
+      globalEpoch => globalEpoch.startTimestamp === event.epochTimestamp
+    )
+    const claimed = claimEvents.find(
+      claimEvent => claimEvent.timestamp > event.timestamp && claimEvent.rewardToken === rewardTokenAddress
+    )
+    if (!globalRewardEpoch || claimed) {
+      return
+    }
     if (tag.startsWith(ClaimAddedProgramTags.MMV)) {
       const [_program, marketKey] = tag.split('-')
-      const token = globalRewardEpoch.MMVConfig[marketKey]?.tokens?.find(
+      const token = globalRewardEpoch.epoch.MMVConfig[marketKey]?.tokens?.find(
         token => token.address.toLowerCase() === rewardTokenAddress
       )
       if (!vaultRewards[marketKey]) {
@@ -45,7 +54,7 @@ export default function parseClaimAddedEvents(
       }
       claimableToken.amount += amount
     } else if (tag.startsWith(ClaimAddedProgramTags.TRADING)) {
-      const token = globalRewardEpoch.tradingRewardConfig.tokens.find(
+      const token = globalRewardEpoch.epoch.tradingRewardConfig.tokens.find(
         token => token.address.toLowerCase() === rewardTokenAddress
       )
       if (!token) {
@@ -58,7 +67,7 @@ export default function parseClaimAddedEvents(
       }
       claimableToken.amount += amount
     } else if (tag.startsWith(ClaimAddedProgramTags.STAKING)) {
-      const token = globalRewardEpoch.stakingRewardConfig.find(
+      const token = globalRewardEpoch.epoch.stakingRewardConfig.find(
         token => token.address.toLowerCase() === rewardTokenAddress
       )
       if (!token) {
@@ -71,7 +80,7 @@ export default function parseClaimAddedEvents(
       }
       claimableToken.amount += amount
     } else if (tag.startsWith(ClaimAddedProgramTags.WETHLYRA)) {
-      const token = globalRewardEpoch.wethLyraStakingRewardConfig?.find(
+      const token = globalRewardEpoch.epoch.wethLyraStakingRewardConfig?.find(
         token => token.address.toLowerCase() === rewardTokenAddress
       )
       if (!token) {
@@ -85,7 +94,11 @@ export default function parseClaimAddedEvents(
       claimableToken.amount += amount
     }
   })
-  const totalRewards = getUniqueRewardTokenAmounts([...Object.values(vaultRewards).flat(), ...tradingRewards])
+  const totalRewards = getUniqueRewardTokenAmounts([
+    ...Object.values(vaultRewards).flat(),
+    ...tradingRewards,
+    ...wethLyraRewards,
+  ])
 
   return { vaultRewards, tradingRewards, stakingRewards, wethLyraRewards, totalRewards }
 }

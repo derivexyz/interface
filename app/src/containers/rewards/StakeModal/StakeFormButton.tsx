@@ -6,7 +6,7 @@ import React, { useCallback } from 'react'
 
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
-import useAccountLyraBalances from '@/app/hooks/account/useAccountLyraBalances'
+import useAccountLyraBalances, { useMutateAccountLyraBalances } from '@/app/hooks/account/useAccountLyraBalances'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
@@ -28,8 +28,10 @@ const StakeFormButton = withSuspense(
     const account = useWalletAccount()
     const execute = useTransaction('ethereum')
     const insufficientBalance = lyraBalances.ethereumLyra.lt(amount)
+    const insufficientAllowance = lyraBalances.stakingAllowance.lt(amount)
     const mutateAccountStaking = useMutateAccountStaking()
     const mutateLyraStaking = useMutateLyraStaking()
+    const mutateLyraBalances = useMutateAccountLyraBalances()
     const handleClickApprove = useCallback(async () => {
       if (!account) {
         console.warn('Account does not exist')
@@ -40,11 +42,11 @@ const StakeFormButton = withSuspense(
       await execute(tx, {
         onComplete: async () => {
           logEvent(LogEvent.StakeLyraApproveSuccess)
-          await Promise.all([mutateAccountStaking()])
+          await Promise.all([mutateLyraBalances()])
         },
         onError: error => logEvent(LogEvent.StakeLyraApproveError, { error: error?.message }),
       })
-    }, [account, execute, mutateAccountStaking])
+    }, [account, execute, mutateLyraBalances])
 
     const handleClickStake = useCallback(async () => {
       if (!account) {
@@ -72,7 +74,7 @@ const StakeFormButton = withSuspense(
       <TransactionButton
         transactionType={TransactionType.StakeLyra}
         requireAllowance={
-          !insufficientBalance
+          !insufficientBalance && insufficientAllowance
             ? {
                 address: '0x01ba67aac7f75f647d94220cc98fb30fcc5105bf',
                 symbol: 'LYRA',
@@ -82,7 +84,7 @@ const StakeFormButton = withSuspense(
             : undefined
         }
         width="100%"
-        isDisabled={amount.lte(0)}
+        isDisabled={amount.lte(0) || insufficientBalance}
         network={'ethereum'}
         label={amount.lte(0) ? 'Enter Amount' : insufficientBalance ? 'Insufficient Balance' : 'Stake'}
         onClick={handleClickStake}

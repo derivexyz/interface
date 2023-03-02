@@ -31,7 +31,7 @@ import fromBigNumber from '../utils/fromBigNumber'
 import getGlobalContract from '../utils/getGlobalContract'
 import getUniqueRewardTokenAmounts from '../utils/getUniqueRewardTokenAmounts'
 import multicall, { MulticallRequest } from '../utils/multicall'
-import parseClaimAddedEvents from './parseClaimAddedTags'
+import parseClaimAddedEvents from './parseClaimAddedEvents'
 
 export type ClaimAddedEvent = {
   amount: BigNumber
@@ -87,7 +87,7 @@ export class AccountRewardEpoch {
     balances: AccountBalances[],
     lyraBalances: AccountLyraBalances,
     claimAddedEvents: ClaimAddedEvent[],
-    claimedEvents: ClaimEvent[]
+    claimableRewards: ClaimableRewards
   ) {
     this.lyra = lyra
     this.account = account
@@ -137,7 +137,7 @@ export class AccountRewardEpoch {
         : this.accountEpoch.tradingRewards.shortCollateralRewardDollars
     )
     const claimAddedCurrEpoch = claimAddedEvents.filter(ev => ev.epochTimestamp === globalEpoch.startTimestamp)
-    const claimableRewardsThisEpoch = parseClaimAddedEvents(claimAddedCurrEpoch, globalEpoch.epoch)
+    const claimableRewardsThisEpoch = parseClaimAddedEvents(claimAddedCurrEpoch, [], [globalEpoch])
     const isTradingPending = claimableRewardsThisEpoch.tradingRewards.some(
       rewardTokenAmount => rewardTokenAmount.amount > 0
     )
@@ -151,14 +151,7 @@ export class AccountRewardEpoch {
       percentShare: 0,
     }
 
-    // Get claimable rewards across all previous epochs
-    const latestClaimedEvent = claimedEvents.length
-      ? claimedEvents.sort((a, b) => b.blockNumber - a.blockNumber)[0]
-      : null
-    const claimableClaimAddedEvents = latestClaimedEvent
-      ? claimAddedEvents.filter(ev => ev.blockNumber >= latestClaimedEvent.blockNumber)
-      : claimAddedEvents
-    this.claimableRewards = parseClaimAddedEvents(claimableClaimAddedEvents, globalEpoch.epoch)
+    this.claimableRewards = claimableRewards
     this.totalClaimableVaultRewards = getUniqueRewardTokenAmounts(
       Object.values(this.claimableRewards.vaultRewards).flat()
     )
@@ -184,6 +177,8 @@ export class AccountRewardEpoch {
     const claimAddedEvents = _claimAddedEvents.filter(
       event => event.rewardToken.toLowerCase() !== '0xCb9f85730f57732fc899fb158164b9Ed60c77D49'.toLowerCase()
     )
+    // Get claimable rewards across all previous epochs
+    const claimableRewards = parseClaimAddedEvents(claimAddedEvents, claimEvents, globalEpochs)
     return accountEpochDatas
       .map(accountEpochData => {
         const globalEpoch = globalEpochs.find(
@@ -202,7 +197,7 @@ export class AccountRewardEpoch {
           balances,
           lyraBalances,
           claimAddedEvents,
-          claimEvents
+          claimableRewards
         )
       })
       .sort((a, b) => a.globalEpoch.endTimestamp - b.globalEpoch.endTimestamp)
