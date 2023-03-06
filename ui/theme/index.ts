@@ -11,7 +11,7 @@ const lightColors = {
   cardElevatedBg: '#FEFEFE',
   cardNestedBg: '#E8E8E8CC', // 80%
   cardNestedHover: '#CFCECE80',
-  cardOutline: '#3A4047',
+  cardOutline: '#ACB7C4',
 
   // default button
   buttonBg: '#E8E8E899', // 60%
@@ -323,6 +323,13 @@ const theme = {
       fontSize: 3,
     },
     bodyLarge: {
+      fontFamily: 'body',
+      fontWeight: 'body',
+      lineHeight: 'bodyLarge',
+      fontSize: 3,
+      letterSpacing: 'bodyLarge',
+    },
+    bodyLargeMedium: {
       fontFamily: 'body',
       fontWeight: 'medium',
       lineHeight: 'bodyLarge',

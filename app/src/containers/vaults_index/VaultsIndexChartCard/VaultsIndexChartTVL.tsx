@@ -37,7 +37,7 @@ const VaultsIndexChartTVL = withSuspense(
 
     return (
       <Flex {...styleProps} flexDirection="column">
-        <Text variant="bodyLarge">{formatTruncatedUSD(hoverData?.tvl ?? vaultStats?.tvl ?? 0)}</Text>
+        <Text variant="bodyLargeMedium">{formatTruncatedUSD(hoverData?.tvl ?? vaultStats?.tvl ?? 0)}</Text>
         <Text variant="small" color="secondaryText">
           {formatTimestampTooltip(hoverData?.timestamp ?? data[data.length - 1].timestamp, interval)}
         </Text>
@@ -57,7 +57,7 @@ const VaultsIndexChartTVL = withSuspense(
   },
   ({ interval, ...styleProps }: Props) => (
     <Box {...styleProps}>
-      <TextShimmer width={100} variant="bodyLarge" />
+      <TextShimmer width={100} variant="bodyLargeMedium" />
       <TextShimmer width={60} variant="small" />
       <Shimmer mt={1} height={VAULTS_INDEX_CHART_HEIGHT} width="100%" />
     </Box>

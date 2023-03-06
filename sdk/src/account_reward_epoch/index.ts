@@ -98,7 +98,7 @@ export class AccountRewardEpoch {
       globalEpoch.progressDays > 0 ? accountEpoch.stakingRewards.stkLyraDays / globalEpoch.progressDays : 0
     this.stakedLyraBalance = globalEpoch.isComplete
       ? avgStkLyraBalance
-      : fromBigNumber(lyraBalances.ethereumStkLyra.add(lyraBalances.optimismStkLyra))
+      : fromBigNumber(lyraBalances.ethereumStkLyra.add(lyraBalances.optimismStkLyra).add(lyraBalances.arbitrumStkLyra))
     this.vaultTokenBalances = balances.reduce(
       (lpTokenBalances, balance) => ({
         ...lpTokenBalances,

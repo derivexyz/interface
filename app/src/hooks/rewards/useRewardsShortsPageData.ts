@@ -7,11 +7,10 @@ import getLyraSDK from '@/app/utils/getLyraSDK'
 
 import useWalletAccount from '../account/useWalletAccount'
 import useFetch from '../data/useFetch'
-import { fetchRewardsPageData, RewardsPageData } from './useRewardsPageData'
+import { EMPTY_REWARDS_PAGE_DATA, fetchRewardsPageData, RewardsPageData } from './useRewardsPageData'
 
 const EMPTY = {
-  epochs: {},
-  wethLyraStaking: null,
+  ...EMPTY_REWARDS_PAGE_DATA,
   collateral: ZERO_BN,
 }
 
@@ -21,13 +20,16 @@ type RewardsShortPageData = RewardsPageData & {
 
 const fetcher = async (account: string, network: Network): Promise<RewardsShortPageData> => {
   const lyra = getLyraSDK(network)
-  const [rewardPageData, openPositions] = await Promise.all([
-    fetchRewardsPageData(account),
-    lyra.openPositions(account),
-  ])
+  const [rewardPageData, positions] = await Promise.all([fetchRewardsPageData(account), lyra.positions(account)])
+  const latestGlobalRewardEpoch = rewardPageData.epochs[network]?.latestRewardEpoch.global
+
   return {
     ...rewardPageData,
-    collateral: openPositions.reduce((sum, position) => sum.add(position.collateral?.value ?? ZERO_BN), ZERO_BN),
+    collateral: latestGlobalRewardEpoch
+      ? positions
+          .filter(p => !p.isLong && (!p.closeTimestamp || p.closeTimestamp > latestGlobalRewardEpoch.startTimestamp))
+          .reduce((sum, position) => sum.add(position.collateral?.value ?? ZERO_BN), ZERO_BN)
+      : ZERO_BN,
   }
 }
 

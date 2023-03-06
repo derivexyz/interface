@@ -20,10 +20,10 @@ import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
 import { TradingFeeRebateTable } from '@/app/components/rewards/TradingFeeRebateTable'
 import { CLAIMABLE_REWARDS_DELAY } from '@/app/constants/rewards'
 import ConnectWalletButton from '@/app/containers/common/ConnectWalletButton'
-import ClaimModal from '@/app/containers/rewards/ClaimModal'
-import ClaimModalButton from '@/app/containers/rewards/ClaimModalButton'
+import RewardsClaimModal from '@/app/containers/rewards/RewardsClaimModal'
+import RewardsClaimModalButton from '@/app/containers/rewards/RewardsClaimModalButton'
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
-import TradingRebateBoostModal from '@/app/containers/rewards/TradingRebateBoostModal'
+import RewardsTradingRebateBoostModal from '@/app/containers/rewards/RewardsTradingRebateBoostModal'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useLatestRewardEpoch'
@@ -127,7 +127,7 @@ const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs, glob
                     value={<RewardTokenAmounts tokenAmounts={claimableRewards} showDash={false} />}
                   />
                   <Flex mt="auto" pt={6}>
-                    <ClaimModalButton
+                    <RewardsClaimModalButton
                       onClick={() => setIsClaimModalOpen(true)}
                       accountRewardEpoch={latestAccountRewardEpoch}
                       minWidth={CTA_BUTTON_WIDTH}
@@ -207,13 +207,13 @@ const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs, glob
         ) : null}
       </PageGrid>
       {latestAccountRewardEpoch ? (
-        <ClaimModal
+        <RewardsClaimModal
           accountRewardEpoch={latestAccountRewardEpoch}
           isOpen={isClaimModalOpen}
           onClose={() => setIsClaimModalOpen(false)}
         />
       ) : null}
-      <TradingRebateBoostModal
+      <RewardsTradingRebateBoostModal
         isOpen={isStakeModalOpen}
         onClose={() => setIsStakeModalOpen(false)}
         globalRewardEpoch={latestGlobalRewardEpoch}

@@ -17,8 +17,8 @@ import LabelItem from '@/app/components/common/LabelItem'
 import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
 import { CLAIMABLE_REWARDS_DELAY } from '@/app/constants/rewards'
 import ConnectWalletButton from '@/app/containers/common/ConnectWalletButton'
-import ClaimModal from '@/app/containers/rewards/ClaimModal'
-import ClaimModalButton from '@/app/containers/rewards/ClaimModalButton'
+import RewardsClaimModal from '@/app/containers/rewards/RewardsClaimModal'
+import RewardsClaimModalButton from '@/app/containers/rewards/RewardsClaimModalButton'
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
@@ -104,7 +104,7 @@ const RewardsShortsPageHelper = ({ latestRewardEpoch, accountRewardEpochs, globa
                   value={<RewardTokenAmounts tokenAmounts={claimableRewards} showDash={false} />}
                 />
                 <Flex mt={8}>
-                  <ClaimModalButton
+                  <RewardsClaimModalButton
                     accountRewardEpoch={latestAccountRewardEpoch}
                     onClick={() => setIsOpen(true)}
                     minWidth={CTA_BUTTON_WIDTH}
@@ -157,7 +157,11 @@ const RewardsShortsPageHelper = ({ latestRewardEpoch, accountRewardEpochs, globa
           </Card>
         ) : null}
         {latestAccountRewardEpoch ? (
-          <ClaimModal accountRewardEpoch={latestAccountRewardEpoch} isOpen={isOpen} onClose={() => setIsOpen(false)} />
+          <RewardsClaimModal
+            accountRewardEpoch={latestAccountRewardEpoch}
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+          />
         ) : null}
       </PageGrid>
     </Page>

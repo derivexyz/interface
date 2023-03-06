@@ -24,10 +24,14 @@ const PortfolioKeyMetricsCard = ({ marketData }: Props) => {
     <Card>
       <CardBody>
         <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'], gridGap: 3 }}>
-          <LabelItem label="TVL" valueTextVariant="bodyLarge" value={formatTruncatedUSD(tvl)} />
-          <LabelItem label="30D Volume" valueTextVariant="bodyLarge" value={formatTruncatedUSD(tradingVolume)} />
-          <LabelItem label="30D Fees" valueTextVariant="bodyLarge" value={formatTruncatedUSD(tradingFees)} />
-          <LabelItem label="Open Interest" valueTextVariant="bodyLarge" value={formatTruncatedUSD(openInterest)} />
+          <LabelItem label="TVL" valueTextVariant="bodyLargeMedium" value={formatTruncatedUSD(tvl)} />
+          <LabelItem label="30D Volume" valueTextVariant="bodyLargeMedium" value={formatTruncatedUSD(tradingVolume)} />
+          <LabelItem label="30D Fees" valueTextVariant="bodyLargeMedium" value={formatTruncatedUSD(tradingFees)} />
+          <LabelItem
+            label="Open Interest"
+            valueTextVariant="bodyLargeMedium"
+            value={formatTruncatedUSD(openInterest)}
+          />
         </Grid>
       </CardBody>
     </Card>

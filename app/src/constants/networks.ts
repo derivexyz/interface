@@ -19,6 +19,8 @@ export type NetworkConfig = {
   readRpcUrls: string[]
   blockExplorerUrl: string
   iconUrls: string[]
+  nativeBridgeUrl?: string
+  fastBridgeUrl?: string
 }
 
 const INFURA_PROJECT_ID = nullthrows(
@@ -41,6 +43,8 @@ export const NETWORK_CONFIGS: Record<Chain, NetworkConfig> = {
     ]),
     blockExplorerUrl: 'https://optimistic.etherscan.io',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
+    nativeBridgeUrl: 'https://app.optimism.io/bridge/withdraw',
+    fastBridgeUrl: 'https://cbridge.celer.network/10/1/LYRA',
   },
   [Chain.OptimismGoerli]: {
     name: 'Optimistic Ethereum (Goerli)',
@@ -51,6 +55,8 @@ export const NETWORK_CONFIGS: Record<Chain, NetworkConfig> = {
     readRpcUrls: [`https://optimism-goerli.infura.io/v3/${INFURA_PROJECT_ID}`],
     blockExplorerUrl: 'https://goerli-optimism.etherscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
+    nativeBridgeUrl: 'https://app.optimism.io/bridge/withdraw',
+    fastBridgeUrl: 'https://cbridge.celer.network/10/1/LYRA',
   },
   [Chain.Arbitrum]: {
     name: 'Arbitrum One',
@@ -66,6 +72,8 @@ export const NETWORK_CONFIGS: Record<Chain, NetworkConfig> = {
     ]),
     blockExplorerUrl: 'https://arbiscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
+    nativeBridgeUrl: 'https://bridge.arbitrum.io/?l2ChainId=42161',
+    fastBridgeUrl: 'https://cbridge.celer.network/42161/1/LYRA',
   },
   [Chain.ArbitrumGoerli]: {
     name: 'Arbitrum Nitro Goerli Rollup Testnet',
@@ -76,5 +84,7 @@ export const NETWORK_CONFIGS: Record<Chain, NetworkConfig> = {
     readRpcUrls: [`https://arbitrum-goerli.infura.io/v3/${INFURA_PROJECT_ID}`],
     blockExplorerUrl: 'https://goerli.arbiscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
+    nativeBridgeUrl: 'https://bridge.arbitrum.io/?l2ChainId=42161',
+    fastBridgeUrl: 'https://cbridge.celer.network/42161/1/LYRA',
   },
 }

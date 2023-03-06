@@ -21,11 +21,11 @@ import TokenImageStack from '@/app/components/common/TokenImageStack'
 import { ZERO_BN } from '@/app/constants/bn'
 import { WETH_LYRA_L1_LIQUIDITY_URL } from '@/app/constants/links'
 import ConnectWalletButton from '@/app/containers/common/ConnectWalletButton'
-import ClaimWethLyraStakingRewardsModal from '@/app/containers/rewards/ClaimWethLyraStakingRewardsModal'
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
-import WethLyraL2UnstakeModal from '@/app/containers/rewards/WethLyraL2UnstakeModal'
-import WethLyraStakeModal from '@/app/containers/rewards/WethLyraStakeModal'
-import WethLyraUnstakeModal from '@/app/containers/rewards/WethLyraUnstakeModal'
+import RewardsWethLyraClaimModal from '@/app/containers/rewards/RewardsWethLyraClaimModal'
+import RewardsWethLyraL2UnstakeModal from '@/app/containers/rewards/RewardsWethLyraL2UnstakeModal'
+import RewardsWethLyraStakeModal from '@/app/containers/rewards/RewardsWethLyraStakeModal'
+import RewardsWethLyraUnstakeModal from '@/app/containers/rewards/RewardsWethLyraUnstakeModal'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
@@ -106,7 +106,7 @@ const RewardsEthLyraLPPageHelper = ({
                   />
                   <LabelItem
                     label="Claimable Rewards"
-                    value={<TokenAmountText tokenNameOrAddress="stkLyra" amount={claimableBalance} />}
+                    value={<TokenAmountText tokenNameOrAddress="lyra" amount={claimableBalance} />}
                     valueColor="primaryText"
                   />
                 </Grid>
@@ -164,11 +164,11 @@ const RewardsEthLyraLPPageHelper = ({
           </CardSection>
         </Card>
       </PageGrid>
-      <ClaimWethLyraStakingRewardsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
-      <WethLyraStakeModal isOpen={isStakeOpen} onClose={() => setIsStakeOpen(false)} />
-      <WethLyraUnstakeModal isOpen={isUnstakeOpen} onClose={() => setIsUnstakeOpen(false)} />
-      <WethLyraUnstakeModal isOpen={isUnstakeOpen} onClose={() => setIsUnstakeOpen(false)} />
-      <WethLyraL2UnstakeModal isOpen={isL2UnstakeOpen} onClose={() => setIsL2UnstakeOpen(false)} />
+      <RewardsWethLyraClaimModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <RewardsWethLyraStakeModal isOpen={isStakeOpen} onClose={() => setIsStakeOpen(false)} />
+      <RewardsWethLyraUnstakeModal isOpen={isUnstakeOpen} onClose={() => setIsUnstakeOpen(false)} />
+      <RewardsWethLyraUnstakeModal isOpen={isUnstakeOpen} onClose={() => setIsUnstakeOpen(false)} />
+      <RewardsWethLyraL2UnstakeModal isOpen={isL2UnstakeOpen} onClose={() => setIsL2UnstakeOpen(false)} />
     </Page>
   )
 }

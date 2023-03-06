@@ -1,5 +1,5 @@
 import Flex from '@lyra/ui/components/Flex'
-import Text, { TextVariant } from '@lyra/ui/components/Text'
+import Text, { TextColor, TextVariant } from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import { RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
@@ -11,28 +11,33 @@ import TokenImageStack from '../../common/TokenImageStack'
 type Props = {
   tokenAmounts: RewardEpochTokenAmount[]
   size?: number
+  color?: TextColor
   variant?: TextVariant
   showDash?: boolean
-  hideZeroAmount?: boolean
+  hideZeroAmounts?: boolean
   hideTokenImages?: boolean
 } & MarginProps
 
 export default function RewardTokenAmounts({
   tokenAmounts,
+  color = 'text',
   size = 24,
   variant = 'body',
   showDash = true,
   hideTokenImages = false,
-  hideZeroAmount = false,
+  hideZeroAmounts = false,
   ...styleProps
 }: Props) {
   const rewardsText = useMemo(
-    () => tokenAmounts.map(token => `${formatNumber(token.amount)} ${token.symbol}`).join(', '),
-    [tokenAmounts]
+    () =>
+      tokenAmounts
+        .filter(t => !hideZeroAmounts || t.amount > 0)
+        .map(token => `${formatNumber(token.amount)} ${token.symbol}`)
+        .join(', '),
+    [tokenAmounts, hideZeroAmounts]
   )
-  const isRewardAmountZero = tokenAmounts.reduce((totalAmount, tokenAmount) => totalAmount + tokenAmount.amount, 0) <= 0
 
-  if (showDash && (tokenAmounts.length === 0 || (hideZeroAmount && isRewardAmountZero))) {
+  if ((showDash && rewardsText === '') || tokenAmounts.length === 0) {
     return (
       <Text variant={variant} {...styleProps}>
         -
@@ -45,7 +50,9 @@ export default function RewardTokenAmounts({
       {!hideTokenImages ? (
         <TokenImageStack mr={2} size={size} tokenNameOrAddresses={tokenAmounts.map(t => t.symbol)} />
       ) : null}
-      <Text variant={variant}>{rewardsText}</Text>
+      <Text color={color} variant={variant}>
+        {rewardsText}
+      </Text>
     </Flex>
   )
 }

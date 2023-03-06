@@ -50,7 +50,7 @@ const VaultsChartNetDelta = withSuspense(
 
     return (
       <Flex {...styleProps} flexDirection="column">
-        <Text variant="bodyLarge">
+        <Text variant="bodyLargeMedium">
           {formatNumber(hoverData?.netDelta ?? fromBigNumber(vaultStats?.netGreeks.netDelta ?? ZERO_BN), { dps: 3 })}
         </Text>
         <Text variant="small" color="secondaryText">
@@ -72,7 +72,7 @@ const VaultsChartNetDelta = withSuspense(
   },
   ({ market, interval, ...styleProps }: Props) => (
     <Box {...styleProps}>
-      <TextShimmer width={100} variant="bodyLarge" />
+      <TextShimmer width={100} variant="bodyLargeMedium" />
       <TextShimmer width={60} variant="small" />
       <Shimmer mt={1} height={VAULTS_CHART_HEIGHT} width="100%" />
     </Box>

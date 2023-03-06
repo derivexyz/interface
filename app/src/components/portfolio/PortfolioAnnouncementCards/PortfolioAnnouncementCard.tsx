@@ -87,7 +87,7 @@ export default function PortfolioAnnouncementCard({
                 minWidth={announcement.graphicSize ?? IMAGE_SIZE}
               />
             ) : null}
-            <Text mr={2} variant="bodyLarge" color="text">
+            <Text mr={2} variant="bodyLargeMedium" color="text">
               {announcement.header}
               {announcement.showCountdown && !isMobile ? (
                 <>

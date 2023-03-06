@@ -56,6 +56,7 @@ export type MarketContractAddresses = {
 }
 
 export type MarketLiquiditySnapshot = {
+  market: Market
   tvl: BigNumber
   freeLiquidity: BigNumber
   burnableLiquidity: BigNumber

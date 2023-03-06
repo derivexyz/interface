@@ -30,10 +30,10 @@ const PortfolioChartOverviewSection = withSuspense(
           <LabelItem
             noPadding
             label="30D Profit / Loss"
-            valueTextVariant="bodyLarge"
+            valueTextVariant="bodyLargeMedium"
             value={
               <Box>
-                <Text variant="bodyLarge" color="text">
+                <Text variant="bodyLargeMedium" color="text">
                   {latestPnl ? formatUSD(latestPnl, { showSign: true }) : '-'}
                 </Text>
               </Box>
@@ -42,10 +42,10 @@ const PortfolioChartOverviewSection = withSuspense(
           <LabelItem
             noPadding
             label="Unrealized P/L"
-            valueTextVariant="bodyLarge"
+            valueTextVariant="bodyLargeMedium"
             value={
               <Box>
-                <Text variant="bodyLarge" color="text">
+                <Text variant="bodyLargeMedium" color="text">
                   {formatUSD(unrealizedPnl, { showSign: true })}
                 </Text>
               </Box>
@@ -59,7 +59,7 @@ const PortfolioChartOverviewSection = withSuspense(
                   label="Locked Collateral"
                   value={
                     <Box>
-                      <Text variant="bodyLarge" color="text">
+                      <Text variant="bodyLargeMedium" color="text">
                         {formatUSD(lockedCollateral)}
                       </Text>
                     </Box>
@@ -71,7 +71,7 @@ const PortfolioChartOverviewSection = withSuspense(
                 label="Net Delta"
                 value={
                   <Box>
-                    <Text variant="bodyLarge" color="text">
+                    <Text variant="bodyLargeMedium" color="text">
                       {formatTruncatedNumber(netDelta)}
                     </Text>
                   </Box>
@@ -81,10 +81,10 @@ const PortfolioChartOverviewSection = withSuspense(
                 <LabelItem
                   noPadding
                   label="Net Vega"
-                  valueTextVariant="bodyLarge"
+                  valueTextVariant="bodyLargeMedium"
                   value={
                     <Box>
-                      <Text variant="bodyLarge" color="text">
+                      <Text variant="bodyLargeMedium" color="text">
                         {formatTruncatedNumber(netVega)}
                       </Text>
                     </Box>
@@ -105,7 +105,7 @@ const PortfolioChartOverviewSection = withSuspense(
           label="Profit / Loss"
           value={
             <Box>
-              <TextShimmer variant="bodyLarge" width={100} />
+              <TextShimmer variant="bodyLargeMedium" width={100} />
               <TextShimmer variant="small" width={80} />
             </Box>
           }
@@ -115,7 +115,7 @@ const PortfolioChartOverviewSection = withSuspense(
           label="Unrealized P/L"
           value={
             <Box>
-              <TextShimmer variant="bodyLarge" width={100} />
+              <TextShimmer variant="bodyLargeMedium" width={100} />
               <TextShimmer variant="small" width={80} />
             </Box>
           }

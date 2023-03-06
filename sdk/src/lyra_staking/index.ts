@@ -8,15 +8,14 @@ import {
   LyraGlobalContractId,
   OLD_STAKED_LYRA_OPTIMISM_ADDRESS,
 } from '../constants/contracts'
-import { GlobalRewardEpoch } from '../global_reward_epoch'
 import Lyra, { Deployment } from '../lyra'
 import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
 import fetchLyraStakingParams, { LyraStakingParams } from '../utils/fetchLyraStakingParams'
 import getERC20Contract from '../utils/getERC20Contract'
 import getGlobalContract from '../utils/getGlobalContract'
 
-export type AccountLyraStaking = {
-  stakingParams: LyraStakingParams
+export type LyraStakingAccount = {
+  lyraStaking: LyraStaking
   isInUnstakeWindow: boolean
   isInCooldown: boolean
   unstakeWindowStartTimestamp: number | null
@@ -37,14 +36,12 @@ export enum StakeDisabledReason {
 
 export class LyraStaking {
   lyra: Lyra
-  globalRewardEpoch: GlobalRewardEpoch | null
   cooldownPeriod: number
   unstakeWindow: number
   totalSupply: BigNumber
 
-  constructor(lyra: Lyra, stakingParams: LyraStakingParams, globalRewardEpoch: GlobalRewardEpoch | null) {
+  constructor(lyra: Lyra, stakingParams: LyraStakingParams) {
     this.lyra = lyra
-    this.globalRewardEpoch = globalRewardEpoch
     this.cooldownPeriod = stakingParams.cooldownPeriod
     this.unstakeWindow = stakingParams.unstakeWindow
     this.totalSupply = stakingParams.totalSupply
@@ -53,15 +50,12 @@ export class LyraStaking {
   // Getters
 
   static async get(lyra: Lyra): Promise<LyraStaking> {
-    const [stakingParams, globalRewardEpoch] = await Promise.all([
-      fetchLyraStakingParams(lyra),
-      lyra.latestGlobalRewardEpoch(),
-    ])
-    const stake = new LyraStaking(lyra, stakingParams, globalRewardEpoch)
+    const stakingParams = await fetchLyraStakingParams(lyra)
+    const stake = new LyraStaking(lyra, stakingParams)
     return stake
   }
 
-  static async getByOwner(lyra: Lyra, address: string): Promise<AccountLyraStaking> {
+  static async getByOwner(lyra: Lyra, address: string): Promise<LyraStakingAccount> {
     if (!lyra.ethereumProvider || !lyra.optimismProvider) {
       throw new Error('Ethereum and Optimism provider required.')
     }
@@ -70,17 +64,17 @@ export class LyraStaking {
       LyraGlobalContractId.LyraStakingModule,
       lyra.ethereumProvider
     )
-    const [block, stakingParams, accountCooldownBN] = await Promise.all([
+    const [block, lyraStaking, accountCooldownBN] = await Promise.all([
       lyra.provider.getBlock('latest'),
-      fetchLyraStakingParams(lyra),
+      LyraStaking.get(lyra),
       lyraStakingModuleContract.stakersCooldowns(address),
     ])
     const accountCooldown = accountCooldownBN.toNumber()
     const cooldownStartTimestamp = accountCooldown > 0 ? accountCooldown : null
-    const cooldownEndTimestamp = accountCooldown > 0 ? accountCooldown + stakingParams.cooldownPeriod : null
+    const cooldownEndTimestamp = accountCooldown > 0 ? accountCooldown + lyraStaking.cooldownPeriod : null
     const unstakeWindowStartTimestamp = cooldownEndTimestamp
     const unstakeWindowEndTimestamp = unstakeWindowStartTimestamp
-      ? unstakeWindowStartTimestamp + stakingParams.unstakeWindow
+      ? unstakeWindowStartTimestamp + lyraStaking.unstakeWindow
       : null
     const isInUnstakeWindow =
       !!unstakeWindowStartTimestamp &&
@@ -93,7 +87,7 @@ export class LyraStaking {
       block.timestamp >= cooldownStartTimestamp &&
       block.timestamp <= cooldownEndTimestamp
     return {
-      stakingParams,
+      lyraStaking,
       isInUnstakeWindow,
       isInCooldown,
       unstakeWindowStartTimestamp,

@@ -12,6 +12,7 @@ export type TextVariant =
   | 'heading'
   | 'heading2'
   | 'bodyLarge'
+  | 'bodyLargeMedium'
   | 'body'
   | 'bodyMedium'
   | 'secondary'

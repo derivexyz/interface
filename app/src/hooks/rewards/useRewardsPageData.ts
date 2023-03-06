@@ -1,10 +1,18 @@
-import { AccountRewardEpoch, GlobalRewardEpoch, Network, WethLyraStaking } from '@lyrafinance/lyra-js'
+import {
+  AccountLyraBalances,
+  AccountRewardEpoch,
+  GlobalRewardEpoch,
+  LyraStakingAccount,
+  Network,
+  WethLyraStaking,
+} from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
 import { FetchId } from '@/app/constants/fetch'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import { lyraOptimism } from '@/app/utils/lyra'
 
+import { EMPTY_LYRA_BALANCES } from '../account/useAccountLyraBalances'
 import useWallet from '../account/useWallet'
 import useWalletAccount from '../account/useWalletAccount'
 import useFetch, { useMutate } from '../data/useFetch'
@@ -17,25 +25,32 @@ type NetworkRewardsData = {
 }
 
 export type RewardsPageData = {
-  wethLyraStaking: WethLyraStaking | null
   epochs: {
     [network in Network]?: NetworkRewardsData
   }
+  lyraBalances: AccountLyraBalances
+  wethLyraStaking: WethLyraStaking | null
+  lyraStakingAccount: LyraStakingAccount | null
 }
 
-const EMPTY: RewardsPageData = {
-  wethLyraStaking: null,
+export const EMPTY_REWARDS_PAGE_DATA: RewardsPageData = {
   epochs: {},
+  lyraBalances: EMPTY_LYRA_BALANCES,
+  wethLyraStaking: null,
+  lyraStakingAccount: null,
 }
 
 export const fetchRewardsPageData = async (walletAddress: string | null): Promise<RewardsPageData> => {
-  const [globalRewardEpochs, accountRewardEpochs, wethLyraStaking] = await Promise.all([
-    Promise.all(Object.values(Network).map(network => getLyraSDK(network).globalRewardEpochs())),
-    walletAddress
-      ? Promise.all(Object.values(Network).map(network => getLyraSDK(network).accountRewardEpochs(walletAddress)))
-      : [],
-    lyraOptimism.wethLyraStaking(),
-  ])
+  const [globalRewardEpochs, accountRewardEpochs, wethLyraStaking, lyraBalances, lyraStakingAccount] =
+    await Promise.all([
+      Promise.all(Object.values(Network).map(network => getLyraSDK(network).globalRewardEpochs())),
+      walletAddress
+        ? Promise.all(Object.values(Network).map(network => getLyraSDK(network).accountRewardEpochs(walletAddress)))
+        : [],
+      lyraOptimism.wethLyraStaking(),
+      walletAddress ? lyraOptimism.account(walletAddress).lyraBalances() : EMPTY_LYRA_BALANCES,
+      walletAddress ? lyraOptimism.lyraStakingAccount(walletAddress) : null,
+    ])
 
   const networkEpochsMap = Object.values(Network).reduce((map, network, idx) => {
     const networkGlobalEpochs = globalRewardEpochs[idx]
@@ -61,7 +76,9 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
 
   return {
     epochs: networkEpochsMap,
+    lyraBalances,
     wethLyraStaking,
+    lyraStakingAccount,
   }
 }
 
@@ -70,7 +87,7 @@ export default function useRewardsPageData(): RewardsPageData {
   const [rewardsPageData] = useFetch(FetchId.RewardsPageData, [account], fetchRewardsPageData, {
     refreshInterval: 30 * 1000,
   })
-  return rewardsPageData ?? EMPTY
+  return rewardsPageData ?? EMPTY_REWARDS_PAGE_DATA
 }
 
 export function useMutateRewardsPageData() {

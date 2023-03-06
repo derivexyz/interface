@@ -14,7 +14,7 @@ import formatAPYRange from '@/app/utils/formatAPYRange'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import RowItem from '../../../components/common/RowItem'
-import StakeFormButton from '../../rewards/StakeModal/StakeFormButton'
+import StakeFormButton from '../../rewards_index/RewardsStakeModal/RewardsStakeFormButton'
 
 type Props = {
   isOpen: boolean
