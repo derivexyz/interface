@@ -26,7 +26,6 @@ export enum FetchId {
 
   // vaults
   VaultPageData = 'VaultPageData',
-  VaultBalance = 'VaultBalance',
   VaultStats = 'VaultStats',
   VaultAggregateTVL = 'VaultAggregateTVL',
   VaultAggregateStats = 'VaultAggregateStats',
@@ -34,15 +33,10 @@ export enum FetchId {
   // rewards
   // TODO: @dappbeast simplify account hooks
   RewardsPageData = 'RewardsPageData',
-  RewardsIndexPageData = 'RewardsIndexPageData',
   RewardsShortsPageData = 'RewardsShortsPageData',
   RewardsEthLyraLPPageData = 'RewardsEthLyraLPPageData',
-  Markets = 'Markets',
   AccountRewardEpochs = 'AccountRewardEpochs',
   LatestRewardEpoch = 'LatestRewardEpoch',
-  LyraStaking = 'LyraStaking',
-  LyraStakingAccount = 'LyraStakingAccount',
-  WethLyraStaking = 'WethLyraStaking',
   WethLyraStakingL2Account = 'WethLyraStakingL2Account',
   WethLyraStakingAccount = 'WethLyraStakingAccount',
   ClaimableBalanceL2 = 'ClaimableBalanceL2',

@@ -18,7 +18,6 @@ import { ZERO_BN } from '@/app/constants/bn'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccountWethLyraStaking from '@/app/hooks/rewards/useAccountWethLyraStaking'
-import useWethLyraStaking from '@/app/hooks/rewards/useWethLyraStaking'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getPagePath from '@/app/utils/getPagePath'
 
@@ -27,9 +26,8 @@ type Props = {
 }
 
 const WethLyraYourLiquidityText = withSuspense(
-  () => {
+  ({ wethLyraStaking }: Props) => {
     const accountWethLyraStaking = useAccountWethLyraStaking()
-    const wethLyraStaking = useWethLyraStaking()
     const liquidityValue =
       fromBigNumber(accountWethLyraStaking?.stakedLPTokenBalance ?? ZERO_BN) * (wethLyraStaking?.lpTokenValue ?? 0)
     return <Text variant="bodyLarge">{formatTruncatedUSD(liquidityValue)}</Text>
@@ -68,7 +66,7 @@ export default function RewardsWethLyraLPCard({ wethLyraStaking }: Props) {
                 <Text mr={2} color="secondaryText" variant="bodyLarge">
                   Your Liquidity
                 </Text>
-                <WethLyraYourLiquidityText />
+                <WethLyraYourLiquidityText wethLyraStaking={wethLyraStaking} />
               </Flex>
               <Flex alignItems="center" ml="auto">
                 <Text mr={2} color="secondaryText" variant="bodyLarge">
