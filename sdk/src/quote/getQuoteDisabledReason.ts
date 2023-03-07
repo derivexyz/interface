@@ -105,11 +105,12 @@ export default function getQuoteDisabledReason(
 
   // Check if hedger can hedge the additional delta risk introduced by the quote.
   const hedgerView = option.market().params.hedgerView
+  const increasesPoolDelta = (option.delta.lt(0) && isBuy) || (option.delta.gt(0) && !isBuy)
   if (
     hedgerView &&
     isOpen &&
     !isTestnet(option.lyra) &&
-    !canHedge(getQuoteSpotPrice(market, priceType), option.delta.lt(0), hedgerView)
+    !canHedge(getQuoteSpotPrice(market, priceType), increasesPoolDelta, hedgerView)
   ) {
     return QuoteDisabledReason.UnableToHedgeDelta
   }
