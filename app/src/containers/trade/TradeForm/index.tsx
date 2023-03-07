@@ -156,7 +156,10 @@ const TradeForm = withSuspense(
             valueColor={trade.premium.gt(0) ? 'text' : 'secondaryText'}
             value={
               trade.premium.gt(0)
-                ? formatBalance({ amount: trade.premium, ...trade.quoteToken }, { showDollars: true })
+                ? formatBalance(
+                    { amount: trade.premium, symbol: trade.quoteToken.symbol, decimals: 18 },
+                    { showDollars: true }
+                  )
                 : '-'
             }
           />
