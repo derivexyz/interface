@@ -32,7 +32,7 @@ export default function RewardTokenAmounts({
     () =>
       tokenAmounts
         .filter(t => !hideZeroAmounts || t.amount > 0)
-        .map(token => `${formatNumber(token.amount)} ${token.symbol}`)
+        .map(token => `${formatNumber(token.amount, { maxDps: 2 })} ${token.symbol}`)
         .join(', '),
     [tokenAmounts, hideZeroAmounts]
   )
