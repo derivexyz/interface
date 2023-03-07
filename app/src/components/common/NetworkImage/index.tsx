@@ -2,9 +2,9 @@ import Image from '@lyra/ui/components/Image'
 import useThemeValue from '@lyra/ui/hooks/useThemeValue'
 import { MarginProps, ResponsiveValue } from '@lyra/ui/types'
 import { LayoutProps } from '@lyra/ui/types'
-import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
+import { Network } from '@/app/constants/networks'
 import getAssetSrc from '@/app/utils/getAssetSrc'
 import getNetworkLogoURI from '@/app/utils/getNetworkLogoURI'
 

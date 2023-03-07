@@ -44,7 +44,7 @@ export const SHORT_COLLATERAL_REWARDS_DOC_URL =
   'https://docs.lyra.finance/governance/incentives#short-collateral-rewards'
 export const TRADING_CUTOFF_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/trading#trading-cutoffs'
 
-export const SWAP_TOKEN_1INCH_URL = 'https://app.1inch.io/#/10/simple/swap/ETH'
+export const SWAP_LYRA_1INCH_URL = 'https://app.1inch.io/#/1/simple/swap/ETH/LYRA'
 
 export const WETH_LYRA_L2_LIQUIDITY_URL =
   'https://beta.arrakis.finance/vaults/10/0x70535C46ce04181adf749f34B65B6365164d6B6E'

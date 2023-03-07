@@ -43,7 +43,7 @@ const RewardsStakingCard = ({
           lyraStakingAccount={lyraStakingAccount}
         />
         <CardSeparator isVertical={!isMobile} />
-        <RewardsNotStakedCardSection />
+        <RewardsNotStakedCardSection lyraBalances={lyraBalances} />
       </Card>
     </Flex>
   )

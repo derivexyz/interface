@@ -118,7 +118,6 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
             size="small"
             textAlign="left"
             isTransparent
-            noPadding
             label={getCustomColumnLabel(customCol1)}
             isOpen={isCustomCol1LeftOpen}
             onClick={() => {
@@ -143,7 +142,6 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
             textVariant="secondary"
             size="small"
             isTransparent
-            noPadding
             label={getCustomColumnLabel(customCol2)}
             isOpen={isCustomCol2LeftOpen}
             onClick={() => {
@@ -219,7 +217,6 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
             textVariant="secondary"
             size="small"
             isTransparent
-            noPadding
             label={getCustomColumnLabel(customCol2)}
             isOpen={isCustomCol2RightOpen}
             onClick={() => setIsCustomCol2RightOpen(!isCustomCol2RightOpen)}
@@ -242,7 +239,6 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
             textVariant="secondary"
             size="small"
             isTransparent
-            noPadding
             label={getCustomColumnLabel(customCol1)}
             isOpen={isCustomCol1RightOpen}
             onClick={() => {
