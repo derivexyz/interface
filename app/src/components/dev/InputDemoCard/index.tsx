@@ -49,7 +49,7 @@ export default function InputDemoCard({ ...marginProps }: MarginProps): CardElem
             label="Big Number with Max"
             value={num}
             onChange={setNum}
-            max={toBigNumber(10000) ?? ZERO_BN}
+            max={toBigNumber(10000)}
             showMaxButton
           />
         </Flex>

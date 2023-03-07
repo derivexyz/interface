@@ -145,6 +145,24 @@ export default class Lyra {
 
   // Trade
 
+  async approveTradeQuote(
+    marketAddressOrName: string,
+    owner: string,
+    amountQuote: BigNumber
+  ): Promise<PopulatedTransaction> {
+    const market = await this.market(marketAddressOrName)
+    return market.approveTradeQuote(owner, amountQuote)
+  }
+
+  async approveTradeBase(
+    marketAddressOrName: string,
+    owner: string,
+    amountBase: BigNumber
+  ): Promise<PopulatedTransaction> {
+    const market = await this.market(marketAddressOrName)
+    return market.approveTradeBase(owner, amountBase)
+  }
+
   async trade(
     owner: string,
     marketAddressOrName: string,
@@ -230,41 +248,48 @@ export default class Lyra {
     return Account.get(this, address)
   }
 
-  async drip(owner: string): Promise<PopulatedTransaction> {
+  drip(owner: string): PopulatedTransaction {
     const account = Account.get(this, owner)
-    return await account.drip()
+    return account.drip()
   }
 
   // Liquidity Deposits
 
-  async liquidityDeposits(marketAddressOrName: string, owner: string): Promise<LiquidityDeposit[]> {
+  async deposits(marketAddressOrName: string, owner: string): Promise<LiquidityDeposit[]> {
     return await LiquidityDeposit.getByOwner(this, marketAddressOrName, owner)
   }
 
-  async approveDeposit(marketAddressOrName: string, address: string): Promise<PopulatedTransaction | null> {
-    return await LiquidityDeposit.approve(this, marketAddressOrName, address)
-  }
-
-  async deposit(
-    beneficiary: string,
+  async approveDeposit(
     marketAddressOrName: string,
+    address: string,
     amountQuote: BigNumber
   ): Promise<PopulatedTransaction | null> {
-    return await LiquidityDeposit.deposit(this, marketAddressOrName, beneficiary, amountQuote)
+    const market = await this.market(marketAddressOrName)
+    return market.approveDeposit(address, amountQuote)
+  }
+
+  async initiateDeposit(
+    marketAddressOrName: string,
+    beneficiary: string,
+    amountQuote: BigNumber
+  ): Promise<PopulatedTransaction | null> {
+    const market = await this.market(marketAddressOrName)
+    return market.initiateDeposit(beneficiary, amountQuote)
   }
 
   // Liquidity Withdrawals
 
-  async liquidityWithdrawals(marketAddressOrName: string, owner: string): Promise<LiquidityWithdrawal[]> {
+  async withdrawals(marketAddressOrName: string, owner: string): Promise<LiquidityWithdrawal[]> {
     return await LiquidityWithdrawal.getByOwner(this, marketAddressOrName, owner)
   }
 
-  async withdraw(
-    beneficiary: string,
+  async initiateWithdraw(
     marketAddressOrName: string,
+    beneficiary: string,
     amountLiquidityTokens: BigNumber
   ): Promise<PopulatedTransaction | null> {
-    return await LiquidityWithdrawal.withdraw(this, marketAddressOrName, beneficiary, amountLiquidityTokens)
+    const market = await this.market(marketAddressOrName)
+    return market.initiateWithdraw(beneficiary, amountLiquidityTokens)
   }
 
   // Admin

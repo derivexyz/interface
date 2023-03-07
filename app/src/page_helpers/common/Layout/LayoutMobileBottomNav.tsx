@@ -14,9 +14,10 @@ import { PageId } from '@/app/constants/pages'
 import AccountButton from '@/app/containers/common/AccountButton'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import getAssetSrc from '@/app/utils/getAssetSrc'
-import { getDefaultMarket } from '@/app/utils/getDefaultMarket'
 import getPagePath from '@/app/utils/getPagePath'
+import getTabs from '@/app/utils/getTabs'
 import isMainnet from '@/app/utils/isMainnet'
+import logEvent from '@/app/utils/logEvent'
 
 import LayoutMoreDropdownListItems from './LayoutMoreDropdownListItems'
 import LayoutPrivacyModal from './LayoutPrivacyModal'
@@ -91,34 +92,19 @@ export default function LayoutMobileBottomNav(): JSX.Element {
             {!isMainnet() ? <Token ml="auto" variant="warning" label="Testnet" /> : null}
           </Flex>
           <List mt="auto">
-            <DropdownButtonListItem
-              onClick={() => {
-                navigate(getPagePath({ page: PageId.Portfolio }))
-                onClose()
-              }}
-              label="Portfolio"
-            />
-            <DropdownButtonListItem
-              onClick={() => {
-                navigate(getPagePath({ page: PageId.Trade, network, marketAddressOrName: getDefaultMarket(network) }))
-                onClose()
-              }}
-              label="Trade"
-            />
-            <DropdownButtonListItem
-              onClick={() => {
-                navigate(getPagePath({ page: PageId.VaultsIndex }))
-                onClose()
-              }}
-              label="Vaults"
-            />
-            <DropdownButtonListItem
-              onClick={() => {
-                navigate(getPagePath({ page: PageId.RewardsIndex }))
-                onClose()
-              }}
-              label="Rewards"
-            />
+            <>
+              {getTabs(network).map(tab => (
+                <DropdownButtonListItem
+                  key={tab.path}
+                  onClick={() => {
+                    logEvent(tab.logEvent)
+                    navigate(tab.path)
+                    onClose()
+                  }}
+                  label={tab.name}
+                />
+              ))}
+            </>
             <DropdownButtonListItem
               onClick={() => setIsMoreOpen(!isMoreOpen)}
               label="More"

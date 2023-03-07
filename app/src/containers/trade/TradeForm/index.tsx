@@ -155,7 +155,9 @@ const TradeForm = withSuspense(
             label={trade.isBuy ? 'Max Cost' : 'Min Received'}
             valueColor={trade.premium.gt(0) ? 'text' : 'secondaryText'}
             value={
-              trade.premium.gt(0) ? formatBalance(trade.premium, trade.quoteToken.symbol, { showDollars: true }) : '-'
+              trade.premium.gt(0)
+                ? formatBalance({ amount: trade.premium, ...trade.quoteToken }, { showDollars: true })
+                : '-'
             }
           />
           {trade.forceClosePenalty.gt(0) ? (

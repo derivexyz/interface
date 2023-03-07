@@ -1,23 +1,31 @@
 import Alert from '@lyra/ui/components/Alert'
 import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
+import { IconType } from '@lyra/ui/components/Icon'
 import Link from '@lyra/ui/components/Link'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
-import { Network } from '@lyrafinance/lyra-js'
 import { BigNumber } from 'ethers'
 import React, { useCallback, useState } from 'react'
 
 import { TERMS_OF_USE_URL } from '@/app/constants/links'
 import { LOCAL_STORAGE_TERMS_OF_USE_KEY } from '@/app/constants/localStorage'
+import { LyraNetwork, Network } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import TermsOfUseModal from '@/app/containers/common/TermsOfUseModal'
+import useEthBalance from '@/app/hooks/account/useEthBalance'
 import useIsReady from '@/app/hooks/account/useIsReady'
 import useScreenTransaction from '@/app/hooks/account/useScreenTransaction'
+import useTransaction from '@/app/hooks/account/useTransaction'
 import useWallet from '@/app/hooks/account/useWallet'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useLocalStorage from '@/app/hooks/local_storage/useLocalStorage'
+import useMutateDrip from '@/app/hooks/mutations/useMutateDrip'
+import coerce from '@/app/utils/coerce'
 import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
+import getLyraSDK from '@/app/utils/getLyraSDK'
+import getNetworkConfig from '@/app/utils/getNetworkConfig'
+import isMainnet from '@/app/utils/isMainnet'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 import isTermsOfUseEnabled from '@/app/utils/isTermsOfUseEnabled'
 
@@ -41,7 +49,7 @@ type RequireTokenBalance = {
 
 export type TransactionButtonProps = {
   transactionType: TransactionType
-  network: Network | 'ethereum'
+  network: Network
   onClick: () => Promise<void>
   label: string
   isDisabled?: boolean
@@ -72,9 +80,10 @@ const TransactionButton = withSuspense(
       const termsDict: Record<string, number> = JSON.parse(termsStr) ?? EMPTY_TERMS
       const isTermsAccepted = account && !!termsDict[account]
       const [isTermsOpen, setIsTermsOpen] = useState(false)
-      const targetChainId = network === 'ethereum' ? 1 : getChainIdForNetwork(network)
+      const targetChainId = getChainIdForNetwork(network)
       const screenData = useScreenTransaction(targetChainId, transactionType)
       const isReady = useIsReady(targetChainId)
+      const ethBalance = useEthBalance(network)
 
       const [isSwapOpen, setIsSwapOpen] = useState(false)
 
@@ -89,13 +98,33 @@ const TransactionButton = withSuspense(
         }
       }, [requireAllowance])
 
+      const lyraNetwork = coerce(LyraNetwork, network)
+
       const handleClick = useCallback(async () => {
         setIsLoading(true)
         await onClick()
         setIsLoading(false)
       }, [onClick])
 
+      const execute = useTransaction(network)
+      const mutateDrip = useMutateDrip()
+      const handleDrip = useCallback(async () => {
+        if (!account) {
+          console.warn('Wallet not connected')
+          return
+        }
+        if (!lyraNetwork) {
+          console.warn('Network not supported for drip')
+          return
+        }
+        await execute(getLyraSDK(lyraNetwork).drip(account), { onComplete: () => mutateDrip() })
+      }, [account, lyraNetwork, execute, mutateDrip])
+
       const onCloseSwap = useCallback(() => setIsSwapOpen(false), [])
+
+      const requireEthBalance = ethBalance.isZero()
+      const requireSwap = requireBalance && requireBalance.requiredBalance.gt(requireBalance.balance)
+      const requireApproval = !!requireAllowance
 
       return (
         <Box {...marginProps}>
@@ -127,21 +156,64 @@ const TransactionButton = withSuspense(
           {!isReady ? (
             // Switch networks prompt
             <ConnectWalletButton mb={3} width="100%" size="lg" network={network} />
-          ) : requireBalance && requireBalance.requiredBalance.gt(requireBalance.balance) && network !== 'ethereum' ? (
-            <Button
-              label={`Swap to ${requireBalance.symbol}`}
-              width="100%"
-              onClick={async () => {
-                if (isTermsAccepted || !isTermsOfUseEnabled()) {
-                  setIsSwapOpen(true)
-                } else {
-                  setIsTermsOpen(true)
-                }
-              }}
-              variant="primary"
-              size="lg"
-              mb={3}
-            />
+          ) : requireEthBalance ? (
+            isMainnet() ? (
+              // Bridge ETH
+              <Button
+                label="Bridge ETH"
+                width="100%"
+                onClick={async () => {
+                  if (isTermsAccepted || !isTermsOfUseEnabled()) {
+                    setIsSwapOpen(true)
+                  } else {
+                    setIsTermsOpen(true)
+                  }
+                }}
+                variant="primary"
+                size="lg"
+                mb={3}
+              />
+            ) : (
+              // Drip ETH
+              <Button
+                label="Get Test ETH"
+                width="100%"
+                size="lg"
+                rightIcon={IconType.ArrowUpRight}
+                variant="primary"
+                href={getNetworkConfig(network).faucetUrl ?? '#'}
+                target="_blank"
+                mb={3}
+              />
+            )
+          ) : requireBalance && requireSwap && lyraNetwork ? (
+            isMainnet() ? (
+              // Swap to target token
+              <Button
+                label={`Swap to ${requireBalance.symbol}`}
+                width="100%"
+                onClick={async () => {
+                  if (isTermsAccepted || !isTermsOfUseEnabled()) {
+                    setIsSwapOpen(true)
+                  } else {
+                    setIsTermsOpen(true)
+                  }
+                }}
+                variant="primary"
+                size="lg"
+                mb={3}
+              />
+            ) : (
+              // Drip tokens
+              <Button
+                label={`Get Test ${requireBalance.symbol}`}
+                onClick={handleDrip}
+                width="100%"
+                variant="primary"
+                size="lg"
+                mb={3}
+              />
+            )
           ) : requireAllowance ? (
             // Approve prompt
             <Button
@@ -174,7 +246,15 @@ const TransactionButton = withSuspense(
               }
             }}
             ref={ref}
-            isDisabled={!isReady || !screenData || screenData?.isBlocked || isDisabled || !!requireAllowance}
+            isDisabled={
+              !isReady ||
+              !screenData ||
+              screenData?.isBlocked ||
+              isDisabled ||
+              requireApproval ||
+              requireEthBalance ||
+              requireSwap
+            }
           />
           <TermsOfUseModal
             isOpen={isTermsOpen}
@@ -195,9 +275,9 @@ const TransactionButton = withSuspense(
             }}
             onClose={() => setIsTermsOpen(false)}
           />
-          {requireBalance && network !== 'ethereum' ? (
+          {requireBalance && lyraNetwork ? (
             <OnboardingModal
-              toToken={{ ...requireBalance, network }}
+              toToken={{ ...requireBalance, network: lyraNetwork }}
               isOpen={isSwapOpen}
               onClose={onCloseSwap}
               context={requireBalance.context}

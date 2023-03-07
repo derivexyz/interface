@@ -1,21 +1,19 @@
 import Button, { ButtonSize } from '@lyra/ui/components/Button'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
-import { Network } from '@lyrafinance/lyra-js'
 import React, { useEffect, useRef, useState } from 'react'
 import { LayoutProps, MarginProps } from 'styled-system'
 
 import { LogEvent } from '@/app/constants/logEvents'
+import { Network } from '@/app/constants/networks'
 import useWallet from '@/app/hooks/account/useWallet'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
-import getChainForChainId from '@/app/utils/getChainForChainId'
 import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
-import getNetworkConfig from '@/app/utils/getNetworkConfig'
+import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import logEvent from '@/app/utils/logEvent'
-import { MAINNET_NETWORK_CONFIG } from '@/app/utils/mainnetProvider'
 
 type Props = {
-  network: Network | 'ethereum'
+  network: Network
   size?: ButtonSize
 } & LayoutProps &
   MarginProps
@@ -30,15 +28,12 @@ const ConnectWalletButton = withSuspense(
       chainId: walletChainId,
       isOverride,
       switchNetwork,
-      walletType,
       openAccountModal,
       openConnectModal,
       removeSeeAddress,
     } = useWallet()
 
-    const targetChainId = network === 'ethereum' ? 1 : getChainIdForNetwork(network)
-    const targetNetworkConfig =
-      network === 'ethereum' ? MAINNET_NETWORK_CONFIG : getNetworkConfig(getChainForChainId(targetChainId))
+    const targetChainId = getChainIdForNetwork(network)
     const isWrongNetwork = isConnected && walletChainId !== targetChainId
 
     const [isConnectModalOpen, setIsConnectModalOpen] = useState(false)
@@ -55,13 +50,13 @@ const ConnectWalletButton = withSuspense(
         }
       }
       wasConnectModalOpen.current = isConnectModalOpen
-    }, [isConnectModalOpen, isConnected, isWrongNetwork, walletChainId, walletType])
+    }, [isConnectModalOpen, isConnected, isWrongNetwork, walletChainId])
 
     let buttonLabel = 'Connected'
     if (isOverride && account) {
       buttonLabel = `Watching ${formatTruncatedAddress(account)}`
     } else if (isWrongNetwork) {
-      buttonLabel = `Switch to ${targetNetworkConfig.shortName}`
+      buttonLabel = `Switch to ${getNetworkDisplayName(network)}`
     } else if (!isConnected) {
       buttonLabel = 'Connect Wallet'
     }

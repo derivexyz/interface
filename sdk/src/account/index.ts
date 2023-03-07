@@ -4,7 +4,7 @@ import { PopulatedTransaction } from '@ethersproject/contracts'
 import { Deployment, LyraContractId } from '../constants/contracts'
 import Lyra from '../lyra'
 import { Market } from '../market'
-import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
+import buildTx from '../utils/buildTx'
 import fetchLyraBalances from '../utils/fetchLyraBalances'
 import getLyraContract from '../utils/getLyraContract'
 import fetchAccountBalancesAndAllowances from './fetchAccountBalancesAndAllowances'
@@ -95,22 +95,12 @@ export class Account {
     return await fetchLyraBalances(this.address)
   }
 
-  async drip(): Promise<PopulatedTransaction> {
+  drip(): PopulatedTransaction {
     if (this.lyra.deployment !== Deployment.Testnet) {
       throw new Error('Faucet is only supported on testnet contracts')
     }
     const faucet = getLyraContract(this.lyra, this.lyra.version, LyraContractId.TestFaucet)
     const data = faucet.interface.encodeFunctionData('drip')
-    const tx = await buildTxWithGasEstimate(
-      this.lyra.provider,
-      this.lyra.provider.network.chainId,
-      faucet.address,
-      this.address,
-      data
-    )
-    if (!tx) {
-      throw new Error('Failed to estimate gas for drip transaction')
-    }
-    return tx
+    return buildTx(this.lyra.provider, this.lyra.provider.network.chainId, faucet.address, this.address, data)
   }
 }

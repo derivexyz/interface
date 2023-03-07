@@ -62,7 +62,7 @@ const RewardsClaimAndMigrateModal = withSuspense(({ isOpen, onClose, ...stylePro
             <>
               <RowItem
                 label="Claimable Rewards"
-                value={formatBalance(claimableBalances.oldStkLyra, 'stkLYRA')}
+                value={formatBalance({ amount: claimableBalances.oldStkLyra, symbol: 'stkLYRA', decimals: 18 })}
                 mb={6}
               />
               <RewardsClaimStkLyraButton />

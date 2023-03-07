@@ -1,13 +1,25 @@
 import { Network } from '@lyrafinance/lyra-js'
 
-import getNetworkForChain from '@/app/utils/getNetworkForChain'
+import getNetworkConfig from '@/app/utils/getNetworkConfig'
 import useDefaultNetwork from '@/app/utils/useDefaultNetwork'
 
 import useWallet from './useWallet'
 
+const getNetworkForChainId = (chainId: number): Network | null => {
+  switch (chainId) {
+    case getNetworkConfig(Network.Arbitrum).chainId:
+      return Network.Arbitrum
+    case getNetworkConfig(Network.Optimism).chainId:
+      return Network.Optimism
+    default:
+      return null
+  }
+}
+
 export default function useNetwork(): Network {
-  const { chain } = useWallet()
+  const { chainId } = useWallet()
   const defaultNetwork = useDefaultNetwork()
-  const network = chain ? getNetworkForChain(chain) : defaultNetwork
+  const walletNetwork = chainId ? getNetworkForChainId(chainId) : null
+  const network = walletNetwork ? walletNetwork : defaultNetwork
   return network
 }

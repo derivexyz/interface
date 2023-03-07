@@ -5,6 +5,7 @@ import { MarginProps } from '@lyra/ui/types'
 import React, { useCallback } from 'react'
 
 import { LogEvent } from '@/app/constants/logEvents'
+import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import useAccountLyraBalances, { useMutateAccountLyraBalances } from '@/app/hooks/account/useAccountLyraBalances'
 import useTransaction from '@/app/hooks/account/useTransaction'
@@ -24,7 +25,7 @@ const StakeFormButton = withSuspense(
   ({ amount, onClose, ...styleProps }: Props) => {
     const lyraBalances = useAccountLyraBalances()
     const account = useWalletAccount()
-    const execute = useTransaction('ethereum')
+    const execute = useTransaction(AppNetwork.Ethereum)
     const insufficientBalance = lyraBalances.ethereumLyra.lt(amount)
     const insufficientAllowance = lyraBalances.stakingAllowance.lt(amount)
     const mutateLyraBalances = useMutateAccountLyraBalances()
@@ -81,7 +82,7 @@ const StakeFormButton = withSuspense(
         }
         width="100%"
         isDisabled={amount.lte(0) || insufficientBalance}
-        network={'ethereum'}
+        network={AppNetwork.Ethereum}
         label={amount.lte(0) ? 'Enter Amount' : insufficientBalance ? 'Insufficient Balance' : 'Stake'}
         onClick={handleClickStake}
       />

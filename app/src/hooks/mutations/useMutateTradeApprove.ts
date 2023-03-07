@@ -1,11 +1,11 @@
 import { Trade } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
-import { useMutateTradeBalances } from '../account/useAccountBalances'
+import { useMutateAccountBalances } from '../account/useAccountBalances'
 
 export default function useMutateTradeApprove(trade: Trade) {
-  const mutateTradeBalances = useMutateTradeBalances(trade.market())
+  const mutateAccountBalances = useMutateAccountBalances(trade.lyra.network)
   return useCallback(async () => {
-    await mutateTradeBalances()
-  }, [mutateTradeBalances])
+    await mutateAccountBalances()
+  }, [mutateAccountBalances])
 }

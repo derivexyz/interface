@@ -4,7 +4,7 @@ import { PopulatedTransaction } from 'ethers'
 import Lyra, { LyraGlobalContractId } from '..'
 import { fetchAccountWethLyraStaking, fetchAccountWethLyraStakingL2 } from '../account/fetchAccountWethLyraStaking'
 import { MAX_BN, ZERO_BN } from '../constants/bn'
-import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
+import buildTx from '../utils/buildTx'
 import fetchWethLyraStakingData from '../utils/fetchWethLyraStakingData'
 import fromBigNumber from '../utils/fromBigNumber'
 import getGlobalContract from '../utils/getGlobalContract'
@@ -73,30 +73,24 @@ export class WethLyraStaking {
 
   // Transactions
 
-  static async approve(lyra: Lyra, address: string): Promise<PopulatedTransaction> {
+  static approve(lyra: Lyra, address: string): PopulatedTransaction {
     const arrakisPoolContract = getGlobalContract(lyra, LyraGlobalContractId.ArrakisPoolL1)
     const wethLyraStakingContract = getGlobalContract(lyra, LyraGlobalContractId.WethLyraStakingRewardsL1)
     const calldata = arrakisPoolContract.interface.encodeFunctionData('approve', [
       wethLyraStakingContract.address,
       MAX_BN,
     ])
-    return await buildTxWithGasEstimate(
-      lyra.ethereumProvider ?? lyra.provider,
-      1,
-      arrakisPoolContract.address,
-      address,
-      calldata
-    )
+    return buildTx(lyra.ethereumProvider ?? lyra.provider, 1, arrakisPoolContract.address, address, calldata)
   }
 
-  static async stake(lyra: Lyra, address: string, amount: BigNumber): Promise<PopulatedTransaction> {
+  static stake(lyra: Lyra, address: string, amount: BigNumber): PopulatedTransaction {
     const wethLyraStakingL1RewardsContract = getGlobalContract(
       lyra,
       LyraGlobalContractId.WethLyraStakingRewardsL1,
       lyra.ethereumProvider
     )
     const calldata = wethLyraStakingL1RewardsContract.interface.encodeFunctionData('stake', [amount])
-    return await buildTxWithGasEstimate(
+    return buildTx(
       lyra.ethereumProvider ?? lyra.provider,
       1,
       wethLyraStakingL1RewardsContract.address,
@@ -105,14 +99,14 @@ export class WethLyraStaking {
     )
   }
 
-  static async unstake(lyra: Lyra, address: string, amount: BigNumber) {
+  static unstake(lyra: Lyra, address: string, amount: BigNumber): PopulatedTransaction {
     const wethLyraStakingL1RewardsContract = getGlobalContract(
       lyra,
       LyraGlobalContractId.WethLyraStakingRewardsL1,
       lyra.ethereumProvider
     )
     const calldata = wethLyraStakingL1RewardsContract.interface.encodeFunctionData('withdraw', [amount])
-    return await buildTxWithGasEstimate(
+    return buildTx(
       lyra.ethereumProvider ?? lyra.provider,
       1,
       wethLyraStakingL1RewardsContract.address,
@@ -130,14 +124,14 @@ export class WethLyraStaking {
     return await wethLyraStakingRewardsL1Contract.earned(address)
   }
 
-  static async claim(lyra: Lyra, address: string): Promise<PopulatedTransaction> {
+  static claim(lyra: Lyra, address: string): PopulatedTransaction {
     const wethLyraStakingL1RewardsContract = getGlobalContract(
       lyra,
       LyraGlobalContractId.WethLyraStakingRewardsL1,
       lyra.ethereumProvider
     )
     const calldata = wethLyraStakingL1RewardsContract.interface.encodeFunctionData('getReward')
-    return await buildTxWithGasEstimate(
+    return buildTx(
       lyra.ethereumProvider ?? lyra.provider,
       1,
       wethLyraStakingL1RewardsContract.address,
@@ -147,14 +141,14 @@ export class WethLyraStaking {
   }
 
   // Deprecated L2 Arrakis program
-  static async unstakeL2(lyra: Lyra, address: string, amount: BigNumber) {
+  static unstakeL2(lyra: Lyra, address: string, amount: BigNumber) {
     const wethLyraStakingL2RewardsContract = getGlobalContract(
       lyra,
       LyraGlobalContractId.WethLyraStakingRewardsL2,
       lyra.optimismProvider
     )
     const calldata = wethLyraStakingL2RewardsContract.interface.encodeFunctionData('withdraw', [amount])
-    return await buildTxWithGasEstimate(
+    return buildTx(
       lyra.optimismProvider ?? lyra.provider,
       lyra.chainId,
       wethLyraStakingL2RewardsContract.address,
@@ -163,10 +157,10 @@ export class WethLyraStaking {
     )
   }
 
-  static async claimL2(lyra: Lyra, address: string) {
+  static claimL2(lyra: Lyra, address: string) {
     const wethLyraStakingL2RewardsContract = getGlobalContract(lyra, LyraGlobalContractId.WethLyraStakingRewardsL2)
     const calldata = wethLyraStakingL2RewardsContract.interface.encodeFunctionData('getReward')
-    return await buildTxWithGasEstimate(
+    return buildTx(
       lyra.optimismProvider ?? lyra.provider,
       lyra.chainId,
       wethLyraStakingL2RewardsContract.address,

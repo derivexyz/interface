@@ -24,6 +24,7 @@ import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
+import toBigNumber from '@/app/utils/toBigNumber'
 
 import VaultsBoostFormModal from '../../../containers/vaults/VaultsBoostFormModal'
 import MarketImage from '../../common/MarketImage'
@@ -181,7 +182,9 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
                 const latestWithdrawTimestamp = Math.max(...pendingWithdrawals.map(d => d.withdrawalTimestamp))
                 return (
                   <Box>
-                    <Text variant="secondary">{formatBalance(withdrawing, market.liquidityToken.symbol)}</Text>
+                    <Text variant="secondary">
+                      {formatBalance({ amount: toBigNumber(withdrawing), ...market.liquidityToken })}
+                    </Text>
                     <Text variant="small" color="secondaryText">
                       in {formatTruncatedDuration(Math.max(0, latestWithdrawTimestamp - market.block.timestamp))}
                     </Text>

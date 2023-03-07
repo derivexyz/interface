@@ -111,7 +111,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       return
     }
     logEvent(LogEvent.TradeApproveSubmit, { isBase: false })
-    const tx = await trade.approveQuote(account.address, MAX_BN)
+    const tx = market.approveTradeQuote(account.address, MAX_BN)
     await execute(tx, {
       onComplete: async () => {
         await mutateTradeApprove()
@@ -121,7 +121,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       },
       onError: () => logEvent(LogEvent.TradeApproveError, { isBase: false }),
     })
-  }, [account, trade, execute, mutateTradeApprove])
+  }, [account, market, execute, mutateTradeApprove])
 
   const handleClickApproveBase = useCallback(async () => {
     if (!account) {
@@ -129,7 +129,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       return null
     }
     logEvent(LogEvent.TradeApproveSubmit, { isBase: true })
-    const tx = await trade.approveBase(account.address, MAX_BN)
+    const tx = market.approveTradeBase(account.address, MAX_BN)
     await execute(tx, {
       onComplete: async () => {
         await mutateTradeApprove()
@@ -137,7 +137,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       },
       onError: () => logEvent(LogEvent.TradeApproveError, { isBase: true }),
     })
-  }, [account, trade, execute, mutateTradeApprove])
+  }, [account, market, execute, mutateTradeApprove])
 
   const handleClickTrade = useCallback(async () => {
     if (!account) {

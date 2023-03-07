@@ -1,13 +1,6 @@
-import { Network } from '@lyrafinance/lyra-js'
+import { Network } from '../constants/networks'
+import getNetworkConfig from './getNetworkConfig'
 
-export default function getNetworkDisplayName(network: Network | 'ethereum') {
-  if (network === 'ethereum') {
-    return 'Ethereum'
-  }
-  switch (network) {
-    case Network.Arbitrum:
-      return 'Arbitrum'
-    case Network.Optimism:
-      return 'Optimism'
-  }
+export default function getNetworkDisplayName(network: Network) {
+  return getNetworkConfig(network).displayName
 }

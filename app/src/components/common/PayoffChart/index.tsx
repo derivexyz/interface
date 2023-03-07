@@ -87,9 +87,7 @@ export default function PayoffChart({
     const interpolatedPrice: BigNumber[] = []
     for (let i = prices[0]; i < chartMax; i += pointInterval) {
       const num = toBigNumber(i)
-      if (num) {
-        interpolatedPrice.push(num)
-      }
+      interpolatedPrice.push(num)
     }
     return interpolatedPrice.map(spotPrice => ({
       x: fromBigNumber(spotPrice),

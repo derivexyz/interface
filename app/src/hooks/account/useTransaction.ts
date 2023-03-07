@@ -8,20 +8,19 @@ import {
   updatePendingToast,
   updateToast,
 } from '@lyra/ui/components/Toast'
-import { Network } from '@lyrafinance/lyra-js'
 import { ContractReceipt, PopulatedTransaction } from 'ethers'
 import { useCallback } from 'react'
 
+import { Network } from '@/app/constants/networks'
 import getExplorerUrl from '@/app/utils/getExplorerUrl'
-import getLyraSDK from '@/app/utils/getLyraSDK'
+import getProvider from '@/app/utils/getProvider'
 import isMainnet from '@/app/utils/isMainnet'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 import logError from '@/app/utils/logError'
-import mainnetProvider from '@/app/utils/mainnetProvider'
 import postTransaction from '@/app/utils/postTransaction'
 
 import emptyFunction from '../../utils/emptyFunction'
-import useWallet, { getNameForWalletType } from './useWallet'
+import useWallet from './useWallet'
 
 const DEFAULT_OPTIMISM_TRANSACTION_TIMEOUT = 1000 * 10 // 10 seconds
 const DEFAULT_TOAST_TIMEOUT = 1000 * 5 // 5 seconds
@@ -34,7 +33,7 @@ enum TransactionStatus {
 }
 
 const reportError = (
-  network: Network | 'ethereum',
+  network: Network,
   error: any,
   toastId: string | null,
   skipToast?: boolean,
@@ -47,6 +46,8 @@ const reportError = (
     }
     return null
   }
+
+  console.error(error)
 
   // Remove parentheses from error message
   const rawMessage = error?.data?.message ?? error?.message
@@ -86,25 +87,19 @@ export type TransactionOptions = {
 }
 
 export default function useTransaction(
-  network: Network | 'ethereum'
+  network: Network
 ): (
   populatedTx: PopulatedTransaction | Promise<PopulatedTransaction>,
   options?: TransactionOptions
 ) => Promise<ContractReceipt | null> {
-  const { walletType, signer } = useWallet()
+  const { signer } = useWallet()
 
   return useCallback(
     async (
       populatedTx: PopulatedTransaction | Promise<PopulatedTransaction>,
       options?: TransactionOptions
     ): Promise<ContractReceipt | null> => {
-      // TODO: Use custom provider for transactions
-      const provider = network === 'ethereum' ? mainnetProvider : getLyraSDK(network).provider
-
-      if (!walletType) {
-        console.warn('No wallet type')
-        return null
-      }
+      const provider = getProvider(network)
 
       if (!signer) {
         console.warn('No signer')
@@ -118,7 +113,7 @@ export default function useTransaction(
       const description = options?.description ? options.description.toLowerCase() : 'transaction'
       const toastId = !skipToast
         ? createPendingToast({
-            description: `Confirm your ${description} in ${getNameForWalletType(walletType)}`,
+            description: `Confirm your ${description}`,
             autoClose: false,
           })
         : null
@@ -130,7 +125,6 @@ export default function useTransaction(
         console.timeEnd('tx')
       } catch (e) {
         console.timeEnd('tx')
-        console.error(e)
         setTimeout(() => {
           reportError(network, e, toastId)
           onError(e as Error)
@@ -250,6 +244,6 @@ export default function useTransaction(
         }
       }
     },
-    [walletType, signer, network]
+    [signer, network]
   )
 }

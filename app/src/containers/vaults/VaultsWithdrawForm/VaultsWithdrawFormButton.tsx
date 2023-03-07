@@ -30,7 +30,7 @@ const VaultsWithdrawFormButton = ({ vault, amount, onWithdraw, ...styleProps }: 
       console.warn('Account does not exist')
       return
     }
-    await execute(market.withdraw(account.address, amount), {
+    await execute(market.initiateWithdraw(account.address, amount), {
       onComplete: async () => {
         logEvent(LogEvent.VaultWithdrawSuccess)
         await mutateWithdraw()

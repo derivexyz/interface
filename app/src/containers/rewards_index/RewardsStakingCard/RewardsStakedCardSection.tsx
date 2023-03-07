@@ -87,7 +87,7 @@ const RewardsStakedCardSection = ({
             variant="heading"
             color={balance.isZero() ? 'secondaryText' : l2Balance.gt(0) ? 'warningText' : 'primaryText'}
           >
-            {formatBalance(balance, 'stkLYRA')}
+            {formatBalance({ balance, symbol: 'stkLYRA', decimals: 18 })}
           </Text>
         </Flex>
         {l2Balance.gt(0) ? (

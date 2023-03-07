@@ -19,7 +19,7 @@ import { Network } from '../constants/network'
 import { GlobalRewardEpoch } from '../global_reward_epoch'
 import { RewardEpochTokenAmount } from '../global_reward_epoch'
 import Lyra from '../lyra'
-import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
+import buildTx from '../utils/buildTx'
 import fetchAccountRewardEpochData, {
   AccountArrakisRewards,
   AccountRewardEpochData,
@@ -267,16 +267,10 @@ export class AccountRewardEpoch {
     }
   }
 
-  static async claim(lyra: Lyra, address: string, tokenAddresses: string[]): Promise<PopulatedTransaction> {
+  static claim(lyra: Lyra, address: string, tokenAddresses: string[]): PopulatedTransaction {
     const distributorContract = getGlobalContract(lyra, LyraGlobalContractId.MultiDistributor)
     const calldata = distributorContract.interface.encodeFunctionData('claim', [tokenAddresses])
-    return await buildTxWithGasEstimate(
-      lyra.provider,
-      lyra.provider.network.chainId,
-      distributorContract.address,
-      address,
-      calldata
-    )
+    return buildTx(lyra.provider, lyra.provider.network.chainId, distributorContract.address, address, calldata)
   }
 
   // Dynamic Fields

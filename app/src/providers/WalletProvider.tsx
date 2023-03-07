@@ -125,7 +125,6 @@ export const WalletSeeContext = createContext<{ seeAddress: string | null; remov
   removeSeeAddress: emptyFunction,
 })
 
-// Store selected walletType in local browser storage
 export function WalletProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const lyraThemeLight = getThemePreset(false, true)
   const text = lyraThemeLight.colors?.text

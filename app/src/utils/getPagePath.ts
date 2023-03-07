@@ -51,6 +51,8 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
       return '/portfolio/history'
     case PageId.Storybook:
       return '/storybook'
+    case PageId.Faucet:
+      return '/faucet'
     case PageId.VaultsIndex:
       return '/vaults'
     case PageId.VaultsHistory:

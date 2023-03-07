@@ -20,6 +20,7 @@ import TokenAmountText from '@/app/components/common/TokenAmountText'
 import TokenImageStack from '@/app/components/common/TokenImageStack'
 import { ZERO_BN } from '@/app/constants/bn'
 import { WETH_LYRA_L1_LIQUIDITY_URL } from '@/app/constants/links'
+import { AppNetwork } from '@/app/constants/networks'
 import ConnectWalletButton from '@/app/containers/common/ConnectWalletButton'
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
 import RewardsWethLyraClaimModal from '@/app/containers/rewards/RewardsWethLyraClaimModal'
@@ -158,7 +159,7 @@ const RewardsEthLyraLPPageHelper = ({
               </>
             ) : (
               <Flex>
-                <ConnectWalletButton width={CTA_BUTTON_WIDTH} size="lg" network={'ethereum'} />
+                <ConnectWalletButton width={CTA_BUTTON_WIDTH} size="lg" network={AppNetwork.Ethereum} />
               </Flex>
             )}
           </CardSection>

@@ -62,11 +62,11 @@ const ShortYieldValue = withSuspense(
                   : `You are earning`}{' '}
                 an estimated daily rate of{' '}
                 <Text as="span" color={isEnabled && isEarning ? 'primaryText' : 'text'}>
-                  {formatBalance(opYieldPerDay, 'LYRA', { maxDps: 2 })}
+                  {formatBalance({ amount: opYieldPerDay, symbol: 'LYRA', decimals: 18 }, { maxDps: 2 })}
                 </Text>{' '}
                 and{' '}
                 <Text as="span" color={isEnabled && isEarning ? 'primaryText' : 'text'}>
-                  {formatBalance(opYieldPerDay, 'OP', { maxDps: 2 })}
+                  {formatBalance({ amount: opYieldPerDay, symbol: 'OP', decimals: 18 }, { maxDps: 2 })}
                 </Text>{' '}
                 until the option expires.
               </Text>

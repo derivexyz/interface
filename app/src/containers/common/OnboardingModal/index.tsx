@@ -9,6 +9,7 @@ import Text from '@lyra/ui/components/Text'
 import { Network } from '@lyrafinance/lyra-js'
 import { BigNumber } from 'ethers'
 import React, { useState } from 'react'
+import { useEffect } from 'react'
 
 import SocketBridge from '@/app/components/common/SocketBridge'
 import { LogEvent } from '@/app/constants/logEvents'
@@ -40,6 +41,12 @@ const OnboardingModalBody = withSuspense(
     context,
   }: Props & { isGetETHStep: boolean; onChangeStep: (isGetETHStep: boolean) => void }) => {
     const ethBalance = useEthBalance(toToken.network)
+    useEffect(() => {
+      if (ethBalance.isZero()) {
+        onChangeStep(true)
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     const toTokenBalance = toToken.balance
     const { chainId } = useWallet()
     const toChainId = getChainIdForNetwork(toToken.network)
@@ -55,9 +62,9 @@ const OnboardingModalBody = withSuspense(
         <Box mb={6} width="100%" height={460}>
           {isGetETHStep ? (
             <SocketBridge
-              key="deposit"
-              title="Deposit"
-              defaultSourceNetwork={chainId}
+              key="bridge"
+              title="Bridge"
+              defaultSourceNetwork={1}
               destNetworks={[toChainId]}
               defaultDestToken={SOCKET_NATIVE_TOKEN_ADDRESS}
             />
@@ -101,9 +108,8 @@ const OnboardingModalBody = withSuspense(
                 onClose()
               }
             }}
-            variant={
-              isGetETHStep ? (ethBalance.gt(0) ? 'primary' : 'default') : toTokenBalance.gt(0) ? 'primary' : 'default'
-            }
+            variant="primary"
+            isDisabled={isGetETHStep ? ethBalance.isZero() : toTokenBalance.isZero()}
           />
         </Flex>
       </ModalBody>
@@ -132,7 +138,7 @@ export default function OnboardingModal(props: Props): JSX.Element {
             Step {isGetETHStep ? '1' : '2'} of 2
           </Text>
           <Text variant="heading">
-            {isGetETHStep ? `Deposit ETH to ${getNetworkDisplayName(network)}` : `Swap to ${toToken.symbol}`}
+            {isGetETHStep ? `Bridge ETH to ${getNetworkDisplayName(network)}` : `Swap to ${toToken.symbol}`}
           </Text>
         </Box>
       }

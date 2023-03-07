@@ -8,6 +8,7 @@ import fromBigNumber from '../utils/fromBigNumber'
 import getPriceVariance from '../utils/getPriceVariance'
 import getQuoteSpotPrice, { PriceType } from '../utils/getQuoteSpotPrice'
 import getTimeToExpiryAnnualized from '../utils/getTimeToExpiryAnnualized'
+import isTestnet from '../utils/isTestnet'
 import toBigNumber from '../utils/toBigNumber'
 import { QuoteDisabledReason } from '.'
 
@@ -104,7 +105,12 @@ export default function getQuoteDisabledReason(
 
   // Check if hedger can hedge the additional delta risk introduced by the quote.
   const hedgerView = option.market().params.hedgerView
-  if (hedgerView && isOpen && !canHedge(getQuoteSpotPrice(market, priceType), option.delta.lt(0), hedgerView)) {
+  if (
+    hedgerView &&
+    isOpen &&
+    !isTestnet(option.lyra) &&
+    !canHedge(getQuoteSpotPrice(market, priceType), option.delta.lt(0), hedgerView)
+  ) {
     return QuoteDisabledReason.UnableToHedgeDelta
   }
 

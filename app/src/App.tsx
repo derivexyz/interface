@@ -13,6 +13,7 @@ import Layout from './page_helpers/common/Layout'
 import PortfolioHistoryPageHelper from './page_helpers/PortfolioHistoryPageHelper'
 import AdminBoardPage from './pages/AdminBoardPage'
 import AdminMarketPage from './pages/AdminPage'
+import FaucetPage from './pages/FaucetPage'
 import NotFoundPage from './pages/NotFoundPage'
 import PortfolioPage from './pages/PortfolioPage'
 import PositionPage from './pages/PositionPage'
@@ -31,6 +32,7 @@ import { WalletProvider } from './providers/WalletProvider'
 import compare from './utils/compare'
 import { getDefaultMarket } from './utils/getDefaultMarket'
 import initSentry from './utils/initSentry'
+import isMainnet from './utils/isMainnet'
 import logEvent from './utils/logEvent'
 import useDefaultNetwork from './utils/useDefaultNetwork'
 
@@ -129,12 +131,16 @@ function App(): JSX.Element {
                   <Route path="/vaults/:network/:marketAddressOrName" element={<VaultsPage />} />
                   <Route path="/vaults/history" element={<VaultsHistoryPage />} />
                   <Route path="/position/:network/:marketAddressOrName/:positionId" element={<PositionPage />} />
-                  <Route path="/rewards" element={<RewardsIndexPage />} />
-                  <Route path="/rewards/trading" element={<Navigate to={`/rewards/trading/${defaultNetwork}`} />} />
-                  <Route path="/rewards/trading/:network" element={<RewardsTradingPage />} />
-                  <Route path="/rewards/vaults/:network/:marketAddressOrName" element={<RewardsVaultsPage />} />
-                  <Route path="/rewards/shorts/:network" element={<RewardsShortsPage />} />
-                  <Route path="/rewards/eth-lyra" element={<RewardsEthLyraLPPage />} />
+                  {isMainnet() ? (
+                    <>
+                      <Route path="/rewards" element={<RewardsIndexPage />} />
+                      <Route path="/rewards/trading/:network" element={<RewardsTradingPage />} />
+                      <Route path="/rewards/vaults/:network/:marketAddressOrName" element={<RewardsVaultsPage />} />
+                      <Route path="/rewards/shorts/:network" element={<RewardsShortsPage />} />
+                      <Route path="/rewards/eth-lyra" element={<RewardsEthLyraLPPage />} />
+                    </>
+                  ) : null}
+                  {!isMainnet() ? <Route path="/faucet" element={<FaucetPage />} /> : null}
                   <Route path="/storybook" element={<StoryBookPage />} />
                   <Route
                     path="/admin"

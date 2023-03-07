@@ -30,6 +30,9 @@ export enum FetchId {
   VaultAggregateTVL = 'VaultAggregateTVL',
   VaultAggregateStats = 'VaultAggregateStats',
 
+  // faucet
+  FaucetPageData = 'FaucetPageData',
+
   // rewards
   // TODO: @dappbeast simplify account hooks
   RewardsPageData = 'RewardsPageData',

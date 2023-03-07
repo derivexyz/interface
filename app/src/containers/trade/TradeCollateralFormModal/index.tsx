@@ -130,8 +130,10 @@ const TradeCollateralFormModal = withSuspense(({ isOpen, onClose, onTrade, optio
             <RowItem
               label="Collateral"
               value={formatBalance(
-                collateralAmount,
-                isBaseCollateral ? trade.baseToken.symbol : trade.quoteToken.symbol,
+                {
+                  amount: collateralAmount,
+                  ...(isBaseCollateral ? trade.baseToken : trade.quoteToken),
+                },
                 {
                   showDollars: !isBaseCollateral,
                 }

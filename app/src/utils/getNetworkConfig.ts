@@ -1,10 +1,29 @@
-import { Chain } from '@lyrafinance/lyra-js'
-import nullthrows from 'nullthrows'
+import { AppChain, AppNetwork, Network, NETWORK_CONFIGS, NetworkConfig } from '../constants/networks'
+import isMainnet from './isMainnet'
+import resolveNetwork from './resolveNetwork'
 
-import { NETWORK_CONFIGS, NetworkConfig } from '../constants/networks'
+const getChainForNetwork = (network: AppNetwork): AppChain => {
+  if (isMainnet()) {
+    switch (network) {
+      case AppNetwork.Arbitrum:
+        return AppChain.Arbitrum
+      case AppNetwork.Optimism:
+        return AppChain.Optimism
+      case AppNetwork.Ethereum:
+        return AppChain.Ethereum
+    }
+  } else {
+    switch (network) {
+      case AppNetwork.Arbitrum:
+        return AppChain.ArbitrumGoerli
+      case AppNetwork.Optimism:
+        return AppChain.OptimismGoerli
+      case AppNetwork.Ethereum:
+        return AppChain.EthereumGoerli
+    }
+  }
+}
 
-// TODO: Support Ethereum network
-export default function getNetworkConfig(chain: Chain): NetworkConfig {
-  const networkConfig = NETWORK_CONFIGS[chain]
-  return nullthrows(networkConfig, `No network config for chain: ${chain}`)
+export default function getNetworkConfig(network: Network): NetworkConfig {
+  return NETWORK_CONFIGS[getChainForNetwork(resolveNetwork(network))]
 }

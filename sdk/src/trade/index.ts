@@ -456,46 +456,30 @@ export class Trade {
     return Array.from(new Set(positionIds))
   }
 
-  //  Approvals
+  // Transactions
 
-  async approveQuote(owner: string, quoteAmount: BigNumber) {
-    const market = this.market()
+  static approveQuote(market: Market, owner: string, amountQuote: BigNumber): PopulatedTransaction {
     const optionMarket = getLyraMarketContract(
-      this.lyra,
+      market.lyra,
       market.contractAddresses,
-      this.lyra.version,
+      market.lyra.version,
       LyraMarketContractId.OptionMarket
     )
-    const erc20 = getERC20Contract(this.lyra.provider, market.quoteToken.address)
-    const data = erc20.interface.encodeFunctionData('approve', [optionMarket.address, quoteAmount])
-    const tx = await buildTxWithGasEstimate(
-      this.lyra.provider,
-      this.lyra.provider.network.chainId,
-      erc20.address,
-      owner,
-      data
-    )
-    return tx
+    const erc20 = getERC20Contract(market.lyra.provider, market.quoteToken.address)
+    const data = erc20.interface.encodeFunctionData('approve', [optionMarket.address, amountQuote])
+    return buildTx(market.lyra.provider, market.lyra.provider.network.chainId, erc20.address, owner, data)
   }
 
-  async approveBase(owner: string, baseAmount: BigNumber) {
-    const market = this.market()
+  static approveBase(market: Market, owner: string, amountBase: BigNumber): PopulatedTransaction {
     const optionMarket = getLyraMarketContract(
-      this.lyra,
+      market.lyra,
       market.contractAddresses,
-      this.lyra.version,
+      market.lyra.version,
       LyraMarketContractId.OptionMarket
     )
-    const erc20 = getERC20Contract(this.lyra.provider, market.baseToken.address)
-    const data = erc20.interface.encodeFunctionData('approve', [optionMarket.address, baseAmount])
-    const tx = await buildTxWithGasEstimate(
-      this.lyra.provider,
-      this.lyra.provider.network.chainId,
-      erc20.address,
-      owner,
-      data
-    )
-    return tx
+    const erc20 = getERC20Contract(market.lyra.provider, market.baseToken.address)
+    const data = erc20.interface.encodeFunctionData('approve', [optionMarket.address, amountBase])
+    return buildTx(market.lyra.provider, market.lyra.provider.network.chainId, erc20.address, owner, data)
   }
 
   // Dynamic Fields

@@ -6,7 +6,6 @@ import { EMPTY_LYRA_BALANCES } from '../hooks/account/useAccountLyraBalances'
 import fromBigNumber from './fromBigNumber'
 import getEmptyMarketBalances from './getEmpyMarketBalances'
 import getLyraSDK from './getLyraSDK'
-import isMarketEqual from './isMarketEqual'
 
 const EMPTY_APY: RewardEpochTokenAmount[] = []
 
@@ -21,12 +20,11 @@ const fetchVault = async (network: Network, market: Market, walletAddress?: stri
     lyra.latestGlobalRewardEpoch(),
     account.balances(),
     fetchLyraBalances(),
-    lyra.liquidityDeposits(market.address, account.address),
-    lyra.liquidityWithdrawals(market.address, account.address),
+    lyra.deposits(market.address, account.address),
+    lyra.withdrawals(market.address, account.address),
   ])
   const marketBalances =
-    balances.find(balance => isMarketEqual(balance.market, market.address)) ??
-    getEmptyMarketBalances(ZERO_ADDRESS, market)
+    balances.find(balance => balance.market.isEqual(market.address)) ?? getEmptyMarketBalances(ZERO_ADDRESS, market)
 
   const pendingDeposits = deposits.filter(d => d.isPending)
   const pendingWithdrawals = withdrawals.filter(w => w.isPending)

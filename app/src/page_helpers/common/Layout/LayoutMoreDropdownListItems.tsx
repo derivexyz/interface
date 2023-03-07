@@ -7,7 +7,7 @@ import { DISCORD_URL, DOCS_URL, GITHUB_URL, STATS_URL, V1_DAPP_URL } from '@/app
 import { LogEvent } from '@/app/constants/logEvents'
 import isMainnet from '@/app/utils/isMainnet'
 import logEvent from '@/app/utils/logEvent'
-import setIsMainnet from '@/app/utils/setIsTestnet'
+import setIsMainnet from '@/app/utils/setIsMainnet'
 
 type Props = {
   onClose: () => void

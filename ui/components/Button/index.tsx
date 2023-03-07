@@ -282,9 +282,9 @@ const Button = React.forwardRef(
     return (
       <RebassButton
         ref={ref}
-        as={href != null ? BaseLink : 'button'}
-        href={href}
-        target={target}
+        as={!isDisabled && href ? BaseLink : 'button'}
+        href={!isDisabled ? href : undefined}
+        target={!isDisabled ? target : undefined}
         display="flex"
         type={type}
         justifyContent={getButtonJustify(justify)}

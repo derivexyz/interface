@@ -5,7 +5,7 @@ import Modal from '@lyra/ui/components/Modal'
 import ModalBody from '@lyra/ui/components/Modal/ModalBody'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import { AccountLyraBalances, Chain } from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import getNetworkConfig from '@/app/utils/getNetworkConfig'
@@ -53,7 +53,7 @@ export default function RewardsBridgeModal({ balances, isOpen, onClose, isStkLYR
           <Button
             size="sm"
             variant="light"
-            href={getNetworkConfig(Chain.Optimism).nativeBridgeUrl}
+            href={getNetworkConfig(Network.Optimism).nativeBridgeUrl}
             target="_blank"
             label="Native Bridge"
             rightIcon={IconType.ArrowUpRight}
@@ -63,7 +63,7 @@ export default function RewardsBridgeModal({ balances, isOpen, onClose, isStkLYR
               ml={2}
               size="sm"
               variant="light"
-              href={getNetworkConfig(Chain.Optimism).fastBridgeUrl}
+              href={getNetworkConfig(Network.Optimism).fastBridgeUrl}
               target="_blank"
               label="Fast Bridge"
               rightIcon={IconType.ArrowUpRight}
@@ -86,7 +86,7 @@ export default function RewardsBridgeModal({ balances, isOpen, onClose, isStkLYR
           <Button
             size="sm"
             variant="light"
-            href={getNetworkConfig(Chain.Arbitrum).nativeBridgeUrl}
+            href={getNetworkConfig(Network.Arbitrum).nativeBridgeUrl}
             target="_blank"
             label="Native Bridge"
             rightIcon={IconType.ArrowUpRight}
@@ -96,7 +96,7 @@ export default function RewardsBridgeModal({ balances, isOpen, onClose, isStkLYR
               ml={2}
               size="sm"
               variant="light"
-              href={getNetworkConfig(Chain.Arbitrum).fastBridgeUrl}
+              href={getNetworkConfig(Network.Arbitrum).fastBridgeUrl}
               target="_blank"
               label="Fast Bridge"
               rightIcon={IconType.ArrowUpRight}

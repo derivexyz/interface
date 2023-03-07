@@ -334,7 +334,6 @@ export class Quote {
     if (disabledReason) {
       // For subset of disabled reasons, return empty quote
       switch (disabledReason) {
-        case QuoteDisabledReason.DeltaOutOfRange:
         case QuoteDisabledReason.EmptyPremium:
         case QuoteDisabledReason.EmptySize:
         case QuoteDisabledReason.Expired:

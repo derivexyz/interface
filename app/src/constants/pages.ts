@@ -15,6 +15,7 @@ export enum PageId {
   RewardsVaults = 'RewardsVaults',
   RewardsEthLyraLp = 'RewardsEthLyraLp',
   Storybook = 'Storybook',
+  Faucet = 'Faucet',
 }
 
 export type PageArgsMap = {
@@ -58,6 +59,7 @@ export type PageArgsMap = {
   }
   [PageId.RewardsEthLyraLp]: undefined
   [PageId.Storybook]: undefined
+  [PageId.Faucet]: undefined
 }
 
 type PageArgsWithPageMap<M extends Record<string, any>> = {

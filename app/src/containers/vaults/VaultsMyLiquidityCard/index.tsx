@@ -55,7 +55,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
           <Text variant="heading">{formatUSD(vault.liquidityTokenBalanceValue)}</Text>
         </Box>
         <Grid mb={[3, 6]} sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'], gridColumnGap: 6, gridRowGap: 6 }}>
-          <LabelItem label="Balance" value={formatBalance(vault.liquidityToken.balance, vault.liquidityToken.symbol)} />
+          <LabelItem label="Balance" value={formatBalance(vault.liquidityToken)} />
           <LabelItem
             label="Your APY"
             valueColor={minTotalApy > 0 && totalApy > minTotalApy * 1.01 ? 'primaryText' : 'text'}

@@ -1,15 +1,15 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Network } from '@lyrafinance/lyra-js'
 
 import { FetchId } from '@/app/constants/fetch'
-import getLyraSDK from '@/app/utils/getLyraSDK'
+import { Network } from '@/app/constants/networks'
+import getProvider from '@/app/utils/getProvider'
 
 import { ZERO_BN } from '../../constants/bn'
 import useFetch from '../data/useFetch'
 import useWalletAccount from './useWalletAccount'
 
 const fetcher = async (network: Network, account: string): Promise<BigNumber> => {
-  return await getLyraSDK(network).provider.getBalance(account)
+  return await getProvider(network).getBalance(account)
 }
 
 export default function useEthBalance(network: Network): BigNumber {

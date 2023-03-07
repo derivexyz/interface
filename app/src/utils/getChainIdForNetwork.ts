@@ -1,17 +1,6 @@
-import { Network } from '@lyrafinance/lyra-js'
+import { Network } from '../constants/networks'
+import getNetworkConfig from './getNetworkConfig'
 
-import getArbitrumChainId from './getArbitrumChainId'
-import getOptimismChainId from './getOptimismChainId'
-
-export const getChainIdForNetwork = (network: Network | 'ethereum') => {
-  if (network === 'ethereum') {
-    return 1
-  } else {
-    switch (network) {
-      case Network.Arbitrum:
-        return getArbitrumChainId()
-      case Network.Optimism:
-        return getOptimismChainId()
-    }
-  }
+export const getChainIdForNetwork = (network: Network) => {
+  return getNetworkConfig(network).chainId
 }

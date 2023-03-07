@@ -1,11 +1,10 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { PopulatedTransaction } from '@ethersproject/contracts'
 
-import { MAX_BN } from '../constants/bn'
 import { LyraMarketContractId } from '../constants/contracts'
 import Lyra from '../lyra'
 import { Market, MarketLiquiditySnapshot } from '../market'
-import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
+import buildTx from '../utils/buildTx'
 import fetchLiquidityDepositEventDataByOwner from '../utils/fetchLiquidityDepositEventDataByOwner'
 import getERC20Contract from '../utils/getERC20Contract'
 import getLiquidityDelayReason from '../utils/getLiquidityDelayReason'
@@ -132,44 +131,35 @@ export class LiquidityDeposit {
     return liquidityDeposits
   }
 
-  // Initiate Deposit
+  // Transactions
 
-  static async approve(lyra: Lyra, marketAddressOrName: string, address: string) {
-    const market = await Market.get(lyra, marketAddressOrName)
+  static approve(market: Market, owner: string, amountQuote: BigNumber) {
     const liquidityPoolContract = getLyraMarketContract(
-      lyra,
+      market.lyra,
       market.contractAddresses,
-      lyra.version,
+      market.lyra.version,
       LyraMarketContractId.LiquidityPool
     )
-    const erc20 = getERC20Contract(lyra.provider, market.quoteToken.address)
-    const data = erc20.interface.encodeFunctionData('approve', [liquidityPoolContract.address, MAX_BN])
-    const tx = await buildTxWithGasEstimate(lyra.provider, lyra.provider.network.chainId, erc20.address, address, data)
-    return tx
+    const erc20 = getERC20Contract(market.lyra.provider, market.quoteToken.address)
+    const data = erc20.interface.encodeFunctionData('approve', [liquidityPoolContract.address, amountQuote])
+    return buildTx(market.lyra.provider, market.lyra.provider.network.chainId, erc20.address, owner, data)
   }
 
-  static async deposit(
-    lyra: Lyra,
-    marketAddressOrName: string,
-    beneficiary: string,
-    amountQuote: BigNumber
-  ): Promise<PopulatedTransaction> {
-    const market = await Market.get(lyra, marketAddressOrName)
+  static initiateDeposit(market: Market, beneficiary: string, amountQuote: BigNumber): PopulatedTransaction {
     const liquidityPoolContract = getLyraMarketContract(
-      lyra,
+      market.lyra,
       market.contractAddresses,
-      lyra.version,
+      market.lyra.version,
       LyraMarketContractId.LiquidityPool
     )
     const data = liquidityPoolContract.interface.encodeFunctionData('initiateDeposit', [beneficiary, amountQuote])
-    const tx = await buildTxWithGasEstimate(
-      lyra.provider,
-      lyra.provider.network.chainId,
+    return buildTx(
+      market.lyra.provider,
+      market.lyra.provider.network.chainId,
       liquidityPoolContract.address,
       beneficiary,
       data
     )
-    return tx
   }
 
   // Edges

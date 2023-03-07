@@ -1,5 +1,4 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { Chain } from '@lyrafinance/lyra-js'
 import { useAccountModal, useConnectModal } from '@rainbow-me/rainbowkit'
 import { Signer } from 'ethers'
 import { useCallback, useContext, useMemo } from 'react'
@@ -14,18 +13,14 @@ import {
   useSwitchNetwork,
 } from 'wagmi'
 
-import { WalletType } from '@/app/constants/networks'
 import { WalletSeeContext } from '@/app/providers/WalletProvider'
-import getChainForChainId from '@/app/utils/getChainForChainId'
 
 type Wallet = {
   isConnected: boolean
   account: string | undefined
   connectedAccount: string | undefined
   chainId: number | undefined
-  chain?: Chain
   isLoading: boolean
-  walletType: WalletType | null
   connector: Connector | undefined
   signer?: Signer | null
   provider: JsonRpcProvider | undefined
@@ -37,42 +32,6 @@ type Wallet = {
   removeSeeAddress: () => void
 }
 
-function getWalletType(connectorId?: string): WalletType | null {
-  switch (connectorId) {
-    case 'metaMask':
-      return WalletType.MetaMask
-    case 'walletConnect':
-      return WalletType.WalletConnect
-    case 'coinbaseWallet':
-      return WalletType.CoinbaseWallet
-    case 'safe':
-      return WalletType.GnosisSafe
-    default:
-      return null
-  }
-}
-
-export const getNameForWalletType = (walletType: WalletType): string => {
-  switch (walletType) {
-    case WalletType.MetaMask:
-      return 'MetaMask'
-    case WalletType.WalletConnect:
-      return 'WalletConnect'
-    case WalletType.CoinbaseWallet:
-      return 'Coinbase'
-    case WalletType.GnosisSafe:
-      return 'GnosisSafe'
-  }
-}
-
-const getChainForChainIdCatch = (chainId: number) => {
-  try {
-    return getChainForChainId(chainId)
-  } catch {
-    return
-  }
-}
-
 export default function useWallet(): Wallet {
   const { address, connector } = useAccount()
   const { isLoading } = useConnect()
@@ -81,8 +40,6 @@ export default function useWallet(): Wallet {
   const { data: signer } = useSigner()
   const { disconnect } = useDisconnect()
   const provider = useProvider<JsonRpcProvider>()
-  const walletType = getWalletType(connector?.id)
-  const lyraChain = chain ? getChainForChainIdCatch(chain.id) : undefined
 
   const { openConnectModal } = useConnectModal()
   const { openAccountModal } = useAccountModal()
@@ -124,14 +81,12 @@ export default function useWallet(): Wallet {
       account: seeAddress ?? address,
       connectedAccount: address,
       chainId: chain?.id,
-      chain: lyraChain,
       connector,
       isConnected: !!address && !!connector,
       isLoading,
       isOverride: !!seeAddress,
       provider,
       signer,
-      walletType,
       disconnect,
       switchNetwork,
       openAccountModal: openAccountModalSafe,
@@ -142,12 +97,10 @@ export default function useWallet(): Wallet {
       address,
       connector,
       chain,
-      lyraChain,
       isLoading,
       seeAddress,
       signer,
       provider,
-      walletType,
       disconnect,
       switchNetwork,
       openAccountModalSafe,

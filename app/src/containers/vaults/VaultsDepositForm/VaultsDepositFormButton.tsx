@@ -2,6 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { MarginProps } from '@lyra/ui/types'
 import React, { useCallback } from 'react'
 
+import { MAX_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
 import { Vault } from '@/app/constants/vault'
@@ -31,7 +32,7 @@ const VaultsDepositFormButton = ({ vault, amount, onDeposit, ...styleProps }: Pr
       console.warn('Account does not exist')
       return
     }
-    const tx = await market.approveDeposit(account)
+    const tx = market.approveDeposit(account, MAX_BN)
     await execute(tx, {
       onComplete: async () => {
         logEvent(LogEvent.VaultDepositApproveSuccess)
@@ -46,7 +47,7 @@ const VaultsDepositFormButton = ({ vault, amount, onDeposit, ...styleProps }: Pr
       console.warn('Account does not exist')
       return
     }
-    await execute(market.deposit(account, amount), {
+    await execute(market.initiateDeposit(account, amount), {
       onComplete: async () => {
         logEvent(LogEvent.VaultDepositSuccess)
         await mutateDeposit()

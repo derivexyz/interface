@@ -9,7 +9,7 @@ import {
   OLD_STAKED_LYRA_OPTIMISM_ADDRESS,
 } from '../constants/contracts'
 import Lyra, { Deployment } from '../lyra'
-import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
+import buildTx from '../utils/buildTx'
 import fetchLyraStakingParams, { LyraStakingParams } from '../utils/fetchLyraStakingParams'
 import getERC20Contract from '../utils/getERC20Contract'
 import getGlobalContract from '../utils/getGlobalContract'
@@ -97,66 +97,47 @@ export class LyraStaking {
 
   // Transactions
 
-  static async approve(lyra: Lyra, address: string): Promise<PopulatedTransaction> {
+  static approve(lyra: Lyra, address: string): PopulatedTransaction {
     const proxyContract = getGlobalContract(lyra, LyraGlobalContractId.LyraStakingModule, lyra.ethereumProvider)
     const lyraContract = getERC20Contract(
       lyra.ethereumProvider ?? lyra.provider,
       lyra.deployment === Deployment.Mainnet ? LYRA_ETHEREUM_MAINNET_ADDRESS : LYRA_ETHEREUM_KOVAN_ADDRESS
     )
     const data = lyraContract.interface.encodeFunctionData('approve', [proxyContract.address, MAX_BN])
-    return await buildTxWithGasEstimate(lyra.ethereumProvider ?? lyra.provider, 1, lyraContract.address, address, data)
+    return buildTx(lyra.ethereumProvider ?? lyra.provider, 1, lyraContract.address, address, data)
   }
 
-  static async stake(lyra: Lyra, address: string, amount: BigNumber) {
+  static stake(lyra: Lyra, address: string, amount: BigNumber): PopulatedTransaction {
     const lyraStakingModuleProxyContract = getGlobalContract(
       lyra,
       LyraGlobalContractId.LyraStakingModule,
       lyra.ethereumProvider
     )
     const txData = lyraStakingModuleProxyContract.interface.encodeFunctionData('stake', [address, amount])
-    return await buildTxWithGasEstimate(
-      lyra.ethereumProvider ?? lyra.provider,
-      1,
-      lyraStakingModuleProxyContract.address,
-      address,
-      txData
-    )
+    return buildTx(lyra.ethereumProvider ?? lyra.provider, 1, lyraStakingModuleProxyContract.address, address, txData)
   }
 
-  static async requestUnstake(lyra: Lyra, address: string): Promise<PopulatedTransaction> {
+  static requestUnstake(lyra: Lyra, address: string): PopulatedTransaction {
     const lyraStakingModuleProxyContract = getGlobalContract(
       lyra,
       LyraGlobalContractId.LyraStakingModule,
       lyra.ethereumProvider
     )
     const data = lyraStakingModuleProxyContract.interface.encodeFunctionData('cooldown')
-    const tx = await buildTxWithGasEstimate(
-      lyra.ethereumProvider ?? lyra.provider,
-      1,
-      lyraStakingModuleProxyContract.address,
-      address,
-      data
-    )
-    return tx
+    return buildTx(lyra.ethereumProvider ?? lyra.provider, 1, lyraStakingModuleProxyContract.address, address, data)
   }
 
-  static async unstake(lyra: Lyra, address: string, amount: BigNumber) {
+  static unstake(lyra: Lyra, address: string, amount: BigNumber): PopulatedTransaction {
     const lyraStakingModuleProxyContract = getGlobalContract(
       lyra,
       LyraGlobalContractId.LyraStakingModule,
       lyra.ethereumProvider
     )
     const txData = lyraStakingModuleProxyContract.interface.encodeFunctionData('redeem', [address, amount])
-    return await buildTxWithGasEstimate(
-      lyra.ethereumProvider ?? lyra.provider,
-      1,
-      lyraStakingModuleProxyContract.address,
-      address,
-      txData
-    )
+    return buildTx(lyra.ethereumProvider ?? lyra.provider, 1, lyraStakingModuleProxyContract.address, address, txData)
   }
 
-  static async claim(lyra: Lyra, address: string) {
+  static async claim(lyra: Lyra, address: string): Promise<PopulatedTransaction> {
     const lyraStakingModuleContract = getGlobalContract(
       lyra,
       LyraGlobalContractId.LyraStakingModule,
@@ -164,22 +145,14 @@ export class LyraStaking {
     )
     const totalRewardsBalance = await lyraStakingModuleContract.getTotalRewardsBalance(address)
     const data = lyraStakingModuleContract.interface.encodeFunctionData('claimRewards', [address, totalRewardsBalance])
-    const tx = await buildTxWithGasEstimate(
-      lyra.ethereumProvider ?? lyra.provider,
-      1,
-      lyraStakingModuleContract.address,
-      address,
-      data
-    )
-    return tx
+    return buildTx(lyra.ethereumProvider ?? lyra.provider, 1, lyraStakingModuleContract.address, address, data)
   }
 
-  static async approveMigrate(lyra: Lyra, address: string): Promise<PopulatedTransaction> {
+  static approveMigrate(lyra: Lyra, address: string): PopulatedTransaction {
     const tokenMigratorContract = getGlobalContract(lyra, LyraGlobalContractId.TokenMigrator)
     const erc20 = getERC20Contract(lyra.provider, OLD_STAKED_LYRA_OPTIMISM_ADDRESS)
     const data = erc20.interface.encodeFunctionData('approve', [tokenMigratorContract.address, MAX_BN])
-    const tx = await buildTxWithGasEstimate(lyra.provider, lyra.provider.network.chainId, erc20.address, address, data)
-    return tx
+    return buildTx(lyra.provider, lyra.provider.network.chainId, erc20.address, address, data)
   }
 
   static async migrateStakedLyra(lyra: Lyra, address: string): Promise<PopulatedTransaction> {
@@ -187,14 +160,7 @@ export class LyraStaking {
     const tokenMigratorContract = getGlobalContract(lyra, LyraGlobalContractId.TokenMigrator, lyra.optimismProvider)
     const { optimismOldStkLyra } = await account.lyraBalances()
     const data = tokenMigratorContract.interface.encodeFunctionData('swap', [optimismOldStkLyra])
-    const tx = await buildTxWithGasEstimate(
-      lyra.provider,
-      lyra.provider.network.chainId,
-      tokenMigratorContract.address,
-      address,
-      data
-    )
-    return tx
+    return buildTx(lyra.provider, lyra.provider.network.chainId, tokenMigratorContract.address, address, data)
   }
 
   static async claimableRewards(lyra: Lyra, address: string): Promise<BigNumber> {

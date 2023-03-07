@@ -10,6 +10,7 @@ import React, { useCallback } from 'react'
 import { Flex } from 'rebass'
 
 import { WETH_LYRA_L1_LIQUIDITY_URL } from '@/app/constants/links'
+import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
@@ -31,7 +32,7 @@ const RewardsWethLyraUnstakeModalContent = withSuspense(
   ({ amount, onChange, onUnstake }: Props) => {
     const accountWethLyraStaking = useAccountWethLyraStaking()
     const mutateAccountWethLyraStaking = useMutateAccountWethLyraStaking()
-    const execute = useTransaction('ethereum')
+    const execute = useTransaction(AppNetwork.Ethereum)
     const account = useWalletAccount()
     const isDisabled = amount.isZero() || accountWethLyraStaking?.stakedLPTokenBalance.isZero()
 
@@ -66,7 +67,7 @@ const RewardsWethLyraUnstakeModalContent = withSuspense(
           />
         </Flex>
         <TransactionButton
-          network={'ethereum'}
+          network={AppNetwork.Ethereum}
           transactionType={TransactionType.UnstakeWethLyraL1}
           width="100%"
           mb={3}

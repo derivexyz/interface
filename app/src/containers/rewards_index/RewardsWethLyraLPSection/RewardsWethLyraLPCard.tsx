@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom'
 
 import TokenImageStack from '@/app/components/common/TokenImageStack'
 import { ZERO_BN } from '@/app/constants/bn'
+import { AppNetwork } from '@/app/constants/networks'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useAccountWethLyraStaking from '@/app/hooks/rewards/useAccountWethLyraStaking'
@@ -49,7 +50,7 @@ export default function RewardsWethLyraLPCard({ wethLyraStaking }: Props) {
           }}
         >
           <Flex alignItems="center">
-            <TokenImageStack tokenNameOrAddresses={['eth', 'lyra']} size={32} network="ethereum" />
+            <TokenImageStack tokenNameOrAddresses={['eth', 'lyra']} size={32} network={AppNetwork.Ethereum} />
             <Text ml={2} variant="bodyLarge">
               ETH-LYRA LP · Ethereum
             </Text>

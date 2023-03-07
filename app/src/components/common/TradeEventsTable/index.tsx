@@ -18,6 +18,7 @@ import React, { useMemo } from 'react'
 
 import filterNulls from '@/app/utils/filterNulls'
 import fromBigNumber from '@/app/utils/fromBigNumber'
+import toBigNumber from '@/app/utils/toBigNumber'
 
 import PositionItem from '../PositionItem'
 
@@ -182,7 +183,10 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
             <Box>
               <Text variant="secondary" color={props.cell.value ? 'text' : 'secondaryText'}>
                 {props.cell.value
-                  ? formatBalance(props.cell.value, market.quoteToken.symbol, { showSign: true, showDollars: true })
+                  ? formatBalance(
+                      { amount: props.cell.value, ...market.quoteToken },
+                      { showSign: true, showDollars: true }
+                    )
                   : '-'}
               </Text>
               {totalFeeRebate > 0 ? (
@@ -204,8 +208,10 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
             <Text variant="secondary" color={collateralAmount ? 'text' : 'secondaryText'}>
               {collateralAmount
                 ? `${formatBalance(
-                    collateralAmount,
-                    isBaseCollateral ? market.baseToken.symbol : market.quoteToken.symbol,
+                    {
+                      amount: toBigNumber(collateralAmount),
+                      ...(isBaseCollateral ? market.baseToken : market.quoteToken),
+                    },
                     { showSign: true }
                   )}`
                 : '-'}

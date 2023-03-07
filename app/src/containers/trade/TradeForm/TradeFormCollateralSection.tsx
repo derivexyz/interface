@@ -159,9 +159,16 @@ const TradeFormCollateralSection = ({
                 textAlign="right"
               />
             ) : (
-              formatBalance(collateralAmount, isBaseCollateral ? trade.baseToken.symbol : trade.quoteToken.symbol, {
-                showDollars: !isBaseCollateral,
-              })
+              formatBalance(
+                {
+                  amount: collateralAmount,
+                  symbol: isBaseCollateral ? trade.baseToken.symbol : trade.quoteToken.symbol,
+                  decimals: isBaseCollateral ? trade.baseToken.decimals : trade.quoteToken.decimals,
+                },
+                {
+                  showDollars: !isBaseCollateral,
+                }
+              )
             )
           }
         />
@@ -171,7 +178,7 @@ const TradeFormCollateralSection = ({
           value={
             !isBaseCollateral
               ? formatUSD(trade.prevCollateralAmount())
-              : formatBalance(trade.prevCollateralAmount(), trade.market().baseToken.symbol)
+              : formatBalance({ amount: trade.prevCollateralAmount(), ...trade.market().baseToken })
           }
         />
       )}
@@ -200,11 +207,9 @@ const TradeFormCollateralSection = ({
           )}`}
           step={step}
           onChange={_value => {
-            const value = toBigNumber(_value.toFixed(2))
-            if (value) {
-              const collateralAmount = value.gt(max) ? max : value.lt(min) ? min : value
-              onChangeCollateralAmount(collateralAmount)
-            }
+            const value = toBigNumber(_value)
+            const collateralAmount = value.gt(max) ? max : value.lt(min) ? min : value
+            onChangeCollateralAmount(collateralAmount)
           }}
           onBlur={() => {
             logEvent(LogEvent.TradeCollateralSlide, {

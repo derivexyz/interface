@@ -6,6 +6,7 @@ import React, { useCallback } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { LogEvent } from '@/app/constants/logEvents'
+import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import { useMutateAccountLyraBalances } from '@/app/hooks/account/useAccountLyraBalances'
 import useTransaction from '@/app/hooks/account/useTransaction'
@@ -68,7 +69,7 @@ const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStakingAccount, o
     <Box {...styleProps}>
       {!lyraStakingAccount?.isInUnstakeWindow ? (
         <TransactionButton
-          network={'ethereum'}
+          network={AppNetwork.Ethereum}
           transactionType={TransactionType.UnstakeLyra}
           width="100%"
           isDisabled={hasUnstakeableBalance || isCooldown}
@@ -77,7 +78,7 @@ const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStakingAccount, o
         />
       ) : (
         <TransactionButton
-          network={'ethereum'}
+          network={AppNetwork.Ethereum}
           transactionType={TransactionType.UnstakeLyra}
           width="100%"
           isDisabled={insufficientBalance || amount?.lte(0)}

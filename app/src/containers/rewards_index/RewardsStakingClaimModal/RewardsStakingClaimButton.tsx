@@ -1,6 +1,7 @@
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import React from 'react'
 
+import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
@@ -19,7 +20,7 @@ type Props = {
 const RewardsStakingClaimButton = withSuspense(
   ({ onClaim }: Props) => {
     const account = useWalletAccount()
-    const execute = useTransaction('ethereum')
+    const execute = useTransaction(AppNetwork.Ethereum)
     const mutateClaimableBalance = useMutateClaimableStakingRewards()
     const claimableBalances = useClaimableStakingRewards()
 
@@ -44,7 +45,7 @@ const RewardsStakingClaimButton = withSuspense(
     return (
       <TransactionButton
         transactionType={TransactionType.ClaimStakedLyraRewards}
-        network="ethereum"
+        network={AppNetwork.Ethereum}
         label="Claim"
         isDisabled={claimableBalances.isZero()}
         onClick={async () => await handleStkLyraClaim()}

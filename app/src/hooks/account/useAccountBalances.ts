@@ -9,14 +9,8 @@ import getLyraSDK from '@/app/utils/getLyraSDK'
 import useWalletAccount from '../account/useWalletAccount'
 import useFetch, { useMutate } from '../data/useFetch'
 
-export const fetchMarketBalances = async (
-  network: Network,
-  marketAddress: string,
-  account: string
-): Promise<AccountBalances | null> => {
-  const balances = await getLyraSDK(network).account(account).balances()
-  const marketBalance = balances.find(balance => balance.marketAddress === marketAddress)
-  return marketBalance ?? null
+const fetcher = async (network: Network, account: string): Promise<AccountBalances[]> => {
+  return await getLyraSDK(network).account(account).balances()
 }
 
 const getEmpty = (owner: string, market: Market): AccountBalances => ({
@@ -45,21 +39,28 @@ export default function useAccountBalances(market: Market): AccountBalances {
   const account = useWalletAccount()
   const [balances] = useFetch(
     FetchId.AccountBalances,
-    account ? [market.lyra.network, market.address, account] : null,
-    fetchMarketBalances,
+    account ? [market.lyra.network, account] : null,
+    fetcher,
     { refreshInterval: 10 * 1000 } // 10 seconds
   )
-  return useMemo(() => balances ?? getEmpty(ZERO_ADDRESS, market), [balances, market])
+  return useMemo(() => {
+    const emptyBalance = getEmpty(ZERO_ADDRESS, market)
+    if (balances) {
+      return balances.find(b => b.marketAddress === market.address) ?? emptyBalance
+    } else {
+      return emptyBalance
+    }
+  }, [balances, market])
 }
 
-export const useMutateTradeBalances = (market: Market): (() => Promise<AccountBalances | null>) => {
-  const mutate = useMutate(FetchId.AccountBalances, fetchMarketBalances)
+export const useMutateAccountBalances = (network: Network): (() => Promise<AccountBalances[]>) => {
+  const mutate = useMutate(FetchId.AccountBalances, fetcher)
   const account = useWalletAccount()
   return useCallback(async () => {
     if (account) {
-      return await mutate(market.lyra.network, market.address, account)
+      return (await mutate(network, account)) ?? []
     } else {
-      return null
+      return []
     }
-  }, [mutate, account, market])
+  }, [account, mutate, network])
 }

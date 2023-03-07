@@ -565,6 +565,8 @@ export class Market {
     }
   }
 
+  // Transactions
+
   async trade(
     owner: string,
     strikeId: number,
@@ -578,6 +580,26 @@ export class Market {
       slippage,
       ...options,
     })
+  }
+
+  approveDeposit(owner: string, amountQuote: BigNumber): PopulatedTransaction {
+    return LiquidityDeposit.approve(this, owner, amountQuote)
+  }
+
+  initiateDeposit(beneficiary: string, amountQuote: BigNumber): PopulatedTransaction {
+    return LiquidityDeposit.initiateDeposit(this, beneficiary, amountQuote)
+  }
+
+  initiateWithdraw(beneficiary: string, amountLiquidityTokens: BigNumber): PopulatedTransaction {
+    return LiquidityWithdrawal.initiateWithdraw(this, beneficiary, amountLiquidityTokens)
+  }
+
+  approveTradeQuote(owner: string, amountQuote: BigNumber): PopulatedTransaction {
+    return Trade.approveQuote(this, owner, amountQuote)
+  }
+
+  approveTradeBase(owner: string, amountBase: BigNumber): PopulatedTransaction {
+    return Trade.approveBase(this, owner, amountBase)
   }
 
   // Dynamic fields
@@ -608,19 +630,5 @@ export class Market {
 
   async owner(): Promise<string> {
     return await fetchMarketOwner(this.lyra, this.contractAddresses)
-  }
-
-  // Transactions
-
-  async approveDeposit(address: string) {
-    return await LiquidityDeposit.approve(this.lyra, this.address, address)
-  }
-
-  async deposit(beneficiary: string, amount: BigNumber): Promise<PopulatedTransaction> {
-    return await LiquidityDeposit.deposit(this.lyra, this.address, beneficiary, amount)
-  }
-
-  async withdraw(beneficiary: string, amount: BigNumber): Promise<PopulatedTransaction> {
-    return await LiquidityWithdrawal.withdraw(this.lyra, this.address, beneficiary, amount)
   }
 }

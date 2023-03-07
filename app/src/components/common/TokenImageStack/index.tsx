@@ -1,16 +1,16 @@
 import Flex from '@lyra/ui/components/Flex'
 import Image from '@lyra/ui/components/Image'
 import { MarginProps } from '@lyra/ui/types'
-import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
+import { Network } from '@/app/constants/networks'
 import TokenImage from '@/app/containers/common/TokenImage'
 import getNetworkLogoURI from '@/app/utils/getNetworkLogoURI'
 
 type Props = {
   tokenNameOrAddresses: string[]
   size: number
-  network?: Network | 'ethereum'
+  network?: Network
 } & MarginProps
 
 const OVERLAP = 0.4
