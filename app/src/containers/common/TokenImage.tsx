@@ -18,6 +18,9 @@ type Props = {
 export default function TokenImage({ nameOrAddress, size = 32, ...styleProps }: Props) {
   const trueSize = parseInt(String(useThemeValue(size)))
   const logoURI = useMemo(() => {
+    if (nameOrAddress.toLowerCase() === 'eth') {
+      return '/images/ethereum-logo.png'
+    }
     return (
       tokenList.tokens.find(
         token =>
