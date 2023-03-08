@@ -5,6 +5,7 @@ import { Network } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
+import { TransactionType } from '@/app/constants/screen'
 import getIsOwnerMultiSig from '@/app/utils/getIsOwnerMultiSig'
 import getMultiSigWalletContract from '@/app/utils/getMultiSigWalletContract'
 
@@ -29,7 +30,7 @@ export default function useAdminTransaction(
       const isOwnerMultisig = await getIsOwnerMultiSig(network, owner)
 
       if (!isOwnerMultisig) {
-        return execute(tx, options)
+        return execute(tx, TransactionType.Admin, options)
       }
 
       const multiSigWalletContract = getMultiSigWalletContract(network, owner, signer)
@@ -54,7 +55,7 @@ export default function useAdminTransaction(
         gasLimit: BigNumber.from(10_000_000), // Hardcode to 10m
       }
 
-      return await execute(multisigTx, {
+      return await execute(multisigTx, TransactionType.Admin, {
         ...options,
         onComplete: async receipt => {
           await mutateAdminTransaction()

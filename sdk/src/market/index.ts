@@ -576,8 +576,7 @@ export class Market {
     slippage: number,
     options?: MarketTradeOptions
   ): Promise<Trade> {
-    return await Trade.get(this.lyra, owner, this.address, strikeId, isCall, isBuy, size, {
-      slippage,
+    return await Trade.get(this.lyra, owner, this.address, strikeId, isCall, isBuy, size, slippage, {
       ...options,
     })
   }

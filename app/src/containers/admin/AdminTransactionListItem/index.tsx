@@ -11,6 +11,7 @@ import React, { useCallback } from 'react'
 
 import AdminAddStrikeToBoardTransactionListItem from '@/app/components/admin/AdminAddStrikeToBoardTransactionListItem'
 import AdminCreateOptionBoardTransactionListItem from '@/app/components/admin/AdminCreateOptionBoardTransactionListItem'
+import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWallet from '@/app/hooks/account/useWallet'
 import useMultiSigTransaction, {
@@ -47,6 +48,7 @@ const AdminTransactionListItem = withSuspense(
         const calldata = multiSigWallet.interface.encodeFunctionData('confirmTransaction', [transactionId])
         execute(
           { to: owner, from: account, data: calldata, gasLimit: BigNumber.from(10_000_000) },
+          TransactionType.Admin,
           { onComplete: onConfirm }
         )
       },

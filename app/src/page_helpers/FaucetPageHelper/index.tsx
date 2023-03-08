@@ -46,7 +46,7 @@ export default function FaucetPageHelper({ marketBalances, ethBalance }: Props) 
       console.warn('Wallet not connected')
       return
     }
-    await execute(getLyraSDK(network).drip(walletAddress), { onComplete: () => mutateDrip() })
+    await execute(getLyraSDK(network).drip(walletAddress), TransactionType.Faucet, { onComplete: () => mutateDrip() })
   }, [execute, mutateDrip, walletAddress, network])
 
   if (!quoteToken || !baseTokens.length) {

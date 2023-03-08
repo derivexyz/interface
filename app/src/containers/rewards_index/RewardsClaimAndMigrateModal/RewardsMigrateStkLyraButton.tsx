@@ -39,7 +39,7 @@ const RewardsMigrateStkLyraButton = withSuspense(
       }
       logEvent(LogEvent.MigrateStakeLyraApproveSubmit)
       const tx = await LyraStaking.approveMigrate(lyraOptimism, account)
-      await execute(tx, {
+      await execute(tx, TransactionType.MigrateStakedLyra, {
         onComplete: async () => {
           logEvent(LogEvent.MigrateStakeLyraApproveSuccess)
           await Promise.all([mutateAccountLyraBalances()])
@@ -55,7 +55,7 @@ const RewardsMigrateStkLyraButton = withSuspense(
       }
       logEvent(LogEvent.MigrateStakeLyraSubmit)
       const tx = await LyraStaking.migrateStakedLyra(lyraOptimism, account)
-      await execute(tx, {
+      await execute(tx, TransactionType.MigrateStakedLyra, {
         onComplete: async () => {
           logEvent(LogEvent.MigrateStakeLyraSuccess)
           await Promise.all([mutateAccountLyraBalances()])

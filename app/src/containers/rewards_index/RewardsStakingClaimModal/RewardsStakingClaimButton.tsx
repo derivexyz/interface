@@ -29,7 +29,7 @@ const RewardsStakingClaimButton = withSuspense(
         return
       }
       const tx = await lyraOptimism.claimStakingRewards(account)
-      await execute(tx, {
+      await execute(tx, TransactionType.ClaimStakedLyraRewards, {
         onComplete: () => {
           mutateClaimableBalance()
           if (onClaim) {

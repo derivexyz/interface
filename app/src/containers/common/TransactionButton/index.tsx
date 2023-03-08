@@ -117,7 +117,7 @@ const TransactionButton = withSuspense(
           console.warn('Network not supported for drip')
           return
         }
-        await execute(getLyraSDK(lyraNetwork).drip(account), { onComplete: () => mutateDrip() })
+        await execute(getLyraSDK(lyraNetwork).drip(account), TransactionType.Faucet, { onComplete: () => mutateDrip() })
       }, [account, lyraNetwork, execute, mutateDrip])
 
       const onCloseSwap = useCallback(() => setIsSwapOpen(false), [])

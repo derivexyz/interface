@@ -42,7 +42,7 @@ export default function ThemeGlobalStyle(): JSX.Element {
       .Toastify__toast-container--top-right {
         top: ${isMobile ? 0 : 60}px !important;
         right: ${isMobile ? 0 : 4}px !important;
-        min-width: 380px !important;
+        min-width: 340px !important;
         max-width: 100vw !important;
         min-height: 42px !important;
       }

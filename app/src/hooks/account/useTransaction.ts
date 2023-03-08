@@ -3,7 +3,6 @@ import { IconType } from '@lyra/ui/components/Icon'
 import {
   closeToast,
   createPendingToast,
-  createToast,
   CreateToastOptions,
   updatePendingToast,
   updateToast,
@@ -12,12 +11,13 @@ import { ContractReceipt, PopulatedTransaction } from 'ethers'
 import { useCallback } from 'react'
 
 import { Network } from '@/app/constants/networks'
+import { TransactionType } from '@/app/constants/screen'
 import getExplorerUrl from '@/app/utils/getExplorerUrl'
 import getProvider from '@/app/utils/getProvider'
-import isMainnet from '@/app/utils/isMainnet'
 import isScreeningEnabled from '@/app/utils/isScreeningEnabled'
 import logError from '@/app/utils/logError'
 import postTransaction from '@/app/utils/postTransaction'
+import postTransactionError from '@/app/utils/postTransactionError'
 
 import emptyFunction from '../../utils/emptyFunction'
 import useWallet from './useWallet'
@@ -32,55 +32,68 @@ enum TransactionStatus {
   Success = 1,
 }
 
+// TODO: Add custom error messages as they appear
+const getErrorMessage = (errorName: string) => {
+  switch (errorName) {
+    case 'TotalCostOutsideOfSpecifiedBounds':
+      return 'Slippage out of bounds'
+    default:
+      return errorName
+  }
+}
+
+export enum TransactionStage {
+  Check = 'Check',
+  Submit = 'Submit',
+  Failure = 'Failure',
+}
+
 const reportError = (
   network: Network,
   error: any,
-  toastId: string | null,
-  skipToast?: boolean,
-  transactionReceipt?: TransactionReceipt | null
+  stage: TransactionStage,
+  toastId: string,
+  txName: TransactionType,
+  receipt?: TransactionReceipt | null
 ) => {
-  if (error?.code === 4001) {
-    // user rejected the transaction
-    if (toastId) {
-      closeToast(toastId)
-    }
+  if (error?.code === 4001 || JSON.stringify(error).includes('user rejected transaction')) {
+    // User rejected the transaction, skip report
+    closeToast(toastId)
     return null
   }
 
   console.error(error)
 
-  // Remove parentheses from error message
-  const rawMessage = error?.data?.message ?? error?.message
-  let message = rawMessage ? rawMessage.replace(/ *\([^)]*\) */g, '') : 'Something went wrong'
-  if (transactionReceipt?.transactionHash) {
-    message += '. Click to view failed transaction.'
+  // Attempt to extract errorName to parse message
+
+  const rawErrorMessage = String(error?.errorName ?? error?.data?.error?.message ?? error?.message).split('[')[0]
+
+  let message = rawErrorMessage ? `Transaction Failed: ${getErrorMessage(rawErrorMessage)}` : 'Transaction Failed'
+  if (receipt?.transactionHash) {
+    message += ', click to view on etherscan'
   }
-  // Uppercase first letter
-  message = message.charAt(0).toUpperCase() + message.slice(1)
 
   // Log error to Sentry
-  logError(message, { error, transactionReceipt, network })
+  logError('TransactionFailed', { error, txName, stage, hash: receipt?.transactionHash, network })
 
-  // TODO: Add support toast which directs users to discord
-  const args: CreateToastOptions = {
+  if (isScreeningEnabled()) {
+    postTransactionError(network, stage, message, txName, receipt?.transactionHash)
+  }
+
+  updateToast(toastId, {
     variant: 'error',
     description: message,
     icon: IconType.AlertTriangle,
-    href: transactionReceipt ? getExplorerUrl(network, transactionReceipt.transactionHash) : undefined,
+    href: receipt ? getExplorerUrl(network, receipt.transactionHash) : undefined,
+    target: '_blank',
     autoClose: false,
-  }
-  if (toastId) {
-    updateToast(toastId, { ...args, autoClose: false })
-  } else if (!skipToast) {
-    createToast({ ...args, autoClose: false })
-  }
+  })
 }
 
 export type TransactionOptions = {
   title?: string
   description?: string
   timeout?: number
-  skipToast?: boolean
   onComplete?: (receipt: ContractReceipt) => any
   onSubmitted?: (receipt: TransactionResponse) => any
   onError?: (error: Error) => any
@@ -90,6 +103,7 @@ export default function useTransaction(
   network: Network
 ): (
   populatedTx: PopulatedTransaction | Promise<PopulatedTransaction>,
+  txName: TransactionType,
   options?: TransactionOptions
 ) => Promise<ContractReceipt | null> {
   const { signer } = useWallet()
@@ -97,6 +111,7 @@ export default function useTransaction(
   return useCallback(
     async (
       populatedTx: PopulatedTransaction | Promise<PopulatedTransaction>,
+      txName: TransactionType,
       options?: TransactionOptions
     ): Promise<ContractReceipt | null> => {
       const provider = getProvider(network)
@@ -106,49 +121,50 @@ export default function useTransaction(
         return null
       }
 
-      const skipToast = !!options?.skipToast
-
       const onError = options?.onError ?? emptyFunction
 
       const description = options?.description ? options.description.toLowerCase() : 'transaction'
-      const toastId = !skipToast
-        ? createPendingToast({
-            description: `Confirm your ${description}`,
-            autoClose: false,
-          })
-        : null
+      const toastId = createPendingToast({
+        description: `Confirm your ${description}`,
+        autoClose: false,
+      })
 
-      let tx: TransactionResponse
+      let tx: PopulatedTransaction
+      try {
+        tx = await populatedTx
+      } catch (err) {
+        reportError(network, err, TransactionStage.Check, toastId, txName)
+        onError(err as Error)
+        return null
+      }
+
+      let response: TransactionResponse
       try {
         console.time('tx')
-        tx = await signer.sendTransaction(await populatedTx)
+        response = await signer.sendTransaction(tx)
         console.timeEnd('tx')
-      } catch (e) {
+      } catch (err) {
         console.timeEnd('tx')
-        setTimeout(() => {
-          reportError(network, e, toastId)
-          onError(e as Error)
-        }, 200)
+        reportError(network, err, TransactionStage.Submit, toastId, txName)
+        onError(err as Error)
         return null
       }
 
       if (options?.onSubmitted) {
-        options.onSubmitted(tx)
+        options.onSubmitted(response)
       }
 
       const defaultTimeout = DEFAULT_OPTIMISM_TRANSACTION_TIMEOUT
       const transactionTimeout = options?.timeout ?? defaultTimeout
       const autoClose = transactionTimeout + POLL_INTERVAL // add buffer
-      const txHref = getExplorerUrl(network, tx.hash)
+      const txHref = getExplorerUrl(network, response.hash)
 
-      // TODO: Pending spinner on top of wallet icon
-      if (toastId) {
-        updatePendingToast(toastId, {
-          description: `Your ${description} is pending, click to view on etherscan`,
-          href: txHref,
-          autoClose,
-        })
-      }
+      updatePendingToast(toastId, {
+        description: `Your ${description} is pending, click to view on etherscan`,
+        href: txHref,
+        target: '_blank',
+        autoClose,
+      })
 
       try {
         console.debug('tx', tx)
@@ -157,7 +173,7 @@ export default function useTransaction(
         const receipt = await new Promise<TransactionReceipt>(resolve => {
           let n = 0
           const pollReceipt = async () => {
-            const receipt = await provider.getTransactionReceipt(tx.hash)
+            const receipt = await provider.getTransactionReceipt(response.hash)
             if (receipt) {
               resolve(receipt)
             } else if (n < 100) {
@@ -174,10 +190,10 @@ export default function useTransaction(
 
         if (receipt && receipt.status === TransactionStatus.Failure) {
           try {
-            const transaction = await provider.getTransaction(tx.hash)
-            await provider.call(transaction as any, tx.blockNumber)
-          } catch (e) {
-            reportError(network, e, toastId)
+            const transaction = await provider.getTransaction(response.hash)
+            await provider.call(transaction as any, response.blockNumber)
+          } catch (err) {
+            reportError(network, err, TransactionStage.Failure, toastId, txName, receipt)
           }
           return null
         }
@@ -191,20 +207,19 @@ export default function useTransaction(
             console.timeEnd('onComplete')
           }
 
-          if (isMainnet() && isScreeningEnabled()) {
-            await postTransaction(receipt.transactionHash)
+          if (isScreeningEnabled()) {
+            postTransaction(network, txName, receipt.transactionHash)
           }
 
           const args: CreateToastOptions = {
             variant: 'success',
             description: `Your ${description} was successful`,
             href: txHref,
+            target: '_blank',
             autoClose: DEFAULT_TOAST_TIMEOUT,
             icon: IconType.Check,
           }
-          if (toastId) {
-            updateToast(toastId, args)
-          }
+          updateToast(toastId, args)
           return receipt
         } else {
           // Transaction timed out
@@ -214,31 +229,35 @@ export default function useTransaction(
               transactionTimeout / 1000
             )} seconds, view your transaction progress`,
             href: txHref,
+            target: '_blank',
             autoClose: DEFAULT_TOAST_TIMEOUT,
             icon: IconType.AlertTriangle,
           }
-          if (toastId) {
-            updateToast(toastId, args)
-          }
+          updateToast(toastId, args)
           onError(new Error('Transaction timed out'))
           return null
         }
       } catch (e) {
         // Capture error
-        console.error(e)
         try {
-          const receipt = await provider.getTransactionReceipt(tx.hash)
-          const transaction = await provider.getTransaction(tx.hash)
+          const receipt = await provider.getTransactionReceipt(response.hash)
+          const transaction = await provider.getTransaction(response.hash)
           try {
             await provider.call(transaction as any, receipt.blockNumber)
             return null // Should never happen
-          } catch (e) {
-            reportError(network, e, toastId)
+          } catch (err) {
+            reportError(network, err, TransactionStage.Failure, toastId, txName, receipt)
             onError(e as Error)
             return null
           }
         } catch (e) {
-          reportError(network, new Error('Failed to fetch transaction receipt'), toastId)
+          reportError(
+            network,
+            new Error('Failed to fetch transaction receipt'),
+            TransactionStage.Failure,
+            toastId,
+            txName
+          )
           onError(e as Error)
           return null
         }

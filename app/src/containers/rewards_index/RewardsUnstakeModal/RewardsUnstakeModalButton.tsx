@@ -36,7 +36,7 @@ const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStakingAccount, o
     }
     logEvent(LogEvent.UnstakeLyraSubmit, { unstakeAmount: amount })
     const tx = await lyraOptimism.requestUnstake(account)
-    await execute(tx, {
+    await execute(tx, TransactionType.UnstakeLyra, {
       onComplete: async () => {
         logEvent(LogEvent.UnstakeLyraSuccess, { unstakeAmount: amount })
         await Promise.all([mutateRewardsPageData()])
@@ -54,7 +54,7 @@ const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStakingAccount, o
     }
     const tx = await lyraOptimism.unstake(account, amount ?? ZERO_BN)
     if (tx) {
-      await execute(tx, {
+      await execute(tx, TransactionType.UnstakeLyra, {
         onComplete: async () => await Promise.all([mutateRewardsPageData(), mutateLyraBalances()]),
       })
     }

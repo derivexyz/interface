@@ -39,7 +39,7 @@ const RewardsWethLyraL2UnstakeModalContent = withSuspense(
     const handleClickUnstake = useCallback(async () => {
       if (account) {
         const tx = await WethLyraStaking.unstakeL2(lyraOptimism, account, amount)
-        execute(tx, {
+        execute(tx, TransactionType.UnstakeWethLyraL2, {
           onComplete: () => {
             mutateAccountWethLyraStakingL2()
             onUnstake()

@@ -14,6 +14,7 @@ import { QuoteDisabledReason } from '.'
 
 export default function getQuoteDisabledReason(
   option: Option,
+  spotPrice: BigNumber,
   size: BigNumber,
   premium: BigNumber,
   newIv: BigNumber,
@@ -46,7 +47,6 @@ export default function getQuoteDisabledReason(
     return QuoteDisabledReason.TradingCutoff
   }
 
-  const spotPrice = market.params.referenceSpotPrice
   const strikePrice = strike.strikePrice
 
   // Check delta range
@@ -94,6 +94,7 @@ export default function getQuoteDisabledReason(
   if (
     // Must be opening trade
     !isForceClose &&
+    isOpen &&
     (isBuy
       ? option.isCall
         ? freeLiquidity.lt(size.mul(spotPrice).div(UNIT))
@@ -119,8 +120,8 @@ export default function getQuoteDisabledReason(
   const { adapterView } = option.market().params
   if (adapterView && !isForceClose && (priceType === PriceType.MAX_PRICE || priceType === PriceType.MIN_PRICE)) {
     const { gmxMaxPrice: forceMaxSpotPrice, gmxMinPrice: forceMinSpotPrice } = adapterView
-    const minPriceVariance = getPriceVariance(forceMinSpotPrice, spotPrice)
-    const maxPriceVariance = getPriceVariance(forceMaxSpotPrice, spotPrice)
+    const minPriceVariance = getPriceVariance(forceMinSpotPrice, market.params.referenceSpotPrice)
+    const maxPriceVariance = getPriceVariance(forceMaxSpotPrice, market.params.referenceSpotPrice)
     const varianceThreshold = adapterView.marketPricingParams.priceVarianceCBPercent
     if (minPriceVariance.gt(varianceThreshold) || maxPriceVariance.gt(varianceThreshold)) {
       return QuoteDisabledReason.PriceVarianceTooHigh

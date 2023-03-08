@@ -31,7 +31,7 @@ const RewardsClaimStkLyraButton = withSuspense(
         return
       }
       const tx = await getLyraSDK(network).claimRewards(account, ['0xdE48b1B5853cc63B1D05e507414D3E02831722F8'])
-      await execute(tx, {
+      await execute(tx, TransactionType.ClaimStakedLyraRewards, {
         onComplete: () => {
           mutateClaimableBalance()
           if (onClaim) {

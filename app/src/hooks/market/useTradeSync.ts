@@ -28,12 +28,12 @@ export default function useTradeSync({
 }): Trade {
   const account = useWalletAccount() ?? ZERO_ADDRESS
   return useMemo(() => {
-    return Trade.getSync(option.lyra, account, option, isBuy, size, balances, {
+    const trade = Trade.getSync(option.lyra, account, option, isBuy, size, slippage, balances, {
       position: position ?? undefined,
       setToCollateral: setToCollateral ?? undefined,
       isBaseCollateral,
-      slippage,
       iterations: ITERATIONS,
     })
+    return trade
   }, [option, account, isBuy, size, balances, position, setToCollateral, isBaseCollateral, slippage])
 }

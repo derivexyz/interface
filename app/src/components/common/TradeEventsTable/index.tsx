@@ -184,7 +184,7 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
               <Text variant="secondary" color={props.cell.value ? 'text' : 'secondaryText'}>
                 {props.cell.value
                   ? formatBalance(
-                      { amount: props.cell.value, ...market.quoteToken },
+                      { amount: props.cell.value, symbol: market.quoteToken.symbol, decimals: 18 },
                       { showSign: true, showDollars: true }
                     )
                   : '-'}
@@ -210,7 +210,8 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
                 ? `${formatBalance(
                     {
                       amount: toBigNumber(collateralAmount),
-                      ...(isBaseCollateral ? market.baseToken : market.quoteToken),
+                      symbol: isBaseCollateral ? market.baseToken.symbol : market.quoteToken.symbol,
+                      decimals: 18,
                     },
                     { showSign: true }
                   )}`

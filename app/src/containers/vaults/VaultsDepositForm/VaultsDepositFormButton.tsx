@@ -33,7 +33,7 @@ const VaultsDepositFormButton = ({ vault, amount, onDeposit, ...styleProps }: Pr
       return
     }
     const tx = market.approveDeposit(account, MAX_BN)
-    await execute(tx, {
+    await execute(tx, TransactionType.VaultDeposit, {
       onComplete: async () => {
         logEvent(LogEvent.VaultDepositApproveSuccess)
         await mutateDeposit()
@@ -47,7 +47,7 @@ const VaultsDepositFormButton = ({ vault, amount, onDeposit, ...styleProps }: Pr
       console.warn('Account does not exist')
       return
     }
-    await execute(market.initiateDeposit(account, amount), {
+    await execute(market.initiateDeposit(account, amount), TransactionType.VaultDeposit, {
       onComplete: async () => {
         logEvent(LogEvent.VaultDepositSuccess)
         await mutateDeposit()

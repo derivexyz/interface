@@ -116,7 +116,7 @@ export default function RewardsClaimModal({ accountRewardEpoch, isOpen, onClose 
             accountRewardEpoch.account,
             totalRewards.map(token => token.address)
           )
-          await execute(tx, {
+          await execute(tx, TransactionType.ClaimRewards, {
             onComplete: () => {
               mutateRewardsPageData()
               onClose()

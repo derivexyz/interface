@@ -28,7 +28,7 @@ const RewardsWethLyraClaimButton = withSuspense(
         return
       }
       const tx = await lyraOptimism.claimWethLyraRewards(account)
-      await execute(tx, {
+      await execute(tx, TransactionType.ClaimWethLyraRewards, {
         onComplete: () => {
           mutateClaimableBalance()
           if (onClaim) {

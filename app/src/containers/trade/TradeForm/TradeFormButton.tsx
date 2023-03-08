@@ -1,5 +1,3 @@
-import { IconType } from '@lyra/ui/components/Icon'
-import { createToast } from '@lyra/ui/components/Toast'
 import { LayoutProps, MarginProps } from '@lyra/ui/types'
 import { Market, Trade, TradeDisabledReason } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
@@ -14,8 +12,8 @@ import useMutateTrade from '@/app/hooks/mutations/useMutateTrade'
 import useMutateTradeApprove from '@/app/hooks/mutations/useMutateTradeApprove'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import getTradeLogData from '@/app/utils/getTradeLogData'
-import logError from '@/app/utils/logError'
 import logEvent from '@/app/utils/logEvent'
+import postTrade from '@/app/utils/postTrade'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -105,6 +103,12 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
 
   const execute = useTransaction(trade.lyra.network)
 
+  const transactionType = trade.isCollateralUpdate
+    ? TransactionType.TradeCollateralUpdate
+    : trade.isOpen
+    ? TransactionType.TradeOpenPosition
+    : TransactionType.TradeClosePosition
+
   const handleClickApproveQuote = useCallback(async () => {
     if (!account) {
       console.warn('Missing account')
@@ -112,7 +116,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
     }
     logEvent(LogEvent.TradeApproveSubmit, { isBase: false })
     const tx = market.approveTradeQuote(account.address, MAX_BN)
-    await execute(tx, {
+    await execute(tx, transactionType, {
       onComplete: async () => {
         await mutateTradeApprove()
         logEvent(LogEvent.TradeApproveSuccess, {
@@ -121,7 +125,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       },
       onError: () => logEvent(LogEvent.TradeApproveError, { isBase: false }),
     })
-  }, [account, market, execute, mutateTradeApprove])
+  }, [account, market, execute, transactionType, mutateTradeApprove])
 
   const handleClickApproveBase = useCallback(async () => {
     if (!account) {
@@ -130,14 +134,14 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
     }
     logEvent(LogEvent.TradeApproveSubmit, { isBase: true })
     const tx = market.approveTradeBase(account.address, MAX_BN)
-    await execute(tx, {
+    await execute(tx, transactionType, {
       onComplete: async () => {
         await mutateTradeApprove()
         logEvent(LogEvent.TradeApproveSuccess, { isBase: true })
       },
       onError: () => logEvent(LogEvent.TradeApproveError, { isBase: true }),
     })
-  }, [account, market, execute, mutateTradeApprove])
+  }, [account, market, execute, transactionType, mutateTradeApprove])
 
   const handleClickTrade = useCallback(async () => {
     if (!account) {
@@ -145,34 +149,26 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       return
     }
 
-    const proposedTrade = await market.trade(
-      account.address,
-      trade.option().strike().id,
-      trade.option().isCall,
-      trade.isBuy,
-      trade.size,
-      trade.slippage,
-      {
-        setToCollateral: trade.collateral?.amount,
-        isBaseCollateral: trade.collateral?.isBase,
-        positionId: position?.id,
-        iterations: ITERATIONS,
-      }
-    )
-
-    logEvent(LogEvent.TradeSubmit, getTradeLogData(trade))
-
-    if (proposedTrade.disabledReason) {
-      createToast({
-        variant: 'error',
-        description: `Trade Failed: ${getTradeDisabledMessage(proposedTrade.disabledReason)}`,
-        icon: IconType.AlertTriangle,
-      })
-      logError(proposedTrade.disabledReason, { trade: getTradeLogData(trade), account })
-      return
+    const resolveTx = async () => {
+      const proposedTrade = await market.trade(
+        account.address,
+        trade.option().strike().id,
+        trade.option().isCall,
+        trade.isBuy,
+        trade.size,
+        trade.slippage,
+        {
+          setToCollateral: trade.collateral?.amount,
+          isBaseCollateral: trade.collateral?.isBase,
+          positionId: position?.id,
+          iterations: ITERATIONS,
+        }
+      )
+      postTrade(proposedTrade.misc).then(() => console.debug('posted trade:', proposedTrade.misc))
+      return proposedTrade.tx
     }
 
-    const receipt = await execute(proposedTrade.tx, {
+    const receipt = await execute(resolveTx(), transactionType, {
       onComplete: async receipt => {
         const [events] = await Promise.all([getLyraSDK(trade.lyra.network).events(receipt), mutateTrade()])
         const { trades, collateralUpdates } = events
@@ -187,19 +183,14 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
         logEvent(LogEvent.TradeError, { ...getTradeLogData(trade), error: error?.message })
       },
     })
+
     if (onTrade && receipt) {
       const [positionId] = Trade.getPositionIdsForLogs(receipt.logs)
       if (positionId) {
         onTrade(market, positionId)
       }
     }
-  }, [trade, account, execute, onTrade, position, market, mutateTrade])
-
-  const transactionType = trade.isCollateralUpdate
-    ? TransactionType.TradeCollateralUpdate
-    : trade.isOpen
-    ? TransactionType.TradeOpenPosition
-    : TransactionType.TradeClosePosition
+  }, [account, execute, transactionType, onTrade, market, trade, position?.id, mutateTrade])
 
   return (
     <TransactionButton

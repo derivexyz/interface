@@ -36,7 +36,7 @@ const StakeFormButton = withSuspense(
       }
       logEvent(LogEvent.StakeLyraApproveSubmit)
       const tx = await lyraOptimism.approveStaking(account)
-      await execute(tx, {
+      await execute(tx, TransactionType.StakeLyra, {
         onComplete: async () => {
           logEvent(LogEvent.StakeLyraApproveSuccess)
           await Promise.all([mutateLyraBalances()])
@@ -53,7 +53,7 @@ const StakeFormButton = withSuspense(
       logEvent(LogEvent.StakeLyraSubmit, { stakeAmount: amount })
       const tx = await lyraOptimism.stake(account, amount)
       if (tx) {
-        await execute(tx, {
+        await execute(tx, TransactionType.StakeLyra, {
           onComplete: async () => {
             logEvent(LogEvent.StakeLyraSuccess, { stakeAmount: amount })
             await Promise.all([mutateLyraBalances()])

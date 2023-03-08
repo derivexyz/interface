@@ -14,6 +14,7 @@ import React, { useCallback, useState } from 'react'
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import RowItem from '@/app/components/common/RowItem'
 import { ZERO_BN } from '@/app/constants/bn'
+import { SLIPPAGE } from '@/app/constants/contracts'
 import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
 import useAccountBalances from '@/app/hooks/account/useAccountBalances'
 import withSuspense from '@/app/hooks/data/withSuspense'
@@ -24,9 +25,6 @@ import getSoftMinCollateral from '@/app/utils/getSoftMinCollateral'
 
 import TradeFormButton from '../TradeForm/TradeFormButton'
 import TradeFormCollateralSection from '../TradeForm/TradeFormCollateralSection'
-
-// TODO: @dappbeast make slippage configurable
-const SLIPPAGE = 0.5 / 100 // 0.5%
 
 type Props = {
   isOpen: boolean

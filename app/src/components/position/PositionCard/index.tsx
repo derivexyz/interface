@@ -100,12 +100,15 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
                 setIsTradeFormOpen(true)
               }}
             />
-            <Button
-              variant="default"
-              size="lg"
-              label="Adjust Collateral"
-              onClick={() => setIsCollateralFormOpen(true)}
-            />
+            {!position.isLong ? (
+              <Button
+                variant="light"
+                isOutline
+                size="lg"
+                label="Adjust Collateral"
+                onClick={() => setIsCollateralFormOpen(true)}
+              />
+            ) : null}
           </Grid>
         ) : null}
       </CardBody>

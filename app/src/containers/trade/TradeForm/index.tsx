@@ -12,6 +12,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import RowItem from '@/app/components/common/RowItem'
 import { ZERO_BN } from '@/app/constants/bn'
+import { SLIPPAGE } from '@/app/constants/contracts'
 import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
 import TradeFormSizeInput from '@/app/containers/trade/TradeForm/TradeFormSizeInput'
 import useAccountBalances from '@/app/hooks/account/useAccountBalances'
@@ -32,9 +33,6 @@ type Props = {
   hideTitle?: boolean
   onTrade?: (market: Market, positionId: number) => void
 }
-
-// TODO: @dappbeast make slippage configurable
-const SLIPPAGE = 0.5 / 100 // 0.5%
 
 const TradeForm = withSuspense(
   ({ isBuy, option, position, onTrade, hideTitle }: Props) => {
@@ -95,6 +93,7 @@ const TradeForm = withSuspense(
       size: sizeWithDefaults,
       setToCollateral: collateralAmount,
       isBaseCollateral,
+      // TODO: @dappbeast make slippage configurable
       slippage: SLIPPAGE,
     })
 
@@ -131,8 +130,8 @@ const TradeForm = withSuspense(
           />
           <RowItem
             label="Price Per Option"
-            value={trade.pricePerOption.isZero() ? '-' : formatUSD(trade.pricePerOption)}
-            valueColor={trade.pricePerOption.isZero() ? 'secondaryText' : 'text'}
+            value={trade.pricePerOption.isZero() && trade.isDisabled ? '-' : formatUSD(trade.pricePerOption)}
+            valueColor={trade.pricePerOption.isZero() && trade.isDisabled ? 'secondaryText' : 'text'}
           />
         </CardSection>
         <CardSeparator />
@@ -153,9 +152,9 @@ const TradeForm = withSuspense(
             mb={5}
             textVariant="secondary"
             label={trade.isBuy ? 'Max Cost' : 'Min Received'}
-            valueColor={trade.premium.gt(0) ? 'text' : 'secondaryText'}
+            valueColor={trade.premium.gt(0) || !trade.isDisabled ? 'text' : 'secondaryText'}
             value={
-              trade.premium.gt(0)
+              trade.premium.gt(0) || !trade.isDisabled
                 ? formatBalance(
                     { amount: trade.premium, symbol: trade.quoteToken.symbol, decimals: 18 },
                     { showDollars: true }

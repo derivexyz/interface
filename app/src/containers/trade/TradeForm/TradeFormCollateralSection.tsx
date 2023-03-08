@@ -163,7 +163,7 @@ const TradeFormCollateralSection = ({
                 {
                   amount: collateralAmount,
                   symbol: isBaseCollateral ? trade.baseToken.symbol : trade.quoteToken.symbol,
-                  decimals: isBaseCollateral ? trade.baseToken.decimals : trade.quoteToken.decimals,
+                  decimals: 18,
                 },
                 {
                   showDollars: !isBaseCollateral,
