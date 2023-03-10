@@ -41,9 +41,6 @@ const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStakingAccount, o
         logEvent(LogEvent.UnstakeLyraSuccess, { unstakeAmount: amount })
         await Promise.all([mutateRewardsPageData()])
       },
-      onError: error => {
-        logEvent(LogEvent.UnstakeLyraError, { unstakeAmount: amount, error: error?.message })
-      },
     })
   }, [amount, account, execute, mutateRewardsPageData])
 

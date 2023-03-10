@@ -41,7 +41,6 @@ const StakeFormButton = withSuspense(
           logEvent(LogEvent.StakeLyraApproveSuccess)
           await Promise.all([mutateLyraBalances()])
         },
-        onError: error => logEvent(LogEvent.StakeLyraApproveError, { error: error?.message }),
       })
     }, [account, execute, mutateLyraBalances])
 
@@ -57,13 +56,9 @@ const StakeFormButton = withSuspense(
           onComplete: async () => {
             logEvent(LogEvent.StakeLyraSuccess, { stakeAmount: amount })
             await Promise.all([mutateLyraBalances()])
-            onClose()
-          },
-          onError: error => {
-            logEvent(LogEvent.StakeLyraError, { stakeAmount: amount, error: error?.message })
-            onClose()
           },
         })
+        onClose()
       }
     }, [account, amount, execute, onClose, mutateLyraBalances])
 

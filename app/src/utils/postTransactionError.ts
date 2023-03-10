@@ -1,25 +1,16 @@
-import { Network } from '../constants/networks'
-import { TransactionType } from '../constants/screen'
-import { TransactionStage } from '../hooks/account/useTransaction'
-import { getChainIdForNetwork } from './getChainIdForNetwork'
+import { TransactionErrorOptions } from '../hooks/account/useTransaction'
 
-export default async function postTransactionError(
-  network: Network,
-  stage: TransactionStage,
-  errorMessage: any,
-  txName: TransactionType,
-  txHash?: string
-): Promise<boolean> {
+export default async function postTransactionError(options: TransactionErrorOptions): Promise<boolean> {
   try {
-    const res = await fetch(
-      `${process.env.REACT_APP_API_URL}/record/transaction-error?network=${network}&chain=${getChainIdForNetwork(
-        network
-      )}&stage=${stage}&error=${errorMessage}&hash=${txHash ?? ''}&name=${txName}`,
-      {
-        method: 'GET',
-        mode: 'cors',
-      }
-    )
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/record/tx-error`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      mode: 'cors',
+      body: JSON.stringify(options),
+    })
     return res.status === 200
   } catch (err) {
     console.warn('Failed to post transaction error')

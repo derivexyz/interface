@@ -19,12 +19,14 @@ const arbitrumProvider = new CachedStaticJsonRpcProvider(
 
 export const lyraOptimism = new Lyra({
   provider: optimismProvider,
+  apiUri: process.env.REACT_APP_API_URL,
   optimismProvider: optimismProvider,
   ethereumProvider: mainnetProvider,
 })
 
 export const lyraArbitrum = new Lyra({
   provider: arbitrumProvider,
+  apiUri: process.env.REACT_APP_API_URL,
   optimismProvider: optimismProvider,
   ethereumProvider: mainnetProvider,
 })

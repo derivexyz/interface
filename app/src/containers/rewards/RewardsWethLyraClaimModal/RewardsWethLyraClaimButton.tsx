@@ -35,9 +35,6 @@ const RewardsWethLyraClaimButton = withSuspense(
             onClaim()
           }
         },
-        onError: () => {
-          mutateClaimableBalance()
-        },
       })
     }
 

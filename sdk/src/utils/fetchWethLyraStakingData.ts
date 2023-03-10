@@ -24,8 +24,8 @@ const fetchWethLyraStakingData = async (
     lyra.ethereumProvider
   )
   const [lyraPrice, wethPrice] = await Promise.all([
-    fetchLyraPrice(),
-    fetchTokenSpotPrice(WETH_ETHEREUM_MAINNET_ADDRESS, 'ethereum'),
+    fetchLyraPrice(lyra),
+    fetchTokenSpotPrice(lyra, WETH_ETHEREUM_MAINNET_ADDRESS, 'ethereum'),
   ])
 
   const getUnderlyingBalancesCallData = arrakisVaultContract.interface.encodeFunctionData('getUnderlyingBalances')

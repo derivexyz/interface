@@ -35,7 +35,6 @@ const VaultsWithdrawFormButton = ({ vault, amount, onWithdraw, ...styleProps }: 
         logEvent(LogEvent.VaultWithdrawSuccess)
         await mutateWithdraw()
       },
-      onError: error => logEvent(LogEvent.VaultWithdrawError, { amount: amount, error: error?.message }),
     })
     onWithdraw()
   }, [onWithdraw, account, amount, execute, market, mutateWithdraw])

@@ -92,7 +92,7 @@ export class Account {
   }
 
   async lyraBalances(): Promise<AccountLyraBalances> {
-    return await fetchLyraBalances(this.address)
+    return await fetchLyraBalances(this.lyra, this.address)
   }
 
   drip(): PopulatedTransaction {

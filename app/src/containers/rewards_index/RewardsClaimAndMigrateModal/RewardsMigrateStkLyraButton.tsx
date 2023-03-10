@@ -44,7 +44,6 @@ const RewardsMigrateStkLyraButton = withSuspense(
           logEvent(LogEvent.MigrateStakeLyraApproveSuccess)
           await Promise.all([mutateAccountLyraBalances()])
         },
-        onError: error => logEvent(LogEvent.MigrateStakeLyraApproveError, { error: error?.message }),
       })
     }, [account, execute, mutateAccountLyraBalances])
 
@@ -60,7 +59,6 @@ const RewardsMigrateStkLyraButton = withSuspense(
           logEvent(LogEvent.MigrateStakeLyraSuccess)
           await Promise.all([mutateAccountLyraBalances()])
         },
-        onError: error => logEvent(LogEvent.MigrateStakeLyraError, { error: error?.message }),
       })
     }, [account, execute, mutateAccountLyraBalances])
 

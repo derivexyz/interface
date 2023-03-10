@@ -21,7 +21,7 @@
     "tsc": "yarn build",
     "watch": "concurrently \"tsc --project tsconfig.esm.json --watch\" \"tsc --project tsconfig.cjs.json --watch\"",
     "script": "env-cmd -f scripts/.env.local ts-node --project tsconfig.node.json scripts/index.ts",
-    "generate-types": "ts-node --project tsconfig.node.json src/contracts/generate-types.ts",
+    "typegen": "ts-node --project tsconfig.node.json src/contracts/typegen.ts",
     "sync": "ts-node --project tsconfig.node.json src/contracts/sync.ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint '**/*.ts'",

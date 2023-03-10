@@ -1,4 +1,3 @@
-import { LYRA_API_URL } from '../constants/links'
 import { RewardEpochToken, RewardEpochTokenAmount, RewardEpochTokenConfig } from '../global_reward_epoch'
 import Lyra, { Deployment } from '../lyra'
 import fetchWithCache from './fetchWithCache'
@@ -85,5 +84,5 @@ export default async function fetchGlobalRewardEpochData(lyra: Lyra): Promise<Gl
   if (lyra.deployment !== Deployment.Mainnet) {
     return EMPTY
   }
-  return fetchWithCache(`${LYRA_API_URL}/rewards/global?network=${lyra.network}`)
+  return fetchWithCache(`${lyra.apiUri}/rewards/global?network=${lyra.network}`)
 }

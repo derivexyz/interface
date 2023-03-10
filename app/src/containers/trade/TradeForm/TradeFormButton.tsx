@@ -3,7 +3,6 @@ import { Market, Trade, TradeDisabledReason } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 
 import { MAX_BN } from '@/app/constants/bn'
-import { ITERATIONS } from '@/app/constants/contracts'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
 import useAccount from '@/app/hooks/account/useAccount'
@@ -12,8 +11,8 @@ import useMutateTrade from '@/app/hooks/mutations/useMutateTrade'
 import useMutateTradeApprove from '@/app/hooks/mutations/useMutateTradeApprove'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import getTradeLogData from '@/app/utils/getTradeLogData'
+import isDev from '@/app/utils/isDev'
 import logEvent from '@/app/utils/logEvent'
-import postTrade from '@/app/utils/postTrade'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -24,6 +23,9 @@ type Props = {
   Omit<LayoutProps, 'size'>
 
 const getTradeDisabledMessage = (disabledReason: TradeDisabledReason): string => {
+  if (isDev()) {
+    return disabledReason
+  }
   switch (disabledReason) {
     case TradeDisabledReason.EmptySize:
       return 'Enter amount'
@@ -33,16 +35,13 @@ const getTradeDisabledMessage = (disabledReason: TradeDisabledReason): string =>
       return 'Not enough collateral'
     case TradeDisabledReason.TooMuchCollateral:
       return 'Too much collateral'
-    case TradeDisabledReason.DeltaOutOfRange:
-      return 'Delta out of range'
     case TradeDisabledReason.InsufficientLiquidity:
-      return 'Insufficient liquidity'
     case TradeDisabledReason.UnableToHedgeDelta:
-      return 'Unable to hedge delta'
+      return 'Insufficient liquidity'
     case TradeDisabledReason.Expired:
-      return 'Strike has expired'
+      return 'Option has expired'
     case TradeDisabledReason.TradingCutoff:
-      return 'Trading paused'
+      return 'Option too close to expiry'
     case TradeDisabledReason.PositionClosed:
       return 'Position closed'
     case TradeDisabledReason.PositionNotLargeEnough:
@@ -51,6 +50,8 @@ const getTradeDisabledMessage = (disabledReason: TradeDisabledReason): string =>
       return 'You are not the owner'
     case TradeDisabledReason.PositionClosedLeftoverCollateral:
       return 'Set collateral to zero'
+    case TradeDisabledReason.PriceVarianceTooHigh:
+    case TradeDisabledReason.DeltaOutOfRange:
     case TradeDisabledReason.VolTooHigh:
     case TradeDisabledReason.VolTooLow:
     case TradeDisabledReason.IVTooHigh:
@@ -58,18 +59,12 @@ const getTradeDisabledMessage = (disabledReason: TradeDisabledReason): string =>
     case TradeDisabledReason.SkewTooHigh:
     case TradeDisabledReason.SkewTooLow:
       return 'Price impact too high'
-    case TradeDisabledReason.EmptyPremium:
-      return 'Option is worthless'
     case TradeDisabledReason.InsufficientBaseAllowance:
     case TradeDisabledReason.InsufficientQuoteAllowance:
       return 'Insufficient Allowance'
     case TradeDisabledReason.InsufficientBaseBalance:
     case TradeDisabledReason.InsufficientQuoteBalance:
       return 'Insufficient Balance'
-    case TradeDisabledReason.PriceVarianceTooHigh:
-      return 'Price variance too high'
-    case TradeDisabledReason.Unknown:
-      return 'Something went wrong'
   }
 }
 
@@ -123,7 +118,6 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
           isBase: false,
         })
       },
-      onError: () => logEvent(LogEvent.TradeApproveError, { isBase: false }),
     })
   }, [account, market, execute, transactionType, mutateTradeApprove])
 
@@ -139,7 +133,6 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
         await mutateTradeApprove()
         logEvent(LogEvent.TradeApproveSuccess, { isBase: true })
       },
-      onError: () => logEvent(LogEvent.TradeApproveError, { isBase: true }),
     })
   }, [account, market, execute, transactionType, mutateTradeApprove])
 
@@ -152,20 +145,22 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
     const resolveTx = async () => {
       const proposedTrade = await market.trade(
         account.address,
-        trade.option().strike().id,
-        trade.option().isCall,
+        trade.strikeId,
+        trade.isCall,
         trade.isBuy,
         trade.size,
         trade.slippage,
         {
           setToCollateral: trade.collateral?.amount,
           isBaseCollateral: trade.collateral?.isBase,
-          positionId: position?.id,
-          iterations: ITERATIONS,
+          positionId: trade.positionId,
+          iterations: trade.iterations.length,
         }
       )
-      postTrade(proposedTrade.misc).then(() => console.debug('posted trade:', proposedTrade.misc))
-      return proposedTrade.tx
+      return {
+        tx: proposedTrade.tx,
+        metadata: proposedTrade.measurements,
+      }
     }
 
     const receipt = await execute(resolveTx(), transactionType, {
@@ -177,11 +172,6 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
           .filter(update => update.isAdjustment)
           .forEach(update => logEvent(LogEvent.TradeCollateralUpdateSuccess, getTradeLogData(update)))
       },
-      onError: error => {
-        // For debugging
-        console.error(error)
-        logEvent(LogEvent.TradeError, { ...getTradeLogData(trade), error: error?.message })
-      },
     })
 
     if (onTrade && receipt) {
@@ -190,7 +180,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
         onTrade(market, positionId)
       }
     }
-  }, [account, execute, transactionType, onTrade, market, trade, position?.id, mutateTrade])
+  }, [account, execute, transactionType, onTrade, market, trade, mutateTrade])
 
   return (
     <TransactionButton

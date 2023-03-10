@@ -37,10 +37,6 @@ export default function getQuoteDisabledReason(
     return QuoteDisabledReason.EmptySize
   }
 
-  if (premium.lte(0)) {
-    return QuoteDisabledReason.EmptyPremium
-  }
-
   // Check trading cutoff
   const isPostCutoff = board.block.timestamp + market.params.tradingCutoff > board.expiryTimestamp
   if (isPostCutoff && !isForceClose) {

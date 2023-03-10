@@ -38,7 +38,6 @@ const VaultsDepositFormButton = ({ vault, amount, onDeposit, ...styleProps }: Pr
         logEvent(LogEvent.VaultDepositApproveSuccess)
         await mutateDeposit()
       },
-      onError: error => logEvent(LogEvent.VaultDepositApproveError, { error: error?.message }),
     })
   }, [account, market, execute, mutateDeposit])
 
@@ -53,7 +52,6 @@ const VaultsDepositFormButton = ({ vault, amount, onDeposit, ...styleProps }: Pr
         await mutateDeposit()
         onDeposit()
       },
-      onError: error => logEvent(LogEvent.VaultDepositError, { amount: amount, error: error?.message }),
     })
   }, [account, market, execute, amount, onDeposit, mutateDeposit])
 

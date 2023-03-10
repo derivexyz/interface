@@ -169,8 +169,8 @@ export class AccountRewardEpoch {
         GlobalRewardEpoch.getAll(lyra),
         lyra.account(address).lyraBalances(),
         lyra.account(address).balances(),
-        fetchClaimAddedEvents(lyra.chain, address),
-        fetchClaimEvents(lyra.chain, address),
+        fetchClaimAddedEvents(lyra, lyra.chain, address),
+        fetchClaimEvents(lyra, lyra.chain, address),
       ]
     )
     // HACK @michaelxuwu - Filter claimAdded mistake

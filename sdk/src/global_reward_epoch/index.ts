@@ -141,8 +141,8 @@ export class GlobalRewardEpoch {
 
     const [epochs, lyraPrice, opPrice, stakingParams, markets, block] = await Promise.all([
       fetchGlobalRewardEpochData(lyra),
-      fetchLyraPrice(),
-      fetchTokenSpotPrice(OP_OPTIMISM_MAINNET_ADDRESS, Network.Optimism),
+      fetchLyraPrice(lyra),
+      fetchTokenSpotPrice(lyra, OP_OPTIMISM_MAINNET_ADDRESS, Network.Optimism),
       fetchLyraStakingParams(lyra),
       lyra.markets(),
       lyra.provider.getBlock('latest'),

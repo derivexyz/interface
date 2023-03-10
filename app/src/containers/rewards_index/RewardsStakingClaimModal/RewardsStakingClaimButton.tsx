@@ -36,9 +36,6 @@ const RewardsStakingClaimButton = withSuspense(
             onClaim()
           }
         },
-        onError: () => {
-          mutateClaimableBalance()
-        },
       })
     }
 

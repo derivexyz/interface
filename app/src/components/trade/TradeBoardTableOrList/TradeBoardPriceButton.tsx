@@ -17,7 +17,6 @@ type Props = {
 const getDisabledMessage = (disabledReason: QuoteDisabledReason): string => {
   switch (disabledReason) {
     case QuoteDisabledReason.EmptySize:
-    case QuoteDisabledReason.EmptyPremium:
     case QuoteDisabledReason.Expired:
     case QuoteDisabledReason.TradingCutoff:
     case QuoteDisabledReason.InsufficientLiquidity:

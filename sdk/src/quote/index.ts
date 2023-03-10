@@ -19,7 +19,6 @@ import getQuoteIteration from './getQuoteIteration'
 
 export enum QuoteDisabledReason {
   EmptySize = 'EmptySize',
-  EmptyPremium = 'EmptyPremium',
   Expired = 'Expired',
   TradingCutoff = 'TradingCutoff',
   InsufficientLiquidity = 'InsufficientLiquidity',
@@ -346,7 +345,6 @@ export class Quote {
     if (disabledReason) {
       // For subset of disabled reasons, return empty quote
       switch (disabledReason) {
-        case QuoteDisabledReason.EmptyPremium:
         case QuoteDisabledReason.EmptySize:
         case QuoteDisabledReason.Expired:
         case QuoteDisabledReason.IVTooHigh:

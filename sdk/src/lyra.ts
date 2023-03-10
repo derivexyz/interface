@@ -11,6 +11,7 @@ import { Board, BoardQuotes } from './board'
 import { CollateralUpdateEvent } from './collateral_update_event'
 import { Chain } from './constants/chain'
 import { Deployment } from './constants/contracts'
+import { LYRA_API_URL } from './constants/links'
 import { Network } from './constants/network'
 import { GlobalRewardEpoch } from './global_reward_epoch'
 import { LiquidityDeposit } from './liquidity_deposit'
@@ -42,6 +43,7 @@ export type LyraConfig = {
   optimismProvider?: JsonRpcProvider
   ethereumProvider?: JsonRpcProvider
   subgraphUri?: string
+  apiUri?: string
 }
 
 export enum Version {
@@ -59,6 +61,7 @@ export default class Lyra {
   ethereumProvider?: JsonRpcProvider
   subgraphUri: string
   subgraphClient: ApolloClient<NormalizedCacheObject>
+  apiUri: string
   deployment: Deployment
   network: Network
   version: Version
@@ -71,6 +74,7 @@ export default class Lyra {
       this.ethereumProvider = config.ethereumProvider
       this.chain = getLyraChainForChainId(this.provider.network.chainId)
       this.subgraphUri = configObj?.subgraphUri ?? getLyraDeploymentSubgraphURI(this.chain)
+      this.apiUri = configObj.apiUri ?? LYRA_API_URL
     } else if (typeof config === 'number') {
       // Chain ID
       this.chain = getLyraChainForChainId(config)
@@ -87,6 +91,7 @@ export default class Lyra {
       link: new HttpLink({ uri: this.subgraphUri, fetch }),
       cache: new InMemoryCache(),
     })
+    this.apiUri = LYRA_API_URL
     this.chainId = getLyraChainIdForChain(this.chain)
     this.deployment = getLyraDeploymentForChain(this.chain)
     this.network = getNetworkForChain(this.chain)

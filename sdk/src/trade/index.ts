@@ -7,7 +7,6 @@ import { Board } from '../board'
 import { CollateralUpdateEvent } from '../collateral_update_event'
 import { MAX_BN, UNIT, ZERO_ADDRESS, ZERO_BN } from '../constants/bn'
 import { DataSource, DEFAULT_ITERATIONS, LyraMarketContractId } from '../constants/contracts'
-import { GAS_SLIPPAGE } from '../constants/gas'
 import Lyra, { Version } from '../lyra'
 import { Market, MarketToken } from '../market'
 import { Option } from '../option'
@@ -25,6 +24,7 @@ import getERC20Contract from '../utils/getERC20Contract'
 import getLyraMarketContract from '../utils/getLyraMarketContract'
 import getOptionType from '../utils/getOptionType'
 import getProjectedSettlePnl from '../utils/getProjectedSettlePnl'
+import getTimeToExpiryAnnualized from '../utils/getTimeToExpiryAnnualized'
 import getTradePnl from '../utils/getTradePnl'
 import parsePartialPositionUpdatedEventsFromLogs from '../utils/parsePartialPositionUpdatedEventsFromLogs'
 import parsePartialTradeEventsFromLogs from '../utils/parsePartialTradeEventsFromLogs'
@@ -36,7 +36,6 @@ import getTradeDisabledReason from './getTradeDisabledReason'
 
 export enum TradeDisabledReason {
   EmptySize = 'EmptySize',
-  EmptyPremium = 'EmptyPremium',
   Expired = 'Expired',
   TradingCutoff = 'TradingCutoff',
   InsufficientLiquidity = 'InsufficientLiquidity',
@@ -60,7 +59,6 @@ export enum TradeDisabledReason {
   InsufficientBaseBalance = 'InsufficientBaseBalance',
   UnableToHedgeDelta = 'UnableToHedgeDelta',
   PriceVarianceTooHigh = 'PriceVarianceTooHigh',
-  Unknown = 'Unknown',
 }
 
 export type TradeCollateral = {
@@ -135,7 +133,7 @@ export class Trade {
   tx: PopulatedTransaction
   iterations: QuoteIteration[]
   params: any
-  misc: Record<string, string | number>
+  measurements?: Record<string, number>
 
   private constructor(
     lyra: Lyra,
@@ -233,7 +231,6 @@ export class Trade {
     this.quoted = quote.premium
     this.pricePerOption = ZERO_BN
     this.premium = ZERO_BN
-    this.misc = {}
 
     this.newSize = position ? (this.isOpen ? position.size.add(size) : position.size.sub(size)) : size
     if (this.newSize.lt(0)) {
@@ -430,32 +427,13 @@ export class Trade {
     // Sanity check trade, use for internal testing
     const txName = trade.isOpen ? 'openPosition' : trade.isForceClose ? 'forceClosePosition' : 'closePosition'
 
-    const getEstimateGas = async () => {
-      try {
-        return optionMarket.estimateGas[txName](trade.params, { from: owner })
-      } catch (err) {
-        return null
-      }
-    }
-
-    const [res, gasEstimate] = await Promise.all([
-      optionMarket.callStatic[txName](trade.params, { from: owner }),
-      getEstimateGas(),
-    ])
-
-    if (gasEstimate) {
-      // Insert gas limit
-      const gasLimit = gasEstimate.mul(toBigNumber(1 + GAS_SLIPPAGE)).div(UNIT)
-      trade.tx.gasLimit = gasLimit
-    } else {
-      console.warn('Gas estimate failed')
-    }
+    const res = await optionMarket.callStatic[txName](trade.params, { from: owner })
 
     const costDiff = trade.quoted.gt(0)
       ? fromBigNumber(trade.quoted.sub(res.totalCost).abs()) / fromBigNumber(trade.quoted)
       : 0
 
-    trade.misc = {
+    trade.measurements = {
       sdkCost: fromBigNumber(trade.quoted),
       contractCost: fromBigNumber(res.totalCost),
       costDiff,
@@ -463,9 +441,10 @@ export class Trade {
       contractFees: fromBigNumber(res.totalFee),
       feesDiff: trade.fee.gt(0) ? fromBigNumber(trade.fee.sub(res.totalFee).abs()) / fromBigNumber(trade.fee) : 0,
       sdkSpotPrice: fromBigNumber(trade.spotPrice),
+      sdkTimeToExpiryAnnualized: getTimeToExpiryAnnualized(trade.board()),
     }
 
-    console.debug(trade.misc)
+    console.debug(trade.measurements)
 
     return trade
   }
