@@ -90,5 +90,6 @@ export default function getQuoteIteration({
     volTraded,
     newSkew,
     newBaseIv,
+    spotPrice,
   }
 }

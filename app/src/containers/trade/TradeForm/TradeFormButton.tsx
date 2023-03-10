@@ -9,6 +9,7 @@ import useAccount from '@/app/hooks/account/useAccount'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useMutateTrade from '@/app/hooks/mutations/useMutateTrade'
 import useMutateTradeApprove from '@/app/hooks/mutations/useMutateTradeApprove'
+import fromBigNumber from '@/app/utils/fromBigNumber'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import getTradeLogData from '@/app/utils/getTradeLogData'
 import isDev from '@/app/utils/isDev'
@@ -159,7 +160,23 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       )
       return {
         tx: proposedTrade.tx,
-        metadata: proposedTrade.measurements,
+        metadata: {
+          ...proposedTrade.measurements,
+          blockNumber: proposedTrade.market().block.number,
+          isForceClose: proposedTrade.isForceClose,
+          iterations: proposedTrade.iterations.map(iteration => ({
+            premium: fromBigNumber(iteration.premium),
+            optionPriceFee: fromBigNumber(iteration.optionPriceFee),
+            spotPriceFee: fromBigNumber(iteration.spotPriceFee),
+            vegaUtilFee: fromBigNumber(iteration.vegaUtilFee.vegaUtilFee),
+            varianceFee: fromBigNumber(iteration.varianceFee.varianceFee),
+            forceClosePenalty: fromBigNumber(iteration.forceClosePenalty),
+            volTraded: fromBigNumber(iteration.volTraded),
+            newBaseIv: fromBigNumber(iteration.newBaseIv),
+            newSkew: fromBigNumber(iteration.newSkew),
+            postTradeAmmNetStdVega: fromBigNumber(iteration.postTradeAmmNetStdVega),
+          })),
+        },
       }
     }
 

@@ -44,6 +44,7 @@ export type QuoteIteration = {
   newBaseIv: BigNumber
   newSkew: BigNumber
   postTradeAmmNetStdVega: BigNumber
+  spotPrice: BigNumber
 }
 
 export type QuoteFeeComponents = {

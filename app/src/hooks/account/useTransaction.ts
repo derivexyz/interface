@@ -31,7 +31,9 @@ export enum TransactionFailureStage {
   Reverted = 'Reverted',
 }
 
-type TransactionMetadata = Record<string, string | number | boolean>
+type Value = string | number | boolean
+
+type TransactionMetadata = Record<string, Value | Record<string, Value> | Array<Record<string, Value>>>
 
 export type TransactionSuccessOptions = {
   chain: number
@@ -41,6 +43,7 @@ export type TransactionSuccessOptions = {
   signer: string
   metadata?: TransactionMetadata
   txHash: string
+  txBlock: number
 }
 
 export type TransactionErrorOptions = {
@@ -53,6 +56,7 @@ export type TransactionErrorOptions = {
   signer: string
   metadata?: TransactionMetadata
   txHash?: string | null
+  txBlock?: number
 }
 
 export type Transaction =
@@ -64,7 +68,7 @@ export type Transaction =
 
 export type TransactionOptions = {
   onComplete?: (receipt: ContractReceipt) => any | Promise<any>
-  metadata?: Record<string, string | number | boolean>
+  metadata?: TransactionMetadata
 }
 
 // Add custom error messages as they appear
@@ -223,7 +227,8 @@ export default function useTransaction(
               ...successOrErrorOptions,
               error,
               stage: TransactionFailureStage.Reverted,
-              txHash: receipt?.transactionHash,
+              txHash: receipt.transactionHash,
+              txBlock: receipt.blockNumber,
             })
           }
           return null
@@ -236,7 +241,11 @@ export default function useTransaction(
             console.timeEnd('onComplete')
           }
 
-          postTransactionSuccess({ ...successOrErrorOptions, txHash: receipt.transactionHash })
+          postTransactionSuccess({
+            ...successOrErrorOptions,
+            txHash: receipt.transactionHash,
+            txBlock: receipt.blockNumber,
+          })
 
           updateToast(toastId, {
             variant: 'success',
