@@ -1,7 +1,7 @@
 import { Network } from '@lyrafinance/lyra-js'
 import { BigNumber } from 'ethers'
 
-import { ZERO_ADDRESS, ZERO_BN } from '@/app/constants/bn'
+import { ZERO_BN } from '@/app/constants/bn'
 import { FetchId } from '@/app/constants/fetch'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 
@@ -18,9 +18,13 @@ type RewardsShortPageData = RewardsPageData & {
   collateral: BigNumber
 }
 
-const fetcher = async (account: string, network: Network): Promise<RewardsShortPageData> => {
+const fetcher = async (account: string | null, network: Network): Promise<RewardsShortPageData> => {
   const lyra = getLyraSDK(network)
-  const [rewardPageData, positions] = await Promise.all([fetchRewardsPageData(account), lyra.positions(account)])
+
+  const [rewardPageData, positions] = await Promise.all([
+    fetchRewardsPageData(account),
+    account ? lyra.positions(account) : [],
+  ])
   const latestGlobalRewardEpoch = rewardPageData.epochs[network]?.latestRewardEpoch.global
 
   return {
@@ -35,6 +39,6 @@ const fetcher = async (account: string, network: Network): Promise<RewardsShortP
 
 export default function useRewardsShortsPageData(network: Network | null): RewardsShortPageData {
   const account = useWalletAccount()
-  const [data] = useFetch(FetchId.RewardsShortsPageData, network ? [account ?? ZERO_ADDRESS, network] : null, fetcher)
+  const [data] = useFetch(FetchId.RewardsShortsPageData, network ? [account, network] : null, fetcher)
   return data ?? EMPTY
 }

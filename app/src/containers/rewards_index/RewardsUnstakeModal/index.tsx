@@ -20,7 +20,6 @@ export default function RewardsUnstakeModal({
   lyraStakingAccount,
   globalRewardEpoch,
 }: Props) {
-  console.log({ isUnstakeWindow: lyraStakingAccount?.isInUnstakeWindow })
   return (
     <Modal
       isOpen={isOpen}

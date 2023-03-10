@@ -63,10 +63,12 @@ const RewardsStakedCardSection = ({
   const isMobile = useIsMobile()
 
   const { optimismOldStkLyra, ethereumStkLyra, optimismStkLyra, arbitrumStkLyra } = lyraBalances
-  const { l2Balance, balance } = useMemo(() => {
-    const l2Balance = optimismOldStkLyra.add(optimismStkLyra).add(arbitrumStkLyra)
+  const { l2Balance, balanceWithOld, balance } = useMemo(() => {
+    const l2Balance = optimismStkLyra.add(arbitrumStkLyra)
+    const balanceWithOld = optimismOldStkLyra.add(optimismStkLyra).add(arbitrumStkLyra)
     return {
       l2Balance,
+      balanceWithOld,
       balance: l2Balance.add(ethereumStkLyra),
     }
   }, [optimismOldStkLyra, optimismStkLyra, arbitrumStkLyra, ethereumStkLyra])
@@ -87,7 +89,7 @@ const RewardsStakedCardSection = ({
             variant="heading"
             color={balance.isZero() ? 'secondaryText' : l2Balance.gt(0) ? 'warningText' : 'primaryText'}
           >
-            {formatBalance({ balance, symbol: 'stkLYRA', decimals: 18 })}
+            {formatBalance({ balance: balanceWithOld, symbol: 'stkLYRA', decimals: 18 })}
           </Text>
         </Flex>
         {l2Balance.gt(0) ? (
