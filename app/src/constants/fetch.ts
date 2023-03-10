@@ -6,6 +6,7 @@ export enum FetchId {
   // accounts
   AccountENS = 'AccountENS',
   AccountEthBalance = 'AccountEthBalance',
+  AccountIsSmartContractWallet = 'AccountIsSmartContractWallet',
   AccountScreenTransaction = 'AccountScreenTransaction',
   AccountBalances = 'AccountBalances',
   AccountLyraBalances = 'AccountLyraBalances',

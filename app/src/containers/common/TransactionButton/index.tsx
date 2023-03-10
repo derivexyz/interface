@@ -15,6 +15,7 @@ import { TransactionType } from '@/app/constants/screen'
 import TermsOfUseModal from '@/app/containers/common/TermsOfUseModal'
 import useEthBalance from '@/app/hooks/account/useEthBalance'
 import useIsReady from '@/app/hooks/account/useIsReady'
+import useIsSmartContractWallet from '@/app/hooks/account/useIsSmartContractWallet'
 import useScreenTransaction from '@/app/hooks/account/useScreenTransaction'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWallet from '@/app/hooks/account/useWallet'
@@ -84,6 +85,7 @@ const TransactionButton = withSuspense(
       const screenData = useScreenTransaction(targetChainId, transactionType)
       const isReady = useIsReady(targetChainId)
       const ethBalance = useEthBalance(network)
+      const isSmartContractWallet = useIsSmartContractWallet(network)
 
       const [isSwapOpen, setIsSwapOpen] = useState(false)
 
@@ -122,7 +124,7 @@ const TransactionButton = withSuspense(
 
       const onCloseSwap = useCallback(() => setIsSwapOpen(false), [])
 
-      const requireEthBalance = ethBalance.isZero()
+      const requireEthBalance = ethBalance.isZero() && !isSmartContractWallet
       const requireSwap = requireBalance && requireBalance.requiredBalance.gt(requireBalance.balance)
       const requireApproval = !!requireAllowance
 
