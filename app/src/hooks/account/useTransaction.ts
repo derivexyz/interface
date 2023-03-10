@@ -72,8 +72,11 @@ export type TransactionOptions = {
 }
 
 // Add custom error messages as they appear
-export const parseTransactionErrorMessage = (error: any) => {
-  const errorMessage = String(error?.errorName ?? error?.data?.error?.message ?? error?.message).split('[')[0]
+const parseTransactionErrorMessage = (error: any) => {
+  let errorMessage = String(error?.errorName ?? error?.data?.error?.message ?? error?.message).split('[')[0]
+  if (!errorMessage) {
+    errorMessage = 'Something went wrong'
+  }
   switch (errorMessage) {
     case 'TotalCostOutsideOfSpecifiedBounds':
       return 'Slippage out of bounds'
