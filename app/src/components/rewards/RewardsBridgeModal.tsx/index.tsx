@@ -44,7 +44,6 @@ export default function RewardsBridgeModal({ balances, isOpen, onClose, isStkLYR
     () => Object.values(LyraNetwork).filter(network => getBalance(balances, network, isStkLYRA).gt(0)),
     [balances, isStkLYRA]
   )
-
   const defaultNetwork = networks[0]
 
   const [network, setNetwork] = useState(defaultNetwork)

@@ -65,7 +65,7 @@ const RewardsStakedCardSection = ({
   const { optimismOldStkLyra, ethereumStkLyra, optimismStkLyra, arbitrumStkLyra } = lyraBalances
   const { l2Balance, balanceWithOld, balance } = useMemo(() => {
     const l2Balance = optimismStkLyra.add(arbitrumStkLyra)
-    const balanceWithOld = optimismOldStkLyra.add(optimismStkLyra).add(arbitrumStkLyra)
+    const balanceWithOld = optimismOldStkLyra.add(optimismStkLyra).add(arbitrumStkLyra).add(ethereumStkLyra)
     return {
       l2Balance,
       balanceWithOld,
