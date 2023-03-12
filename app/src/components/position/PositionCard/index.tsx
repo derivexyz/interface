@@ -15,6 +15,7 @@ import ShortYieldValue from '@/app/containers/common/ShortYieldValue'
 import TradeCollateralFormModal from '@/app/containers/trade/TradeCollateralFormModal'
 import TradeFormModal from '@/app/containers/trade/TradeFormModal'
 import useWallet from '@/app/hooks/account/useWallet'
+import isDev from '@/app/utils/isDev'
 
 import LabelItem from '../../common/LabelItem'
 
@@ -78,7 +79,7 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
             />
           ) : null}
         </Grid>
-        {isOwner && position.isOpen ? (
+        {(isOwner || isDev()) && position.isOpen ? (
           <Grid mt={8} sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr 1fr'], gap: [3, 6] }}>
             <Button
               variant="primary"

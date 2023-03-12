@@ -29,10 +29,18 @@ export default function useBoardQuotesSync(board: Board, size: BigNumber): Strik
               strike,
             }
           }
-          const hideCallBid = callBid.disabledReason ? getIsQuoteHidden(callBid.disabledReason) : false
-          const hideCallAsk = callAsk.disabledReason ? getIsQuoteHidden(callAsk.disabledReason) : false
-          const hidePutBid = putBid.disabledReason ? getIsQuoteHidden(putBid.disabledReason) : false
-          const hidePutAsk = putAsk.disabledReason ? getIsQuoteHidden(putAsk.disabledReason) : false
+          const hideCallBid = callBid.disabledReason
+            ? getIsQuoteHidden(callBid.disabledReason) || callBid.premium.isZero()
+            : false
+          const hideCallAsk = callAsk.disabledReason
+            ? getIsQuoteHidden(callAsk.disabledReason) || callAsk.premium.isZero()
+            : false
+          const hidePutBid = putBid.disabledReason
+            ? getIsQuoteHidden(putBid.disabledReason) || putBid.premium.isZero()
+            : false
+          const hidePutAsk = putAsk.disabledReason
+            ? getIsQuoteHidden(putAsk.disabledReason) || putAsk.premium.isZero()
+            : false
           return {
             callBid: !hideCallBid ? callBid : null,
             callAsk: !hideCallAsk ? callAsk : null,
