@@ -1,9 +1,10 @@
-import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
+import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { IconType } from '@lyra/ui/components/Icon'
 import { closeToast, createPendingToast, updatePendingToast, updateToast } from '@lyra/ui/components/Toast'
 import { ContractReceipt, PopulatedTransaction } from 'ethers'
 import { useCallback } from 'react'
 
+import { GAS_BUFFER, MIN_GAS_LIMIT } from '@/app/constants/contracts'
 import { AppNetwork, Network } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
@@ -17,7 +18,7 @@ import resolveNetwork from '@/app/utils/resolveNetwork'
 import useWallet from './useWallet'
 
 const DEFAULT_TOAST_TIMEOUT = 1000 * 5 // 5 seconds
-const POLL_INTERVAL = 1000 // 1 second
+const POLL_INTERVAL = 250 // 0.25 seconds
 
 // https://docs.ethers.io/v5/single-page/#/v5/api/providers/types/-%23-providers-TransactionReceipt
 enum TransactionStatus {
@@ -86,12 +87,24 @@ const parseTransactionErrorMessage = (error: any) => {
 }
 
 const reportError = (options: TransactionErrorOptions) => {
-  const { network, error, toastId, txHash } = options
+  const { network, error: _error, toastId, txHash } = options
 
+  let error = _error
   if (error?.code === 4001 || JSON.stringify(error).includes('user rejected transaction')) {
     // User rejected the transaction, skip report
     closeToast(toastId)
     return null
+  }
+
+  if (
+    error?.code === 'UNPREDICTABLE_GAS_LIMIT' &&
+    error?.error &&
+    error?.error?.code &&
+    error?.error?.message &&
+    error?.error?.data
+  ) {
+    // Unpredictable gas limit indicates nested error
+    error = error.error
   }
 
   console.error(error)
@@ -123,6 +136,14 @@ const getTimeout = (network: Network): number => {
     case AppNetwork.Ethereum:
       return 60 * 1000
   }
+}
+
+async function getGasLimit(provider: JsonRpcProvider, tx: PopulatedTransaction) {
+  let gasLimit = await provider.estimateGas(tx)
+  if (gasLimit.lt(MIN_GAS_LIMIT)) {
+    gasLimit = MIN_GAS_LIMIT
+  }
+  return gasLimit.mul(10000 * GAS_BUFFER).div(10000) // Add % buffer
 }
 
 export default function useTransaction(
@@ -175,6 +196,15 @@ export default function useTransaction(
         return null
       }
 
+      try {
+        if (tx.gasLimit) {
+          tx.gasLimit = await getGasLimit(provider, tx)
+        }
+      } catch (error) {
+        reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.App })
+        return null
+      }
+
       let response: TransactionResponse
       try {
         console.time('tx')
@@ -209,13 +239,13 @@ export default function useTransaction(
             resolve(receipt)
           } else if (n < 100) {
             n++
-            setTimeout(pollReceipt, 500)
+            setTimeout(pollReceipt, POLL_INTERVAL)
           } else {
             console.warn('Max retries exceeded')
             resolve(null)
           }
         }
-        setTimeout(pollReceipt, 500)
+        setTimeout(pollReceipt, POLL_INTERVAL)
       })
       console.debug('receipt', receipt)
       console.timeEnd('waitForTransaction')
