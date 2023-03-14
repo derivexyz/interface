@@ -1,5 +1,6 @@
 export { Network as LyraNetwork } from '@lyrafinance/lyra-js'
 import { Network as LyraNetwork } from '@lyrafinance/lyra-js'
+import { BigNumber } from 'ethers'
 import nullthrows from 'nullthrows'
 
 import filterNulls from '../utils/filterNulls'
@@ -30,6 +31,9 @@ export type NetworkConfig = {
   readRpcUrls: string[]
   blockExplorerUrl: string
   iconUrls: string[]
+  gasBuffer: number
+  maxGas: BigNumber
+  minGas: BigNumber
   faucetUrl?: string
   nativeBridgeUrl?: string
   fastBridgeUrl?: string
@@ -58,6 +62,9 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
     nativeBridgeUrl: 'https://app.optimism.io/bridge/withdraw',
     fastBridgeUrl: 'https://cbridge.celer.network/10/1/LYRA',
+    gasBuffer: 1.5,
+    minGas: BigNumber.from(22000),
+    maxGas: BigNumber.from(15000000),
   },
   [AppChain.OptimismGoerli]: {
     name: 'Optimistic Ethereum (Goerli)',
@@ -71,6 +78,9 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     faucetUrl: 'https://faucet.paradigm.xyz/',
     nativeBridgeUrl: 'https://app.optimism.io/bridge/withdraw',
     fastBridgeUrl: 'https://cbridge.celer.network/10/1/LYRA',
+    gasBuffer: 1.5,
+    minGas: BigNumber.from(22000),
+    maxGas: BigNumber.from(15000000),
   },
   [AppChain.Arbitrum]: {
     name: 'Arbitrum One',
@@ -86,6 +96,9 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
     nativeBridgeUrl: 'https://bridge.arbitrum.io/?l2ChainId=42161',
     fastBridgeUrl: 'https://cbridge.celer.network/42161/1/LYRA',
+    gasBuffer: 1.5,
+    minGas: BigNumber.from(22000),
+    maxGas: BigNumber.from(30000000),
   },
   [AppChain.ArbitrumGoerli]: {
     name: 'Arbitrum Goerli',
@@ -99,6 +112,9 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     faucetUrl: 'https://faucet.quicknode.com/arbitrum/goerli',
     nativeBridgeUrl: 'https://bridge.arbitrum.io/?l2ChainId=42161',
     fastBridgeUrl: 'https://cbridge.celer.network/42161/1/LYRA',
+    gasBuffer: 1.5,
+    minGas: BigNumber.from(22000),
+    maxGas: BigNumber.from(30000000),
   },
   [AppChain.Ethereum]: {
     name: 'Ethereum Mainnet',
@@ -112,6 +128,9 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     ]),
     blockExplorerUrl: 'https://etherscan.io/',
     iconUrls: [],
+    gasBuffer: 1.2,
+    minGas: BigNumber.from(22000),
+    maxGas: BigNumber.from(15000000),
   },
   [AppChain.EthereumGoerli]: {
     name: 'Ethereum Goerli',
@@ -122,5 +141,8 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     readRpcUrls: [`https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`],
     blockExplorerUrl: 'https://goerli.etherscan.io/',
     iconUrls: [],
+    gasBuffer: 1.2,
+    minGas: BigNumber.from(22000),
+    maxGas: BigNumber.from(15000000),
   },
 }

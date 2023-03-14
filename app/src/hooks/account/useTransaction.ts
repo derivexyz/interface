@@ -4,11 +4,11 @@ import { closeToast, createPendingToast, updatePendingToast, updateToast } from 
 import { ContractReceipt, PopulatedTransaction } from 'ethers'
 import { useCallback } from 'react'
 
-import { GAS_BUFFER, MIN_GAS_LIMIT } from '@/app/constants/contracts'
 import { AppNetwork, Network } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
 import getExplorerUrl from '@/app/utils/getExplorerUrl'
+import getNetworkConfig from '@/app/utils/getNetworkConfig'
 import getProvider from '@/app/utils/getProvider'
 import logError from '@/app/utils/logError'
 import postTransactionError from '@/app/utils/postTransactionError'
@@ -138,12 +138,17 @@ const getTimeout = (network: Network): number => {
   }
 }
 
-async function getGasLimit(provider: JsonRpcProvider, tx: PopulatedTransaction) {
-  let gasLimit = await provider.estimateGas(tx)
-  if (gasLimit.lt(MIN_GAS_LIMIT)) {
-    gasLimit = MIN_GAS_LIMIT
+async function getGasLimit(network: Network, provider: JsonRpcProvider, tx: PopulatedTransaction) {
+  const config = getNetworkConfig(network)
+  // add buffer to est. gas limit if not hardcoded
+  const gasLimit = tx.gasLimit ?? (await provider.estimateGas(tx)).mul(10000 * Math.max(1, config.gasBuffer)).div(10000)
+  if (gasLimit.lt(config.minGas)) {
+    return config.minGas
   }
-  return gasLimit.mul(10000 * GAS_BUFFER).div(10000) // Add % buffer
+  if (gasLimit.gt(config.maxGas)) {
+    return config.maxGas
+  }
+  return gasLimit
 }
 
 export default function useTransaction(
@@ -197,9 +202,7 @@ export default function useTransaction(
       }
 
       try {
-        if (tx.gasLimit) {
-          tx.gasLimit = await getGasLimit(provider, tx)
-        }
+        tx.gasLimit = await getGasLimit(network, provider, tx)
       } catch (error) {
         reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.App })
         return null
