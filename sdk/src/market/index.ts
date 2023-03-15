@@ -171,6 +171,7 @@ export type MarketParameters = {
   NAV: BigNumber
   tokenPrice: BigNumber
   netStdVega: BigNumber
+  netDelta: BigNumber
   hedgerView: PoolHedgerView | null
   adapterView: ExchangeAdapterView | null
   isMarketPaused: boolean
@@ -328,6 +329,7 @@ export class Market {
       freeLiquidity: marketView.liquidity.freeLiquidity,
       tokenPrice,
       netStdVega: marketView.globalNetGreeks.netStdVega,
+      netDelta: marketView.globalNetGreeks.netDelta,
       isGlobalPaused,
       isMarketPaused: marketView.isPaused,
       owner,
