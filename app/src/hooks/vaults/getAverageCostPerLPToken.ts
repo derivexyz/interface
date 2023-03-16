@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { LiquidityDeposit, LiquidityWithdrawal } from '@lyrafinance/lyra-js'
 
-import { LiquidityDeposit, LiquidityWithdrawal } from '..'
-import { UNIT, ZERO_BN } from '../constants/bn'
+import { UNIT, ZERO_BN } from '@/app/constants/bn'
 
 export default function getAverageCostPerLPToken(
   liquidityDeposits: LiquidityDeposit[],

@@ -1,8 +1,9 @@
 import { AccountRewardEpoch, Market, Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
 
-import { ZERO_ADDRESS } from '../constants/bn'
+import { ONE_BN, UNIT, ZERO_ADDRESS, ZERO_BN } from '../constants/bn'
 import { Vault } from '../constants/vault'
 import { EMPTY_LYRA_BALANCES } from '../hooks/account/useAccountLyraBalances'
+import getAverageCostPerLPToken from '../hooks/vaults/getAverageCostPerLPToken'
 import fromBigNumber from './fromBigNumber'
 import getEmptyMarketBalances from './getEmpyMarketBalances'
 import getLyraSDK from './getLyraSDK'
@@ -46,6 +47,11 @@ const fetchVault = async (network: Network, market: Market, walletAddress?: stri
 
   const utilization = marketLiquidity.utilization
 
+  const avgCostPerToken = getAverageCostPerLPToken(deposits, withdrawals)
+  const avgValue = avgCostPerToken.mul(liquidityToken.balance).div(UNIT)
+  const pnl = liquidityTokenBalanceValue - fromBigNumber(avgValue)
+  const pnlPercent =
+    avgCostPerToken.gt(0) && pnl !== 0 ? marketLiquidity.tokenPrice.mul(UNIT).div(avgCostPerToken).sub(ONE_BN) : ZERO_BN
   return {
     market,
     marketLiquidity,
@@ -65,6 +71,8 @@ const fetchVault = async (network: Network, market: Market, walletAddress?: stri
     pendingWithdrawals,
     allDeposits: deposits,
     allWithdrawals: withdrawals,
+    pnl,
+    pnlPercentage: fromBigNumber(pnlPercent),
   }
 }
 

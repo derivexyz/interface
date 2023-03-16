@@ -30,4 +30,6 @@ export type Vault = {
   pendingWithdrawals: LiquidityWithdrawal[]
   allDeposits: LiquidityDeposit[]
   allWithdrawals: LiquidityWithdrawal[]
+  pnl: number
+  pnlPercentage: number
 }

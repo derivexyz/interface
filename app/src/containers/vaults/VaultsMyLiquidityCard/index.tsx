@@ -9,6 +9,7 @@ import Text from '@lyra/ui/components/Text'
 import Countdown from '@lyra/ui/components/Text/CountdownText'
 import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatNumber from '@lyra/ui/utils/formatNumber'
+import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import React, { useCallback, useState } from 'react'
 
@@ -55,7 +56,12 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
           <Text variant="heading">{formatUSD(vault.liquidityTokenBalanceValue)}</Text>
         </Box>
         <Grid mb={[3, 6]} sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'], gridColumnGap: 6, gridRowGap: 6 }}>
-          <LabelItem label="Balance" value={formatBalance(vault.liquidityToken)} />
+          <LabelItem label="LP Balance" value={formatBalance(vault.liquidityToken)} />
+          <LabelItem
+            label="LP Profit / Loss"
+            value={`${formatUSD(vault.pnl)} (${formatPercentage(vault.pnlPercentage, true)})`}
+            valueColor={vault.pnl >= 0 ? 'primaryText' : 'errorText'}
+          />
           <LabelItem
             label="Your APY"
             valueColor={minTotalApy > 0 && totalApy > minTotalApy * 1.01 ? 'primaryText' : 'text'}
