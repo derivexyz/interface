@@ -1,7 +1,7 @@
 import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { IconType } from '@lyra/ui/components/Icon'
 import { closeToast, createPendingToast, updatePendingToast, updateToast } from '@lyra/ui/components/Toast'
-import { ContractReceipt, PopulatedTransaction } from 'ethers'
+import { BigNumber, ContractReceipt, PopulatedTransaction } from 'ethers'
 import { useCallback } from 'react'
 
 import { AppNetwork, Network } from '@/app/constants/networks'
@@ -138,8 +138,15 @@ const getTimeout = (network: Network): number => {
   }
 }
 
-async function getGasLimit(network: Network, provider: JsonRpcProvider, tx: PopulatedTransaction) {
+async function getGasLimit(
+  network: Network,
+  provider: JsonRpcProvider,
+  tx: PopulatedTransaction
+): Promise<BigNumber | undefined> {
   const config = getNetworkConfig(network)
+  if (!config.gasBuffer || !config.minGas || !config.maxGas) {
+    return
+  }
   // add buffer to est. gas limit if not hardcoded
   const gasLimit = tx.gasLimit ?? (await provider.estimateGas(tx)).mul(10000 * Math.max(1, config.gasBuffer)).div(10000)
   if (gasLimit.lt(config.minGas)) {
