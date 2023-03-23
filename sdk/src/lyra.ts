@@ -36,7 +36,6 @@ import getLyraDeploymentProvider from './utils/getLyraDeploymentProvider'
 import getLyraDeploymentSubgraphURI from './utils/getLyraDeploymentSubgraphURI'
 import getNetworkForChain from './utils/getLyraNetworkForChain'
 import getVersionForChain from './utils/getVersionForChain'
-import { AccountWethLyraStaking, WethLyraStaking } from './weth_lyra_staking'
 
 export type LyraConfig = {
   provider: JsonRpcProvider
@@ -355,33 +354,5 @@ export default class Lyra {
 
   async accountRewardEpochs(address: string): Promise<AccountRewardEpoch[]> {
     return await AccountRewardEpoch.getByOwner(this, address)
-  }
-
-  async wethLyraStaking(): Promise<WethLyraStaking> {
-    return await WethLyraStaking.get(this)
-  }
-
-  async wethLyraStakingAccount(address: string): Promise<AccountWethLyraStaking> {
-    return await WethLyraStaking.getByOwner(this, address)
-  }
-
-  async approveWethLyraStaking(address: string) {
-    return await WethLyraStaking.approve(this, address)
-  }
-
-  async claimableWethLyraRewards(address: string) {
-    return WethLyraStaking.claimableRewards(this, address)
-  }
-
-  async claimWethLyraRewards(address: string) {
-    return await WethLyraStaking.claim(this, address)
-  }
-
-  async stakeWethLyra(address: string, amount: BigNumber) {
-    return await WethLyraStaking.stake(this, address, amount)
-  }
-
-  async unstakeWethLyra(address: string, amount: BigNumber) {
-    return await WethLyraStaking.unstake(this, address, amount)
   }
 }

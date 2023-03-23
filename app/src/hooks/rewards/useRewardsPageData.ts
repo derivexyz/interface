@@ -4,13 +4,13 @@ import {
   GlobalRewardEpoch,
   LyraStakingAccount,
   Network,
-  WethLyraStaking,
 } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
 import { FetchId } from '@/app/constants/fetch'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import { lyraOptimism } from '@/app/utils/lyra'
+import fetchArrakisStaking, { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
 
 import { EMPTY_LYRA_BALANCES } from '../account/useAccountLyraBalances'
 import useWallet from '../account/useWallet'
@@ -29,28 +29,29 @@ export type RewardsPageData = {
     [network in Network]?: NetworkRewardsData
   }
   lyraBalances: AccountLyraBalances
-  wethLyraStaking: WethLyraStaking | null
+  arrakisStaking: ArrakisStaking | null
   lyraStakingAccount: LyraStakingAccount | null
 }
 
 export const EMPTY_REWARDS_PAGE_DATA: RewardsPageData = {
   epochs: {},
   lyraBalances: EMPTY_LYRA_BALANCES,
-  wethLyraStaking: null,
+  arrakisStaking: null,
   lyraStakingAccount: null,
 }
 
 export const fetchRewardsPageData = async (walletAddress: string | null): Promise<RewardsPageData> => {
-  const [globalRewardEpochs, accountRewardEpochs, wethLyraStaking, lyraBalances, lyraStakingAccount] =
-    await Promise.all([
+  const [globalRewardEpochs, accountRewardEpochs, arrakisStaking, lyraBalances, lyraStakingAccount] = await Promise.all(
+    [
       Promise.all(Object.values(Network).map(network => getLyraSDK(network).globalRewardEpochs())),
       walletAddress
         ? Promise.all(Object.values(Network).map(network => getLyraSDK(network).accountRewardEpochs(walletAddress)))
         : [],
-      lyraOptimism.wethLyraStaking(),
+      fetchArrakisStaking(),
       walletAddress ? lyraOptimism.account(walletAddress).lyraBalances() : EMPTY_LYRA_BALANCES,
       walletAddress ? lyraOptimism.lyraStakingAccount(walletAddress) : null,
-    ])
+    ]
+  )
 
   const networkEpochsMap = Object.values(Network).reduce((map, network, idx) => {
     const networkGlobalEpochs = globalRewardEpochs[idx]
@@ -77,7 +78,7 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
   return {
     epochs: networkEpochsMap,
     lyraBalances,
-    wethLyraStaking,
+    arrakisStaking: arrakisStaking,
     lyraStakingAccount,
   }
 }

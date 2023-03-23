@@ -1,5 +1,5 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { AccountLyraBalances, LyraStakingAccount, WethLyraStaking } from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, LyraStakingAccount } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
@@ -10,6 +10,7 @@ import RewardsTradingSection from '@/app/containers/rewards_index/RewardsTrading
 import RewardsVaultsSection from '@/app/containers/rewards_index/RewardsVaultsSection'
 import RewardsWethLyraLPSection from '@/app/containers/rewards_index/RewardsWethLyraLPSection'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useLatestRewardEpoch'
+import { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
 
 import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
@@ -18,10 +19,10 @@ type Props = {
   latestRewardEpochs: LatestRewardEpoch[]
   lyraBalances: AccountLyraBalances
   lyraStakingAccount: LyraStakingAccount | null
-  wethLyraStaking: WethLyraStaking | null
+  arrakisStaking: ArrakisStaking | null
 }
 
-const RewardsIndexPageHelper = ({ latestRewardEpochs, wethLyraStaking, lyraBalances, lyraStakingAccount }: Props) => {
+const RewardsIndexPageHelper = ({ latestRewardEpochs, arrakisStaking, lyraBalances, lyraStakingAccount }: Props) => {
   const isMobile = useIsMobile()
 
   return (
@@ -37,7 +38,7 @@ const RewardsIndexPageHelper = ({ latestRewardEpochs, wethLyraStaking, lyraBalan
         <RewardsVaultsSection latestRewardEpochs={latestRewardEpochs} />
         <RewardsTradingSection latestRewardEpochs={latestRewardEpochs} lyraBalances={lyraBalances} />
         <RewardsShortsSection latestRewardEpochs={latestRewardEpochs} />
-        <RewardsWethLyraLPSection wethLyraStaking={wethLyraStaking} />
+        <RewardsWethLyraLPSection arrakisStaking={arrakisStaking} />
       </PageGrid>
     </Page>
   )

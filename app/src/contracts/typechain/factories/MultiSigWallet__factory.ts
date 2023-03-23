@@ -2,19 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
-import { Provider } from "@ethersproject/providers";
-
-import type { MultiSigWallet } from "../MultiSigWallet";
-
-export class MultiSigWallet__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): MultiSigWallet {
-    return new Contract(address, _abi, signerOrProvider) as MultiSigWallet;
-  }
-}
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
+import type {
+  MultiSigWallet,
+  MultiSigWalletInterface,
+} from "../MultiSigWallet";
 
 const _abi = [
   {
@@ -604,4 +597,17 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-];
+] as const;
+
+export class MultiSigWallet__factory {
+  static readonly abi = _abi;
+  static createInterface(): MultiSigWalletInterface {
+    return new utils.Interface(_abi) as MultiSigWalletInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): MultiSigWallet {
+    return new Contract(address, _abi, signerOrProvider) as MultiSigWallet;
+  }
+}

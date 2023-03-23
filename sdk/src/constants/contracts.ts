@@ -11,10 +11,6 @@ export enum LyraContractId {
 export enum LyraGlobalContractId {
   LyraStakingModule = 'LyraStakingModule',
   MultiDistributor = 'MultiDistributor',
-  ArrakisPoolL2 = 'ArrakisPoolL2',
-  ArrakisPoolL1 = 'ArrakisPoolL1',
-  WethLyraStakingRewardsL1 = 'WethLyraStakingRewardsL1',
-  WethLyraStakingRewardsL2 = 'WethLyraStakingRewardsL2',
   Multicall3 = 'Multicall3',
   TokenMigrator = 'TokenMigrator',
 }

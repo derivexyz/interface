@@ -13,7 +13,7 @@ export enum PageId {
   RewardsTrading = 'RewardsTrading',
   RewardsShorts = 'RewardsShorts',
   RewardsVaults = 'RewardsVaults',
-  RewardsEthLyraLp = 'RewardsEthLyraLp',
+  RewardsArrakis = 'RewardsArrakis',
   Storybook = 'Storybook',
   Faucet = 'Faucet',
 }
@@ -57,7 +57,7 @@ export type PageArgsMap = {
     network: string
     marketAddressOrName: string
   }
-  [PageId.RewardsEthLyraLp]: undefined
+  [PageId.RewardsArrakis]: undefined
   [PageId.Storybook]: undefined
   [PageId.Faucet]: undefined
 }

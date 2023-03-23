@@ -67,7 +67,7 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
       return getRewardsVaultsPath(args as PageArgsMap[PageId.RewardsVaults])
     case PageId.RewardsShorts:
       return getRewardsShortsPath(args as PageArgsMap[PageId.RewardsShorts])
-    case PageId.RewardsEthLyraLp:
+    case PageId.RewardsArrakis:
       return '/rewards/eth-lyra'
     case PageId.NotFound:
       return '/404'
