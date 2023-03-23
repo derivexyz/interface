@@ -55,3 +55,6 @@ export const HOP_URL = 'https://app.hop.exchange/#/send?token=ETH&destNetwork=op
 export const CAMELOT_ADD_LIQUIDITY_URL =
   'https://app.camelot.exchange/liquidity/?token1=0x079504b86d38119F859c4194765029F692b7B7aa&token2=0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
 export const CAMELOT_API_URL = 'https://api.camelot.exchange'
+
+export const VELODROME_ADD_LIQUIDITY_URL =
+  'https://app.velodrome.finance/liquidity/manage?address=0xdee1856d7b75abf4c1bdf986da4e1c6c7864d640'

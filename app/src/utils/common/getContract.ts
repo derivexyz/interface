@@ -9,6 +9,8 @@ import ARRAKIS_STAKING_REWARDS_ABI from '../../contracts/abis/ArrakisStakingRewa
 import CAMELOT_NITRO_POOL_ABI from '../../contracts/abis/CamelotNitroPool.json'
 import CAMELOT_POOL_ABI from '../../contracts/abis/CamelotPool.json'
 import MULTICALL_ABI from '../../contracts/abis/Multicall3.json'
+import VELODROME_POOL_ABI from '../../contracts/abis/VelodromePool.json'
+import VELODROME_STAKING_ABI from '../../contracts/abis/VelodromeStaking.json'
 import ARBITRUM_ADDRESS_MAP from '../../contracts/addresses/arbitrum.addresses.json'
 import ADDRESS_MAP from '../../contracts/addresses/ethereum.addresses.json'
 import OPTIMISM_ADDRESS_MAP from '../../contracts/addresses/optimism.addresses.json'
@@ -33,6 +35,10 @@ const getContractABI = (contractId: ContractId): ContractInterface => {
       return CAMELOT_NITRO_POOL_ABI
     case ContractId.Multicall3:
       return MULTICALL_ABI
+    case ContractId.VelodromePool:
+      return VELODROME_POOL_ABI
+    case ContractId.VelodromeStaking:
+      return VELODROME_STAKING_ABI
   }
 }
 

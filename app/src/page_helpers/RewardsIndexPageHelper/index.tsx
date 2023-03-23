@@ -11,6 +11,7 @@ import RewardsVaultsSection from '@/app/containers/rewards_index/RewardsVaultsSe
 import RewardsWethLyraLPSection from '@/app/containers/rewards_index/RewardsWethLyraLPSection'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useLatestRewardEpoch'
 import { CamelotStaking } from '@/app/utils/fetchCamelotStaking'
+import { VelodromeStaking } from '@/app/utils/fetchVelodromeStaking'
 import { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
 
 import Page from '../common/Page'
@@ -22,12 +23,14 @@ type Props = {
   lyraStakingAccount: LyraStakingAccount | null
   arrakisStaking: ArrakisStaking | null
   camelotStaking: CamelotStaking | null
+  velodromeStaking: VelodromeStaking | null
 }
 
 const RewardsIndexPageHelper = ({
   latestRewardEpochs,
   arrakisStaking,
   camelotStaking,
+  velodromeStaking,
   lyraBalances,
   lyraStakingAccount,
 }: Props) => {
@@ -46,7 +49,11 @@ const RewardsIndexPageHelper = ({
         <RewardsVaultsSection latestRewardEpochs={latestRewardEpochs} />
         <RewardsTradingSection latestRewardEpochs={latestRewardEpochs} lyraBalances={lyraBalances} />
         <RewardsShortsSection latestRewardEpochs={latestRewardEpochs} />
-        <RewardsWethLyraLPSection arrakisStaking={arrakisStaking} camelotStaking={camelotStaking} />
+        <RewardsWethLyraLPSection
+          arrakisStaking={arrakisStaking}
+          camelotStaking={camelotStaking}
+          velodromeStaking={velodromeStaking}
+        />
       </PageGrid>
     </Page>
   )

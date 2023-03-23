@@ -7,6 +7,8 @@ import {
   CamelotNitroPool,
   CamelotPool,
   Multicall3,
+  VelodromePool,
+  VelodromeStaking,
 } from '../contracts/typechain'
 import { ONE_BN } from './bn'
 
@@ -42,6 +44,8 @@ export enum ContractId {
   ArrakisOpStakingRewards = 'ArrakisOpStakingRewards',
   CamelotPool = 'CamelotPool',
   CamelotNitroPool = 'CamelotNitroPool',
+  VelodromePool = 'VelodromePool',
+  VelodromeStaking = 'VelodromeStaking',
   Multicall3 = 'Multicall3',
 }
 
@@ -52,5 +56,7 @@ export type ContractMap = {
   [ContractId.ArrakisOpStakingRewards]: ArrakisStakingRewards
   [ContractId.CamelotPool]: CamelotPool
   [ContractId.CamelotNitroPool]: CamelotNitroPool
+  [ContractId.VelodromePool]: VelodromePool
+  [ContractId.VelodromeStaking]: VelodromeStaking
   [ContractId.Multicall3]: Multicall3
 }
