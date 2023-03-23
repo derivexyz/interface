@@ -6,6 +6,7 @@ import Grid from '@lyra/ui/components/Grid'
 import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
+import { MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import React from 'react'
@@ -21,16 +22,16 @@ import { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
 
 type Props = {
   arrakisStaking: ArrakisStaking | null
-}
+} & MarginProps
 
-export default function RewardsArrakisCard({ arrakisStaking }: Props) {
+export default function RewardsArrakisCard({ arrakisStaking, ...styleProps }: Props) {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const liquidityValue = arrakisStaking
     ? fromBigNumber(arrakisStaking?.stakedLPTokenBalance) * arrakisStaking.lpTokenValue
     : 0
   return (
-    <Card onClick={() => navigate(getPagePath({ page: PageId.RewardsArrakis }))}>
+    <Card onClick={() => navigate(getPagePath({ page: PageId.RewardsArrakis }))} {...styleProps}>
       <CardBody>
         <Grid
           sx={{

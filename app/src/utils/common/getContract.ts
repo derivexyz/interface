@@ -6,13 +6,16 @@ import { ContractId, ContractMap } from '../../constants/contracts'
 import ARRAKIS_POOL_L1_ABI from '../../contracts/abis/ArrakisPoolL1.json'
 import ARRAKIS_POOL_L2_ABI from '../../contracts/abis/ArrakisPoolL2.json'
 import ARRAKIS_STAKING_REWARDS_ABI from '../../contracts/abis/ArrakisStakingRewards.json'
+import CAMELOT_NITRO_POOL_ABI from '../../contracts/abis/CamelotNitroPool.json'
+import CAMELOT_POOL_ABI from '../../contracts/abis/CamelotPool.json'
 import MULTICALL_ABI from '../../contracts/abis/Multicall3.json'
+import ARBITRUM_ADDRESS_MAP from '../../contracts/addresses/arbitrum.addresses.json'
 import ADDRESS_MAP from '../../contracts/addresses/ethereum.addresses.json'
 import OPTIMISM_ADDRESS_MAP from '../../contracts/addresses/optimism.addresses.json'
 import getProvider from '../getProvider'
 
 const getContractAddress = (contractId: ContractId): string => {
-  return ({ ...ADDRESS_MAP, ...OPTIMISM_ADDRESS_MAP } as Record<string, string>)[contractId]
+  return ({ ...ADDRESS_MAP, ...OPTIMISM_ADDRESS_MAP, ...ARBITRUM_ADDRESS_MAP } as Record<string, string>)[contractId]
 }
 
 const getContractABI = (contractId: ContractId): ContractInterface => {
@@ -24,6 +27,10 @@ const getContractABI = (contractId: ContractId): ContractInterface => {
     case ContractId.ArrakisStakingRewards:
     case ContractId.ArrakisOpStakingRewards:
       return ARRAKIS_STAKING_REWARDS_ABI
+    case ContractId.CamelotPool:
+      return CAMELOT_POOL_ABI
+    case ContractId.CamelotNitroPool:
+      return CAMELOT_NITRO_POOL_ABI
     case ContractId.Multicall3:
       return MULTICALL_ABI
   }

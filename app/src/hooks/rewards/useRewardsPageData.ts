@@ -8,6 +8,7 @@ import {
 import { useCallback } from 'react'
 
 import { FetchId } from '@/app/constants/fetch'
+import fetchCamelotStaking, { CamelotStaking } from '@/app/utils/fetchCamelotStaking'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import { lyraOptimism } from '@/app/utils/lyra'
 import fetchArrakisStaking, { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
@@ -30,6 +31,7 @@ export type RewardsPageData = {
   }
   lyraBalances: AccountLyraBalances
   arrakisStaking: ArrakisStaking | null
+  camelotStaking: CamelotStaking | null
   lyraStakingAccount: LyraStakingAccount | null
 }
 
@@ -37,21 +39,22 @@ export const EMPTY_REWARDS_PAGE_DATA: RewardsPageData = {
   epochs: {},
   lyraBalances: EMPTY_LYRA_BALANCES,
   arrakisStaking: null,
+  camelotStaking: null,
   lyraStakingAccount: null,
 }
 
 export const fetchRewardsPageData = async (walletAddress: string | null): Promise<RewardsPageData> => {
-  const [globalRewardEpochs, accountRewardEpochs, arrakisStaking, lyraBalances, lyraStakingAccount] = await Promise.all(
-    [
+  const [globalRewardEpochs, accountRewardEpochs, arrakisStaking, camelotStaking, lyraBalances, lyraStakingAccount] =
+    await Promise.all([
       Promise.all(Object.values(Network).map(network => getLyraSDK(network).globalRewardEpochs())),
       walletAddress
         ? Promise.all(Object.values(Network).map(network => getLyraSDK(network).accountRewardEpochs(walletAddress)))
         : [],
-      fetchArrakisStaking(),
+      fetchArrakisStaking(walletAddress),
+      fetchCamelotStaking(walletAddress),
       walletAddress ? lyraOptimism.account(walletAddress).lyraBalances() : EMPTY_LYRA_BALANCES,
       walletAddress ? lyraOptimism.lyraStakingAccount(walletAddress) : null,
-    ]
-  )
+    ])
 
   const networkEpochsMap = Object.values(Network).reduce((map, network, idx) => {
     const networkGlobalEpochs = globalRewardEpochs[idx]
@@ -78,8 +81,9 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
   return {
     epochs: networkEpochsMap,
     lyraBalances,
-    arrakisStaking: arrakisStaking,
     lyraStakingAccount,
+    arrakisStaking,
+    camelotStaking,
   }
 }
 

@@ -10,13 +10,14 @@ import filterNulls from '../utils/filterNulls'
 // /rewards
 const RewardsIndexPage = withSuspense(
   (): JSX.Element => {
-    const { epochs, arrakisStaking, lyraBalances, lyraStakingAccount } = useRewardsPageData()
+    const { epochs, arrakisStaking, camelotStaking, lyraBalances, lyraStakingAccount } = useRewardsPageData()
     const latestRewardEpochs = filterNulls(Object.values(epochs).map(epoch => epoch.latestRewardEpoch))
     return (
       <RewardsIndexPageHelper
         latestRewardEpochs={latestRewardEpochs}
         lyraBalances={lyraBalances}
         arrakisStaking={arrakisStaking}
+        camelotStaking={camelotStaking}
         lyraStakingAccount={lyraStakingAccount}
       />
     )

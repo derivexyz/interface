@@ -12,7 +12,7 @@ const optimismProvider = new CachedStaticJsonRpcProvider(
 )
 
 const arbitrumNetworkConfig = getNetworkConfig(LyraNetwork.Arbitrum)
-const arbitrumProvider = new CachedStaticJsonRpcProvider(
+export const arbitrumProvider = new CachedStaticJsonRpcProvider(
   arbitrumNetworkConfig.readRpcUrls,
   arbitrumNetworkConfig.chainId
 )

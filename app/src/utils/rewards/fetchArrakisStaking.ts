@@ -6,7 +6,7 @@ import { ContractId, ContractMap } from '@/app/constants/contracts'
 import { AppNetwork } from '@/app/constants/networks'
 import { SECONDS_IN_YEAR } from '@/app/constants/time'
 
-import { fetchTokenSpotPrice } from '../common/fetchTokenSpotPrice'
+import fetchTokenSpotPrice from '../common/fetchTokenSpotPrice'
 import getContract from '../common/getContract'
 import multicall, { MulticallRequest } from '../common/multicall'
 import fromBigNumber from '../fromBigNumber'
@@ -64,8 +64,8 @@ export default async function fetchArrakisStaking(address?: string | null): Prom
         args: [],
       },
     ]),
-    fetchTokenSpotPrice(LYRA_ETHEREUM_MAINNET_ADDRESS, 'ethereum'),
-    fetchTokenSpotPrice(WETH_ETHEREUM_MAINNET_ADDRESS, 'ethereum'),
+    fetchTokenSpotPrice(LYRA_ETHEREUM_MAINNET_ADDRESS, AppNetwork.Ethereum),
+    fetchTokenSpotPrice(WETH_ETHEREUM_MAINNET_ADDRESS, AppNetwork.Ethereum),
     address
       ? multicall<
           [

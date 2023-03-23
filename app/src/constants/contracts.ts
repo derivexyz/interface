@@ -1,6 +1,13 @@
 import { Option, Quote, Strike } from '@lyrafinance/lyra-js'
 
-import { ArrakisPoolL1, ArrakisPoolL2, ArrakisStakingRewards, Multicall3 } from '../contracts/typechain'
+import {
+  ArrakisPoolL1,
+  ArrakisPoolL2,
+  ArrakisStakingRewards,
+  CamelotNitroPool,
+  CamelotPool,
+  Multicall3,
+} from '../contracts/typechain'
 import { ONE_BN } from './bn'
 
 export const MIN_COLLATERAL_BUFFER = 1.05 // 5% buffer
@@ -33,6 +40,8 @@ export enum ContractId {
   ArrakisPoolL2 = 'ArrakisPoolL2',
   ArrakisStakingRewards = 'ArrakisStakingRewards',
   ArrakisOpStakingRewards = 'ArrakisOpStakingRewards',
+  CamelotPool = 'CamelotPool',
+  CamelotNitroPool = 'CamelotNitroPool',
   Multicall3 = 'Multicall3',
 }
 
@@ -41,5 +50,7 @@ export type ContractMap = {
   [ContractId.ArrakisPoolL2]: ArrakisPoolL2
   [ContractId.ArrakisStakingRewards]: ArrakisStakingRewards
   [ContractId.ArrakisOpStakingRewards]: ArrakisStakingRewards
+  [ContractId.CamelotPool]: CamelotPool
+  [ContractId.CamelotNitroPool]: CamelotNitroPool
   [ContractId.Multicall3]: Multicall3
 }

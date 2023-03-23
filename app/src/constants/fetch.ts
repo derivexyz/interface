@@ -47,6 +47,7 @@ export enum FetchId {
   ClaimableStakingRewards = 'ClaimableStakingRewards',
   TokenSupply = 'TokenSupply',
   NetworkTradingVolume = 'NetworkTradingVolume',
+  CamelotStaking = 'CamelotStaking',
 
   // shared
   PositionHistory = 'PositionHistory',

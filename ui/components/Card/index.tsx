@@ -43,7 +43,13 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         target={target}
         href={href}
         ref={ref}
-        onClick={onClick}
+        onClick={e => {
+          if (onClick) {
+            onClick(e)
+          } else if (href) {
+            window.open(href, target)
+          }
+        }}
         flexDirection="column"
         {...styleProps}
         sx={{

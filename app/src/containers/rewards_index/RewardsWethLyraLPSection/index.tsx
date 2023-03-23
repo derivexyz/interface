@@ -5,15 +5,18 @@ import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import React from 'react'
 
+import { CamelotStaking } from '@/app/utils/fetchCamelotStaking'
 import { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
 
 import RewardsArrakisCard from './RewardsArrakisCard'
+import RewardsCamelotCard from './RewardsCamelotCard'
 
 type Props = {
   arrakisStaking: ArrakisStaking | null
+  camelotStaking: CamelotStaking | null
 } & MarginProps
 
-const RewardsWethLyraLPSection = ({ arrakisStaking, ...marginProps }: Props): CardElement => {
+const RewardsWethLyraLPSection = ({ arrakisStaking, camelotStaking, ...marginProps }: Props): CardElement => {
   return (
     <Flex flexDirection="column" mt={[6, 0]}>
       <Box px={[6, 0]} mb={5}>
@@ -24,6 +27,7 @@ const RewardsWethLyraLPSection = ({ arrakisStaking, ...marginProps }: Props): Ca
       </Box>
       <Flex flexDirection="column" {...marginProps}>
         <RewardsArrakisCard arrakisStaking={arrakisStaking} />
+        <RewardsCamelotCard camelotStaking={camelotStaking} mt={4} />
       </Flex>
     </Flex>
   )

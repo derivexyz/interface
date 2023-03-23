@@ -51,3 +51,7 @@ export const ARRAKIS_OP_LIQUIDITY_URL =
 export const ARRAKIS_LIQUIDITY_URL = 'https://beta.arrakis.finance/vaults/1/0xE6f375A29cDd3B40fa7aA0932fF510D304D95FA6'
 
 export const HOP_URL = 'https://app.hop.exchange/#/send?token=ETH&destNetwork=optimism'
+
+export const CAMELOT_ADD_LIQUIDITY_URL =
+  'https://app.camelot.exchange/liquidity/?token1=0x079504b86d38119F859c4194765029F692b7B7aa&token2=0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
+export const CAMELOT_API_URL = 'https://api.camelot.exchange'
