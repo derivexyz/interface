@@ -55,8 +55,8 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     network: AppNetwork.Optimism,
     walletRpcUrl: 'https://mainnet.optimism.io',
     readRpcUrls: filterNulls([
-      `https://optimism-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
       ALCHEMY_OPTIMISM_PROJECT_ID ? `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_OPTIMISM_PROJECT_ID}` : null,
+      `https://optimism-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
     ]),
     blockExplorerUrl: 'https://optimistic.etherscan.io',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
@@ -89,8 +89,8 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     network: AppNetwork.Arbitrum,
     walletRpcUrl: 'https://arb1.arbitrum.io/rpc',
     readRpcUrls: filterNulls([
-      `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
       ALCHEMY_ARBITRUM_PROJECT_ID ? `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_PROJECT_ID}` : null,
+      `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
     ]),
     blockExplorerUrl: 'https://arbiscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
