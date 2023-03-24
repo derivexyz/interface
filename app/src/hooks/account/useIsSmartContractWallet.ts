@@ -7,7 +7,7 @@ import useWalletAccount from './useWalletAccount'
 
 const fetcher = async (network: Network, account: string): Promise<boolean> => {
   const code = await getProvider(network).getCode(account)
-  return code === '0x'
+  return code !== '0x'
 }
 
 export default function useIsSmartContractWallet(network: Network): boolean {

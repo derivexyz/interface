@@ -5,36 +5,17 @@ import * as Sentry from '@sentry/react'
 import spindl from '@spindl-xyz/attribution-lite'
 import posthog from 'posthog-js'
 import React, { useEffect } from 'react'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { SWRConfig } from 'swr'
 
 import { LogEvent } from './constants/logEvents'
 import Layout from './page_helpers/common/Layout'
-import PortfolioHistoryPageHelper from './page_helpers/PortfolioHistoryPageHelper'
-import AdminBoardPage from './pages/AdminBoardPage'
-import AdminMarketPage from './pages/AdminPage'
-import FaucetPage from './pages/FaucetPage'
-import NotFoundPage from './pages/NotFoundPage'
-import PortfolioPage from './pages/PortfolioPage'
-import PositionPage from './pages/PositionPage'
-import RewardsArrakisPage from './pages/RewardsArrakisPage'
-import RewardsIndexPage from './pages/RewardsIndexPage'
-import RewardsShortsPage from './pages/RewardsShortsPage'
-import RewardsTradingPage from './pages/RewardsTradingPage'
-import RewardsVaultsPage from './pages/RewardsVaultsPage'
-import StoryBookPage from './pages/StoryBookPage'
-import TradePage from './pages/TradePage'
-import VaultsHistoryPage from './pages/VaultsHistoryPage'
-import VaultsIndexPage from './pages/VaultsIndexPage'
-import VaultsPage from './pages/VaultsPage'
+import PageRoutes from './PageRoutes'
 import LocalStorageProvider from './providers/LocalStorageProvider'
 import { WalletProvider } from './providers/WalletProvider'
 import compare from './utils/compare'
-import { getDefaultMarket } from './utils/getDefaultMarket'
 import initSentry from './utils/initSentry'
-import isMainnet from './utils/isMainnet'
 import logEvent from './utils/logEvent'
-import useDefaultNetwork from './utils/useDefaultNetwork'
 
 // Initialize Spindl
 if (process.env.REACT_APP_SPINDL_API_KEY) {
@@ -98,8 +79,6 @@ function App(): JSX.Element {
     }
   }, [pathname])
 
-  const defaultNetwork = useDefaultNetwork()
-
   return (
     <Sentry.ErrorBoundary>
       <LocalStorageProvider>
@@ -118,38 +97,7 @@ function App(): JSX.Element {
           <ThemeProvider>
             <WalletProvider>
               <Layout>
-                <Routes>
-                  <Route index element={<Navigate to="/portfolio" />} />
-                  <Route path="/portfolio" element={<PortfolioPage />} />
-                  <Route path="/portfolio/history" element={<PortfolioHistoryPageHelper />} />
-                  <Route
-                    path="/trade"
-                    element={<Navigate to={`/trade/${defaultNetwork}/${getDefaultMarket(defaultNetwork)}`} />}
-                  />
-                  <Route path="/trade/:network/:marketAddressOrName" element={<TradePage />} />
-                  <Route path="/vaults" element={<VaultsIndexPage />} />
-                  <Route path="/vaults/:network/:marketAddressOrName" element={<VaultsPage />} />
-                  <Route path="/vaults/history" element={<VaultsHistoryPage />} />
-                  <Route path="/position/:network/:marketAddressOrName/:positionId" element={<PositionPage />} />
-                  {isMainnet() ? (
-                    <>
-                      <Route path="/rewards" element={<RewardsIndexPage />} />
-                      <Route path="/rewards/trading/:network" element={<RewardsTradingPage />} />
-                      <Route path="/rewards/vaults/:network/:marketAddressOrName" element={<RewardsVaultsPage />} />
-                      <Route path="/rewards/shorts/:network" element={<RewardsShortsPage />} />
-                      <Route path="/rewards/arrakis" element={<RewardsArrakisPage />} />
-                    </>
-                  ) : null}
-                  {!isMainnet() ? <Route path="/faucet" element={<FaucetPage />} /> : null}
-                  <Route path="/storybook" element={<StoryBookPage />} />
-                  <Route
-                    path="/admin"
-                    element={<Navigate to={`/admin/${defaultNetwork}/${getDefaultMarket(defaultNetwork)}`} />}
-                  />
-                  <Route path="/admin/:network/:marketAddressOrName" element={<AdminMarketPage />} />
-                  <Route path="/admin/:network/:marketAddressOrName/:boardId" element={<AdminBoardPage />} />
-                  <Route path="*" element={<NotFoundPage />} />
-                </Routes>
+                <PageRoutes />
               </Layout>
             </WalletProvider>
           </ThemeProvider>
