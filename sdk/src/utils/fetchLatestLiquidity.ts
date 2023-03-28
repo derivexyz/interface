@@ -9,6 +9,7 @@ import {
   SnapshotPeriod,
 } from '../constants/queries'
 import fromBigNumber from './fromBigNumber'
+import subgraphRequest from './subgraphRequest'
 
 const marketTotalValueSnapshotsQuery = gql`
   query marketTotalValueSnapshots(
@@ -58,17 +59,17 @@ export default async function fetchLatestLiquidity(lyra: Lyra, market: Market): 
     }
   }
 
-  const { data } = await lyra.subgraphClient.query<
+  const { data } = await subgraphRequest<
     { marketTotalValueSnapshots: MarketTotalValueSnapshotQueryResult[] },
     { market: string }
-  >({
+  >(lyra.subgraphClient, {
     query: marketTotalValueSnapshotsQuery,
     variables: {
       market: market.address.toLowerCase(),
     },
   })
 
-  if (data.marketTotalValueSnapshots.length === 0) {
+  if (!data || data.marketTotalValueSnapshots.length === 0) {
     return { ...EMPTY, market, timestamp: market.block.timestamp }
   }
 

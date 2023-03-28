@@ -6,6 +6,7 @@ import { Chain } from '../constants/chain'
 import { CLAIM_ADDED_FRAGMENT, ClaimAddedQueryResult } from '../constants/queries'
 import Lyra from '../lyra'
 import getLyraGovernanceSubgraphURI from './getLyraGovernanceSubgraphURI'
+import subgraphRequest from './subgraphRequest'
 
 const claimAddedQuery = gql`
   query claimAddeds($user: String!) {
@@ -30,19 +31,21 @@ export default async function fetchClaimAddedEvents(
     link: new HttpLink({ uri: getLyraGovernanceSubgraphURI(lyra, chain), fetch }),
     cache: new InMemoryCache(),
   })
-  const { data } = await client.query<{ claimAddeds: ClaimAddedQueryResult[] }, ClaimAddedVariables>({
+  const { data } = await subgraphRequest<{ claimAddeds: ClaimAddedQueryResult[] }, ClaimAddedVariables>(client, {
     query: claimAddedQuery,
     variables: {
       user: address.toLowerCase(),
     },
   })
-  return data.claimAddeds.map(ev => ({
-    amount: BigNumber.from(ev.amount),
-    blockNumber: ev.blockNumber,
-    claimer: ev.claimer,
-    epochTimestamp: parseInt(ev.epochTimestamp),
-    rewardToken: ev.rewardToken,
-    timestamp: ev.timestamp,
-    tag: ev.tag,
-  }))
+  return (
+    data?.claimAddeds.map(ev => ({
+      amount: BigNumber.from(ev.amount),
+      blockNumber: ev.blockNumber,
+      claimer: ev.claimer,
+      epochTimestamp: parseInt(ev.epochTimestamp),
+      rewardToken: ev.rewardToken,
+      timestamp: ev.timestamp,
+      tag: ev.tag,
+    })) ?? []
+  )
 }
