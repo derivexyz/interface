@@ -1,6 +1,7 @@
 import {
   AccountLyraBalances,
   AccountRewardEpoch,
+  ClaimableBalanceL2,
   GlobalRewardEpoch,
   LyraStakingAccount,
   Network,
@@ -35,6 +36,7 @@ export type RewardsPageData = {
   camelotStaking: CamelotStaking | null
   velodromeStaking: VelodromeStaking | null
   lyraStakingAccount: LyraStakingAccount | null
+  claimableOptimismRewards: ClaimableBalanceL2 | null
 }
 
 export const EMPTY_REWARDS_PAGE_DATA: RewardsPageData = {
@@ -44,6 +46,7 @@ export const EMPTY_REWARDS_PAGE_DATA: RewardsPageData = {
   camelotStaking: null,
   velodromeStaking: null,
   lyraStakingAccount: null,
+  claimableOptimismRewards: null,
 }
 
 export const fetchRewardsPageData = async (walletAddress: string | null): Promise<RewardsPageData> => {
@@ -55,6 +58,7 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
     velodromeStaking,
     lyraBalances,
     lyraStakingAccount,
+    claimableOptimismRewards,
   ] = await Promise.all([
     Promise.all(Object.values(Network).map(network => getLyraSDK(network).globalRewardEpochs())),
     walletAddress
@@ -65,6 +69,7 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
     fetchVelodromeStaking(walletAddress),
     walletAddress ? lyraOptimism.account(walletAddress).lyraBalances() : EMPTY_LYRA_BALANCES,
     walletAddress ? lyraOptimism.lyraStakingAccount(walletAddress) : null,
+    walletAddress ? lyraOptimism.claimableRewards(walletAddress) : null,
   ])
 
   const networkEpochsMap = Object.values(Network).reduce((map, network, idx) => {
@@ -93,6 +98,7 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
     epochs: networkEpochsMap,
     lyraBalances,
     lyraStakingAccount,
+    claimableOptimismRewards,
     arrakisStaking,
     camelotStaking,
     velodromeStaking,

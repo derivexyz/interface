@@ -6,7 +6,6 @@ import React from 'react'
 import { ZERO_BN } from '@/app/constants/bn'
 import useAccountLyraBalances from '@/app/hooks/account/useAccountLyraBalances'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
 import useClaimableStakingRewards from '@/app/hooks/rewards/useClaimableStakingRewards'
 
 type Props = {
@@ -18,13 +17,11 @@ type Props = {
 
 const RewardsStakedCardSectionButton = withSuspense(
   ({ onStakeOpen, onUnstakeOpen, onClaimAndMigrateOpen, onClaimL1Open }: Props) => {
-    const claimableBalances = useClaimableBalances()
     const claimableStakingRewards = useClaimableStakingRewards()
     const lyraBalances = useAccountLyraBalances()
     const optimismOldStkLyra = lyraBalances.optimismOldStkLyra
-    const hasClaimableOldStkLyra = claimableBalances.oldStkLyra.gt(0)
     const hasOldStkLyra = optimismOldStkLyra.gt(0)
-    if (hasClaimableOldStkLyra || hasOldStkLyra) {
+    if (hasOldStkLyra) {
       return (
         <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr'], gridGap: 3 }}>
           <Button size="lg" label="Migrate" variant="primary" onClick={onClaimAndMigrateOpen} />

@@ -10,16 +10,14 @@ import { MarginProps } from '@lyra/ui/types'
 import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
-import { AccountLyraBalances, LyraStakingAccount } from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, ClaimableBalanceL2, LyraStakingAccount } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 import { useMemo } from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
 import RewardsBridgeModal from '@/app/components/rewards/RewardsBridgeModal.tsx'
-import { ZERO_BN } from '@/app/constants/bn'
 import RewardsUnstakeModal from '@/app/containers/rewards_index/RewardsUnstakeModal'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useClaimableBalances from '@/app/hooks/rewards/useClaimableBalance'
 import useClaimableStakingRewards from '@/app/hooks/rewards/useClaimableStakingRewards'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useLatestRewardEpoch'
 
@@ -32,19 +30,13 @@ type Props = {
   latestRewardEpochs: LatestRewardEpoch[]
   lyraBalances: AccountLyraBalances
   lyraStakingAccount: LyraStakingAccount | null
+  claimableOptimismRewards: ClaimableBalanceL2 | null
 } & MarginProps
 
 const StakingRewardsText = withSuspense(
   (): CardElement => {
-    const claimableBalances = useClaimableBalances()
     const claimableStakingRewards = useClaimableStakingRewards()
-    let claimableBalance = ZERO_BN
-    if (claimableBalances.oldStkLyra.gt(ZERO_BN)) {
-      claimableBalance = claimableBalances.oldStkLyra
-    } else if (claimableStakingRewards) {
-      claimableBalance = claimableStakingRewards
-    }
-    return <Text>{formatNumber(claimableBalance)} stkLYRA</Text>
+    return <Text>{formatNumber(claimableStakingRewards)} stkLYRA</Text>
   },
   () => <TextShimmer />
 )
@@ -53,6 +45,7 @@ const RewardsStakedCardSection = ({
   latestRewardEpochs,
   lyraBalances,
   lyraStakingAccount,
+  claimableOptimismRewards,
   ...marginProps
 }: Props): CardElement => {
   const [isUnstakeOpen, setIsUnstakeOpen] = useState(false)
@@ -72,6 +65,10 @@ const RewardsStakedCardSection = ({
       balance: l2Balance.add(ethereumStkLyra),
     }
   }, [optimismOldStkLyra, optimismStkLyra, arbitrumStkLyra, ethereumStkLyra])
+  const hasClaimableOptimismRewards = useMemo(
+    () => claimableOptimismRewards && Object.values(claimableOptimismRewards).some(balance => !balance.isZero()),
+    [claimableOptimismRewards]
+  )
 
   return (
     <CardSection
@@ -92,7 +89,17 @@ const RewardsStakedCardSection = ({
             {formatBalance({ balance: balanceWithOld, symbol: 'stkLYRA', decimals: 18 })}
           </Text>
         </Flex>
-        {l2Balance.gt(0) ? (
+        {hasClaimableOptimismRewards ? (
+          <Button
+            maxHeight={56}
+            ml="auto"
+            label="Claim"
+            size="lg"
+            width={160}
+            variant="warning"
+            onClick={() => setIsClaimAndMigrateOpen(true)}
+          />
+        ) : l2Balance.gt(0) ? (
           <>
             <Button
               maxHeight={56}
@@ -139,7 +146,11 @@ const RewardsStakedCardSection = ({
         globalRewardEpoch={latestRewardEpochs[0].global}
         lyraBalances={lyraBalances}
       />
-      <RewardsClaimAndMigrateModal isOpen={isClaimAndMigrateOpen} onClose={() => setIsClaimAndMigrateOpen(false)} />
+      <RewardsClaimAndMigrateModal
+        claimableOptimismRewards={claimableOptimismRewards}
+        isOpen={isClaimAndMigrateOpen}
+        onClose={() => setIsClaimAndMigrateOpen(false)}
+      />
       <RewardsStakingClaimModal isOpen={isL1ClaimOpen} onClose={() => setIsClaimL1Open(false)} />
     </CardSection>
   )

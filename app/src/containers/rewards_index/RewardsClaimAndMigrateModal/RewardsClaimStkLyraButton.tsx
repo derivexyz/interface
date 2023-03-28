@@ -1,39 +1,53 @@
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
-import { Network } from '@lyrafinance/lyra-js'
+import {
+  ClaimableBalanceL2,
+  Network,
+  NEW_STAKED_LYRA_OPTIMISM_ADDRESS,
+  OLD_STAKED_LYRA_OPTIMISM_ADDRESS,
+  OP_OPTIMISM_MAINNET_ADDRESS,
+} from '@lyrafinance/lyra-js'
 import React from 'react'
+import { useMemo } from 'react'
 
-import { ZERO_BN } from '@/app/constants/bn'
 import { TransactionType } from '@/app/constants/screen'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useClaimableBalances, { useMutateClaimableBalances } from '@/app/hooks/rewards/useClaimableBalance'
+import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 
 import TransactionButton from '../../common/TransactionButton'
 
 type Props = {
+  claimableOptimismRewards: ClaimableBalanceL2 | null
   onClaim?: () => void
 }
 
 const RewardsClaimStkLyraButton = withSuspense(
-  ({ onClaim }: Props) => {
+  ({ claimableOptimismRewards, onClaim }: Props) => {
     const account = useWalletAccount()
     const network = useNetwork()
     const execute = useTransaction(Network.Optimism)
-    const mutateClaimableBalance = useMutateClaimableBalances()
-    const claimableBalances = useClaimableBalances()
-    const isSelectedBalanceZero = ZERO_BN.add(claimableBalances.oldStkLyra).isZero()
+    const mutateRewardsPageData = useMutateRewardsPageData()
+    const isClaimableBalanceZero = useMemo(
+      () => !claimableOptimismRewards || Object.values(claimableOptimismRewards).every(balance => balance.isZero()),
+      [claimableOptimismRewards]
+    )
 
     const handleDistributorClaim = async () => {
       if (!account) {
         return
       }
-      const tx = await getLyraSDK(network).claimRewards(account, ['0xdE48b1B5853cc63B1D05e507414D3E02831722F8'])
+      // Claim all rewards
+      const tx = await getLyraSDK(network).claimRewards(account, [
+        OLD_STAKED_LYRA_OPTIMISM_ADDRESS,
+        NEW_STAKED_LYRA_OPTIMISM_ADDRESS,
+        OP_OPTIMISM_MAINNET_ADDRESS,
+      ])
       await execute(tx, TransactionType.ClaimStakedLyraRewards, {
-        onComplete: () => {
-          mutateClaimableBalance()
+        onComplete: async () => {
+          await mutateRewardsPageData()
           if (onClaim) {
             onClaim()
           }
@@ -47,7 +61,7 @@ const RewardsClaimStkLyraButton = withSuspense(
         transactionType={TransactionType.ClaimRewards}
         width="100%"
         label="Claim"
-        isDisabled={isSelectedBalanceZero}
+        isDisabled={isClaimableBalanceZero}
         onClick={async () => {
           await handleDistributorClaim()
         }}

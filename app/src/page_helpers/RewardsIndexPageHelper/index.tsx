@@ -1,5 +1,5 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { AccountLyraBalances, LyraStakingAccount } from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, ClaimableBalanceL2, LyraStakingAccount } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
@@ -21,6 +21,7 @@ type Props = {
   latestRewardEpochs: LatestRewardEpoch[]
   lyraBalances: AccountLyraBalances
   lyraStakingAccount: LyraStakingAccount | null
+  claimableOptimismRewards: ClaimableBalanceL2 | null
   arrakisStaking: ArrakisStaking | null
   camelotStaking: CamelotStaking | null
   velodromeStaking: VelodromeStaking | null
@@ -31,6 +32,7 @@ const RewardsIndexPageHelper = ({
   arrakisStaking,
   camelotStaking,
   velodromeStaking,
+  claimableOptimismRewards,
   lyraBalances,
   lyraStakingAccount,
 }: Props) => {
@@ -45,6 +47,7 @@ const RewardsIndexPageHelper = ({
           latestRewardEpochs={latestRewardEpochs}
           lyraBalances={lyraBalances}
           lyraStakingAccount={lyraStakingAccount}
+          claimableOptimismRewards={claimableOptimismRewards}
         />
         <RewardsVaultsSection latestRewardEpochs={latestRewardEpochs} />
         <RewardsTradingSection latestRewardEpochs={latestRewardEpochs} lyraBalances={lyraBalances} />

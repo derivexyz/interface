@@ -5,7 +5,7 @@ import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
-import { AccountLyraBalances, LyraStakingAccount } from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, ClaimableBalanceL2, LyraStakingAccount } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useLatestRewardEpoch'
@@ -17,9 +17,11 @@ type Props = {
   latestRewardEpochs: LatestRewardEpoch[]
   lyraBalances: AccountLyraBalances
   lyraStakingAccount: LyraStakingAccount | null
+  claimableOptimismRewards: ClaimableBalanceL2 | null
 } & MarginProps
 
 const RewardsStakingCard = ({
+  claimableOptimismRewards,
   latestRewardEpochs,
   lyraBalances,
   lyraStakingAccount,
@@ -38,6 +40,7 @@ const RewardsStakingCard = ({
       </Box>
       <Card flexDirection={isMobile ? 'column' : 'row'} {...marginProps}>
         <RewardsStakedCardSection
+          claimableOptimismRewards={claimableOptimismRewards}
           latestRewardEpochs={latestRewardEpochs}
           lyraBalances={lyraBalances}
           lyraStakingAccount={lyraStakingAccount}
