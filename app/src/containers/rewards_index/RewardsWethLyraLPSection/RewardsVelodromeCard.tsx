@@ -68,7 +68,7 @@ export default function RewardsVelodromeCard({ velodromeStaking, ...styleProps }
             </Text>
           </Flex>
           <Flex ml="auto">
-            <IconButton href={VELODROME_ADD_LIQUIDITY_URL} icon={IconType.ArrowUpRight} />
+            <IconButton icon={IconType.ArrowUpRight} />
           </Flex>
         </Grid>
       </CardBody>

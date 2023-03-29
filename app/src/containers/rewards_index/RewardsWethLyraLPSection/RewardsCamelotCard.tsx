@@ -68,7 +68,7 @@ export default function RewardsCamelotCard({ camelotStaking, ...styleProps }: Pr
             </Text>
           </Flex>
           <Flex ml="auto">
-            <IconButton href={CAMELOT_ADD_LIQUIDITY_URL} icon={IconType.ArrowUpRight} />
+            <IconButton icon={IconType.ArrowUpRight} />
           </Flex>
         </Grid>
       </CardBody>
