@@ -47,8 +47,9 @@ export const TRADING_CUTOFF_DOC_URL = 'https://docs.lyra.finance/overview/how-do
 export const SWAP_LYRA_1INCH_URL = 'https://app.1inch.io/#/1/simple/swap/ETH/LYRA'
 
 export const ARRAKIS_OP_LIQUIDITY_URL =
-  'https://beta.arrakis.finance/vaults/10/0x70535C46ce04181adf749f34B65B6365164d6B6E'
-export const ARRAKIS_LIQUIDITY_URL = 'https://beta.arrakis.finance/vaults/1/0xE6f375A29cDd3B40fa7aA0932fF510D304D95FA6'
+  'https://beta.arrakis.finance/vaults/0x70535C46ce04181adf749f34B65B6365164d6B6E?name=lyra'
+export const ARRAKIS_LIQUIDITY_URL =
+  'https://beta.arrakis.finance/vaults/0xe6f375a29cdd3b40fa7aa0932ff510d304d95fa6?name=lyra'
 
 export const HOP_URL = 'https://app.hop.exchange/#/send?token=ETH&destNetwork=optimism'
 
