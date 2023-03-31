@@ -1,7 +1,7 @@
 {
   "name": "@lyrafinance/lyra-js",
-  "version": "0.0.24",
-  "description": "A JavaScript SDK for Optimistic Ethereum and the Lyra Protocol.",
+  "version": "0.0.26",
+  "description": "A JavaScript SDK for the Lyra Protocol.",
   "main": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
@@ -35,7 +35,7 @@
   "dependencies": {
     "@apollo/client": "^3.7.3",
     "cross-fetch": "^3.1.5",
-    "ethers": "5.6.0",
+    "ethers": "^5.6.0",
     "graphql": "^16.6.0"
   },
   "devDependencies": {

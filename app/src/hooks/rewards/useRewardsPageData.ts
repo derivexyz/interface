@@ -1,14 +1,15 @@
 import {
   AccountLyraBalances,
   AccountRewardEpoch,
-  ClaimableBalanceL2,
   GlobalRewardEpoch,
+  LyraStaking,
   LyraStakingAccount,
   Network,
 } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
 import { FetchId } from '@/app/constants/fetch'
+import { Vault } from '@/app/constants/vault'
 import fetchCamelotStaking, { CamelotStaking } from '@/app/utils/fetchCamelotStaking'
 import fetchVelodromeStaking, { VelodromeStaking } from '@/app/utils/fetchVelodromeStaking'
 import getLyraSDK from '@/app/utils/getLyraSDK'
@@ -19,98 +20,104 @@ import { EMPTY_LYRA_BALANCES } from '../account/useAccountLyraBalances'
 import useWallet from '../account/useWallet'
 import useWalletAccount from '../account/useWalletAccount'
 import useFetch, { useMutate } from '../data/useFetch'
-import { LatestRewardEpoch } from './useLatestRewardEpoch'
+import { fetchVaults } from '../vaults/useVaultsPageData'
+
+export type LatestRewardEpoch = {
+  global: GlobalRewardEpoch
+  account?: AccountRewardEpoch | null
+}
 
 type NetworkRewardsData = {
+  vaults: Vault[]
   globalRewardEpochs: GlobalRewardEpoch[]
   accountRewardEpochs: AccountRewardEpoch[]
   latestRewardEpoch: LatestRewardEpoch
 }
 
 export type RewardsPageData = {
-  epochs: {
-    [network in Network]?: NetworkRewardsData
-  }
+  epochs: Record<Network, NetworkRewardsData>
+  vaults: Vault[]
+  lyraStaking: LyraStaking
   lyraBalances: AccountLyraBalances
+  lyraStakingAccount: LyraStakingAccount | null
   arrakisStaking: ArrakisStaking | null
   camelotStaking: CamelotStaking | null
   velodromeStaking: VelodromeStaking | null
-  lyraStakingAccount: LyraStakingAccount | null
-  claimableOptimismRewards: ClaimableBalanceL2 | null
-}
-
-export const EMPTY_REWARDS_PAGE_DATA: RewardsPageData = {
-  epochs: {},
-  lyraBalances: EMPTY_LYRA_BALANCES,
-  arrakisStaking: null,
-  camelotStaking: null,
-  velodromeStaking: null,
-  lyraStakingAccount: null,
-  claimableOptimismRewards: null,
 }
 
 export const fetchRewardsPageData = async (walletAddress: string | null): Promise<RewardsPageData> => {
   const [
     globalRewardEpochs,
     accountRewardEpochs,
+    vaults,
     arrakisStaking,
     camelotStaking,
     velodromeStaking,
+    lyraStaking,
     lyraBalances,
     lyraStakingAccount,
-    claimableOptimismRewards,
   ] = await Promise.all([
     Promise.all(Object.values(Network).map(network => getLyraSDK(network).globalRewardEpochs())),
     walletAddress
       ? Promise.all(Object.values(Network).map(network => getLyraSDK(network).accountRewardEpochs(walletAddress)))
       : [],
+    fetchVaults(walletAddress ?? undefined),
     fetchArrakisStaking(walletAddress),
     fetchCamelotStaking(walletAddress),
     fetchVelodromeStaking(walletAddress),
+    lyraOptimism.lyraStaking(),
     walletAddress ? lyraOptimism.account(walletAddress).lyraBalances() : EMPTY_LYRA_BALANCES,
     walletAddress ? lyraOptimism.lyraStakingAccount(walletAddress) : null,
-    walletAddress ? lyraOptimism.claimableRewards(walletAddress) : null,
   ])
 
   const networkEpochsMap = Object.values(Network).reduce((map, network, idx) => {
-    const networkGlobalEpochs = globalRewardEpochs[idx]
-    const networkAccountRewardEpochs = accountRewardEpochs[idx]
-    const matchedRewardEpochs = networkGlobalEpochs
-      .map(globalEpoch => ({
-        account:
-          networkAccountRewardEpochs?.find(
-            accountEpoch => accountEpoch.globalEpoch.startTimestamp === globalEpoch.startTimestamp
-          ) ?? null,
-        global: globalEpoch,
-      }))
-      .sort((a, b) => b.global.endTimestamp - a.global.endTimestamp)
+    const networkGlobalEpochs = globalRewardEpochs[idx] ?? []
+    const networkAccountRewardEpochs = accountRewardEpochs[idx] ?? []
+
+    let latestGlobalRewardEpoch: GlobalRewardEpoch
+    const currGlobalRewardEpoch = networkGlobalEpochs.find(e => e.isCurrent)
+    if (currGlobalRewardEpoch) {
+      latestGlobalRewardEpoch = currGlobalRewardEpoch
+    } else if (networkGlobalEpochs.length > 0) {
+      // If no current epoch is available, use latest epoch less than current timestamp
+      latestGlobalRewardEpoch = networkGlobalEpochs.sort((a, b) => b.endTimestamp - a.endTimestamp)[0]
+    } else {
+      throw new Error('No global epochs for network')
+    }
+
+    const latestAccountRewardEpoch = networkAccountRewardEpochs.find(
+      e => e.globalEpoch.startTimestamp === latestGlobalRewardEpoch.startTimestamp
+    )
+
     return {
       ...map,
       [network]: {
         globalRewardEpochs: networkGlobalEpochs,
         accountRewardEpochs: networkAccountRewardEpochs,
-        latestRewardEpoch: matchedRewardEpochs[0],
+        latestRewardEpoch: {
+          global: latestGlobalRewardEpoch,
+          account: latestAccountRewardEpoch,
+        },
       },
     }
-  }, {})
+  }, {} as Record<Network, NetworkRewardsData>)
 
   return {
     epochs: networkEpochsMap,
+    vaults,
     lyraBalances,
+    lyraStaking,
     lyraStakingAccount,
-    claimableOptimismRewards,
     arrakisStaking,
     camelotStaking,
     velodromeStaking,
   }
 }
 
-export default function useRewardsPageData(): RewardsPageData {
+export default function useRewardsPageData(): RewardsPageData | null {
   const account = useWalletAccount()
-  const [rewardsPageData] = useFetch(FetchId.RewardsPageData, [account], fetchRewardsPageData, {
-    refreshInterval: 30 * 1000,
-  })
-  return rewardsPageData ?? EMPTY_REWARDS_PAGE_DATA
+  const [rewardsPageData] = useFetch(FetchId.RewardsPageData, [account], fetchRewardsPageData)
+  return rewardsPageData
 }
 
 export function useMutateRewardsPageData() {

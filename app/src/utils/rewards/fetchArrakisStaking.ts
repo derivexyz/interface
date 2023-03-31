@@ -1,4 +1,3 @@
-import { LYRA_ETHEREUM_MAINNET_ADDRESS, WETH_ETHEREUM_MAINNET_ADDRESS } from '@lyrafinance/lyra-js'
 import { BigNumber } from 'ethers'
 
 import { ZERO_BN } from '@/app/constants/bn'
@@ -10,6 +9,7 @@ import fetchTokenSpotPrice from '../common/fetchTokenSpotPrice'
 import getContract from '../common/getContract'
 import multicall, { MulticallRequest } from '../common/multicall'
 import fromBigNumber from '../fromBigNumber'
+import getTokenInfo from '../getTokenInfo'
 
 export type ArrakisStaking = {
   stakedTokenBalance: BigNumber
@@ -27,6 +27,26 @@ export type ArrakisStaking = {
 export default async function fetchArrakisStaking(address?: string | null): Promise<ArrakisStaking> {
   const arrakisVaultContract = getContract(ContractId.ArrakisPoolL1, AppNetwork.Ethereum)
   const arrakisStakingRewardsContract = getContract(ContractId.ArrakisStakingRewards, AppNetwork.Ethereum)
+
+  const lyraAddress = getTokenInfo('LYRA', AppNetwork.Ethereum)?.address
+  const wethAddress = getTokenInfo('WETH', AppNetwork.Ethereum)?.address
+
+  if (!lyraAddress || !wethAddress) {
+    console.warn('Missing token info in tokenlist.json')
+    return {
+      stakedTokenBalance: ZERO_BN,
+      lpTokenValue: 0,
+      wethPerToken: 0,
+      lyraPerToken: 0,
+      stakedTVL: 0,
+      apy: 0,
+      unstakedLPTokenBalance: ZERO_BN,
+      stakedLPTokenBalance: ZERO_BN,
+      rewards: ZERO_BN,
+      allowance: ZERO_BN,
+    }
+  }
+
   const [
     {
       returnData: [[stakedTokenBalance], [amount0Current, amount1Current], [supplyBN], [rewardRate]],
@@ -64,8 +84,8 @@ export default async function fetchArrakisStaking(address?: string | null): Prom
         args: [],
       },
     ]),
-    fetchTokenSpotPrice(LYRA_ETHEREUM_MAINNET_ADDRESS, AppNetwork.Ethereum),
-    fetchTokenSpotPrice(WETH_ETHEREUM_MAINNET_ADDRESS, AppNetwork.Ethereum),
+    fetchTokenSpotPrice(lyraAddress, AppNetwork.Ethereum),
+    fetchTokenSpotPrice(wethAddress, AppNetwork.Ethereum),
     address
       ? multicall<
           [

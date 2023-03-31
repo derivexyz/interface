@@ -5,102 +5,57 @@
   "timestamp": "2021-03-22T10:01:21.042+00:00",
   "tokens": [
     {
+      "name": "USDCoin",
+      "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "symbol": "USDC",
+      "decimals": 6,
       "chainId": 1,
-      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-      "name": "USD Coin",
-      "symbol": "USDC",
-      "decimals": 6,
-      "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
       "extensions": {
-        "optimismBridgeAddress": "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1"
+        "bridgeInfo": {
+          "10": {
+            "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+          },
+          "42161": {
+            "tokenAddress": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+          }
+        }
       }
     },
     {
-      "chainId": 10,
-      "address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
-      "name": "USD Coin",
-      "symbol": "USDC",
-      "decimals": 6,
-      "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
-      "extensions": {
-        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
-      }
-    },
-    {
-      "chainId": 42,
-      "address": "0x50dC5200082d37d5dd34B4b0691f36e3632fE1A8",
-      "name": "USD Coin",
-      "symbol": "USDC",
-      "decimals": 6,
-      "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
-      "extensions": {
-        "optimismBridgeAddress": "0x22F24361D548e5FaAfb36d1437839f080363982B"
-      }
-    },
-    {
-      "chainId": 69,
-      "address": "0x4e62882864fB8CE54AFfcAf8D899A286762B011B",
-      "name": "USD Coin",
-      "symbol": "USDC",
-      "decimals": 6,
-      "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
-      "extensions": {
-        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
-      }
-    },
-    {
-      "chainId": 10,
-      "address": "0x4200000000000000000000000000000000000006",
       "name": "Wrapped Ether",
+      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       "symbol": "WETH",
       "decimals": 18,
-      "logoURI": "https://ethereum-optimism.github.io/data/WETH/logo.png",
-      "extensions": {
-        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
-      }
-    },
-    {
       "chainId": 1,
-      "address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
-      "name": "Wrapped Bitcoin",
-      "symbol": "WBTC",
-      "decimals": 8,
-      "logoURI": "https://ethereum-optimism.github.io/data/WBTC/logo.svg",
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
       "extensions": {
-        "optimismBridgeAddress": "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1"
+        "bridgeInfo": {
+          "10": {
+            "tokenAddress": "0x4200000000000000000000000000000000000006"
+          },
+          "42161": {
+            "tokenAddress": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+          }
+        }
       }
     },
     {
-      "chainId": 10,
-      "address": "0x68f180fcCe6836688e9084f035309E29Bf0A2095",
-      "name": "Wrapped Bitcoin",
+      "name": "Wrapped BTC",
+      "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
       "symbol": "WBTC",
       "decimals": 8,
-      "logoURI": "https://ethereum-optimism.github.io/data/WBTC/logo.svg",
+      "chainId": 1,
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png",
       "extensions": {
-        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
-      }
-    },
-    {
-      "chainId": 42,
-      "address": "0x68f180fcCe6836688e9084f035309E29Bf0A2095",
-      "name": "Wrapped Bitcoin",
-      "symbol": "WBTC",
-      "decimals": 8,
-      "logoURI": "https://ethereum-optimism.github.io/data/WBTC/logo.svg",
-      "extensions": {
-        "optimismBridgeAddress": "0x22F24361D548e5FaAfb36d1437839f080363982B"
-      }
-    },
-    {
-      "chainId": 69,
-      "address": "0x2382a8f65b9120E554d1836a504808aC864E169d",
-      "name": "Wrapped Bitcoin",
-      "symbol": "WBTC",
-      "decimals": 8,
-      "logoURI": "https://ethereum-optimism.github.io/data/WBTC/logo.svg",
-      "extensions": {
-        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
+        "bridgeInfo": {
+          "10": {
+            "tokenAddress": "0x68f180fcCe6836688e9084f035309E29Bf0A2095"
+          },
+          "42161": {
+            "tokenAddress": "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f"
+          }
+        }
       }
     },
     {
@@ -133,26 +88,17 @@
       "name": "Lyra",
       "symbol": "LYRA",
       "decimals": 18,
-      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/lyra-token.png"
-    },
-    {
-      "chainId": 10,
-      "address": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
-      "name": "Lyra",
-      "symbol": "LYRA",
-      "decimals": 18,
-      "logoURI": "https://ethereum-optimism.github.io/data/LYRA/logo.png",
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/lyra-token.png",
       "extensions": {
-        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
+        "bridgeInfo": {
+          "10": {
+            "tokenAddress": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb"
+          },
+          "42161": {
+            "tokenAddress": "0x079504b86d38119F859c4194765029F692b7B7aa"
+          }
+        }
       }
-    },
-    {
-      "chainId": 42161,
-      "address": "0x079504b86d38119F859c4194765029F692b7B7aa",
-      "name": "Lyra",
-      "symbol": "LYRA",
-      "decimals": 18,
-      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/lyra-token.png"
     },
     {
       "chainId": 1,
@@ -160,15 +106,17 @@
       "name": "Staked Lyra",
       "symbol": "stkLYRA",
       "decimals": 18,
-      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/staked-lyra-token.png"
-    },
-    {
-      "chainId": 42161,
-      "address": "0x5B237ab26CeD47Fb8ED104671819C801Aa5bA45E",
-      "name": "stkLyra",
-      "symbol": "stkLYRA",
-      "decimals": 18,
-      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/staked-lyra-token.png"
+      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/staked-lyra-token.png",
+      "extensions": {
+        "bridgeInfo": {
+          "10": {
+            "tokenAddress": "0x0F5d45a7023612e9e244fe84FAc5fCf3740d1492"
+          },
+          "42161": {
+            "tokenAddress": "0x5B237ab26CeD47Fb8ED104671819C801Aa5bA45E"
+          }
+        }
+      }
     },
     {
       "chainId": 10,
@@ -176,20 +124,29 @@
       "name": "Optimism",
       "symbol": "OP",
       "decimals": 18,
-      "logoURI": "https://raw.githubusercontent.com/lyra-finance/interface/master/app/public/images/optimism.png",
-      "extensions": {
-        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
-      }
+      "logoURI": "https://ethereum-optimism.github.io/data/OP/logo.png"
     },
     {
-      "chainId": 420,
-      "address": "0x4200000000000000000000000000000000000042",
-      "name": "Optimism",
-      "symbol": "OP",
+      "chainId": 10,
+      "address": "0x3c8b650257cfb5f272f799f5e2b4e65093a11a05",
+      "name": "Velodrome",
+      "symbol": "VELO",
       "decimals": 18,
-      "logoURI": "/logos/optimism.png",
+      "logoURI": "https://ethereum-optimism.github.io/data/VELO/logo.svg"
+    },
+    {
+      "chainId": 1,
+      "name": "Arbitrum",
+      "address": "0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1",
+      "symbol": "ARB",
+      "decimals": 18,
+      "logoURI": "https://arbitrum.foundation/logo.png",
       "extensions": {
-        "optimismBridgeAddress": "0x4200000000000000000000000000000000000010"
+        "bridgeInfo": {
+          "42161": {
+            "tokenAddress": "0x912CE59144191C1204E64559FE8253a0e49E6548"
+          }
+        }
       }
     }
   ]

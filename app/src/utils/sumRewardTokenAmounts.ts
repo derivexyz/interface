@@ -1,6 +1,6 @@
-import { RewardEpochTokenAmount } from '../global_reward_epoch'
+import { RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
 
-export default function getUniqueRewardTokenAmounts(rewardTokenAmount: RewardEpochTokenAmount[]) {
+export default function sumRewardTokenAmounts(rewardTokenAmount: RewardEpochTokenAmount[]) {
   return Object.values(
     rewardTokenAmount.reduce((map, rewardTokenAmount) => {
       if (!map[rewardTokenAmount.address]) {

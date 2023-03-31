@@ -11,7 +11,6 @@ export enum PageId {
   VaultsHistory = 'VaultsHistory',
   RewardsIndex = 'RewardsIndex',
   RewardsTrading = 'RewardsTrading',
-  RewardsShorts = 'RewardsShorts',
   RewardsVaults = 'RewardsVaults',
   RewardsArrakis = 'RewardsArrakis',
   Storybook = 'Storybook',
@@ -48,9 +47,6 @@ export type PageArgsMap = {
   }
   [PageId.RewardsIndex]: undefined
   [PageId.RewardsTrading]: {
-    network: string
-  }
-  [PageId.RewardsShorts]: {
     network: string
   }
   [PageId.RewardsVaults]: {

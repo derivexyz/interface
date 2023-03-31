@@ -50,7 +50,7 @@ const RewardsNotStakedCardSection = ({ lyraBalances }: Props): CardElement => {
         By staking LYRA you earn stkLYRA rewards and receive boosts on your vault and trading rewards. Staked LYRA has a
         14 day unstaking period.
       </Text>
-      <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr'], gridGap: 3 }}>
+      <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr'], gridGap: 3 }}>
         {l2Balance.gt(0) ? (
           <>
             <Button label="Bridge" size="lg" variant="warning" onClick={() => setIsOpen(true)} />
@@ -59,7 +59,7 @@ const RewardsNotStakedCardSection = ({ lyraBalances }: Props): CardElement => {
         ) : null}
         <Button
           size="lg"
-          label="Swap to LYRA"
+          label="Swap LYRA"
           rightIcon={IconType.ArrowUpRight}
           href={SWAP_LYRA_1INCH_URL}
           target="_blank"

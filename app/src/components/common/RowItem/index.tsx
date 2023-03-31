@@ -28,7 +28,7 @@ export default function RowItem({
         label
       )}
       {typeof value === 'string' ? (
-        <Text variant={textVariant} color={valueColor}>
+        <Text textAlign="right" variant={textVariant} color={valueColor}>
           {value}
         </Text>
       ) : (

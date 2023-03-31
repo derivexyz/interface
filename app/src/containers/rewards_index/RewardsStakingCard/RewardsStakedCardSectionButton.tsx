@@ -4,34 +4,22 @@ import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import React from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
-import useAccountLyraBalances from '@/app/hooks/account/useAccountLyraBalances'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useClaimableStakingRewards from '@/app/hooks/rewards/useClaimableStakingRewards'
 
 type Props = {
   onStakeOpen: () => void
   onUnstakeOpen: () => void
-  onClaimL1Open: () => void
-  onClaimAndMigrateOpen: () => void
+  onClaim: () => void
 }
 
 const RewardsStakedCardSectionButton = withSuspense(
-  ({ onStakeOpen, onUnstakeOpen, onClaimAndMigrateOpen, onClaimL1Open }: Props) => {
+  ({ onStakeOpen, onUnstakeOpen, onClaim }: Props) => {
     const claimableStakingRewards = useClaimableStakingRewards()
-    const lyraBalances = useAccountLyraBalances()
-    const optimismOldStkLyra = lyraBalances.optimismOldStkLyra
-    const hasOldStkLyra = optimismOldStkLyra.gt(0)
-    if (hasOldStkLyra) {
-      return (
-        <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr'], gridGap: 3 }}>
-          <Button size="lg" label="Migrate" variant="primary" onClick={onClaimAndMigrateOpen} />
-        </Grid>
-      )
-    }
     return (
       <Grid
         sx={{
-          gridTemplateColumns: ['1fr', claimableStakingRewards.gt(ZERO_BN) ? '1fr 1fr 1fr' : '1fr 1fr'],
+          gridTemplateColumns: ['1fr', '1fr 1fr 1fr'],
           gridGap: 3,
         }}
       >
@@ -41,7 +29,7 @@ const RewardsStakedCardSectionButton = withSuspense(
             label="Claim"
             variant="primary"
             isDisabled={!claimableStakingRewards.gt(ZERO_BN)}
-            onClick={onClaimL1Open}
+            onClick={onClaim}
           />
         ) : null}
         <Button

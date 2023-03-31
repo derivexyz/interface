@@ -61,24 +61,26 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
         </Flex>
         <Card>
           <CardSection>
-            <Text variant="heading">Overview</Text>
-            <Text variant="secondary" mt={8} mb={2}>
+            <Text variant="heading" mb={6}>
+              Overview
+            </Text>
+            <Text color="secondaryText" mb={6}>
               This program rewards WETH / LYRA liquidity providers on the Uniswap v3 pool via Arrakis Finance. LPs earn
               LYRA tokens which can be claimed at any time.
             </Text>
-            <Grid mt={8} mb={4} sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr' }}>
+            <Grid mb={4} sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr' }}>
               <LabelItem label="TVL" value={formatTruncatedUSD(arrakisStaking.stakedTVL)} />
               <LabelItem label="APY" value={formatPercentage(arrakisStaking.apy, true)} />
             </Grid>
           </CardSection>
           <CardSeparator isHorizontal />
           <CardSection isVertical sx={{ flexGrow: 1 }}>
-            <Text mb={8} variant="heading">
+            <Text mb={6} variant="heading">
               Your Rewards
             </Text>
             {account ? (
               <>
-                <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr', rowGap: 8 }}>
+                <Grid mb={6} sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr', rowGap: 8 }}>
                   <LabelItem
                     label="Your Balance"
                     value={
@@ -100,17 +102,19 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
                     valueColor="primaryText"
                   />
                 </Grid>
-                <Flex mt={8}>
+                <Flex>
+                  {arrakisStaking?.rewards.gt(0) ? (
+                    <Button
+                      mr={4}
+                      label="Claim"
+                      variant="primary"
+                      size="lg"
+                      onClick={() => setIsOpen(true)}
+                      minWidth={CTA_BUTTON_WIDTH}
+                    />
+                  ) : null}
                   <Button
-                    isDisabled={arrakisStaking?.rewards.isZero()}
-                    label="Claim"
-                    variant="primary"
-                    size="lg"
-                    onClick={() => setIsOpen(true)}
-                    minWidth={CTA_BUTTON_WIDTH}
-                  />
-                  <Button
-                    ml={4}
+                    mr={4}
                     label="Stake"
                     size="lg"
                     onClick={() => setIsStakeOpen(true)}
@@ -118,7 +122,7 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
                   />
                   {arrakisStaking.stakedLPTokenBalance.gt(0) ? (
                     <Button
-                      ml={4}
+                      mr={4}
                       label="Unstake"
                       size="lg"
                       onClick={() => setIsUnstakeOpen(true)}
@@ -127,7 +131,7 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
                   ) : null}
                   {arrakisOpStakingAccount?.stakedLPTokenBalance.gt(0) ? (
                     <Button
-                      ml={4}
+                      mr={4}
                       label="Unstake L2 WETH/LYRA"
                       size="lg"
                       variant="warning"
@@ -136,7 +140,6 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
                     />
                   ) : null}
                   <Button
-                    ml={4}
                     width={CTA_BUTTON_WIDTH}
                     label="Add Liquidity"
                     rightIcon={IconType.ArrowUpRight}

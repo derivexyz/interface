@@ -11,7 +11,6 @@ import React, { useState } from 'react'
 
 import PositionStatusText from '@/app/components/common/PositionStatusText'
 import { UNIT, ZERO_BN } from '@/app/constants/bn'
-import ShortYieldValue from '@/app/containers/common/ShortYieldValue'
 import TradeCollateralFormModal from '@/app/containers/trade/TradeCollateralFormModal'
 import TradeFormModal from '@/app/containers/trade/TradeFormModal'
 import useWallet from '@/app/hooks/account/useWallet'
@@ -70,12 +69,6 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
             <LabelItem
               label="Liquidation Price"
               value={position.collateral?.liquidationPrice ? formatUSD(position.collateral.liquidationPrice) : 'None'}
-            />
-          ) : null}
-          {position.isOpen && !position.isLong ? (
-            <LabelItem
-              label="Yield / Day"
-              value={<ShortYieldValue textVariant="secondary" tradeOrPosition={position} option={option} />}
             />
           ) : null}
         </Grid>

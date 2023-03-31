@@ -1,4 +1,4 @@
-import { ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
+import { ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client/core'
 import { BigNumber } from '@ethersproject/bignumber'
 import { PopulatedTransaction } from '@ethersproject/contracts'
 import { JsonRpcProvider, TransactionReceipt } from '@ethersproject/providers'
@@ -306,10 +306,6 @@ export default class Lyra {
 
   async claimRewards(address: string, tokenAddresses: string[]) {
     return await AccountRewardEpoch.claim(this, address, tokenAddresses)
-  }
-
-  async claimableRewards(address: string) {
-    return await AccountRewardEpoch.getClaimableBalances(this, address)
   }
 
   async lyraStaking(): Promise<LyraStaking> {

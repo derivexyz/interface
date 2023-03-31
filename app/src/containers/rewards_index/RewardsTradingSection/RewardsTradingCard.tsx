@@ -9,7 +9,7 @@ import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { AccountLyraBalances, AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -18,39 +18,41 @@ import NetworkImage from '@/app/components/common/NetworkImage'
 import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
 import { REWARDS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
-import fromBigNumber from '@/app/utils/fromBigNumber'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
-import getUniqueRewardTokenAmounts from '@/app/utils/getUniqueRewardTokenAmounts'
+import sumRewardTokenAmounts from '@/app/utils/sumRewardTokenAmounts'
 
 type Props = {
   globalRewardEpoch: GlobalRewardEpoch
   accountRewardEpoch?: AccountRewardEpoch | null
-  lyraBalances: AccountLyraBalances
 } & MarginProps
 
-const RewardsTradingCard = ({ globalRewardEpoch, accountRewardEpoch, lyraBalances, ...styleProps }: Props) => {
+const RewardsTradingCard = ({ globalRewardEpoch, accountRewardEpoch, ...styleProps }: Props) => {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const tradingFees = accountRewardEpoch?.tradingFees ?? 0
-  const { tradingRewards, effectiveRebate, maxRewardToken } = useMemo(() => {
-    const emptyTradingRewards = globalRewardEpoch.tradingRewards(0, 0)
-    const pendingTradingRewards = accountRewardEpoch?.tradingRewards ?? emptyTradingRewards
-    const claimableTradingRewards = accountRewardEpoch?.claimableRewards.tradingRewards ?? emptyTradingRewards
-    const tradingRewards = getUniqueRewardTokenAmounts([...pendingTradingRewards, ...claimableTradingRewards])
-    const maxRewardToken = tradingRewards.reduce(
-      (maxRewardToken, r) => (maxRewardToken.amount > r.amount ? maxRewardToken : r),
-      tradingRewards[0]
-    )
 
-    const { ethereumStkLyra, arbitrumStkLyra, optimismStkLyra } = lyraBalances
-    const stkLyraBalance = fromBigNumber(ethereumStkLyra.add(arbitrumStkLyra).add(optimismStkLyra))
-    return {
-      tradingRewards,
-      maxRewardToken,
-      effectiveRebate: globalRewardEpoch.tradingFeeRebate(stkLyraBalance),
+  const firstRewardToken = globalRewardEpoch.tradingRewardTokens[0]
+
+  const tradingRewards = useMemo(() => {
+    if (!firstRewardToken) {
+      return null
     }
-  }, [globalRewardEpoch, accountRewardEpoch, lyraBalances])
+
+    const pendingVaultRewards = accountRewardEpoch?.tradingRewards ?? []
+    const claimableVaultRewards = accountRewardEpoch?.totalClaimableTradingRewards ?? []
+    const vaultRewards = sumRewardTokenAmounts([...pendingVaultRewards, ...claimableVaultRewards])
+
+    return (
+      vaultRewards.length ? vaultRewards : globalRewardEpoch.tradingRewardTokens.map(t => ({ ...t, amount: 0 }))
+    )[0]
+  }, [accountRewardEpoch, firstRewardToken, globalRewardEpoch])
+
+  const effectiveRebate = accountRewardEpoch?.tradingFeeRebate ?? globalRewardEpoch.tradingFeeRebate(0)
+
+  if (!firstRewardToken || !tradingRewards) {
+    return null
+  }
 
   return (
     <Card
@@ -98,9 +100,9 @@ const RewardsTradingCard = ({ globalRewardEpoch, accountRewardEpoch, lyraBalance
                   Rewards
                 </Text>
                 <RewardTokenAmounts
-                  color={tradingRewards.some(t => t.amount > 0) ? 'primaryText' : 'text'}
+                  color={tradingRewards.amount > 0 ? 'primaryText' : 'text'}
                   variant="bodyLarge"
-                  tokenAmounts={[maxRewardToken]}
+                  tokenAmounts={[tradingRewards]}
                   hideTokenImages
                 />
               </Flex>

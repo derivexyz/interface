@@ -1,3 +1,4 @@
+import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
@@ -9,28 +10,27 @@ import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import Countdown from '@lyra/ui/components/Text/CountdownText'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
+import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatDate from '@lyra/ui/utils/formatDate'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { AccountRewardEpoch, GlobalRewardEpoch, Market } from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch } from '@lyrafinance/lyra-js'
+import { GlobalRewardEpoch } from '@lyrafinance/lyra-js'
 import React from 'react'
 import { useMemo } from 'react'
 import { useState } from 'react'
-import { useEffect } from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
 import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
-import { UNIT, ZERO_BN } from '@/app/constants/bn'
-import { REWARDS_HISTORY_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
-import { CLAIMABLE_REWARDS_DELAY } from '@/app/constants/rewards'
+import { SECONDS_IN_MONTH } from '@/app/constants/time'
+import { Vault } from '@/app/constants/vault'
 import ConnectWalletButton from '@/app/containers/common/ConnectWalletButton'
 import RewardsClaimModal from '@/app/containers/rewards/RewardsClaimModal'
 import RewardsClaimModalButton from '@/app/containers/rewards/RewardsClaimModalButton'
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
-import { LatestRewardEpoch } from '@/app/hooks/rewards/useLatestRewardEpoch'
 import formatAPY from '@/app/utils/formatAPY'
 import formatAPYRange from '@/app/utils/formatAPYRange'
 import formatTokenName from '@/app/utils/formatTokenName'
@@ -41,51 +41,51 @@ import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
 
 const CTA_BUTTON_WIDTH = 160
+const MIN_COL_WIDTH = 150
 
 type Props = {
-  market: Market
-  latestRewardEpoch: LatestRewardEpoch
+  vault: Vault
+  latestGlobalRewardEpoch: GlobalRewardEpoch
   accountRewardEpochs: AccountRewardEpoch[]
-  globalRewardEpochs: GlobalRewardEpoch[]
 }
 
-const RewardsVaultsPageHelper = ({ market, latestRewardEpoch, accountRewardEpochs, globalRewardEpochs }: Props) => {
+const RewardsVaultsPageHelper = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs }: Props) => {
   const isMobile = useIsMobile()
   const account = useWalletAccount()
   const [isOpen, setIsOpen] = useState(false)
-  const { global: latestGlobalRewardEpoch, account: latestAccountRewardEpoch } = latestRewardEpoch
-  const vaultApy = latestAccountRewardEpoch?.vaultApy(market.address) ?? []
-  const minApy = latestGlobalRewardEpoch.minVaultApy(market.address)
-  const maxApy = latestGlobalRewardEpoch.maxVaultApy(market.address)
-  const vaultApyMultiplier = latestAccountRewardEpoch?.vaultApyMultiplier(market.address)
 
-  const emptyVaultRewards = useMemo(
-    () => latestGlobalRewardEpoch.totalVaultRewards(market.address).map(t => ({ ...t, amount: 0 })),
-    [latestGlobalRewardEpoch, market]
+  const market = vault.market
+
+  const latestAccountRewardEpoch = vault.accountRewardEpoch
+
+  const vaultApy = vault.apy
+  const minApy = vault.minApy
+  const maxApy = vault.maxApy
+  const vaultApyMultiplier = vault.apyMultiplier
+
+  const emptyRewards = useMemo(
+    () => latestGlobalRewardEpoch.vaultRewardTokens.map(t => ({ ...t, amount: 0 })),
+    [latestGlobalRewardEpoch.vaultRewardTokens]
   )
-  const pendingRewards = latestAccountRewardEpoch?.vaultRewards(market.address) ?? emptyVaultRewards
+  const pendingRewards = useMemo(() => {
+    const pendingRewards = latestAccountRewardEpoch?.vaultRewards(market.address)
+    return pendingRewards && pendingRewards.length ? pendingRewards : emptyRewards
+  }, [emptyRewards, latestAccountRewardEpoch, market.address])
+  const totalClaimableRewards = useMemo(() => {
+    const totalClaimableRewards = latestAccountRewardEpoch?.totalClaimableVaultRewards(market.address)
+    return totalClaimableRewards && totalClaimableRewards.length ? totalClaimableRewards : emptyRewards
+  }, [emptyRewards, latestAccountRewardEpoch, market.address])
 
-  const { claimableVaultRewards, tvl, liquidityTokenBalanceValue } = useMemo(() => {
-    const marketIndex = latestGlobalRewardEpoch.markets.findIndex(m => market.isEqual(m.address))
-    const marketLiquidity = marketIndex >= 0 ? latestGlobalRewardEpoch.marketsLiquidity[marketIndex] : null
-    const liquidityTokenBalance =
-      latestAccountRewardEpoch?.vaultTokenBalances[market.baseToken.symbol].balance ?? ZERO_BN
-    const liquidityTokenBalanceValue = marketLiquidity?.tokenPrice.mul(liquidityTokenBalance).div(UNIT) ?? ZERO_BN
-    return {
-      tvl: marketLiquidity?.tvl ?? ZERO_BN,
-      liquidityTokenBalanceValue,
-      claimableVaultRewards: latestAccountRewardEpoch?.claimableVaultRewards(market.address) ?? emptyVaultRewards,
-    }
-  }, [latestGlobalRewardEpoch, market, latestAccountRewardEpoch, emptyVaultRewards])
+  const liquidityTokenBalanceValue = vault.liquidityTokenBalanceValue
+  const tvl = vault.tvl
 
-  const globalRewardEpochsSorted = useMemo(
-    () => globalRewardEpochs.sort((a, b) => b.startTimestamp - a.startTimestamp),
-    [globalRewardEpochs]
+  const accountEpochsSorted = useMemo(
+    () =>
+      [...accountRewardEpochs]
+        .filter(epoch => !!epoch.vaultRewards(market.address).find(t => t.amount > 0))
+        .sort((a, b) => b.globalEpoch.distributionTimestamp - a.globalEpoch.distributionTimestamp),
+    [market, accountRewardEpochs]
   )
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
 
   return (
     <Page header={!isMobile ? <RewardPageHeader /> : null} noHeaderPadding>
@@ -99,12 +99,14 @@ const RewardsVaultsPageHelper = ({ market, latestRewardEpoch, accountRewardEpoch
         </Flex>
         <Card>
           <CardSection>
-            <Text variant="heading">Overview</Text>
-            <Text mt={8} mb={2}>
+            <Text variant="heading" mb={6}>
+              Overview
+            </Text>
+            <Text color="secondaryText" mb={6}>
               This program rewards {formatTokenName(market.baseToken)} vault liquidity providers. Liquidity providers
               can stake LYRA to boost their rewards.
             </Text>
-            <Grid mt={8} mb={4} sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr' }}>
+            <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr' }}>
               <LabelItem textVariant="body" label="TVL" value={formatTruncatedUSD(tvl)} />
               <LabelItem
                 textVariant="body"
@@ -118,8 +120,8 @@ const RewardsVaultsPageHelper = ({ market, latestRewardEpoch, accountRewardEpoch
             <Flex mb={8}>
               <Text variant="heading">Your Rewards</Text>
               <Text variant="heading" color="secondaryText">
-                &nbsp; · &nbsp;{formatDate(latestRewardEpoch.global.startTimestamp, true)} -{' '}
-                {formatDate(latestRewardEpoch.global.endTimestamp, true)}
+                &nbsp; · &nbsp;{formatDate(latestGlobalRewardEpoch.startTimestamp, true)} -{' '}
+                {formatDate(latestGlobalRewardEpoch.endTimestamp, true)}
               </Text>
             </Flex>
             {account ? (
@@ -135,38 +137,37 @@ const RewardsVaultsPageHelper = ({ market, latestRewardEpoch, accountRewardEpoch
                     })} ${
                       vaultApyMultiplier && vaultApyMultiplier > 1.01 ? `(${formatNumber(vaultApyMultiplier)}x)` : ''
                     }`}
-                    valueColor={vaultApy.reduce((total, t) => total + t.amount, 0) > 0 ? 'primaryText' : 'text'}
+                    valueColor={vaultApyMultiplier > 1.01 ? 'primaryText' : 'text'}
                   />
                   <LabelItem
                     textVariant="body"
                     label="Pending Rewards"
-                    value={
-                      <RewardTokenAmounts
-                        tokenAmounts={pendingRewards.length ? pendingRewards : emptyVaultRewards}
-                        showDash={false}
-                      />
-                    }
+                    value={<RewardTokenAmounts tokenAmounts={pendingRewards} showDash={false} />}
                   />
                   <LabelItem
                     textVariant="body"
-                    label="Claimable In"
-                    value={<Countdown timestamp={latestGlobalRewardEpoch.endTimestamp + CLAIMABLE_REWARDS_DELAY} />}
+                    label="Ends In"
+                    value={<Countdown timestamp={latestGlobalRewardEpoch.endTimestamp} />}
                     valueColor="primaryText"
                   />
                 </Grid>
-                <LabelItem
-                  mt={8}
-                  label="Claimable Rewards"
-                  value={<RewardTokenAmounts tokenAmounts={claimableVaultRewards} showDash={false} />}
-                />
-                <Flex mt={8}>
-                  <RewardsClaimModalButton
-                    accountRewardEpoch={latestAccountRewardEpoch}
-                    onClick={() => setIsOpen(true)}
-                    minWidth={CTA_BUTTON_WIDTH}
+                {totalClaimableRewards.some(r => r.amount > 0) ? (
+                  <LabelItem
+                    mt={8}
+                    label="Claimable Rewards"
+                    value={<RewardTokenAmounts tokenAmounts={totalClaimableRewards} showDash={false} />}
                   />
+                ) : null}
+                <Flex mt={8}>
+                  {totalClaimableRewards.some(r => r.amount > 0) ? (
+                    <RewardsClaimModalButton
+                      accountRewardEpoch={latestAccountRewardEpoch}
+                      onClick={() => setIsOpen(true)}
+                      minWidth={CTA_BUTTON_WIDTH}
+                      mr={4}
+                    />
+                  ) : null}
                   <Button
-                    ml={4}
                     label="Deposit"
                     href={getPagePath({
                       page: PageId.Vaults,
@@ -190,47 +191,66 @@ const RewardsVaultsPageHelper = ({ market, latestRewardEpoch, accountRewardEpoch
             )}
           </CardSection>
         </Card>
-        {account ? (
+        {account && accountEpochsSorted.length > 0 ? (
           <Card>
-            <CardBody>
-              <Text mb={6} variant="heading">
-                History
+            <CardBody noPadding>
+              <Text mt={6} mb={4} mx={6} variant="heading">
+                Epochs
               </Text>
-              <Grid sx={{ gridTemplateColumns: REWARDS_HISTORY_GRID_COLUMN_TEMPLATE }}>
-                <Text color="secondaryText">Epoch</Text>
-                <Text color="secondaryText">Your Liquidity</Text>
-                <Text ml="auto" color="secondaryText">
-                  Your Rewards
-                </Text>
-              </Grid>
-              {globalRewardEpochsSorted.map(globalRewardEpoch => {
-                const accountEpoch = accountRewardEpochs.find(
-                  accountRewardEpoch => accountRewardEpoch.globalEpoch.id === globalRewardEpoch.id
-                )
-                const vaultRewards = accountEpoch?.vaultRewards(market.address) ?? []
-                const epochEmptyVaultRewards = globalRewardEpoch
-                  .totalVaultRewards(market.address)
-                  .map(t => ({ ...t, amount: 0 }))
-                return (
-                  <Grid
-                    my={4}
-                    key={globalRewardEpoch.id}
-                    sx={{ gridTemplateColumns: REWARDS_HISTORY_GRID_COLUMN_TEMPLATE }}
+              <Box px={6} overflowX="scroll">
+                <Flex py={3}>
+                  <Text minWidth={MIN_COL_WIDTH} color="secondaryText">
+                    Ended
+                  </Text>
+                  <Text minWidth={MIN_COL_WIDTH} color="secondaryText">
+                    Your Liquidity
+                  </Text>
+                  <Text
+                    minWidth={MIN_COL_WIDTH}
+                    ml="auto"
+                    color="secondaryText"
+                    textAlign={isMobile ? 'left' : 'right'}
                   >
-                    <Text>
-                      {formatDate(globalRewardEpoch.startTimestamp, true)} -{' '}
-                      {formatDate(globalRewardEpoch.endTimestamp, true)}
-                    </Text>
-                    <Text>{formatUSD(accountEpoch?.vaultTokenBalance(market.address) ?? 0)}</Text>
-                    <RewardTokenAmounts
-                      ml="auto"
-                      tokenAmounts={vaultRewards.length ? vaultRewards : epochEmptyVaultRewards}
-                      hideTokenImages
-                      showDash={true}
-                    />
-                  </Grid>
-                )
-              })}
+                    Your Rewards
+                  </Text>
+                </Flex>
+                {accountEpochsSorted.map(accountEpoch => {
+                  const vaultRewards = accountEpoch.vaultRewards(market.address) ?? []
+                  const globalEpoch = accountEpoch.globalEpoch
+                  const isPendingDistribution =
+                    globalEpoch.blockTimestamp > globalEpoch.endTimestamp &&
+                    !accountEpoch.isVaultRewardsDistributed(market.address) &&
+                    globalEpoch.blockTimestamp - globalEpoch.endTimestamp < SECONDS_IN_MONTH
+                  const isLateDistribution =
+                    isPendingDistribution && globalEpoch.blockTimestamp > globalEpoch.distributionTimestamp
+
+                  return (
+                    <Flex py={3} key={globalEpoch.id}>
+                      <Text minWidth={MIN_COL_WIDTH}>{formatDate(globalEpoch.endTimestamp)}</Text>
+                      <Text minWidth={MIN_COL_WIDTH}>
+                        {formatBalance({
+                          balance: accountEpoch?.vaultTokenBalance(market.address) ?? 0,
+                          symbol: market.liquidityToken.symbol,
+                          decimals: market.liquidityToken.decimals,
+                        })}
+                      </Text>
+                      <Box minWidth={MIN_COL_WIDTH} ml="auto" textAlign={isMobile ? 'left' : 'right'}>
+                        <Text>{vaultRewards.map(t => formatBalance(t)).join(', ')}</Text>
+                        {isLateDistribution ? (
+                          <Text variant="secondary" color="secondaryText">
+                            Claiming delayed
+                          </Text>
+                        ) : isPendingDistribution ? (
+                          <Text variant="secondary" color="secondaryText">
+                            Claimable in&nbsp;
+                            <Countdown as="span" timestamp={globalEpoch.distributionTimestamp} />
+                          </Text>
+                        ) : null}
+                      </Box>
+                    </Flex>
+                  )
+                })}
+              </Box>
             </CardBody>
           </Card>
         ) : null}

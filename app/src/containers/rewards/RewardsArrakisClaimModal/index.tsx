@@ -17,7 +17,7 @@ type Props = {
 
 const RewardsArrakisClaimModal = ({ isOpen, arrakisStaking, onClose }: Props): JSX.Element => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Claim Lyra" centerTitle>
+    <Modal isOpen={isOpen} onClose={onClose} title="Claim Lyra">
       <ModalBody>
         <RowItem
           my={8}

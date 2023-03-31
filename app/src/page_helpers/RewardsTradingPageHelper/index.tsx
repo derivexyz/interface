@@ -1,3 +1,4 @@
+import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
@@ -5,20 +6,22 @@ import CardSection from '@lyra/ui/components/Card/CardSection'
 import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import Flex from '@lyra/ui/components/Flex'
 import Grid from '@lyra/ui/components/Grid'
+import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import Countdown from '@lyra/ui/components/Text/CountdownText'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
+import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatDate from '@lyra/ui/utils/formatDate'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch, Network } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
-import { useEffect } from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
 import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
 import { TradingFeeRebateTable } from '@/app/components/rewards/TradingFeeRebateTable'
-import { CLAIMABLE_REWARDS_DELAY } from '@/app/constants/rewards'
+import { PageId } from '@/app/constants/pages'
+import { SECONDS_IN_MONTH } from '@/app/constants/time'
 import ConnectWalletButton from '@/app/containers/common/ConnectWalletButton'
 import RewardsClaimModal from '@/app/containers/rewards/RewardsClaimModal'
 import RewardsClaimModalButton from '@/app/containers/rewards/RewardsClaimModalButton'
@@ -26,21 +29,23 @@ import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
 import RewardsTradingRebateBoostModal from '@/app/containers/rewards/RewardsTradingRebateBoostModal'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
-import { LatestRewardEpoch } from '@/app/hooks/rewards/useLatestRewardEpoch'
+import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
+import { getDefaultMarket } from '@/app/utils/getDefaultMarket'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
+import getPagePath from '@/app/utils/getPagePath'
 
 import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
 
 const CTA_BUTTON_WIDTH = 160
+const MIN_COL_WIDTH = 150
 
 type Props = {
   latestRewardEpoch: LatestRewardEpoch
   accountRewardEpochs: AccountRewardEpoch[]
-  globalRewardEpochs: GlobalRewardEpoch[]
 }
 
-const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs, globalRewardEpochs }: Props) => {
+const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs }: Props) => {
   const isMobile = useIsMobile()
   const network = useNetwork()
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
@@ -51,18 +56,18 @@ const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs, glob
     latestAccountRewardEpoch?.tradingFeeRebate ?? latestGlobalRewardEpoch.tradingFeeRebateTiers[0].feeRebate
   const pendingRewards = latestAccountRewardEpoch?.tradingRewards.length
     ? latestAccountRewardEpoch.tradingRewards
-    : latestGlobalRewardEpoch.tradingRewards(0, 0)
-  const globalRewardEpochsSorted = useMemo(
-    () => globalRewardEpochs.sort((a, b) => b.startTimestamp - a.startTimestamp),
-    [globalRewardEpochs]
-  )
-  const claimableRewards = latestAccountRewardEpoch?.claimableRewards.tradingRewards.length
-    ? latestAccountRewardEpoch?.claimableRewards.tradingRewards
-    : latestGlobalRewardEpoch.tradingRewards(0, 0)
+    : latestGlobalRewardEpoch.tradingRewardTokens.map(t => ({ ...t, amount: 0 }))
+  const claimableRewards = latestAccountRewardEpoch?.totalClaimableTradingRewards.length
+    ? latestAccountRewardEpoch.totalClaimableTradingRewards
+    : latestGlobalRewardEpoch.tradingRewardTokens.map(t => ({ ...t, amount: 0 }))
 
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
+  const accountEpochsSorted = useMemo(
+    () =>
+      [...accountRewardEpochs]
+        .filter(epoch => !!epoch.tradingRewards.find(t => t.amount > 0))
+        .sort((a, b) => b.globalEpoch.distributionTimestamp - a.globalEpoch.distributionTimestamp),
+    [accountRewardEpochs]
+  )
 
   return (
     <Page header={!isMobile ? <RewardPageHeader /> : null} noHeaderPadding>
@@ -76,8 +81,10 @@ const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs, glob
         </Flex>
         <Card>
           <CardSection>
-            <Text variant="heading">Overview</Text>
-            <Text mt={8} mb={2}>
+            <Text variant="heading" mb={6}>
+              Overview
+            </Text>
+            <Text color="secondaryText">
               This program allows traders to earn back part of their fees as LYRA
               {network === Network.Optimism ? ' and OP' : ''} tokens every two weeks. Traders can stake LYRA to boost
               fee rebates.
@@ -116,20 +123,36 @@ const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs, glob
                     />
                     <LabelItem
                       textVariant="body"
-                      label="Claimable In"
-                      value={<Countdown timestamp={latestGlobalRewardEpoch.endTimestamp + CLAIMABLE_REWARDS_DELAY} />}
+                      label="Ends In"
+                      value={<Countdown timestamp={latestGlobalRewardEpoch.distributionTimestamp} />}
                       valueColor="primaryText"
                     />
                   </Grid>
-                  <LabelItem
-                    textVariant="body"
-                    label="Claimable Rewards"
-                    value={<RewardTokenAmounts tokenAmounts={claimableRewards} showDash={false} />}
-                  />
+                  {claimableRewards.some(r => r.amount > 0) ? (
+                    <LabelItem
+                      textVariant="body"
+                      label="Claimable Rewards"
+                      value={<RewardTokenAmounts tokenAmounts={claimableRewards} showDash={false} />}
+                    />
+                  ) : null}
                   <Flex mt="auto" pt={6}>
-                    <RewardsClaimModalButton
-                      onClick={() => setIsClaimModalOpen(true)}
-                      accountRewardEpoch={latestAccountRewardEpoch}
+                    {claimableRewards.some(r => r.amount > 0) ? (
+                      <RewardsClaimModalButton
+                        onClick={() => setIsClaimModalOpen(true)}
+                        accountRewardEpoch={latestAccountRewardEpoch}
+                        minWidth={CTA_BUTTON_WIDTH}
+                        mr={4}
+                      />
+                    ) : null}
+                    <Button
+                      label="Trade"
+                      href={getPagePath({
+                        page: PageId.Trade,
+                        network: latestRewardEpoch.global.lyra.network,
+                        marketAddressOrName: getDefaultMarket(latestRewardEpoch.global.lyra.network),
+                      })}
+                      size="lg"
+                      rightIcon={IconType.ArrowRight}
                       minWidth={CTA_BUTTON_WIDTH}
                     />
                   </Flex>
@@ -153,7 +176,7 @@ const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs, glob
                 feeRebateTiers={latestGlobalRewardEpoch.tradingFeeRebateTiers}
                 effectiveRebate={effectiveRebate}
                 minWidth={300}
-                maxHeight={285}
+                maxHeight={248}
                 sx={{ overflow: 'scroll' }}
               />
               <Flex mt={4}>
@@ -169,39 +192,73 @@ const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs, glob
             </CardSection>
           </CardSection>
         </Card>
-        {account ? (
+        {account && accountEpochsSorted.length > 0 ? (
           <Card>
-            <CardBody>
-              <Text mb={6} variant="heading">
-                History
+            <CardBody noPadding>
+              <Text mt={6} mb={4} mx={6} variant="heading">
+                Epochs
               </Text>
-              <Grid sx={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-                <Text color="secondaryText">Epoch</Text>
-                <Text color="secondaryText">Your Fees</Text>
-                <Text ml="auto" color="secondaryText">
-                  Your Rewards
-                </Text>
-              </Grid>
-              {globalRewardEpochsSorted.map(globalRewardEpoch => {
-                const accountEpoch = accountRewardEpochs.find(
-                  accountRewardEpoch => accountRewardEpoch.globalEpoch.id === globalRewardEpoch.id
-                )
-                return (
-                  <Grid my={4} key={globalRewardEpoch.id} sx={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-                    <Text>
-                      {formatDate(globalRewardEpoch.startTimestamp, true)} -{' '}
-                      {formatDate(globalRewardEpoch.endTimestamp, true)}
-                    </Text>
-                    <Text>{accountEpoch ? formatUSD(accountEpoch.tradingFees) : formatUSD(0)}</Text>
-                    <RewardTokenAmounts
-                      ml="auto"
-                      tokenAmounts={accountEpoch?.tradingRewards ?? globalRewardEpoch.tradingRewards(0, 0)}
-                      showDash={false}
-                      hideTokenImages
-                    />
-                  </Grid>
-                )
-              })}
+              <Box px={6} overflowX="scroll">
+                <Flex py={3}>
+                  <Text minWidth={MIN_COL_WIDTH} color="secondaryText">
+                    Ended
+                  </Text>
+                  <Text minWidth={MIN_COL_WIDTH} color="secondaryText">
+                    Your Fees
+                  </Text>
+                  <Text
+                    minWidth={MIN_COL_WIDTH}
+                    ml="auto"
+                    color="secondaryText"
+                    textAlign={isMobile ? 'left' : 'right'}
+                  >
+                    Your Rewards
+                  </Text>
+                </Flex>
+                {accountEpochsSorted.map(accountEpoch => {
+                  const globalEpoch = accountEpoch.globalEpoch
+                  const isPendingDistribution =
+                    globalEpoch.blockTimestamp > globalEpoch.endTimestamp &&
+                    !accountEpoch.isTradingRewardsDistributed &&
+                    globalEpoch.blockTimestamp - globalEpoch.endTimestamp < SECONDS_IN_MONTH
+                  const isLateDistribution =
+                    isPendingDistribution && globalEpoch.blockTimestamp > globalEpoch.distributionTimestamp
+
+                  const market = globalEpoch.markets[0]
+                  if (!market) {
+                    return null
+                  }
+
+                  return (
+                    <Flex py={3} key={globalEpoch.id}>
+                      <Text minWidth={MIN_COL_WIDTH}>{formatDate(globalEpoch.endTimestamp)}</Text>
+                      <Text minWidth={MIN_COL_WIDTH}>
+                        {formatBalance(
+                          {
+                            balance: accountEpoch.tradingFees,
+                            symbol: market.quoteToken.symbol,
+                            decimals: market.quoteToken.decimals,
+                          },
+                          { showDollars: true }
+                        )}
+                      </Text>
+                      <Box minWidth={MIN_COL_WIDTH} ml="auto" textAlign={isMobile ? 'left' : 'right'}>
+                        <Text>{accountEpoch.tradingRewards.map(t => formatBalance(t)).join(', ')}</Text>
+                        {isLateDistribution ? (
+                          <Text variant="secondary" color="secondaryText">
+                            Claiming delayed
+                          </Text>
+                        ) : isPendingDistribution ? (
+                          <Text variant="secondary" color="secondaryText">
+                            Claimable in&nbsp;
+                            <Countdown as="span" timestamp={globalEpoch.distributionTimestamp} />
+                          </Text>
+                        ) : null}
+                      </Box>
+                    </Flex>
+                  )
+                })}
+              </Box>
             </CardBody>
           </Card>
         ) : null}

@@ -13,7 +13,6 @@ import PortfolioPage from './pages/PortfolioPage'
 import PositionPage from './pages/PositionPage'
 import RewardsArrakisPage from './pages/RewardsArrakisPage'
 import RewardsIndexPage from './pages/RewardsIndexPage'
-import RewardsShortsPage from './pages/RewardsShortsPage'
 import RewardsTradingPage from './pages/RewardsTradingPage'
 import RewardsVaultsPage from './pages/RewardsVaultsPage'
 import StoryBookPage from './pages/StoryBookPage'
@@ -43,7 +42,6 @@ export default function PageRoutes() {
           <Route path="/rewards" element={<RewardsIndexPage />} />
           <Route path="/rewards/trading/:network" element={<RewardsTradingPage />} />
           <Route path="/rewards/vaults/:network/:marketAddressOrName" element={<RewardsVaultsPage />} />
-          <Route path="/rewards/shorts/:network" element={<RewardsShortsPage />} />
           <Route path="/rewards/arrakis" element={<RewardsArrakisPage />} />
         </>
       ) : null}

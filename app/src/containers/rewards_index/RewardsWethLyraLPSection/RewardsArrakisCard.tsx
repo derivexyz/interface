@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom'
 
 import TokenImageStack from '@/app/components/common/TokenImageStack'
 import { ZERO_BN } from '@/app/constants/bn'
+import { REWARDS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { AppNetwork } from '@/app/constants/networks'
 import { PageId } from '@/app/constants/pages'
 import fromBigNumber from '@/app/utils/fromBigNumber'
@@ -35,7 +36,7 @@ export default function RewardsArrakisCard({ arrakisStaking, ...styleProps }: Pr
       <CardBody>
         <Grid
           sx={{
-            gridTemplateColumns: `${isMobile ? '1fr 36px' : '1.8fr 1fr 1fr 0.7fr 36px'}`,
+            gridTemplateColumns: REWARDS_CARD_GRID_COLUMN_TEMPLATE,
             gridColumnGap: 4,
             alignItems: 'center',
           }}
@@ -43,7 +44,7 @@ export default function RewardsArrakisCard({ arrakisStaking, ...styleProps }: Pr
           <Flex alignItems="center">
             <TokenImageStack tokenNameOrAddresses={['eth', 'lyra']} size={32} network={AppNetwork.Ethereum} />
             <Text ml={2} variant="bodyLarge">
-              ETH-LYRA LP · Ethereum
+              Arrakis · Ethereum
             </Text>
           </Flex>
           {!isMobile ? (

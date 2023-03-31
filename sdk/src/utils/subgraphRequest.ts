@@ -4,11 +4,11 @@ import {
   NormalizedCacheObject,
   OperationVariables,
   QueryOptions,
-} from '@apollo/client'
+} from '@apollo/client/core'
 
-export default async function subgraphRequest<T = any, TVariables = OperationVariables>(
+export default async function subgraphRequest<T = any, TVariables extends OperationVariables = OperationVariables>(
   client: ApolloClient<NormalizedCacheObject>,
   options: QueryOptions<TVariables, T>
 ): Promise<ApolloQueryResult<T | null | undefined>> {
-  return client.query({ ...options, errorPolicy: 'all' })
+  return client.query<T, TVariables>({ ...options, errorPolicy: 'all' })
 }

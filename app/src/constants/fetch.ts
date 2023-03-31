@@ -37,13 +37,11 @@ export enum FetchId {
   // rewards
   // TODO: @dappbeast simplify account hooks
   RewardsPageData = 'RewardsPageData',
-  RewardsShortsPageData = 'RewardsShortsPageData',
   RewardsArrakisPageData = 'RewardsArrakisPageData',
   AccountRewardEpochs = 'AccountRewardEpochs',
   LatestRewardEpoch = 'LatestRewardEpoch',
   ArrakisOptimismAccount = 'ArrakisOptimismAccount',
   ArrakisStaking = 'ArrakisStaking',
-  ClaimableBalanceL2 = 'ClaimableBalanceL2',
   ClaimableStakingRewards = 'ClaimableStakingRewards',
   TokenSupply = 'TokenSupply',
   NetworkTradingVolume = 'NetworkTradingVolume',

@@ -20,7 +20,6 @@ export const EMPTY_LYRA_BALANCES: AccountLyraBalances = {
   ethereumStkLyra: ZERO_BN,
   optimismStkLyra: ZERO_BN,
   arbitrumStkLyra: ZERO_BN,
-  migrationAllowance: ZERO_BN,
   stakingAllowance: ZERO_BN,
 }
 

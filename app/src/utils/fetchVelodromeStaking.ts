@@ -1,14 +1,14 @@
-import { LYRA_OPTIMISM_MAINNET_ADDRESS, USDC_OPTIMISM_MAINNET_DECIMALS } from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 
 import { ZERO_BN } from '../constants/bn'
 import { ContractId, ContractMap } from '../constants/contracts'
 import { AppNetwork } from '../constants/networks'
 import { SECONDS_IN_YEAR } from '../constants/time'
-import { VELO_OPTIMISM_MAINNET_ADDRESS } from '../constants/token'
 import fetchTokenSpotPrice from './common/fetchTokenSpotPrice'
 import getContract from './common/getContract'
 import multicall, { MulticallRequest } from './common/multicall'
 import fromBigNumber from './fromBigNumber'
+import getTokenInfo from './getTokenInfo'
 
 export type VelodromeStaking = {
   tvl: number
@@ -22,6 +22,23 @@ export type VelodromeStaking = {
 export default async function fetchVelodromeStaking(address: string | null): Promise<VelodromeStaking> {
   const velodromePool = getContract(ContractId.VelodromePool, AppNetwork.Optimism)
   const velodromeStakingPool = getContract(ContractId.VelodromeStaking, AppNetwork.Optimism)
+
+  const optimismToken = getTokenInfo('OP', Network.Optimism)
+  const veloToken = getTokenInfo('VELO', Network.Optimism)
+  const usdcToken = getTokenInfo('USDC', Network.Optimism)
+
+  if (!optimismToken || !veloToken || !usdcToken) {
+    console.warn('Missing token info in tokenlist.json')
+    return {
+      tvl: 0,
+      apy: 0,
+      valuePerLPToken: 0,
+      lyraPerLPToken: 0,
+      wethPerLPToken: 0,
+      lpTokenBalance: 0,
+    }
+  }
+
   const [
     {
       returnData: [[totalSupplyBN], [poolLyraBalanceBN], [poolUsdcBalanceBN], [rewardRate]],
@@ -56,15 +73,15 @@ export default async function fetchVelodromeStaking(address: string | null): Pro
       {
         contract: velodromeStakingPool,
         function: 'rewardRate',
-        args: [VELO_OPTIMISM_MAINNET_ADDRESS],
+        args: [veloToken.address],
       },
     ]),
-    fetchTokenSpotPrice(LYRA_OPTIMISM_MAINNET_ADDRESS, AppNetwork.Optimism),
-    fetchTokenSpotPrice(VELO_OPTIMISM_MAINNET_ADDRESS, AppNetwork.Optimism),
+    fetchTokenSpotPrice(optimismToken.address, AppNetwork.Optimism),
+    fetchTokenSpotPrice(veloToken.address, AppNetwork.Optimism),
     address ? velodromeStakingPool.balanceOf(address) : ZERO_BN,
   ])
   const poolLyraBalance = fromBigNumber(poolLyraBalanceBN)
-  const poolUsdcBalance = fromBigNumber(poolUsdcBalanceBN, USDC_OPTIMISM_MAINNET_DECIMALS)
+  const poolUsdcBalance = fromBigNumber(poolUsdcBalanceBN, usdcToken.decimals)
   const totalSupply = fromBigNumber(totalSupplyBN)
   const lyraPerLPToken = totalSupply > 0 ? poolLyraBalance / totalSupply : 0
   const usdcPerLPToken = totalSupply > 0 ? poolUsdcBalance / totalSupply : 0

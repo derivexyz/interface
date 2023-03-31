@@ -45,15 +45,7 @@ export type AccountLyraBalances = {
   ethereumStkLyra: BigNumber
   optimismStkLyra: BigNumber
   arbitrumStkLyra: BigNumber
-  migrationAllowance: BigNumber
   stakingAllowance: BigNumber
-}
-
-export type ClaimableBalanceL2 = {
-  op: BigNumber
-  oldStkLyra: BigNumber
-  newStkLyra: BigNumber
-  lyra: BigNumber
 }
 
 export type AccountPnlSnapshot = {

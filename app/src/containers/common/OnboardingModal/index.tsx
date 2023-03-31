@@ -13,7 +13,6 @@ import { useEffect } from 'react'
 
 import SocketBridge from '@/app/components/common/SocketBridge'
 import { LogEvent } from '@/app/constants/logEvents'
-import { SOCKET_NATIVE_TOKEN_ADDRESS } from '@/app/constants/token'
 import useEthBalance from '@/app/hooks/account/useEthBalance'
 import useWallet from '@/app/hooks/account/useWallet'
 import withSuspense from '@/app/hooks/data/withSuspense'
@@ -22,6 +21,8 @@ import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import logEvent from '@/app/utils/logEvent'
 
 import { ONBOARDING_MODAL_WIDTH } from '../../../constants/layout'
+
+const SOCKET_NATIVE_TOKEN_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
 export type ToToken = { address: string; balance: BigNumber; symbol: string; network: Network }
 

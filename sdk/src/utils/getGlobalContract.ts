@@ -7,7 +7,6 @@ import { LyraGlobalContractMap } from '../constants/mappings'
 import LYRA_STAKING_MODULE_ABI from '../contracts/common/abis/LyraStakingModule.json'
 import MULTICALL_3_ABI from '../contracts/common/abis/Multicall3.json'
 import MULTIDISTRIBUTOR_ABI from '../contracts/common/abis/MultiDistributor.json'
-import TOKEN_MIGRATOR_ABI from '../contracts/common/abis/TokenMigrator.json'
 import COMMON_ARBITRUM_MAINNET_ADDRESS_MAP from '../contracts/common/addresses/arbitrum.addresses.json'
 import COMMON_ARBITRUM_TESTNET_ADDRESS_MAP from '../contracts/common/addresses/arbitrum-goerli.addresses.json'
 import COMMON_ETHEREUM_MAINNET_ADDRESS_MAP from '../contracts/common/addresses/ethereum.addresses.json'
@@ -42,8 +41,6 @@ const getGlobalContractABI = (contractId: LyraGlobalContractId): ContractInterfa
       return MULTIDISTRIBUTOR_ABI
     case LyraGlobalContractId.Multicall3:
       return MULTICALL_3_ABI
-    case LyraGlobalContractId.TokenMigrator:
-      return TOKEN_MIGRATOR_ABI
   }
 }
 

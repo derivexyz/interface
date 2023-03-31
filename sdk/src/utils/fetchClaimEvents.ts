@@ -1,4 +1,4 @@
-import { ApolloClient, gql, HttpLink, InMemoryCache } from '@apollo/client'
+import { ApolloClient, gql, HttpLink, InMemoryCache } from '@apollo/client/core'
 import { BigNumber } from 'ethers'
 
 import { ClaimEvent } from '../account_reward_epoch'

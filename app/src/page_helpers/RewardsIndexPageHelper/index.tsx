@@ -1,15 +1,16 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { AccountLyraBalances, ClaimableBalanceL2, LyraStakingAccount } from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, LyraStakingAccount } from '@lyrafinance/lyra-js'
+import { LyraStaking } from '@lyrafinance/lyra-js'
 import React from 'react'
 
+import { Vault } from '@/app/constants/vault'
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
 import RewardsLastUpdatedAlert from '@/app/containers/rewards_index/RewardsLastUpdatedAlert'
-import RewardsShortsSection from '@/app/containers/rewards_index/RewardsShortsSection'
 import RewardsStakingCard from '@/app/containers/rewards_index/RewardsStakingCard'
 import RewardsTradingSection from '@/app/containers/rewards_index/RewardsTradingSection'
 import RewardsVaultsSection from '@/app/containers/rewards_index/RewardsVaultsSection'
 import RewardsWethLyraLPSection from '@/app/containers/rewards_index/RewardsWethLyraLPSection'
-import { LatestRewardEpoch } from '@/app/hooks/rewards/useLatestRewardEpoch'
+import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
 import { CamelotStaking } from '@/app/utils/fetchCamelotStaking'
 import { VelodromeStaking } from '@/app/utils/fetchVelodromeStaking'
 import { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
@@ -19,9 +20,10 @@ import PageGrid from '../common/Page/PageGrid'
 
 type Props = {
   latestRewardEpochs: LatestRewardEpoch[]
+  vaults: Vault[]
   lyraBalances: AccountLyraBalances
+  lyraStaking: LyraStaking
   lyraStakingAccount: LyraStakingAccount | null
-  claimableOptimismRewards: ClaimableBalanceL2 | null
   arrakisStaking: ArrakisStaking | null
   camelotStaking: CamelotStaking | null
   velodromeStaking: VelodromeStaking | null
@@ -29,11 +31,12 @@ type Props = {
 
 const RewardsIndexPageHelper = ({
   latestRewardEpochs,
+  vaults,
   arrakisStaking,
   camelotStaking,
   velodromeStaking,
-  claimableOptimismRewards,
   lyraBalances,
+  lyraStaking,
   lyraStakingAccount,
 }: Props) => {
   const isMobile = useIsMobile()
@@ -46,12 +49,11 @@ const RewardsIndexPageHelper = ({
         <RewardsStakingCard
           latestRewardEpochs={latestRewardEpochs}
           lyraBalances={lyraBalances}
+          lyraStaking={lyraStaking}
           lyraStakingAccount={lyraStakingAccount}
-          claimableOptimismRewards={claimableOptimismRewards}
         />
-        <RewardsVaultsSection latestRewardEpochs={latestRewardEpochs} />
-        <RewardsTradingSection latestRewardEpochs={latestRewardEpochs} lyraBalances={lyraBalances} />
-        <RewardsShortsSection latestRewardEpochs={latestRewardEpochs} />
+        <RewardsVaultsSection vaults={vaults} />
+        <RewardsTradingSection latestRewardEpochs={latestRewardEpochs} />
         <RewardsWethLyraLPSection
           arrakisStaking={arrakisStaking}
           camelotStaking={camelotStaking}

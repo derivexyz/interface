@@ -13,7 +13,6 @@ export default async function fetchLyraBalances(lyra: Lyra, owner: string): Prom
     mainnetStkLYRA: string
     opStkLYRA: string
     arbitrumStkLYRA: string
-    migrationAllowance: string
     stakingAllowance: string
   }>(`${lyra.apiUri}/lyra-balances?&owner=${owner}`)
   return {
@@ -24,7 +23,6 @@ export default async function fetchLyraBalances(lyra: Lyra, owner: string): Prom
     ethereumStkLyra: BigNumber.from(data.mainnetStkLYRA),
     optimismStkLyra: BigNumber.from(data.opStkLYRA),
     arbitrumStkLyra: BigNumber.from(data.arbitrumStkLYRA),
-    migrationAllowance: BigNumber.from(data.migrationAllowance),
     stakingAllowance: BigNumber.from(data.stakingAllowance),
   }
 }

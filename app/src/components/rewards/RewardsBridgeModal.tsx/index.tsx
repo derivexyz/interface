@@ -53,9 +53,9 @@ export default function RewardsBridgeModal({ balances, isOpen, onClose, isStkLYR
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Bridge ${isStkLYRA ? 'stkLYRA' : 'LYRA'}`} centerTitle>
+    <Modal isOpen={isOpen} onClose={onClose} title={`Bridge ${isStkLYRA ? 'stkLYRA' : 'LYRA'}`}>
       <ModalBody>
-        <Text color="secondaryText" textAlign="center" mb={8}>
+        <Text color="secondaryText" mb={8}>
           {isStkLYRA
             ? 'Bridge your stkLYRA balance to Ethereum mainnet to earn staking rewards and boosts on your trading and vault rewards. The slow bridge will send your stkLYRA after 7 days.'
             : `Bridge your LYRA balance to Ethereum mainnet to stake and earn boosts on your trading and vault rewards. 

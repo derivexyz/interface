@@ -54,7 +54,7 @@ const ConnectWalletButton = withSuspense(
 
     let buttonLabel = 'Connected'
     if (isOverride && account) {
-      buttonLabel = `Watching ${formatTruncatedAddress(account)}`
+      buttonLabel = `Stop watching ${formatTruncatedAddress(account)}`
     } else if (isWrongNetwork) {
       buttonLabel = `Switch to ${getNetworkDisplayName(network)}`
     } else if (!isConnected) {
@@ -95,7 +95,7 @@ const ConnectWalletButton = withSuspense(
         {...styleProps}
         size={size}
         isLoading={isLoading && isConnectModalOpen}
-        isDisabled={isConnected && !isWrongNetwork}
+        isDisabled={isConnected && !isOverride && !isWrongNetwork}
         variant={variant}
         label={buttonLabel}
         onClick={onClick}

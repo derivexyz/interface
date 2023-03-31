@@ -22,15 +22,11 @@ const getPositionPath = (args: PageArgsMap[PageId.Position]): string => {
 }
 
 const getRewardsTradingPath = (args: PageArgsMap[PageId.RewardsTrading]): string => {
-  return `/rewards/trading/${args.network}`
+  return `/rewards/trading/${args.network}`.toLowerCase()
 }
 
 const getRewardsVaultsPath = (args: PageArgsMap[PageId.RewardsVaults]): string => {
-  return `/rewards/vaults/${args.network}/${args.marketAddressOrName}`
-}
-
-const getRewardsShortsPath = (args: PageArgsMap[PageId.RewardsShorts]): string => {
-  return `/rewards/shorts/${args.network}`
+  return `/rewards/vaults/${args.network}/${args.marketAddressOrName}`.toLowerCase()
 }
 
 // TODO: @dappbeast Fix page path typescript in switch statement
@@ -65,8 +61,6 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
       return getRewardsTradingPath(args as PageArgsMap[PageId.RewardsTrading])
     case PageId.RewardsVaults:
       return getRewardsVaultsPath(args as PageArgsMap[PageId.RewardsVaults])
-    case PageId.RewardsShorts:
-      return getRewardsShortsPath(args as PageArgsMap[PageId.RewardsShorts])
     case PageId.RewardsArrakis:
       return '/rewards/arrakis'
     case PageId.NotFound:
@@ -75,7 +69,7 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
 }
 
 const getPagePath = <T extends keyof PageArgsMap>(args: PagePathArgs<T>, includeHost = false): string => {
-  const path = getRelativePagePath(args)
+  const path = getRelativePagePath(args).toLowerCase()
   return includeHost ? `${getHostname()}${path}` : path
 }
 

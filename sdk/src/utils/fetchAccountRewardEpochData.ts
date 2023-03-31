@@ -11,7 +11,6 @@ export type AccountRewardEpochData = {
   stakingRewards: AccountStakingRewards
   mmvRewards: AccountMMVRewards
   tradingRewards: AccountTradingRewards
-  arrakisRewards?: AccountArrakisRewards
   integratorTradingRewards?: AccountTradingRewards
 }
 
@@ -34,20 +33,12 @@ export type AccountTradingRewards = {
   fees: number
   effectiveRebateRate: number
   tradingRebateRewardDollars: number
-  shortCollateralRewardDollars: number
   totalTradingRewardDollars: number
   shortCallSeconds: number
   shortPutSeconds: number
   rewards: {
     trading: RewardEpochTokenAmount[]
-    shortCollateral: RewardEpochTokenAmount[]
   }
-}
-
-export type AccountArrakisRewards = {
-  rewards?: RewardEpochTokenAmount[]
-  gUniTokensStaked: number
-  percentShare: number
 }
 
 export default async function fetchAccountRewardEpochData(

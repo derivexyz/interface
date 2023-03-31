@@ -1,4 +1,3 @@
-import { LYRA_ARBITRUM_MAINNET_ADDRESS, WETH_ARBITRUM_MAINNET_ADDRESS } from '@lyrafinance/lyra-js'
 import { BigNumber } from 'ethers'
 
 import { ContractId, ContractMap } from '../constants/contracts'
@@ -11,6 +10,7 @@ import getContract from './common/getContract'
 import getERC20Contract from './common/getERC20Contract'
 import multicall, { MulticallRequest } from './common/multicall'
 import fromBigNumber from './fromBigNumber'
+import getTokenInfo from './getTokenInfo'
 
 export type CamelotStaking = {
   tvl: number
@@ -34,8 +34,23 @@ const fetchNitroPoolData = async (): Promise<CamelotNitroPoolData | null> => {
 }
 
 export default async function fetchCamelotStaking(address: string | null): Promise<CamelotStaking> {
-  const lyra = getERC20Contract(AppNetwork.Arbitrum, LYRA_ARBITRUM_MAINNET_ADDRESS)
-  const weth = getERC20Contract(AppNetwork.Arbitrum, WETH_ARBITRUM_MAINNET_ADDRESS)
+  const lyraAddress = getTokenInfo('LYRA', AppNetwork.Arbitrum)?.address
+  const wethAddress = getTokenInfo('WETH', AppNetwork.Arbitrum)?.address
+
+  if (!lyraAddress || !wethAddress) {
+    console.warn('Missing token info in tokenlist.json')
+    return {
+      tvl: 0,
+      apy: 0,
+      valuePerLPToken: 0,
+      lyraPerLPToken: 0,
+      wethPerLPToken: 0,
+      lpTokenBalance: 0,
+    }
+  }
+
+  const lyra = getERC20Contract(AppNetwork.Arbitrum, lyraAddress)
+  const weth = getERC20Contract(AppNetwork.Arbitrum, wethAddress)
   const camelotPool = getContract(ContractId.CamelotPool, AppNetwork.Arbitrum)
   const camelotNitroPool = getContract(ContractId.CamelotNitroPool, AppNetwork.Arbitrum)
   const [
@@ -71,8 +86,8 @@ export default async function fetchCamelotStaking(address: string | null): Promi
       },
     ]),
     fetchNitroPoolData(),
-    fetchTokenSpotPrice(LYRA_ARBITRUM_MAINNET_ADDRESS, AppNetwork.Arbitrum),
-    fetchTokenSpotPrice(WETH_ARBITRUM_MAINNET_ADDRESS, AppNetwork.Arbitrum),
+    fetchTokenSpotPrice(lyraAddress, AppNetwork.Arbitrum),
+    fetchTokenSpotPrice(wethAddress, AppNetwork.Arbitrum),
     address ? camelotNitroPool.userInfo(address) : null,
   ])
 

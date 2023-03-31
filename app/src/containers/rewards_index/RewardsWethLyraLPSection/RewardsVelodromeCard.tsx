@@ -14,6 +14,7 @@ import { useMemo } from 'react'
 
 import TokenImageStack from '@/app/components/common/TokenImageStack'
 import { ZERO_BN } from '@/app/constants/bn'
+import { REWARDS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { VELODROME_ADD_LIQUIDITY_URL } from '@/app/constants/links'
 import { AppNetwork } from '@/app/constants/networks'
 import { VelodromeStaking } from '@/app/utils/fetchVelodromeStaking'
@@ -33,7 +34,7 @@ export default function RewardsVelodromeCard({ velodromeStaking, ...styleProps }
       <CardBody>
         <Grid
           sx={{
-            gridTemplateColumns: isMobile ? '1fr 36px' : '1.8fr 1fr 1fr 0.7fr 36px',
+            gridTemplateColumns: REWARDS_CARD_GRID_COLUMN_TEMPLATE,
             gridColumnGap: 4,
             alignItems: 'center',
           }}
@@ -41,32 +42,36 @@ export default function RewardsVelodromeCard({ velodromeStaking, ...styleProps }
           <Flex alignItems="center">
             <TokenImageStack tokenNameOrAddresses={['usdc', 'lyra']} size={32} network={AppNetwork.Optimism} />
             <Text ml={2} variant="bodyLarge">
-              USDC-LYRA LP · Optimism
+              Velodrome · Optimism
             </Text>
           </Flex>
-          <Flex alignItems="center">
-            <Text mr={2} color="secondaryText" variant="bodyLarge">
-              TVL
-            </Text>
-            <Text variant="bodyLarge">{formatTruncatedUSD(velodromeStaking?.tvl ?? ZERO_BN)}</Text>
-          </Flex>
-          <Flex>
-            <Text mr={2} color="secondaryText" variant="bodyLarge">
-              Your Liquidity
-            </Text>
-            <Text variant="bodyLarge">{formatTruncatedUSD(balance)}</Text>
-          </Flex>
-          <Flex ml="auto">
-            <Text mr={2} color="secondaryText" variant="bodyLarge">
-              APY
-            </Text>
-            <Text
-              variant="bodyLarge"
-              color={velodromeStaking && velodromeStaking.lpTokenBalance > 0 ? 'primaryText' : 'text'}
-            >
-              {formatPercentage(velodromeStaking?.apy ?? 0, true)}
-            </Text>
-          </Flex>
+          {!isMobile ? (
+            <>
+              <Flex alignItems="center">
+                <Text mr={2} color="secondaryText" variant="bodyLarge">
+                  TVL
+                </Text>
+                <Text variant="bodyLarge">{formatTruncatedUSD(velodromeStaking?.tvl ?? ZERO_BN)}</Text>
+              </Flex>
+              <Flex>
+                <Text mr={2} color="secondaryText" variant="bodyLarge">
+                  Your Liquidity
+                </Text>
+                <Text variant="bodyLarge">{formatTruncatedUSD(balance)}</Text>
+              </Flex>
+              <Flex ml="auto">
+                <Text mr={2} color="secondaryText" variant="bodyLarge">
+                  APY
+                </Text>
+                <Text
+                  variant="bodyLarge"
+                  color={velodromeStaking && velodromeStaking.lpTokenBalance > 0 ? 'primaryText' : 'text'}
+                >
+                  {formatPercentage(velodromeStaking?.apy ?? 0, true)}
+                </Text>
+              </Flex>
+            </>
+          ) : null}
           <Flex ml="auto">
             <IconButton icon={IconType.ArrowUpRight} />
           </Flex>

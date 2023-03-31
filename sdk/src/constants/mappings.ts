@@ -12,7 +12,7 @@ import {
   AvalonSynthetixAdapter,
   AvalonTestFaucet,
 } from '../contracts/avalon/typechain'
-import { LyraStakingModule, Multicall3, MultiDistributor, TokenMigrator } from '../contracts/common/typechain'
+import { LyraStakingModule, Multicall3, MultiDistributor } from '../contracts/common/typechain'
 import {
   NewportGMXAdapter,
   NewportGMXFuturesPoolHedger,
@@ -82,5 +82,4 @@ export type LyraGlobalContractMap = {
   [LyraGlobalContractId.MultiDistributor]: MultiDistributor
   [LyraGlobalContractId.Multicall3]: Multicall3
   [LyraGlobalContractId.LyraStakingModule]: LyraStakingModule
-  [LyraGlobalContractId.TokenMigrator]: TokenMigrator
 }

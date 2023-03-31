@@ -3,8 +3,8 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 
 import withSuspense from '../hooks/data/withSuspense'
-import useFindMarket from '../hooks/market/useFindMarket'
 import useRewardsPageData from '../hooks/rewards/useRewardsPageData'
+import useFindVault from '../hooks/vaults/useFindVault'
 import PageError from '../page_helpers/common/Page/PageError'
 import PageLoading from '../page_helpers/common/Page/PageLoading'
 import RewardsVaultsPageHelper from '../page_helpers/RewardsVaultsPageHelper'
@@ -15,23 +15,21 @@ const RewardsVaultsPage = withSuspense(
   (): JSX.Element => {
     const { network: networkStr, marketAddressOrName = null } = useParams()
     const network = coerce(Network, networkStr) ?? null
-    const { epochs } = useRewardsPageData()
+    const data = useRewardsPageData()
+    const epochData = network && data ? data.epochs[network] : null
+    const vault = useFindVault(data?.vaults ?? null, network, marketAddressOrName)
 
-    const epochData = network ? epochs[network] : null
-
-    const market = useFindMarket(epochData?.latestRewardEpoch?.global.markets ?? [], network, marketAddressOrName)
     if (!epochData) {
       return <PageError error="Error finding page data" />
-    } else if (!market || !network) {
-      return <PageError error="Market does not exist" />
+    } else if (!vault || !network) {
+      return <PageError error="Vault does not exist" />
     }
 
     return (
       <RewardsVaultsPageHelper
-        market={market}
-        latestRewardEpoch={epochData.latestRewardEpoch}
+        vault={vault}
+        latestGlobalRewardEpoch={epochData.latestRewardEpoch.global}
         accountRewardEpochs={epochData.accountRewardEpochs}
-        globalRewardEpochs={epochData.globalRewardEpochs}
       />
     )
   },

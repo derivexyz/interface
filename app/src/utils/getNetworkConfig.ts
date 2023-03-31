@@ -2,8 +2,8 @@ import { AppChain, AppNetwork, Network, NETWORK_CONFIGS, NetworkConfig } from '.
 import isMainnet from './isMainnet'
 import resolveNetwork from './resolveNetwork'
 
-const getChainForNetwork = (network: AppNetwork): AppChain => {
-  if (isMainnet()) {
+const getChainForNetwork = (network: AppNetwork, useMainnet?: boolean): AppChain => {
+  if (isMainnet() || useMainnet) {
     switch (network) {
       case AppNetwork.Arbitrum:
         return AppChain.Arbitrum
@@ -24,6 +24,6 @@ const getChainForNetwork = (network: AppNetwork): AppChain => {
   }
 }
 
-export default function getNetworkConfig(network: Network): NetworkConfig {
-  return NETWORK_CONFIGS[getChainForNetwork(resolveNetwork(network))]
+export default function getNetworkConfig(network: Network, useMainnet?: boolean): NetworkConfig {
+  return NETWORK_CONFIGS[getChainForNetwork(resolveNetwork(network), useMainnet)]
 }

@@ -15,8 +15,8 @@ const RewardsTradingPage = withSuspense(
     const { network: networkStr } = useParams()
     const network = coerce(Network, networkStr) ?? null
 
-    const { epochs } = useRewardsPageData()
-    const epochData = network ? epochs[network] : null
+    const data = useRewardsPageData()
+    const epochData = network && data ? data.epochs[network] : null
     if (!epochData) {
       return <PageError errorCode="500" error="Error finding page data" />
     } else if (!network) {
@@ -27,7 +27,6 @@ const RewardsTradingPage = withSuspense(
       <RewardsTradingPageHelper
         latestRewardEpoch={epochData.latestRewardEpoch}
         accountRewardEpochs={epochData.accountRewardEpochs}
-        globalRewardEpochs={epochData.globalRewardEpochs}
       />
     )
   },

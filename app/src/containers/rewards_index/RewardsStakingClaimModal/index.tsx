@@ -26,7 +26,7 @@ const ClaimableBalanceText = withSuspense(
 
 const RewardsStakingClaimModal = withSuspense(({ isOpen, onClose }: Props): JSX.Element => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Claim stkLYRA" centerTitle>
+    <Modal isOpen={isOpen} onClose={onClose} title="Claim stkLYRA">
       <ModalBody>
         <Text color="secondaryText">
           When you claim stkLYRA, it gets added to your stkLYRA balance. This increases your rewards and contributes to

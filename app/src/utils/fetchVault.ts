@@ -24,6 +24,7 @@ const fetchVault = async (network: Network, market: Market, walletAddress?: stri
     lyra.deposits(market.address, account.address),
     lyra.withdrawals(market.address, account.address),
   ])
+
   const marketBalances =
     balances.find(balance => balance.market.isEqual(market.address)) ?? getEmptyMarketBalances(ZERO_ADDRESS, market)
 

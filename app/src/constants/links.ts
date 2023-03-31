@@ -43,6 +43,7 @@ export const DYNAMIC_FEES_DOC_URL =
 export const SHORT_COLLATERAL_REWARDS_DOC_URL =
   'https://docs.lyra.finance/governance/incentives#short-collateral-rewards'
 export const TRADING_CUTOFF_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/trading#trading-cutoffs'
+export const REWARDS_MIGRATION_DOC_URL = 'https://gov.lyra.finance/rewards/migrations'
 
 export const SWAP_LYRA_1INCH_URL = 'https://app.1inch.io/#/1/simple/swap/ETH/LYRA'
 

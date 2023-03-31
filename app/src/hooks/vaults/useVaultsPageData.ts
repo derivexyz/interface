@@ -10,7 +10,7 @@ import getLyraSDK from '@/app/utils/getLyraSDK'
 import useWallet from '../account/useWallet'
 import useFetch, { useMutate } from '../data/useFetch'
 
-const fetcher = async (walletAddress?: string): Promise<Vault[]> => {
+export const fetchVaults = async (walletAddress?: string): Promise<Vault[]> => {
   const vaults = await Promise.all(
     Object.values(Network).map(async network => {
       const lyra = getLyraSDK(network)
@@ -32,12 +32,12 @@ const EMPTY: Vault[] = []
 
 export default function useVaultsPageData(): Vault[] {
   const { account } = useWallet()
-  const [vaultStats] = useFetch(FetchId.VaultsTableData, [account], fetcher, { refreshInterval: 30 * 1000 })
+  const [vaultStats] = useFetch(FetchId.VaultsTableData, [account], fetchVaults, { refreshInterval: 30 * 1000 })
   return vaultStats ?? EMPTY
 }
 
 export function useMutateVaultsPageData() {
   const { account } = useWallet()
-  const mutate = useMutate(FetchId.VaultsTableData, fetcher)
+  const mutate = useMutate(FetchId.VaultsTableData, fetchVaults)
   return useCallback(() => mutate(account), [mutate, account])
 }

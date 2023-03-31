@@ -1,4 +1,4 @@
-import { ApolloClient, gql, HttpLink, InMemoryCache } from '@apollo/client'
+import { ApolloClient, gql, HttpLink, InMemoryCache } from '@apollo/client/core'
 import { BigNumber } from 'ethers'
 
 import { ClaimAddedEvent } from '../account_reward_epoch'
@@ -38,14 +38,19 @@ export default async function fetchClaimAddedEvents(
     },
   })
   return (
-    data?.claimAddeds.map(ev => ({
-      amount: BigNumber.from(ev.amount),
-      blockNumber: ev.blockNumber,
-      claimer: ev.claimer,
-      epochTimestamp: parseInt(ev.epochTimestamp),
-      rewardToken: ev.rewardToken,
-      timestamp: ev.timestamp,
-      tag: ev.tag,
-    })) ?? []
+    data?.claimAddeds
+      .map(ev => ({
+        amount: BigNumber.from(ev.amount),
+        blockNumber: ev.blockNumber,
+        claimer: ev.claimer,
+        epochTimestamp: parseInt(ev.epochTimestamp),
+        rewardToken: ev.rewardToken,
+        timestamp: ev.timestamp,
+        tag: ev.tag,
+      }))
+      // HACK @michaelxuwu - Filter claimAdded mistake
+      .filter(
+        event => event.rewardToken.toLowerCase() !== '0xCb9f85730f57732fc899fb158164b9Ed60c77D49'.toLowerCase()
+      ) ?? []
   )
 }

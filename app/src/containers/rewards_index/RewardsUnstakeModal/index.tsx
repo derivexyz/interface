@@ -31,7 +31,6 @@ export default function RewardsUnstakeModal({
           ? 'Request Sent'
           : 'Request to Unstake'
       }
-      centerTitle
     >
       {lyraStakingAccount?.isInUnstakeWindow ? (
         <UnstakeModalBody

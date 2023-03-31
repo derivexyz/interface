@@ -5,8 +5,8 @@ import { LayoutProps } from '@lyra/ui/types'
 import React from 'react'
 import { useMemo } from 'react'
 
-import tokenList from '@/app/constants/tokenlist.json'
 import getAssetSrc from '@/app/utils/getAssetSrc'
+import getTokenInfo from '@/app/utils/getTokenInfo'
 
 type Props = {
   nameOrAddress: string
@@ -21,14 +21,7 @@ export default function TokenImage({ nameOrAddress, size = 32, ...styleProps }: 
     if (nameOrAddress.toLowerCase() === 'eth') {
       return '/images/ethereum-logo.png'
     }
-    return (
-      tokenList.tokens.find(
-        token =>
-          token.address.toLowerCase() === nameOrAddress.toLowerCase() ||
-          token.symbol.toLowerCase() === nameOrAddress.toLowerCase() ||
-          token.name.toLowerCase() === nameOrAddress.toLowerCase()
-      )?.logoURI ?? ''
-    )
+    return getTokenInfo(nameOrAddress)?.logoURI ?? ''
   }, [nameOrAddress])
   return (
     <Image

@@ -7,4 +7,3 @@ export { LyraStakingModuleProxy__factory } from "./LyraStakingModuleProxy__facto
 export { MultiDistributor__factory } from "./MultiDistributor__factory";
 export { Multicall3__factory } from "./Multicall3__factory";
 export { OneInchOffChainOracle__factory } from "./OneInchOffChainOracle__factory";
-export { TokenMigrator__factory } from "./TokenMigrator__factory";

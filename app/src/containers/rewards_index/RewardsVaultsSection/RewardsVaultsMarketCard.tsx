@@ -7,57 +7,52 @@ import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { AccountRewardEpoch, GlobalRewardEpoch, Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import MarketImage from '@/app/components/common/MarketImage'
 import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
-import { UNIT, ZERO_BN } from '@/app/constants/bn'
 import { REWARDS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
+import { Vault } from '@/app/constants/vault'
 import formatAPY from '@/app/utils/formatAPY'
 import formatAPYRange from '@/app/utils/formatAPYRange'
 import formatTokenName from '@/app/utils/formatTokenName'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
-import getUniqueRewardTokenAmounts from '@/app/utils/getUniqueRewardTokenAmounts'
+import sumRewardTokenAmounts from '@/app/utils/sumRewardTokenAmounts'
 
 type Props = {
-  accountRewardEpoch?: AccountRewardEpoch | null
-  globalRewardEpoch: GlobalRewardEpoch
-  market: Market
+  vault: Vault
 }
 
-const RewardsVaultsMarketCard = ({ accountRewardEpoch, globalRewardEpoch, market }: Props) => {
+const RewardsVaultsMarketCard = ({ vault }: Props) => {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
 
-  const minApy = globalRewardEpoch.minVaultApy(market.address)
-  const userApy = accountRewardEpoch?.vaultApy(market.address) ?? minApy
-  const { vaultRewards, liquidityTokenBalanceValue, maxRewardToken } = useMemo(() => {
-    const emptyVaultRewards = globalRewardEpoch.totalVaultRewards(market.address).map(t => ({ ...t, amount: 0 }))
-    const pendingVaultRewards = accountRewardEpoch?.vaultRewards(market.address) ?? emptyVaultRewards
-    const claimableVaultRewards = accountRewardEpoch?.claimableVaultRewards(market.address) ?? emptyVaultRewards
-    const vaultRewards = getUniqueRewardTokenAmounts([...pendingVaultRewards, ...claimableVaultRewards])
-    const maxRewardToken = vaultRewards.reduce(
-      (maxRewardToken, r) => (maxRewardToken.amount > r.amount ? maxRewardToken : r),
-      vaultRewards[0]
-    )
+  const accountRewardEpoch = vault.accountRewardEpoch
+  const globalRewardEpoch = vault.globalRewardEpoch
+  const market = vault.market
+  const firstRewardToken = vault.globalRewardEpoch?.tradingRewardTokens[0]
 
-    const marketLiquidity = globalRewardEpoch.marketsLiquidity.find(marketLiquidity =>
-      marketLiquidity.market.isEqual(market.address)
-    )
-    const liquidityTokenBalance = accountRewardEpoch?.vaultTokenBalances[market.baseToken.symbol].balance ?? ZERO_BN
-    const liquidityTokenBalanceValue = marketLiquidity?.tokenPrice.mul(liquidityTokenBalance).div(UNIT) ?? ZERO_BN
-
-    return {
-      vaultRewards: getUniqueRewardTokenAmounts([...pendingVaultRewards, ...claimableVaultRewards]),
-      maxRewardToken,
-      liquidityTokenBalanceValue,
+  const vaultRewards = useMemo(() => {
+    if (!globalRewardEpoch || !firstRewardToken) {
+      return null
     }
-  }, [accountRewardEpoch, globalRewardEpoch, market])
+
+    const pendingVaultRewards = accountRewardEpoch?.vaultRewards(market.address) ?? []
+    const claimableVaultRewards = accountRewardEpoch?.totalClaimableVaultRewards(market.address) ?? []
+    const vaultRewards = sumRewardTokenAmounts([...pendingVaultRewards, ...claimableVaultRewards])
+
+    return (vaultRewards.length ? vaultRewards : globalRewardEpoch.vaultRewardTokens.map(t => ({ ...t, amount: 0 })))[0]
+  }, [accountRewardEpoch, firstRewardToken, globalRewardEpoch, market.address])
+
+  const liquidityTokenBalanceValue = vault.liquidityTokenBalanceValue
+
+  if (!firstRewardToken || !vaultRewards) {
+    return null
+  }
 
   return (
     <Card
@@ -95,7 +90,7 @@ const RewardsVaultsMarketCard = ({ accountRewardEpoch, globalRewardEpoch, market
           <Flex alignItems="center">
             <MarketImage market={market} />
             <Text ml={2} variant="bodyLarge">
-              {formatTokenName(market.baseToken)} · {getNetworkDisplayName(market.lyra.network)}
+              {formatTokenName(market.baseToken)} Vault · {getNetworkDisplayName(market.lyra.network)}
             </Text>
           </Flex>
           {!isMobile ? (
@@ -110,14 +105,10 @@ const RewardsVaultsMarketCard = ({ accountRewardEpoch, globalRewardEpoch, market
                 <Text mr={2} color="secondaryText" variant="bodyLarge">
                   APY
                 </Text>
-                {liquidityTokenBalanceValue.isZero() ? (
-                  <Text variant="bodyLarge">
-                    {formatAPYRange(minApy, globalRewardEpoch.maxVaultApy(market.address), { showSymbol: false })}
-                  </Text>
+                {!liquidityTokenBalanceValue ? (
+                  <Text variant="bodyLarge">{formatAPYRange(vault.minApy, vault.maxApy, { showSymbol: false })}</Text>
                 ) : (
-                  <Text color="primaryText" variant="bodyLarge">
-                    {formatAPY(userApy, { showSymbol: false })}
-                  </Text>
+                  <Text variant="bodyLarge">{formatAPY(vault.apy, { showSymbol: false })}</Text>
                 )}
               </Flex>
               <Flex ml="auto">
@@ -125,9 +116,9 @@ const RewardsVaultsMarketCard = ({ accountRewardEpoch, globalRewardEpoch, market
                   Rewards
                 </Text>
                 <RewardTokenAmounts
-                  color={vaultRewards.some(t => t.amount > 0.001) ? 'primaryText' : 'text'}
+                  color={vaultRewards.amount > 0.001 ? 'primaryText' : 'text'}
                   variant="bodyLarge"
-                  tokenAmounts={[maxRewardToken]}
+                  tokenAmounts={[vaultRewards]}
                   hideTokenImages={true}
                 />
               </Flex>

@@ -15,7 +15,7 @@ export default function PageGrid({ children }: Props): JSX.Element {
         alignContent: 'start',
         justifyContent: 'start',
       }}
-      pb={[0, 12]}
+      pb={[0, 112]}
     >
       {children}
     </Grid>
