@@ -31,9 +31,9 @@ export type NetworkConfig = {
   readRpcUrls: string[]
   blockExplorerUrl: string
   iconUrls: string[]
-  gasBuffer?: number
-  maxGas?: BigNumber
-  minGas?: BigNumber
+  gasBuffer: number
+  maxGas: BigNumber
+  minGas: BigNumber
   faucetUrl?: string
   nativeBridgeUrl?: string
   fastBridgeUrl?: string
@@ -128,6 +128,9 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     ]),
     blockExplorerUrl: 'https://etherscan.io/',
     iconUrls: [],
+    gasBuffer: 1.1,
+    minGas: BigNumber.from(22000),
+    maxGas: BigNumber.from(15000000),
   },
   [AppChain.EthereumGoerli]: {
     name: 'Ethereum Goerli',
@@ -138,5 +141,8 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     readRpcUrls: [`https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`],
     blockExplorerUrl: 'https://goerli.etherscan.io/',
     iconUrls: [],
+    gasBuffer: 1.1,
+    minGas: BigNumber.from(22000),
+    maxGas: BigNumber.from(15000000),
   },
 }

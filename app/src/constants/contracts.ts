@@ -10,6 +10,7 @@ import {
   VelodromePool,
   VelodromeStaking,
 } from '../contracts/typechain'
+import { LyraStaking } from '../contracts/typechain/LyraStaking'
 import { ONE_BN } from './bn'
 
 export const MIN_COLLATERAL_BUFFER = 1.05 // 5% buffer
@@ -47,6 +48,7 @@ export enum ContractId {
   VelodromePool = 'VelodromePool',
   VelodromeStaking = 'VelodromeStaking',
   Multicall3 = 'Multicall3',
+  LyraStaking = 'LyraStaking',
 }
 
 export type ContractMap = {
@@ -59,4 +61,5 @@ export type ContractMap = {
   [ContractId.VelodromePool]: VelodromePool
   [ContractId.VelodromeStaking]: VelodromeStaking
   [ContractId.Multicall3]: Multicall3
+  [ContractId.LyraStaking]: LyraStaking
 }

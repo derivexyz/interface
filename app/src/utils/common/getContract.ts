@@ -8,6 +8,7 @@ import ARRAKIS_POOL_L2_ABI from '../../contracts/abis/ArrakisPoolL2.json'
 import ARRAKIS_STAKING_REWARDS_ABI from '../../contracts/abis/ArrakisStakingRewards.json'
 import CAMELOT_NITRO_POOL_ABI from '../../contracts/abis/CamelotNitroPool.json'
 import CAMELOT_POOL_ABI from '../../contracts/abis/CamelotPool.json'
+import LYRA_STAKING_ABI from '../../contracts/abis/LyraStaking.json'
 import MULTICALL_ABI from '../../contracts/abis/Multicall3.json'
 import VELODROME_POOL_ABI from '../../contracts/abis/VelodromePool.json'
 import VELODROME_STAKING_ABI from '../../contracts/abis/VelodromeStaking.json'
@@ -39,6 +40,8 @@ const getContractABI = (contractId: ContractId): ContractInterface => {
       return VELODROME_POOL_ABI
     case ContractId.VelodromeStaking:
       return VELODROME_STAKING_ABI
+    case ContractId.LyraStaking:
+      return LYRA_STAKING_ABI
   }
 }
 

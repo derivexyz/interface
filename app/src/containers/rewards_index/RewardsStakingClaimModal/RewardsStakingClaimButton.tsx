@@ -1,6 +1,7 @@
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import React from 'react'
 
+import { ContractId } from '@/app/constants/contracts'
 import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
@@ -9,7 +10,7 @@ import withSuspense from '@/app/hooks/data/withSuspense'
 import useClaimableStakingRewards, {
   useMutateClaimableStakingRewards,
 } from '@/app/hooks/rewards/useClaimableStakingRewards'
-import { lyraOptimism } from '@/app/utils/lyra'
+import getContract from '@/app/utils/common/getContract'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -28,15 +29,21 @@ const RewardsStakingClaimButton = withSuspense(
       if (!account) {
         return
       }
-      const tx = await lyraOptimism.claimStakingRewards(account)
-      await execute(tx, TransactionType.ClaimStakedLyraRewards, {
-        onComplete: () => {
-          mutateClaimableBalance()
-          if (onClaim) {
-            onClaim()
-          }
-        },
-      })
+
+      const lyraStaking = getContract(ContractId.LyraStaking, AppNetwork.Ethereum)
+
+      await execute(
+        { contract: lyraStaking, method: 'claimRewards', params: [account, claimableBalances] },
+        TransactionType.ClaimStakedLyraRewards,
+        {
+          onComplete: () => {
+            mutateClaimableBalance()
+            if (onClaim) {
+              onClaim()
+            }
+          },
+        }
+      )
     }
 
     return (

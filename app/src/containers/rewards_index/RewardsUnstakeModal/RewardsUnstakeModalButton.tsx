@@ -1,10 +1,10 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import Box from '@lyra/ui/components/Box'
 import { MarginProps } from '@lyra/ui/types'
-import { AccountLyraBalances, LyraStakingAccount, Network } from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, LyraStakingAccount } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 
-import { ZERO_BN } from '@/app/constants/bn'
+import { ContractId } from '@/app/constants/contracts'
 import { LogEvent } from '@/app/constants/logEvents'
 import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
@@ -12,8 +12,8 @@ import { useMutateAccountLyraBalances } from '@/app/hooks/account/useAccountLyra
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
+import getContract from '@/app/utils/common/getContract'
 import logEvent from '@/app/utils/logEvent'
-import { lyraOptimism } from '@/app/utils/lyra'
 
 import TransactionButton from '../../common/TransactionButton'
 
@@ -26,20 +26,23 @@ type Props = {
 
 const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStakingAccount, onClose, ...styleProps }: Props) => {
   const account = useWalletAccount()
-  const execute = useTransaction(Network.Optimism)
+  const execute = useTransaction(AppNetwork.Ethereum)
   const mutateRewardsPageData = useMutateRewardsPageData()
   const mutateLyraBalances = useMutateAccountLyraBalances()
+
   const handleClickRequestUnstake = useCallback(async () => {
     if (!account) {
       console.warn('Account or unstake does not exist')
       return
     }
     logEvent(LogEvent.UnstakeLyraSubmit, { unstakeAmount: amount })
-    const tx = await lyraOptimism.requestUnstake(account)
-    await execute(tx, TransactionType.UnstakeLyra, {
+
+    const lyraStaking = getContract(ContractId.LyraStaking, AppNetwork.Ethereum)
+
+    await execute({ contract: lyraStaking, method: 'cooldown', params: [] }, TransactionType.UnstakeLyra, {
       onComplete: async () => {
         logEvent(LogEvent.UnstakeLyraSuccess, { unstakeAmount: amount })
-        await Promise.all([mutateRewardsPageData()])
+        await mutateRewardsPageData()
       },
     })
   }, [amount, account, execute, mutateRewardsPageData])
@@ -49,12 +52,17 @@ const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStakingAccount, o
       console.warn('Account does not exist')
       return
     }
-    const tx = await lyraOptimism.unstake(account, amount ?? ZERO_BN)
-    if (tx) {
-      await execute(tx, TransactionType.UnstakeLyra, {
-        onComplete: async () => await Promise.all([mutateRewardsPageData(), mutateLyraBalances()]),
-      })
+
+    if (!amount) {
+      console.warn('Amount not defined')
+      return
     }
+
+    const lyraStaking = getContract(ContractId.LyraStaking, AppNetwork.Ethereum)
+
+    await execute({ contract: lyraStaking, method: 'redeem', params: [account, amount] }, TransactionType.UnstakeLyra, {
+      onComplete: async () => await Promise.all([mutateRewardsPageData(), mutateLyraBalances()]),
+    })
     onClose && onClose()
   }, [account, amount, execute, onClose, mutateRewardsPageData, mutateLyraBalances])
 

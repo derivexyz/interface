@@ -1,7 +1,7 @@
 import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { IconType } from '@lyra/ui/components/Icon'
 import { closeToast, createPendingToast, updatePendingToast, updateToast } from '@lyra/ui/components/Toast'
-import { BigNumber, ContractReceipt, PopulatedTransaction } from 'ethers'
+import { BigNumber, Contract, ContractReceipt, PopulatedTransaction } from 'ethers'
 import { useCallback } from 'react'
 
 import { AppNetwork, Network } from '@/app/constants/networks'
@@ -10,7 +10,6 @@ import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
 import getExplorerUrl from '@/app/utils/getExplorerUrl'
 import getNetworkConfig from '@/app/utils/getNetworkConfig'
 import getProvider from '@/app/utils/getProvider'
-import logError from '@/app/utils/logError'
 import postTransactionError from '@/app/utils/postTransactionError'
 import postTransactionSuccess from '@/app/utils/postTransactionSuccess'
 import resolveNetwork from '@/app/utils/resolveNetwork'
@@ -27,7 +26,7 @@ enum TransactionStatus {
 }
 
 export enum TransactionFailureStage {
-  App = 'App',
+  GasEstimate = 'GasEstimate',
   Wallet = 'Wallet',
   Reverted = 'Reverted',
 }
@@ -60,10 +59,26 @@ export type TransactionErrorOptions = {
   txBlock?: number
 }
 
-export type Transaction =
+export type Transaction<
+  C extends Contract = Contract,
+  M extends keyof Contract['functions'] & string = string,
+  P extends Parameters<C['functions'][M]> = any
+> =
   | PopulatedTransaction
+  | Promise<PopulatedTransaction>
   | {
       tx: PopulatedTransaction
+      metadata?: TransactionMetadata
+    }
+  | Promise<{
+      tx: PopulatedTransaction
+      metadata?: TransactionMetadata
+    }>
+  | {
+      contract: C
+      method: M
+      params: P
+      options?: { gasLimit?: BigNumber }
       metadata?: TransactionMetadata
     }
 
@@ -112,9 +127,6 @@ const reportError = (options: TransactionErrorOptions) => {
   // Attempt to extract errorName to parse message
   const message = parseTransactionErrorMessage(error)
 
-  // Log error to Sentry
-  logError('TransactionFailed', options)
-
   // Post transaction error metadata to db
   postTransactionError(options)
 
@@ -138,16 +150,12 @@ const getTimeout = (network: Network): number => {
   }
 }
 
-async function getGasLimit(
+async function getRawTxGasLimit(
   network: Network,
   provider: JsonRpcProvider,
   tx: PopulatedTransaction
-): Promise<BigNumber | undefined> {
+): Promise<BigNumber> {
   const config = getNetworkConfig(network)
-  if (!config.gasBuffer || !config.minGas || !config.maxGas) {
-    return
-  }
-  // add buffer to est. gas limit if not hardcoded
   const gasLimit = tx.gasLimit ?? (await provider.estimateGas(tx)).mul(10000 * Math.max(1, config.gasBuffer)).div(10000)
   if (gasLimit.lt(config.minGas)) {
     return config.minGas
@@ -158,18 +166,36 @@ async function getGasLimit(
   return gasLimit
 }
 
-export default function useTransaction(
-  network: Network
-): (
-  tx: Transaction | Promise<Transaction>,
-  txName: TransactionType,
-  options?: TransactionOptions
-) => Promise<ContractReceipt | null> {
+async function getContractTxGasLimit(
+  network: Network,
+  contract: Contract,
+  method: string,
+  params: any,
+  options?: { gasLimit?: BigNumber }
+): Promise<BigNumber> {
+  const config = getNetworkConfig(network)
+  const gasLimit =
+    options?.gasLimit ??
+    (await contract.estimateGas[method](...params)).mul(10000 * Math.max(1, config.gasBuffer)).div(10000)
+  if (gasLimit.lt(config.minGas)) {
+    return config.minGas
+  }
+  if (gasLimit.gt(config.maxGas)) {
+    return config.maxGas
+  }
+  return gasLimit
+}
+
+export default function useTransaction(network: Network) {
   const { account, signer } = useWallet()
 
   return useCallback(
-    async (
-      _tx: Transaction | Promise<Transaction>,
+    async <
+      C extends Contract = Contract,
+      M extends keyof Contract['functions'] & string = string,
+      P extends Parameters<C['functions'][M]> = any
+    >(
+      _tx: Transaction<C, M, P>,
       txName: TransactionType,
       options?: TransactionOptions
     ): Promise<ContractReceipt | null> => {
@@ -194,37 +220,64 @@ export default function useTransaction(
         signer: account,
       }
 
-      let tx: PopulatedTransaction
-      try {
-        const resolvedTx = await _tx
-        if ('tx' in resolvedTx) {
-          tx = resolvedTx['tx']
-          successOrErrorOptions.metadata = { ...successOrErrorOptions.metadata, ...resolvedTx['metadata'] }
-        } else {
-          tx = resolvedTx
-        }
-      } catch (error) {
-        reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.App })
-        return null
-      }
-
-      try {
-        tx.gasLimit = await getGasLimit(network, provider, tx)
-      } catch (error) {
-        reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.App })
-        return null
-      }
-
       let response: TransactionResponse
-      try {
-        console.time('tx')
-        console.debug('tx', tx)
-        response = await signer.sendTransaction(tx)
-        console.timeEnd('tx')
-      } catch (error) {
-        console.timeEnd('tx')
-        reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.Wallet })
-        return null
+
+      if ('contract' in _tx) {
+        const contract = _tx['contract']
+        const method = _tx['method']
+        const params = _tx['params']
+        const options = _tx['options']
+        const signedContract = contract.connect(signer)
+
+        let gasLimit: BigNumber
+        try {
+          gasLimit = await getContractTxGasLimit(network, signedContract, method, params, options)
+        } catch (error) {
+          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.GasEstimate })
+          return null
+        }
+
+        try {
+          console.time('tx')
+          response = await signedContract[method](...params, { gasLimit })
+          console.timeEnd('tx')
+        } catch (error) {
+          console.timeEnd('tx')
+          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.Wallet })
+          return null
+        }
+      } else {
+        let tx: PopulatedTransaction
+        try {
+          const resolvedTx = await _tx
+          if ('tx' in resolvedTx) {
+            tx = resolvedTx['tx']
+            successOrErrorOptions.metadata = { ...successOrErrorOptions.metadata, ...resolvedTx['metadata'] }
+          } else {
+            tx = resolvedTx
+          }
+        } catch (error) {
+          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.GasEstimate })
+          return null
+        }
+
+        try {
+          tx.gasLimit = await getRawTxGasLimit(network, provider, tx)
+        } catch (error) {
+          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.GasEstimate })
+          return null
+        }
+
+        try {
+          console.time('tx')
+          console.debug('tx', tx)
+          response = await signer.sendTransaction(tx)
+          console.timeEnd('tx')
+        } catch (error) {
+          console.timeEnd('tx')
+          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.Wallet })
+          return null
+        }
       }
 
       const transactionTimeout = getTimeout(network)
