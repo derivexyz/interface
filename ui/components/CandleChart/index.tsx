@@ -116,15 +116,6 @@ const _CandleChart = ({ data, onHover, showTimeRange, ...styleProps }: Props) =>
         }
       }
     })
-    const priceLine: PriceLineOptions = {
-      price: data[data.length - 1].close,
-      color: axis,
-      lineWidth: 1 as LineWidth,
-      lineStyle: LineStyle.Solid,
-      lineVisible: true,
-      axisLabelVisible: false,
-      title: '',
-    }
     const newSeries = chart?.addCandlestickSeries({
       upColor: primaryLine,
       downColor: errorLine,
@@ -136,7 +127,18 @@ const _CandleChart = ({ data, onHover, showTimeRange, ...styleProps }: Props) =>
         type: 'price',
       },
     })
-    newSeries?.createPriceLine(priceLine)
+    if (data.length) {
+      const priceLine: PriceLineOptions = {
+        price: data[data.length - 1].close,
+        color: axis,
+        lineWidth: 1 as LineWidth,
+        lineStyle: LineStyle.Solid,
+        lineVisible: true,
+        axisLabelVisible: false,
+        title: '',
+      }
+      newSeries?.createPriceLine(priceLine)
+    }
     newSeries?.setData(data)
     if (showTimeRange) {
       chart?.timeScale().setVisibleRange(showTimeRange)
