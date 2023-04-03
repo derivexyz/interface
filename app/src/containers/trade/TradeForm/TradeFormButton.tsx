@@ -3,7 +3,6 @@ import { Market, Trade, TradeDisabledReason } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 
 import { MAX_BN } from '@/app/constants/bn'
-import { ITERATIONS } from '@/app/constants/contracts'
 import { LogEvent } from '@/app/constants/logEvents'
 import { TransactionType } from '@/app/constants/screen'
 import useAccount from '@/app/hooks/account/useAccount'
@@ -111,8 +110,9 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       return
     }
     logEvent(LogEvent.TradeApproveSubmit, { isBase: false })
-    const tx = market.approveTradeQuote(account.address, MAX_BN)
-    await execute(tx, transactionType, {
+    const tx = trade.approveQuote(MAX_BN)
+    const contract = trade.contract
+    await execute({ tx, contract }, transactionType, {
       onComplete: async () => {
         await mutateTradeApprove()
         logEvent(LogEvent.TradeApproveSuccess, {
@@ -120,7 +120,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
         })
       },
     })
-  }, [account, market, execute, transactionType, mutateTradeApprove])
+  }, [account, trade, execute, transactionType, mutateTradeApprove])
 
   const handleClickApproveBase = useCallback(async () => {
     if (!account) {
@@ -128,14 +128,15 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       return null
     }
     logEvent(LogEvent.TradeApproveSubmit, { isBase: true })
-    const tx = market.approveTradeBase(account.address, MAX_BN)
-    await execute(tx, transactionType, {
+    const tx = trade.approveBase(MAX_BN)
+    const contract = trade.contract
+    await execute({ tx, contract }, transactionType, {
       onComplete: async () => {
         await mutateTradeApprove()
         logEvent(LogEvent.TradeApproveSuccess, { isBase: true })
       },
     })
-  }, [account, market, execute, transactionType, mutateTradeApprove])
+  }, [account, trade, execute, transactionType, mutateTradeApprove])
 
   const handleClickTrade = useCallback(async () => {
     if (!account) {
@@ -143,44 +144,25 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
       return
     }
 
-    const resolveTx = async () => {
-      const proposedTrade = await market.trade(
-        account.address,
-        trade.strikeId,
-        trade.isCall,
-        trade.isBuy,
-        trade.size,
-        trade.slippage,
-        {
-          setToCollateral: trade.collateral?.amount,
-          isBaseCollateral: trade.collateral?.isBase,
-          positionId: trade.positionId,
-          iterations: ITERATIONS,
-        }
-      )
-      return {
-        tx: proposedTrade.tx,
-        metadata: {
-          ...proposedTrade.measurements,
-          blockNumber: proposedTrade.market().block.number,
-          isForceClose: proposedTrade.isForceClose,
-          iterations: proposedTrade.iterations.map(iteration => ({
-            premium: fromBigNumber(iteration.premium),
-            optionPriceFee: fromBigNumber(iteration.optionPriceFee),
-            spotPriceFee: fromBigNumber(iteration.spotPriceFee),
-            vegaUtilFee: fromBigNumber(iteration.vegaUtilFee.vegaUtilFee),
-            varianceFee: fromBigNumber(iteration.varianceFee.varianceFee),
-            forceClosePenalty: fromBigNumber(iteration.forceClosePenalty),
-            volTraded: fromBigNumber(iteration.volTraded),
-            newBaseIv: fromBigNumber(iteration.newBaseIv),
-            newSkew: fromBigNumber(iteration.newSkew),
-            postTradeAmmNetStdVega: fromBigNumber(iteration.postTradeAmmNetStdVega),
-          })),
-        },
-      }
+    const { method, params, contract } = trade
+    const metadata = {
+      blockNumber: trade.market().block.number,
+      isForceClose: trade.isForceClose,
+      iterations: trade.iterations.map(iteration => ({
+        premium: fromBigNumber(iteration.premium),
+        optionPriceFee: fromBigNumber(iteration.optionPriceFee),
+        spotPriceFee: fromBigNumber(iteration.spotPriceFee),
+        vegaUtilFee: fromBigNumber(iteration.vegaUtilFee.vegaUtilFee),
+        varianceFee: fromBigNumber(iteration.varianceFee.varianceFee),
+        forceClosePenalty: fromBigNumber(iteration.forceClosePenalty),
+        volTraded: fromBigNumber(iteration.volTraded),
+        newBaseIv: fromBigNumber(iteration.newBaseIv),
+        newSkew: fromBigNumber(iteration.newSkew),
+        postTradeAmmNetStdVega: fromBigNumber(iteration.postTradeAmmNetStdVega),
+      })),
     }
 
-    const receipt = await execute(resolveTx(), transactionType, {
+    const receipt = await execute({ contract, method, params, metadata }, transactionType, {
       onComplete: async receipt => {
         const [events] = await Promise.all([getLyraSDK(trade.lyra.network).events(receipt), mutateTrade()])
         const { trades, collateralUpdates } = events
@@ -188,6 +170,24 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
         collateralUpdates
           .filter(update => update.isAdjustment)
           .forEach(update => logEvent(LogEvent.TradeCollateralUpdateSuccess, getTradeLogData(update)))
+      },
+      onError: ({ description }) => {
+        const maxCost = description?.args?.maxCost
+        const minCost = description?.args?.minCost
+        const totalCost = description?.args?.totalCost
+        if (maxCost && totalCost) {
+          const maxCostNum = fromBigNumber(maxCost)
+          const minCostNum = fromBigNumber(minCost)
+          const totalCostNum = fromBigNumber(totalCost)
+          console.log({
+            blockTimestamp: market.block.timestamp,
+            timeSinceBlock: Date.now() / 1000 - market.block.timestamp,
+            maxCostNum,
+            minCostNum,
+            totalCostNum,
+            diff: trade.isBuy ? (maxCostNum - totalCostNum) / totalCostNum : (minCostNum - totalCostNum) / totalCostNum,
+          })
+        }
       },
     })
 

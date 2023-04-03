@@ -45,7 +45,7 @@ export function createToast(options: CreateToastOptions): string {
       autoClose,
       closeOnClick: false,
       draggable: false,
-      progressStyle: { background: 'rgba(255, 255, 255, 0.1)', height: '3.5px' },
+      progressStyle: { background: 'rgba(255, 255, 255, 0.25)', height: '3.5px' },
     }
   )
   return toastId as string
@@ -75,7 +75,7 @@ export function updateToast(toastId: string, options: UpdateToastOptions) {
     toast.update(toastId, {
       ...updateOptions,
       autoClose,
-      progressStyle: { background: 'rgba(255, 255, 255, 0.1)', height: '3.5px' },
+      progressStyle: { background: 'rgba(255, 255, 255, 0.25)', height: '3.5px' },
       draggable: false,
       closeOnClick: false,
       render: ({ toastProps, closeToast }) => (
@@ -152,7 +152,7 @@ export default function Toast({
       px={3}
     >
       {icon ? (
-        <Box mr={3} minWidth={20}>
+        <Box mr={2} minWidth={20}>
           {typeof icon === 'string' ? (
             <IconOrImage size={20} color={variant === 'info' ? 'secondaryText' : 'white'} strokeWidth={2} src={icon} />
           ) : (
@@ -160,7 +160,7 @@ export default function Toast({
           )}
         </Box>
       ) : null}
-      <Text mr={3} color="inherit" variant="secondary" fontWeight={'medium'}>
+      <Text mr={2} color="inherit" variant="secondary" fontWeight={'medium'}>
         {description}{' '}
         <Text
           as="span"
@@ -174,6 +174,7 @@ export default function Toast({
       </Text>
       <IconButton
         ml="auto"
+        size="sm"
         variant={getButtonVariant(variant)}
         icon={IconType.X}
         onClick={e => {

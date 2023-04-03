@@ -1,3 +1,4 @@
+import { ErrorDescription } from '@ethersproject/abi/lib/interface'
 import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { IconType } from '@lyra/ui/components/Icon'
 import { closeToast, createPendingToast, updatePendingToast, updateToast } from '@lyra/ui/components/Toast'
@@ -6,7 +7,6 @@ import { useCallback } from 'react'
 
 import { AppNetwork, Network } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
-import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
 import getExplorerUrl from '@/app/utils/getExplorerUrl'
 import getNetworkConfig from '@/app/utils/getNetworkConfig'
 import getProvider from '@/app/utils/getProvider'
@@ -16,8 +16,17 @@ import resolveNetwork from '@/app/utils/resolveNetwork'
 
 import useWallet from './useWallet'
 
-const DEFAULT_TOAST_TIMEOUT = 1000 * 5 // 5 seconds
+const DEFAULT_TOAST_INFO_TIMEOUT = 1000 * 5 // 5 seconds
+const DEFAULT_TOAST_ERROR_TIMEOUT = 1000 * 10 // 10 seconds
 const POLL_INTERVAL = 250 // 0.25 seconds
+
+enum TransactionErrorReason {
+  NotEnoughFunds = 'NotEnoughFunds',
+  UserDenied = 'UserDenied',
+  NetworkChanged = 'NetworkChanged',
+  RpcError = 'RpcError',
+  TradeSlippage = 'TradeSlippage',
+}
 
 // https://docs.ethers.io/v5/single-page/#/v5/api/providers/types/-%23-providers-TransactionReceipt
 enum TransactionStatus {
@@ -25,38 +34,70 @@ enum TransactionStatus {
   Success = 1,
 }
 
-export enum TransactionFailureStage {
+enum TransactionErrorStage {
   GasEstimate = 'GasEstimate',
   Wallet = 'Wallet',
   Reverted = 'Reverted',
 }
+
+// Catches common error patterns
+const TX_ERROR_PATTERNS: Record<TransactionErrorReason, { message?: string; code?: number | string; name?: string }[]> =
+  {
+    [TransactionErrorReason.TradeSlippage]: [{ name: 'TotalCostOutsideOfSpecifiedBounds' }],
+    [TransactionErrorReason.UserDenied]: [
+      { message: 'User denied transaction signature' },
+      { message: 'User rejected transaction' },
+      { message: "Cannot set properties of undefined (setting 'loadingDefaults')" },
+      { code: 'ACTION_REJECTED' },
+      { code: 4001 },
+    ],
+    [TransactionErrorReason.NotEnoughFunds]: [
+      { message: 'Not enough funds for gas' },
+      { message: 'Failed to execute call with revert code InsufficientGasFunds' },
+    ],
+    [TransactionErrorReason.NetworkChanged]: [{ message: 'Underlying network changed' }],
+    [TransactionErrorReason.RpcError]: [
+      // @see https://eips.ethereum.org/EIPS/eip-1474#error-codes
+      { code: -32005 },
+      { message: 'Non-200 status code' },
+      { message: 'Request limit exceeded' },
+      { message: 'Internal json-rpc error' },
+      { message: 'Response has no error or result' },
+      { message: "We can't execute this request" },
+      { message: "Couldn't connect to the network" },
+    ],
+  }
 
 type Value = string | number | boolean
 
 type TransactionMetadata = Record<string, Value | Record<string, Value> | Array<Record<string, Value>>>
 
 export type TransactionSuccessOptions = {
-  chain: number
   network: Network
   toastId: string
   txName: TransactionType
   signer: string
   metadata?: TransactionMetadata
-  txHash: string
-  txBlock: number
 }
 
 export type TransactionErrorOptions = {
-  error: any
   network: Network
-  chain: number
-  stage: TransactionFailureStage
+  stage: TransactionErrorStage
   toastId: string
   txName: TransactionType
   signer: string
+  receipt?: ContractReceipt
+  handler?: TransactionErrorHandler
+  contract?: Contract
   metadata?: TransactionMetadata
-  txHash?: string | null
-  txBlock?: number
+}
+
+export type TransactionError = {
+  code?: number
+  message?: string
+  data?: any
+  description?: ErrorDescription | null
+  reason?: TransactionErrorReason
 }
 
 export type Transaction<
@@ -65,15 +106,11 @@ export type Transaction<
   P extends Parameters<C['functions'][M]> = any
 > =
   | PopulatedTransaction
-  | Promise<PopulatedTransaction>
   | {
       tx: PopulatedTransaction
+      contract?: C
       metadata?: TransactionMetadata
     }
-  | Promise<{
-      tx: PopulatedTransaction
-      metadata?: TransactionMetadata
-    }>
   | {
       contract: C
       method: M
@@ -82,62 +119,107 @@ export type Transaction<
       metadata?: TransactionMetadata
     }
 
+export type TransactionErrorHandler = (error: TransactionError, rawError: any, receipt?: ContractReceipt) => any
+
 export type TransactionOptions = {
-  onComplete?: (receipt: ContractReceipt) => any | Promise<any>
+  onComplete?: (receipt: ContractReceipt) => any
+  onError?: TransactionErrorHandler
   metadata?: TransactionMetadata
 }
 
-// Add custom error messages as they appear
-const parseTransactionErrorMessage = (error: any) => {
-  let errorMessage = String(error?.errorName ?? error?.data?.error?.message ?? error?.message).split('[')[0]
-  if (!errorMessage) {
-    errorMessage = 'Something went wrong'
+const extractError = (rawError: any, options: TransactionErrorOptions): TransactionError => {
+  const error = rawError?.error?.error ?? rawError?.error ?? rawError
+  const errorCode = error?.code
+  const errorData = error?.data?.data ?? error?.data
+
+  let errorDescription: ErrorDescription | null = null
+  if (errorData && options['contract']) {
+    try {
+      errorDescription = options['contract'].interface.parseError(errorData)
+      console.log({ errorDescription })
+    } catch (_err) {}
   }
-  switch (errorMessage) {
-    case 'TotalCostOutsideOfSpecifiedBounds':
-      return 'Slippage out of bounds'
-    default:
-      return errorMessage
+
+  const errorMessage = error?.message
+
+  for (const [reason, patterns] of Object.entries(TX_ERROR_PATTERNS)) {
+    for (const pattern of patterns) {
+      const matchCode = pattern.code && errorCode === pattern.code
+      const matchMessage =
+        pattern.message && errorMessage && errorMessage.toLowerCase().includes(pattern.message.toLowerCase())
+      const matchName =
+        pattern.name && errorDescription && errorDescription.name.toLowerCase().includes(pattern.name.toLowerCase())
+      if (matchCode || matchMessage || matchName) {
+        return {
+          code: errorCode,
+          message: errorMessage,
+          data: errorData,
+          description: errorDescription,
+          reason: reason as TransactionErrorReason,
+        }
+      }
+    }
+  }
+
+  return {
+    code: errorCode,
+    message: errorMessage,
+    data: errorData,
+    description: errorDescription,
   }
 }
 
-const reportError = (options: TransactionErrorOptions) => {
-  const { network, error: _error, toastId, txHash } = options
+// Render custom errors
+const formatErrorReason = (errorReason: TransactionErrorReason, options: TransactionErrorOptions): string | null => {
+  switch (errorReason) {
+    case TransactionErrorReason.TradeSlippage:
+      return 'The quoted option price is now out of bounds, try again'
+    case TransactionErrorReason.NetworkChanged:
+      return 'Your network unexpectedly changed, try again'
+    case TransactionErrorReason.RpcError:
+      return 'An RPC error occurred, try again'
+    case TransactionErrorReason.NotEnoughFunds:
+      return `Your account on ${getNetworkConfig(options.network).displayName} doesn\'t have enough gas`
+    case TransactionErrorReason.UserDenied:
+      return null
+  }
+}
 
-  let error = _error
-  if (error?.code === 4001 || JSON.stringify(error).includes('user rejected transaction')) {
-    // User rejected the transaction, skip report
+const handleError = (rawError: any, options: TransactionErrorOptions) => {
+  const { handler, network, toastId, receipt } = options
+
+  const error = extractError(rawError, options)
+  const errorReasonMessage = error.reason
+    ? formatErrorReason(error.reason, options)
+    : options.stage === TransactionErrorStage.Reverted
+    ? 'Transaction reverted'
+    : 'Failed to send transaction'
+
+  if (!errorReasonMessage) {
+    // Ignore the transaction if no error reason is returned (e.g for denied transaction)
     closeToast(toastId)
-    return null
+    return
   }
 
-  if (
-    error?.code === 'UNPREDICTABLE_GAS_LIMIT' &&
-    error?.error &&
-    error?.error?.code &&
-    error?.error?.message &&
-    error?.error?.data
-  ) {
-    // Unpredictable gas limit indicates nested error
-    error = error.error
-  }
+  console.error(rawError)
 
-  console.error(error)
+  // Post transaction error to db
+  postTransactionError(error, options)
 
-  // Attempt to extract errorName to parse message
-  const message = parseTransactionErrorMessage(error)
-
-  // Post transaction error metadata to db
-  postTransactionError(options)
+  const txHash = receipt?.transactionHash
 
   updateToast(toastId, {
     variant: 'error',
-    description: message,
+    description: errorReasonMessage,
     icon: IconType.AlertTriangle,
     href: txHash ? getExplorerUrl(network, txHash) : undefined,
     target: '_blank',
-    autoClose: false,
+    autoClose: DEFAULT_TOAST_ERROR_TIMEOUT,
   })
+
+  if (handler) {
+    handler(error, rawError, receipt)
+  }
 }
 
 const getTimeout = (network: Network): number => {
@@ -195,11 +277,14 @@ export default function useTransaction(network: Network) {
       M extends keyof Contract['functions'] & string = string,
       P extends Parameters<C['functions'][M]> = any
     >(
-      _tx: Transaction<C, M, P>,
+      txInputs: Transaction<C, M, P>,
       txName: TransactionType,
       options?: TransactionOptions
     ): Promise<ContractReceipt | null> => {
       const provider = getProvider(network)
+
+      const onComplete = options?.onComplete
+      const onError = options?.onError
 
       if (!signer || !account) {
         console.warn('No signer')
@@ -213,69 +298,69 @@ export default function useTransaction(network: Network) {
 
       const successOrErrorOptions = {
         network,
-        chain: getChainIdForNetwork(network),
         toastId,
         txName,
         metadata: options?.metadata,
         signer: account,
+        handler: onError,
       }
 
       let response: TransactionResponse
+      let contract: Contract | undefined
+      let metadata: TransactionMetadata | undefined
 
-      if ('contract' in _tx) {
-        const contract = _tx['contract']
-        const method = _tx['method']
-        const params = _tx['params']
-        const options = _tx['options']
-        const signedContract = contract.connect(signer)
+      if ('method' in txInputs) {
+        const method = txInputs['method']
+        const params = txInputs['params']
+        const options = txInputs['options']
+        contract = txInputs['contract'].connect(signer)
+        metadata = txInputs['metadata']
 
         let gasLimit: BigNumber
         try {
-          gasLimit = await getContractTxGasLimit(network, signedContract, method, params, options)
-        } catch (error) {
-          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.GasEstimate })
+          gasLimit = await getContractTxGasLimit(network, contract, method, params, options)
+        } catch (rawError) {
+          handleError(rawError, {
+            ...successOrErrorOptions,
+            metadata,
+            contract,
+            stage: TransactionErrorStage.GasEstimate,
+          })
           return null
         }
 
         try {
-          console.time('tx')
-          response = await signedContract[method](...params, { gasLimit })
-          console.timeEnd('tx')
-        } catch (error) {
-          console.timeEnd('tx')
-          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.Wallet })
+          response = await contract[method](...params, { gasLimit })
+        } catch (rawError) {
+          handleError(rawError, { ...successOrErrorOptions, metadata, contract, stage: TransactionErrorStage.Wallet })
           return null
         }
       } else {
         let tx: PopulatedTransaction
-        try {
-          const resolvedTx = await _tx
-          if ('tx' in resolvedTx) {
-            tx = resolvedTx['tx']
-            successOrErrorOptions.metadata = { ...successOrErrorOptions.metadata, ...resolvedTx['metadata'] }
-          } else {
-            tx = resolvedTx
-          }
-        } catch (error) {
-          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.GasEstimate })
-          return null
+        if ('tx' in txInputs) {
+          tx = txInputs['tx']
+          metadata = txInputs['metadata']
+          contract = txInputs['contract']?.connect(signer)
+        } else {
+          tx = txInputs
         }
 
         try {
           tx.gasLimit = await getRawTxGasLimit(network, provider, tx)
-        } catch (error) {
-          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.GasEstimate })
+        } catch (rawError) {
+          handleError(rawError, {
+            ...successOrErrorOptions,
+            metadata,
+            contract,
+            stage: TransactionErrorStage.GasEstimate,
+          })
           return null
         }
 
         try {
-          console.time('tx')
-          console.debug('tx', tx)
           response = await signer.sendTransaction(tx)
-          console.timeEnd('tx')
-        } catch (error) {
-          console.timeEnd('tx')
-          reportError({ ...successOrErrorOptions, error, stage: TransactionFailureStage.Wallet })
+        } catch (rawError) {
+          handleError(rawError, { ...successOrErrorOptions, metadata, contract, stage: TransactionErrorStage.Wallet })
           return null
         }
       }
@@ -315,40 +400,30 @@ export default function useTransaction(network: Network) {
 
       if (receipt) {
         if (receipt.status === TransactionStatus.Failure) {
-          try {
-            const transaction = await provider.getTransaction(response.hash)
-            await provider.call(transaction as any, response.blockNumber)
-          } catch (error) {
-            reportError({
-              ...successOrErrorOptions,
-              error,
-              stage: TransactionFailureStage.Reverted,
-              txHash: receipt.transactionHash,
-              txBlock: receipt.blockNumber,
-            })
-          }
+          // ethers.js can't fetch revert data from reverted transactions
+          handleError(new Error('Transaction reverted'), {
+            ...successOrErrorOptions,
+            contract,
+            metadata,
+            receipt,
+            stage: TransactionErrorStage.Reverted,
+          })
           return null
         } else {
-          // Transaction was polled successfully
-          if (options?.onComplete != null) {
-            // Execute middleware mutation for successful transactions
+          if (onComplete) {
             console.time('onComplete')
-            await options.onComplete(receipt)
+            await onComplete(receipt)
             console.timeEnd('onComplete')
           }
 
-          postTransactionSuccess({
-            ...successOrErrorOptions,
-            txHash: receipt.transactionHash,
-            txBlock: receipt.blockNumber,
-          })
+          postTransactionSuccess(receipt, successOrErrorOptions)
 
           updateToast(toastId, {
             variant: 'success',
             description: `Your transaction was successful`,
             href: txHref,
             target: '_blank',
-            autoClose: DEFAULT_TOAST_TIMEOUT,
+            autoClose: DEFAULT_TOAST_INFO_TIMEOUT,
             icon: IconType.Check,
           })
           return receipt
@@ -362,7 +437,7 @@ export default function useTransaction(network: Network) {
           )} seconds, click to view on etherscan`,
           href: txHref,
           target: '_blank',
-          autoClose: DEFAULT_TOAST_TIMEOUT,
+          autoClose: DEFAULT_TOAST_INFO_TIMEOUT,
           icon: IconType.AlertTriangle,
         })
         return null

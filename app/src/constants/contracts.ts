@@ -22,7 +22,7 @@ export const WARNING_DIST_TO_LIQUIDATION_PRICE = 0.025
 export const MAX_UTILIZATION = 0.975
 
 export const ITERATIONS = 3
-export const SLIPPAGE = 2 / 100 // 2%
+export const SLIPPAGE = 1.5 / 100 // 1.5%
 
 export type StrikeQuotesNullable = {
   callBid: Quote | null
