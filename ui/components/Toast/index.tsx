@@ -6,8 +6,9 @@ import { ButtonVariant } from '../Button'
 import IconButton from '../Button/IconButton'
 import IconOrImage from '../Icon/IconOrImage'
 import { IconType } from '../Icon/IconSVG'
-import BaseLink from '../Link/BaseLink'
-import Spinner from '../Spinner'
+import Link from '../Link'
+
+const PROGRESS_STYLE = { background: 'rgba(255, 255, 255, 0.25)', height: '4px' }
 
 export type ToastVariant = 'info' | 'success' | 'error' | 'warning'
 
@@ -45,37 +46,19 @@ export function createToast(options: CreateToastOptions): string {
       autoClose,
       closeOnClick: false,
       draggable: false,
-      progressStyle: { background: 'rgba(255, 255, 255, 0.25)', height: '3.5px' },
+      progressStyle: PROGRESS_STYLE,
     }
   )
   return toastId as string
 }
 
-export function createPendingToast(options: Omit<CreateToastOptions, 'variant'>): string {
-  const { autoClose = false } = options
-  return createToast({
-    variant: 'info',
-    icon: <Spinner size={20} />,
-    autoClose,
-    ...options,
-  })
-}
-
-export function updatePendingToast(toastId: string, options: Omit<UpdateToastOptions, 'variant'>): void {
-  updateToast(toastId, {
-    variant: 'info',
-    icon: <Spinner size={20} />,
-    ...options,
-  })
-}
-
 export function updateToast(toastId: string, options: UpdateToastOptions) {
-  const { icon, description, href, target, variant, autoClose = false, ...updateOptions } = options
+  const { icon, description, href, hrefLabel, target, variant, autoClose = false, ...updateOptions } = options
   if (toast.isActive(toastId)) {
     toast.update(toastId, {
       ...updateOptions,
       autoClose,
-      progressStyle: { background: 'rgba(255, 255, 255, 0.25)', height: '3.5px' },
+      progressStyle: PROGRESS_STYLE,
       draggable: false,
       closeOnClick: false,
       render: ({ toastProps, closeToast }) => (
@@ -84,6 +67,7 @@ export function updateToast(toastId: string, options: UpdateToastOptions) {
           icon={icon}
           description={description}
           href={href}
+          hrefLabel={hrefLabel}
           target={target}
           toastProps={toastProps}
           closeToast={closeToast}
@@ -128,31 +112,32 @@ const getButtonVariant = (variant: ToastVariant): ButtonVariant => {
 export default function Toast({
   variant = 'info',
   description,
-  hrefLabel,
   href,
+  hrefLabel,
   target,
   icon,
   closeToast,
+  toastProps: { autoClose },
 }: ToastProps) {
   return (
     <Flex
       onClick={() => {
-        if (closeToast) {
+        if (href) {
+          window.open(href, target)
+        } else if (closeToast) {
           closeToast()
         }
       }}
-      as={href ? BaseLink : 'div'}
-      href={href}
-      target={target}
       variant={getToastVariantKey(variant)}
       height={'100%'}
       alignItems="center"
       width="100%"
-      py={2}
-      px={3}
+      maxWidth={340}
+      pt={2}
+      pb={autoClose ? '10px' : 2}
     >
       {icon ? (
-        <Box mr={2} minWidth={20}>
+        <Box ml={2} minWidth={20}>
           {typeof icon === 'string' ? (
             <IconOrImage size={20} color={variant === 'info' ? 'secondaryText' : 'white'} strokeWidth={2} src={icon} />
           ) : (
@@ -160,21 +145,27 @@ export default function Toast({
           )}
         </Box>
       ) : null}
-      <Text mr={2} color="inherit" variant="secondary" fontWeight={'medium'}>
-        {description}{' '}
-        <Text
-          as="span"
-          color="inherit"
-          sx={{ textDecoration: 'underline', display: 'inline' }}
-          variant="secondary"
-          fontWeight={'medium'}
-        >
-          {hrefLabel}
+      <Box mx={2}>
+        <Text color="inherit" variant="secondaryMedium">
+          {description}
         </Text>
-      </Text>
+        {href ? (
+          <Link
+            textVariant="secondaryMedium"
+            showRightIcon
+            variant="secondary"
+            color="inherit"
+            href={href}
+            target="_blank"
+          >
+            {hrefLabel ?? 'View more'}
+          </Link>
+        ) : null}
+      </Box>
       <IconButton
         ml="auto"
         size="sm"
+        mr={2}
         variant={getButtonVariant(variant)}
         icon={IconType.X}
         onClick={e => {

@@ -1,9 +1,10 @@
 import { ErrorDescription } from '@ethersproject/abi/lib/interface'
 import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { IconType } from '@lyra/ui/components/Icon'
-import { closeToast, createPendingToast, updatePendingToast, updateToast } from '@lyra/ui/components/Toast'
+import Spinner from '@lyra/ui/components/Spinner'
+import { closeToast, createToast, updateToast } from '@lyra/ui/components/Toast'
 import { BigNumber, Contract, ContractReceipt, PopulatedTransaction } from 'ethers'
-import { useCallback } from 'react'
+import React, { useCallback } from 'react'
 
 import { AppNetwork, Network } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
@@ -127,6 +128,8 @@ export type TransactionOptions = {
   metadata?: TransactionMetadata
 }
 
+const ToastSpinner = () => <Spinner size={20} />
+
 const extractError = (rawError: any, options: TransactionErrorOptions): TransactionError => {
   const error = rawError?.error?.error ?? rawError?.error ?? rawError
   const errorCode = error?.code
@@ -136,7 +139,6 @@ const extractError = (rawError: any, options: TransactionErrorOptions): Transact
   if (errorData && options['contract']) {
     try {
       errorDescription = options['contract'].interface.parseError(errorData)
-      console.log({ errorDescription })
     } catch (_err) {}
   }
 
@@ -189,14 +191,9 @@ const handleError = (rawError: any, options: TransactionErrorOptions) => {
   const { handler, network, toastId, receipt } = options
 
   const error = extractError(rawError, options)
-  const errorReasonMessage = error.reason
-    ? formatErrorReason(error.reason, options)
-    : options.stage === TransactionErrorStage.Reverted
-    ? 'Transaction reverted'
-    : 'Failed to send transaction'
 
-  if (!errorReasonMessage) {
-    // Ignore the transaction if no error reason is returned (e.g for denied transaction)
+  if (error.reason === TransactionErrorReason.UserDenied) {
+    // Ignore user denied reason
     closeToast(toastId)
     return
   }
@@ -208,11 +205,20 @@ const handleError = (rawError: any, options: TransactionErrorOptions) => {
 
   const txHash = receipt?.transactionHash
 
+  const toastDescription = error.reason
+    ? formatErrorReason(error.reason, options)
+    : error.message
+    ? error.message.substring(0, 140)
+    : options.stage === TransactionErrorStage.Reverted
+    ? 'Transaction reverted'
+    : 'Failed to send transaction'
+
   updateToast(toastId, {
     variant: 'error',
-    description: errorReasonMessage,
+    description: toastDescription,
     icon: IconType.AlertTriangle,
     href: txHash ? getExplorerUrl(network, txHash) : undefined,
+    hrefLabel: txHash ? 'View on etherscan' : undefined,
     target: '_blank',
     autoClose: DEFAULT_TOAST_ERROR_TIMEOUT,
   })
@@ -291,7 +297,9 @@ export default function useTransaction(network: Network) {
         return null
       }
 
-      const toastId = createPendingToast({
+      const toastId = createToast({
+        variant: 'info',
+        icon: <ToastSpinner />,
         description: 'Confirm your transaction',
         autoClose: false,
       })
@@ -369,9 +377,12 @@ export default function useTransaction(network: Network) {
       const autoClose = transactionTimeout + POLL_INTERVAL // add buffer
       const txHref = getExplorerUrl(network, response.hash)
 
-      updatePendingToast(toastId, {
-        description: `Your transaction is pending, click to view on etherscan`,
+      updateToast(toastId, {
+        variant: 'info',
+        icon: <ToastSpinner />,
+        description: `Your transaction is pending`,
         href: txHref,
+        hrefLabel: 'View on etherscan',
         target: '_blank',
         autoClose,
       })
@@ -422,6 +433,7 @@ export default function useTransaction(network: Network) {
             variant: 'success',
             description: `Your transaction was successful`,
             href: txHref,
+            hrefLabel: 'View on etherscan',
             target: '_blank',
             autoClose: DEFAULT_TOAST_INFO_TIMEOUT,
             icon: IconType.Check,
@@ -432,10 +444,9 @@ export default function useTransaction(network: Network) {
         // Transaction timed out
         updateToast(toastId, {
           variant: 'warning',
-          description: `Your transaction took longer than ${Math.floor(
-            transactionTimeout / 1000
-          )} seconds, click to view on etherscan`,
+          description: 'Your transaction is taking longer than expected',
           href: txHref,
+          hrefLabel: 'View on etherscan',
           target: '_blank',
           autoClose: DEFAULT_TOAST_INFO_TIMEOUT,
           icon: IconType.AlertTriangle,

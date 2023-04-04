@@ -5,7 +5,7 @@ import { IconType } from '@lyra/ui/components/Icon'
 import Modal from '@lyra/ui/components/Modal'
 import ModalBody from '@lyra/ui/components/Modal/ModalBody'
 import Text from '@lyra/ui/components/Text'
-import { createPendingToast, createToast } from '@lyra/ui/components/Toast'
+import { createToast } from '@lyra/ui/components/Toast'
 import { MarginProps } from '@lyra/ui/types'
 import React, { useState } from 'react'
 
@@ -187,22 +187,6 @@ export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElem
               href: '/portfolio',
               target: 'blank',
               icon: IconType.Flag,
-            })
-          }}
-        />
-        <Button
-          variant={'primary'}
-          mr={2}
-          mt={2}
-          isOutline
-          label="Create Pending Toast"
-          size={'medium'}
-          onClick={() => {
-            createPendingToast({
-              description: 'Pending: This is a pending toast.',
-              hrefLabel: 'This is hrefLabel',
-              href: '/portfolio',
-              target: 'blank',
             })
           }}
         />
