@@ -3,8 +3,6 @@ import { Network as LyraNetwork } from '@lyrafinance/lyra-js'
 import { BigNumber } from 'ethers'
 import nullthrows from 'nullthrows'
 
-import filterNulls from '../utils/filterNulls'
-
 export enum AppNetwork {
   Ethereum = 'ethereum',
   Arbitrum = 'arbitrum',
@@ -27,8 +25,7 @@ export type NetworkConfig = {
   displayName: string
   chainId: number
   network: AppNetwork
-  walletRpcUrl: string
-  readRpcUrls: string[]
+  rpcUrl: string
   blockExplorerUrl: string
   iconUrls: string[]
   gasBuffer: number
@@ -39,13 +36,30 @@ export type NetworkConfig = {
   fastBridgeUrl?: string
 }
 
-const INFURA_PROJECT_ID = nullthrows(
-  process.env.REACT_APP_INFURA_PROJECT_ID,
-  'Missing REACT_APP_INFURA_PROJECT_ID in environment variables'
+const REACT_APP_OPTIMISM_MAINNET_RPC_URL = nullthrows(
+  process.env.REACT_APP_OPTIMISM_MAINNET_RPC_URL,
+  'REACT_APP_OPTIMISM_MAINNET_RPC_URL env var is not defined'
 )
-const ALCHEMY_OPTIMISM_PROJECT_ID = process.env.REACT_APP_ALCHEMY_OPTIMISM_PROJECT_ID
-const ALCHEMY_ARBITRUM_PROJECT_ID = process.env.REACT_APP_ALCHEMY_ARBITRUM_PROJECT_ID
-const ALCHEMY_ETHEREUM_PROJECT_ID = process.env.REACT_APP_ALCHEMY_ETHEREUM_PROJECT_ID
+const REACT_APP_OPTIMISM_GOERLI_RPC_URL = nullthrows(
+  process.env.REACT_APP_OPTIMISM_GOERLI_RPC_URL,
+  'REACT_APP_OPTIMISM_GOERLI_RPC_URL env var is not defined'
+)
+const REACT_APP_ARBITRUM_MAINNET_RPC_URL = nullthrows(
+  process.env.REACT_APP_ARBITRUM_MAINNET_RPC_URL,
+  'REACT_APP_ARBITRUM_MAINNET_RPC_URL env var is not defined'
+)
+const REACT_APP_ARBITRUM_GOERLI_RPC_URL = nullthrows(
+  process.env.REACT_APP_ARBITRUM_GOERLI_RPC_URL,
+  'REACT_APP_ARBITRUM_GOERLI_RPC_URL env var is not defined'
+)
+const REACT_APP_ETHEREUM_MAINNET_RPC_URL = nullthrows(
+  process.env.REACT_APP_ETHEREUM_MAINNET_RPC_URL,
+  'REACT_APP_ETHEREUM_MAINNET_RPC_URL env var is not defined'
+)
+const REACT_APP_ETHEREUM_GOERLI_RPC_URL = nullthrows(
+  process.env.REACT_APP_ETHEREUM_GOERLI_RPC_URL,
+  'REACT_APP_ETHEREUM_GOERLI_RPC_URL env var is not defined'
+)
 
 export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
   [AppChain.Optimism]: {
@@ -53,11 +67,7 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     displayName: 'Optimism',
     chainId: 10,
     network: AppNetwork.Optimism,
-    walletRpcUrl: 'https://mainnet.optimism.io',
-    readRpcUrls: filterNulls([
-      ALCHEMY_OPTIMISM_PROJECT_ID ? `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_OPTIMISM_PROJECT_ID}` : null,
-      `https://optimism-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-    ]),
+    rpcUrl: REACT_APP_OPTIMISM_MAINNET_RPC_URL,
     blockExplorerUrl: 'https://optimistic.etherscan.io',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
     nativeBridgeUrl: 'https://app.optimism.io/bridge/withdraw',
@@ -71,8 +81,7 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     displayName: 'Optimistic Goerli',
     chainId: 420,
     network: AppNetwork.Optimism,
-    walletRpcUrl: 'https://goerli.optimism.io',
-    readRpcUrls: [`https://optimism-goerli.infura.io/v3/${INFURA_PROJECT_ID}`],
+    rpcUrl: REACT_APP_OPTIMISM_GOERLI_RPC_URL,
     blockExplorerUrl: 'https://goerli-optimism.etherscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
     faucetUrl: 'https://faucet.paradigm.xyz/',
@@ -87,11 +96,7 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     displayName: 'Arbitrum',
     chainId: 42161,
     network: AppNetwork.Arbitrum,
-    walletRpcUrl: 'https://arb1.arbitrum.io/rpc',
-    readRpcUrls: filterNulls([
-      ALCHEMY_ARBITRUM_PROJECT_ID ? `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ARBITRUM_PROJECT_ID}` : null,
-      `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-    ]),
+    rpcUrl: REACT_APP_ARBITRUM_MAINNET_RPC_URL,
     blockExplorerUrl: 'https://arbiscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
     nativeBridgeUrl: 'https://bridge.arbitrum.io/?l2ChainId=42161',
@@ -105,8 +110,7 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     displayName: 'Arbitrum Goerli',
     chainId: 421613,
     network: AppNetwork.Arbitrum,
-    walletRpcUrl: 'https://goerli-rollup.arbitrum.io/rpc',
-    readRpcUrls: [`https://arbitrum-goerli.infura.io/v3/${INFURA_PROJECT_ID}`],
+    rpcUrl: REACT_APP_ARBITRUM_GOERLI_RPC_URL,
     blockExplorerUrl: 'https://goerli.arbiscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
     faucetUrl: 'https://faucet.quicknode.com/arbitrum/goerli',
@@ -121,11 +125,7 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     displayName: 'Ethereum',
     chainId: 1,
     network: AppNetwork.Ethereum,
-    walletRpcUrl: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-    readRpcUrls: filterNulls([
-      `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-      ALCHEMY_ETHEREUM_PROJECT_ID ? `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_ETHEREUM_PROJECT_ID}` : null,
-    ]),
+    rpcUrl: REACT_APP_ETHEREUM_MAINNET_RPC_URL,
     blockExplorerUrl: 'https://etherscan.io/',
     iconUrls: [],
     gasBuffer: 1.1,
@@ -137,8 +137,7 @@ export const NETWORK_CONFIGS: Record<AppChain, NetworkConfig> = {
     displayName: 'Ethereum Goerli',
     chainId: 5,
     network: AppNetwork.Ethereum,
-    walletRpcUrl: `https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
-    readRpcUrls: [`https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`],
+    rpcUrl: REACT_APP_ETHEREUM_GOERLI_RPC_URL,
     blockExplorerUrl: 'https://goerli.etherscan.io/',
     iconUrls: [],
     gasBuffer: 1.1,

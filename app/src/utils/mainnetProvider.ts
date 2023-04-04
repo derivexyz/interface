@@ -4,6 +4,6 @@ import getNetworkConfig from './getNetworkConfig'
 
 const networkConfig = getNetworkConfig(AppNetwork.Ethereum)
 
-const mainnetProvider = new CachedStaticJsonRpcProvider(networkConfig.readRpcUrls, networkConfig.chainId)
+const mainnetProvider = new CachedStaticJsonRpcProvider(networkConfig.rpcUrl, networkConfig.chainId)
 
 export default mainnetProvider

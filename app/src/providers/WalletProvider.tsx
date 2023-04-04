@@ -16,10 +16,8 @@ import {
 } from '@rainbow-me/rainbowkit/wallets'
 import spindl from '@spindl-xyz/attribution-lite'
 import { isAddress } from 'ethers/lib/utils.js'
-import nullthrows from 'nullthrows'
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { chain as wagmiChain, configureChains, createClient, WagmiConfig } from 'wagmi'
-import { infuraProvider } from 'wagmi/providers/infura'
 import { publicProvider } from 'wagmi/providers/public'
 
 import Avatar from '../components/common/Avatar'
@@ -39,17 +37,11 @@ const SUPPORTED_CHAINS = [
   wagmiChain.optimismGoerli,
   wagmiChain.arbitrum,
   wagmiChain.arbitrumGoerli,
+  wagmiChain.mainnet,
+  wagmiChain.goerli,
 ]
 
-const INFURA_PROJECT_ID = nullthrows(
-  process.env.REACT_APP_INFURA_PROJECT_ID,
-  'Missing REACT_APP_INFURA_PROJECT_ID in environment variables'
-)
-
-const { chains, provider } = configureChains(
-  [{ ...wagmiChain.mainnet }, ...SUPPORTED_CHAINS],
-  [infuraProvider({ apiKey: INFURA_PROJECT_ID }), publicProvider()]
-)
+const { chains, provider } = configureChains([{ ...wagmiChain.mainnet }, ...SUPPORTED_CHAINS], [publicProvider()])
 
 const connectors = connectorsForWallets([
   {
