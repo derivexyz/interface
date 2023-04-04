@@ -24,7 +24,7 @@ import TextDemoCard from '../../components/dev/TextDemoCard'
 import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
 
-export default function StortyBookPageHelper(): JSX.Element {
+export default function StoryBookPageHelper(): JSX.Element {
   const [isDarkMode, setIsDarkMode] = useIsDarkMode()
   return (
     <Page header="Storybook" mobileCollapsedHeader="Components">

@@ -20,6 +20,8 @@ export const getNavPageFromPath = (path: string): PageId | null => {
     return PageId.RewardsIndex
   } else if (rootPath === 'faucet') {
     return PageId.Faucet
+  } else if (rootPath === 'vote') {
+    return PageId.VoteIndex
   } else {
     return null
   }

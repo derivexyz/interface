@@ -45,6 +45,12 @@ const getTabs = (network: Network): Tab[] => [
         name: 'Faucet',
         logEvent: LogEvent.NavFaucetTabClick,
       },
+  // {
+  //   path: getPagePath({ page: PageId.VoteIndex }),
+  //   rootPageId: PageId.VoteIndex,
+  //   name: 'Vote',
+  //   logEvent: LogEvent.NavVoteTabClick,
+  // },
 ]
 
 export default getTabs

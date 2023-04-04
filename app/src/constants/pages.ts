@@ -12,6 +12,10 @@ export enum PageId {
   RewardsIndex = 'RewardsIndex',
   RewardsTrading = 'RewardsTrading',
   RewardsVaults = 'RewardsVaults',
+  RewardsEthLyraLp = 'RewardsEthLyraLp',
+  VoteIndex = 'VoteIndex',
+  VoteProposalCreate = 'VoteProposalCreate',
+  VoteProposalDetails = 'VoteProposalDetails',
   RewardsArrakis = 'RewardsArrakis',
   Storybook = 'Storybook',
   Faucet = 'Faucet',
@@ -52,6 +56,12 @@ export type PageArgsMap = {
   [PageId.RewardsVaults]: {
     network: string
     marketAddressOrName: string
+  }
+  [PageId.RewardsEthLyraLp]: undefined
+  [PageId.VoteIndex]: undefined
+  [PageId.VoteProposalCreate]: undefined
+  [PageId.VoteProposalDetails]: {
+    proposalId: number
   }
   [PageId.RewardsArrakis]: undefined
   [PageId.Storybook]: undefined

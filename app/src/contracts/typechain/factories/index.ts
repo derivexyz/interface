@@ -7,6 +7,11 @@ export { ArrakisStakingRewards__factory } from "./ArrakisStakingRewards__factory
 export { CamelotNitroPool__factory } from "./CamelotNitroPool__factory";
 export { CamelotPool__factory } from "./CamelotPool__factory";
 export { ERC20__factory } from "./ERC20__factory";
+export { LongExecutor__factory } from "./LongExecutor__factory";
+export { LyraGovernanceStrategy__factory } from "./LyraGovernanceStrategy__factory";
+export { LyraGovernanceV2__factory } from "./LyraGovernanceV2__factory";
+export { ShortExecutor__factory } from "./ShortExecutor__factory";
+export { TransferEth__factory } from "./TransferEth__factory";
 export { LyraStaking__factory } from "./LyraStaking__factory";
 export { MultiSigWallet__factory } from "./MultiSigWallet__factory";
 export { Multicall3__factory } from "./Multicall3__factory";

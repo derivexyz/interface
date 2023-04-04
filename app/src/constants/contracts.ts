@@ -6,7 +6,12 @@ import {
   ArrakisStakingRewards,
   CamelotNitroPool,
   CamelotPool,
+  LongExecutor,
+  LyraGovernanceStrategy,
+  LyraGovernanceV2,
   Multicall3,
+  ShortExecutor,
+  TransferEth,
   VelodromePool,
   VelodromeStaking,
 } from '../contracts/typechain'
@@ -48,6 +53,11 @@ export enum ContractId {
   VelodromePool = 'VelodromePool',
   VelodromeStaking = 'VelodromeStaking',
   Multicall3 = 'Multicall3',
+  ShortExecutor = 'ShortExecutor',
+  LongExecutor = 'LongExecutor',
+  LyraGovernanceStrategy = 'LyraGovernanceStrategy',
+  LyraGovernanceV2 = 'LyraGovernanceV2',
+  TransferEth = 'TransferEth',
   LyraStaking = 'LyraStaking',
 }
 
@@ -61,5 +71,10 @@ export type ContractMap = {
   [ContractId.VelodromePool]: VelodromePool
   [ContractId.VelodromeStaking]: VelodromeStaking
   [ContractId.Multicall3]: Multicall3
+  [ContractId.ShortExecutor]: ShortExecutor
+  [ContractId.LongExecutor]: LongExecutor
+  [ContractId.LyraGovernanceStrategy]: LyraGovernanceStrategy
+  [ContractId.LyraGovernanceV2]: LyraGovernanceV2
+  [ContractId.TransferEth]: TransferEth
   [ContractId.LyraStaking]: LyraStaking
 }

@@ -20,6 +20,9 @@ import TradePage from './pages/TradePage'
 import VaultsHistoryPage from './pages/VaultsHistoryPage'
 import VaultsIndexPage from './pages/VaultsIndexPage'
 import VaultsPage from './pages/VaultsPage'
+import VoteIndexPage from './pages/VoteIndexPage'
+import VoteProposalCreatePage from './pages/VoteProposalCreatePage'
+import VoteProposalDetailsPage from './pages/VoteProposalDetailsPage'
 import { getDefaultMarket } from './utils/getDefaultMarket'
 import isMainnet from './utils/isMainnet'
 
@@ -45,6 +48,9 @@ export default function PageRoutes() {
           <Route path="/rewards/arrakis" element={<RewardsArrakisPage />} />
         </>
       ) : null}
+      <Route path="/vote" element={<VoteIndexPage />} />
+      <Route path="/vote/proposal/create" element={<VoteProposalCreatePage />} />
+      <Route path="/vote/proposal/:proposalId" element={<VoteProposalDetailsPage />} />
       {!isMainnet() ? <Route path="/faucet" element={<FaucetPage />} /> : null}
       <Route path="/storybook" element={<StoryBookPage />} />
       <Route path="/admin" element={<Navigate to={`/admin/${network}/${getDefaultMarket(network)}`} />} />

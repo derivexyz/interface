@@ -40,6 +40,7 @@ export const TRADING_REWARDS_DOC_URL = 'https://docs.lyra.finance/governance/inc
 export const VAULTS_ABOUT_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/market-maker-vaults'
 export const DYNAMIC_FEES_DOC_URL =
   'https://docs.lyra.finance/overview/how-does-lyra-work/options-pricing-and-the-amm#dynamic-fees'
+export const GOVERNANCE_DOC_URL = 'https://gov.lyra.finance'
 export const SHORT_COLLATERAL_REWARDS_DOC_URL =
   'https://docs.lyra.finance/governance/incentives#short-collateral-rewards'
 export const TRADING_CUTOFF_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/trading#trading-cutoffs'
@@ -54,6 +55,9 @@ export const ARRAKIS_LIQUIDITY_URL =
 
 export const HOP_URL = 'https://app.hop.exchange/#/send?token=ETH&destNetwork=optimism'
 
+export const CREATIVE_COMMONS_URL = 'https://creativecommons.org/publicdomain/zero/1.0/'
+export const FORUMS_URL = 'https://forums.lyra.finance'
+export const CLOUDFLARE_URL = 'https://cloudflare-ipfs.com'
 export const CAMELOT_ADD_LIQUIDITY_URL =
   'https://app.camelot.exchange/liquidity/?token1=0x079504b86d38119F859c4194765029F692b7B7aa&token2=0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
 export const CAMELOT_API_URL = 'https://api.camelot.exchange'

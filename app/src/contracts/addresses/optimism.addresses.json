@@ -2,5 +2,6 @@
   "ArrakisPoolL2": "0x70535c46ce04181adf749f34b65b6365164d6b6e",
   "ArrakisOpStakingRewards": "0xb02e538a08cFA00E9900cf94e33B161323d8D162",
   "VelodromePool": "0xDEE1856D7B75Abf4C1bDf986da4e1C6c7864d640",
-  "VelodromeStaking": "0x461ba7fa5c2e94eb93e881b7c7e3a7dc4c1cd6b4"
+  "VelodromeStaking": "0x461ba7fa5c2e94eb93e881b7c7e3a7dc4c1cd6b4",
+  "OptimismBridgeExecutor": "0x44796e1da22608a9E0CFD33033284284f511282e"
 }

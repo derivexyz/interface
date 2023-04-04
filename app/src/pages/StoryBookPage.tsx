@@ -1,8 +1,8 @@
 import React from 'react'
 
-import StortyBookPageHelper from '../page_helpers/StortyBookPageHelper'
+import StoryBookPageHelper from '../page_helpers/StoryBookPageHelper'
 
 // /storybook
 export default function StoryBookPage(): JSX.Element {
-  return <StortyBookPageHelper />
+  return <StoryBookPageHelper />
 }

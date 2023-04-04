@@ -6,6 +6,7 @@ export enum LogEvent {
   NavTradeTabClick = 'NavTradeTabClick',
   NavRewardsTabClick = 'NavRewardsTabClick',
   NavFaucetTabClick = 'NavFaucetTabClick',
+  NavVoteTabClick = 'NavVoteTabClick',
   NavDocsClick = 'NavDocsClick',
   NavGithubClick = 'NavGithubClick',
   NavDiscordClick = 'NavDiscordClick',
@@ -84,6 +85,9 @@ export enum LogEvent {
   UnstakeLyraSubmit = 'UnstakeLyraSubmit',
   UnstakeLyraSuccess = 'UnstakeLyraSuccess',
   StakeLyraOneInchClick = 'StakeLyraOneInchClick',
+
+  // Vote
+  VoteGovernanceClick = 'VoteGovernanceClick',
 
   // Onboarding
   OnboardingModalOpen = 'OnboardingModalOpen',

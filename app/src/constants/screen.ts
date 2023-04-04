@@ -31,4 +31,8 @@ export enum TransactionType {
   UnstakeArrakisOpLPToken = 'UnstakeArrakisOpLPToken',
   UnstakeArrakisLPToken = 'UnstakeArrakisLPToken',
   Admin = 'Admin',
+  CreateProposal = 'CreateProposal',
+  VoteProposal = 'VoteProposal',
+  QueueProposal = 'QueueProposal',
+  ExecuteProposal = 'ExecuteProposal',
 }

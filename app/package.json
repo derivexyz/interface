@@ -14,6 +14,7 @@
     "clean": "rimraf node_modules build"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.10",
     "@gnosis.pm/safe-apps-wagmi": "^1.0.3",
     "@lyra/ui": "^1.0.0",
     "@lyrafinance/lyra-js": "^0.0.26",

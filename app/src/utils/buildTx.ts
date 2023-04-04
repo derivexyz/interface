@@ -1,5 +1,5 @@
+import { PopulatedTransaction } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { PopulatedTransaction } from 'ethers'
 
 export default function buildTx(
   provider: JsonRpcProvider,

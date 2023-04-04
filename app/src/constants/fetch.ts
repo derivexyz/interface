@@ -56,4 +56,13 @@ export enum FetchId {
   AdminMultiSigTransaction = 'AdminMultiSigTransaction',
   AdminMultiSigTransactionCount = 'AdminMultiSigTransactionCount',
   AdminMultiSigTransactionIds = 'AdminMultiSigTransactionIds',
+
+  // governance
+  VoteIndexPageData = 'VoteIndexPageData',
+  VoteDetailsPageData = 'VoteDetailsPageData',
+  ProposalCreatedEventData = 'ProposalCreatedEventData',
+  ProposalCreatedEventsData = 'ProposalCreatedEventsData',
+  ShortExecutorData = 'ShortExecutorData',
+  LyraGovernanceData = 'LyraGovernanceData',
+  CreateProposal = 'CreateProposal',
 }

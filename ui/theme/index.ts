@@ -863,6 +863,28 @@ const theme = {
         margin: 0,
       },
     },
+    textarea: {
+      variant: 'text.body',
+      borderWidth: 1,
+      borderColor: 'transparent',
+      borderStyle: 'solid',
+      borderRadius: 0,
+      color: 'text',
+      px: 0,
+      py: 0,
+      ':hover,:focus,.active': {
+        outline: 0,
+      },
+      '::placeholder': {
+        color: 'secondaryText',
+        fontWeight: 'body',
+      },
+      '::-webkit-outer-spin-button,::-webkit-inner-spin-button': {
+        WebkitAppearance: 'none',
+        MozAppearance: 'none',
+        margin: 0,
+      },
+    },
     slider: {
       color: 'secondaryText',
       ':focus': {

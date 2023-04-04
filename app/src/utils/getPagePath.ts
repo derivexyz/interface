@@ -29,6 +29,10 @@ const getRewardsVaultsPath = (args: PageArgsMap[PageId.RewardsVaults]): string =
   return `/rewards/vaults/${args.network}/${args.marketAddressOrName}`.toLowerCase()
 }
 
+const getVoteProposalDetailsPath = (args: PageArgsMap[PageId.VoteProposalDetails]): string => {
+  return `/vote/proposal/${args.proposalId}`
+}
+
 // TODO: @dappbeast Fix page path typescript in switch statement
 export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathArgs<T>): string => {
   const page = args.page as PageId
@@ -61,6 +65,14 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
       return getRewardsTradingPath(args as PageArgsMap[PageId.RewardsTrading])
     case PageId.RewardsVaults:
       return getRewardsVaultsPath(args as PageArgsMap[PageId.RewardsVaults])
+    case PageId.RewardsEthLyraLp:
+      return '/rewards/eth-lyra'
+    case PageId.VoteIndex:
+      return '/vote'
+    case PageId.VoteProposalCreate:
+      return '/vote/proposal/create'
+    case PageId.VoteProposalDetails:
+      return getVoteProposalDetailsPath(args as PageArgsMap[PageId.VoteProposalDetails])
     case PageId.RewardsArrakis:
       return '/rewards/arrakis'
     case PageId.NotFound:
