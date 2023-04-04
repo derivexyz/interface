@@ -148,6 +148,9 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
     const metadata = {
       blockNumber: trade.market().block.number,
       isForceClose: trade.isForceClose,
+      strikePrice: fromBigNumber(trade.strikePrice),
+      expiryTimestamp: trade.expiryTimestamp,
+      positionId: trade.positionId ?? -1,
       iterations: trade.iterations.map(iteration => ({
         premium: fromBigNumber(iteration.premium),
         optionPriceFee: fromBigNumber(iteration.optionPriceFee),

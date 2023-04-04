@@ -27,6 +27,7 @@ enum TransactionErrorReason {
   NetworkChanged = 'NetworkChanged',
   RpcError = 'RpcError',
   TradeSlippage = 'TradeSlippage',
+  WalletSetup = 'WalletSetup',
 }
 
 // https://docs.ethers.io/v5/single-page/#/v5/api/providers/types/-%23-providers-TransactionReceipt
@@ -40,6 +41,13 @@ enum TransactionErrorStage {
   Wallet = 'Wallet',
   Reverted = 'Reverted',
 }
+
+const USER_ERRORS = [
+  TransactionErrorReason.UserDenied,
+  TransactionErrorReason.NetworkChanged,
+  TransactionErrorReason.NotEnoughFunds,
+  TransactionErrorReason.WalletSetup,
+]
 
 // Catches common error patterns
 const TX_ERROR_PATTERNS: Record<TransactionErrorReason, { message?: string; code?: number | string; name?: string }[]> =
@@ -55,6 +63,9 @@ const TX_ERROR_PATTERNS: Record<TransactionErrorReason, { message?: string; code
     [TransactionErrorReason.NotEnoughFunds]: [
       { message: 'Not enough funds for gas' },
       { message: 'Failed to execute call with revert code InsufficientGasFunds' },
+    ],
+    [TransactionErrorReason.WalletSetup]: [
+      { message: 'Manifest not set. Read more at https://github.com/trezor/connect/blob/develop/docs/index.md' },
     ],
     [TransactionErrorReason.NetworkChanged]: [{ message: 'Underlying network changed' }],
     [TransactionErrorReason.RpcError]: [
@@ -99,6 +110,7 @@ export type TransactionError = {
   data?: any
   description?: ErrorDescription | null
   reason?: TransactionErrorReason
+  rawError: any
 }
 
 export type Transaction<
@@ -158,6 +170,7 @@ const extractError = (rawError: any, options: TransactionErrorOptions): Transact
           data: errorData,
           description: errorDescription,
           reason: reason as TransactionErrorReason,
+          rawError,
         }
       }
     }
@@ -168,11 +181,14 @@ const extractError = (rawError: any, options: TransactionErrorOptions): Transact
     message: errorMessage,
     data: errorData,
     description: errorDescription,
+    rawError,
   }
 }
 
-// Render custom errors
-const formatErrorReason = (errorReason: TransactionErrorReason, options: TransactionErrorOptions): string | null => {
+const formatErrorReasonMessage = (
+  errorReason: TransactionErrorReason,
+  options: TransactionErrorOptions
+): string | null => {
   switch (errorReason) {
     case TransactionErrorReason.TradeSlippage:
       return 'The quoted option price is now out of bounds, try again'
@@ -182,8 +198,25 @@ const formatErrorReason = (errorReason: TransactionErrorReason, options: Transac
       return 'An RPC error occurred, try again'
     case TransactionErrorReason.NotEnoughFunds:
       return `Your account on ${getNetworkConfig(options.network).displayName} doesn\'t have enough gas`
-    case TransactionErrorReason.UserDenied:
+    case TransactionErrorReason.WalletSetup:
+      // Null error reason messages will default to error.message
+      // Use this case when error.message is more informative / specific
       return null
+    case TransactionErrorReason.UserDenied:
+      // User denied reason never needs a message
+      return null
+  }
+}
+
+// Render custom errors
+const formatErrorMessage = (error: TransactionError, options: TransactionErrorOptions): string => {
+  const errorReasonMessage = error.reason ? formatErrorReasonMessage(error.reason, options) : null
+  if (errorReasonMessage) {
+    return errorReasonMessage
+  } else if (error.message) {
+    return error.message
+  } else {
+    return options.stage === TransactionErrorStage.Reverted ? 'Transaction reverted' : 'Failed to send transaction'
   }
 }
 
@@ -200,22 +233,16 @@ const handleError = (rawError: any, options: TransactionErrorOptions) => {
 
   console.error(rawError)
 
-  // Post transaction error to db
-  postTransactionError(error, options)
+  // Post transaction error to db, ignore user errors
+  if (!error.reason || !(error.reason && USER_ERRORS.includes(error.reason))) {
+    postTransactionError(error, options)
+  }
 
   const txHash = receipt?.transactionHash
 
-  const toastDescription = error.reason
-    ? formatErrorReason(error.reason, options)
-    : error.message
-    ? error.message.substring(0, 140)
-    : options.stage === TransactionErrorStage.Reverted
-    ? 'Transaction reverted'
-    : 'Failed to send transaction'
-
   updateToast(toastId, {
     variant: 'error',
-    description: toastDescription,
+    description: formatErrorMessage(error, options),
     icon: IconType.AlertTriangle,
     href: txHash ? getExplorerUrl(network, txHash) : undefined,
     hrefLabel: txHash ? 'View on etherscan' : undefined,

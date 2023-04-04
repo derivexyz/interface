@@ -32,6 +32,7 @@ export default async function postTransactionError(
             }
           : {},
         reason: error.reason ?? '',
+        rawError: error.rawError,
       }),
     })
     return res.status === 200
