@@ -35,7 +35,7 @@ const VoteCreateProposalTransferFields = ({
       <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr'], gridColumnGap: [3, 6], gridRowGap: [3, 6] }}>
         <Input
           value={targetAddress}
-          placeholder={'Wallet or Contract address'}
+          placeholder={'Recipient address'}
           onChange={event => {
             onChangeTargetAddress(event.target.value)
           }}

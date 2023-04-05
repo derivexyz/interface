@@ -25,9 +25,9 @@ type Props = {
   executor: string
   target: string
   ethAmount: BigNumber
+  value: BigNumber
   tokenAddress: string
   tokenAmount: BigNumber
-  proposalNetwork: AppNetwork
   action: ProposalAction
   calldata: string
   title: string
@@ -60,10 +60,10 @@ const VoteCreateProposalFormButton = withSuspense(
     action,
     target,
     ethAmount,
+    value,
     tokenAddress,
     tokenAmount,
     calldata,
-    proposalNetwork,
     title,
     summary,
     motivation,
@@ -72,7 +72,7 @@ const VoteCreateProposalFormButton = withSuspense(
     onCreate,
   }: Props) => {
     const account = useWalletAccount()
-    const isLongExecutor = [ProposalAction.MetaGovernance, ProposalAction.Custom].includes(action)
+    const isLongExecutor = [ProposalAction.MetaGovernance, ProposalAction.CustomEthereum].includes(action)
     const { shortExecutor, longExecutor, governance } = useCreateProposalData()
     const minimumPropositionPower = isLongExecutor
       ? longExecutor.minimumPropositionPower
@@ -94,14 +94,15 @@ const VoteCreateProposalFormButton = withSuspense(
         return
       }
       const tx = await createProposal(
+        action,
         account,
         executor,
         target,
+        value,
         ethAmount,
         tokenAddress,
         tokenAmount,
         calldata,
-        proposalNetwork,
         title,
         summary,
         motivation,
@@ -122,6 +123,7 @@ const VoteCreateProposalFormButton = withSuspense(
       })
     }, [
       account,
+      action,
       calldata,
       ethAmount,
       execute,
@@ -130,7 +132,6 @@ const VoteCreateProposalFormButton = withSuspense(
       mutateIndexPageData,
       navigate,
       onCreate,
-      proposalNetwork,
       references,
       specification,
       summary,
@@ -138,6 +139,7 @@ const VoteCreateProposalFormButton = withSuspense(
       title,
       tokenAddress,
       tokenAmount,
+      value,
     ])
 
     return (

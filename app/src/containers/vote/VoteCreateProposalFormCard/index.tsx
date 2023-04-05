@@ -11,20 +11,18 @@ import { useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
 import { Executor, EXECUTORS, ProposalAction } from '@/app/constants/governance'
-import { AppNetwork } from '@/app/constants/networks'
 
 import VoteCreateProposalCustomFields from './VoteCreateProposalCustomFields'
 import VoteCreateProposalExecutorDropdown from './VoteCreateProposalExecutorDropdown'
 import VoteCreateProposalFormButton from './VoteCreateProposalFormButton'
-import VoteCreateProposalNetworkDropdown from './VoteCreateProposalNetworkDropdown'
 import VoteCreateProposalTransferFields from './VoteCreateProposalTransferFields'
 
 type Props = MarginProps
 
 const VoteCreateProposalFormCard = ({}: Props) => {
   const [selectedExecutor, setExecutor] = useState<Executor>(EXECUTORS[0])
-  const [selectedProposalNetwork, setProposalNetwork] = useState<AppNetwork>(AppNetwork.Ethereum)
   const [target, setTarget] = useState('')
+  const [value, setValue] = useState(ZERO_BN)
   const [ethAmount, setEthAmount] = useState(ZERO_BN)
   const [tokenAddress, setTokenAddress] = useState('')
   const [tokenAmount, setTokenAmount] = useState(ZERO_BN)
@@ -41,18 +39,11 @@ const VoteCreateProposalFormCard = ({}: Props) => {
         <Text variant="heading" color="text" mb={4}>
           Proposed action (Executor) and network
         </Text>
-        <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr'], gridColumnGap: [3, 6], gridRowGap: [3, 6] }}>
-          <VoteCreateProposalExecutorDropdown
-            executors={EXECUTORS}
-            selectedExecutor={selectedExecutor}
-            onChangeExecutor={setExecutor}
-          />
-          <VoteCreateProposalNetworkDropdown
-            proposalNetworks={[AppNetwork.Ethereum, AppNetwork.Optimism, AppNetwork.Arbitrum]}
-            selectedProposalNetwork={selectedProposalNetwork}
-            onChangeProposalNetwork={setProposalNetwork}
-          />
-        </Grid>
+        <VoteCreateProposalExecutorDropdown
+          executors={EXECUTORS}
+          selectedExecutor={selectedExecutor}
+          onChangeExecutor={setExecutor}
+        />
       </CardSection>
       {selectedExecutor.action === ProposalAction.TransferEth ? (
         <CardSection noSpacing>
@@ -62,13 +53,21 @@ const VoteCreateProposalFormCard = ({}: Props) => {
           <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr'], gridColumnGap: [3, 6], gridRowGap: [3, 6] }}>
             <Input
               value={target}
-              placeholder={'Wallet or Contract address'}
+              placeholder={'Recipient address'}
               onChange={event => {
                 setTarget(event.target.value)
               }}
             />
             <BigNumberInput flexGrow={1} value={ethAmount} onChange={setEthAmount} placeholder={ZERO_BN} />
           </Grid>
+        </CardSection>
+      ) : null}
+      {selectedExecutor.action === ProposalAction.CustomArbitrum ? (
+        <CardSection noSpacing>
+          <Text variant="heading" color="text" mb={4}>
+            Values
+          </Text>
+          <BigNumberInput flexGrow={1} value={value} onChange={setValue} placeholder={ZERO_BN} />
         </CardSection>
       ) : null}
       {selectedExecutor.action === ProposalAction.Transfer ? (
@@ -81,7 +80,9 @@ const VoteCreateProposalFormCard = ({}: Props) => {
           onChangeTargetAddress={setTarget}
         />
       ) : null}
-      {selectedExecutor.action === ProposalAction.Custom ||
+      {selectedExecutor.action === ProposalAction.CustomEthereum ||
+      selectedExecutor.action === ProposalAction.CustomArbitrum ||
+      selectedExecutor.action === ProposalAction.CustomOptimism ||
       selectedExecutor.action === ProposalAction.MetaGovernance ? (
         <VoteCreateProposalCustomFields calldata={calldata} onChangeCalldata={setCalldata} />
       ) : null}
@@ -135,8 +136,8 @@ const VoteCreateProposalFormCard = ({}: Props) => {
           executor={selectedExecutor.address}
           action={selectedExecutor.action}
           target={target}
-          proposalNetwork={selectedProposalNetwork}
           ethAmount={ethAmount}
+          value={value}
           tokenAddress={tokenAddress}
           tokenAmount={tokenAmount}
           calldata={calldata}
