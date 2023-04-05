@@ -27,9 +27,7 @@ import TradePositionsCard from '@/app/containers/trade/TradePositionsCard'
 import TradePriceCard from '@/app/containers/trade/TradePriceCard'
 import TradeSimpleBoardCard from '@/app/containers/trade/TradeSimpleBoardCard'
 import useTraderSettings from '@/app/hooks/local_storage/useTraderSettings'
-import useQueryBoardIdSync from '@/app/hooks/market/useQueryBoardIdSync'
-import useSelectedStrikeIdSync from '@/app/hooks/market/useQueryStrikeIdSync'
-import useBoolQueryParam from '@/app/hooks/url/useBoolQueryParam'
+import useSelectedBoardSync from '@/app/hooks/market/useSelectedBoardSync'
 import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 import logEvent from '@/app/utils/logEvent'
@@ -45,26 +43,15 @@ type Props = {
 
 export default function TradePageHelper({ markets, selectedMarket, openPositions }: Props): JSX.Element {
   const isMobile = useIsMobile()
-
-  const [queryBoardId, setSelectedBoardId] = useQueryBoardIdSync(selectedMarket)
-
-  const selectedBoard = useMemo(() => {
-    return selectedMarket.liveBoards().find(b => b.id === queryBoardId) ?? null
-  }, [queryBoardId, selectedMarket])
-
-  const [selectedStrikeId, setSelectedStrikeId] = useSelectedStrikeIdSync(selectedBoard)
-
-  const [isCall, setIsCall] = useBoolQueryParam('call', { isNullTrue: true })
-  const [isBuy, setIsBuy] = useBoolQueryParam('buy', { isNullTrue: true })
-
-  const selectedOption = useMemo(() => {
-    return selectedStrikeId ? selectedMarket.liveOption(selectedStrikeId, isCall) : null
-  }, [selectedMarket, isCall, selectedStrikeId])
-
+  const [selectedStrikeId, setSelectedStrikeId] = useState<number | null>(null)
+  const [selectedBoard, setSelectedBoard] = useSelectedBoardSync(selectedMarket) // sync hook
+  const [isCall, setIsCall] = useState(true)
+  const [isBuy, setIsBuy] = useState(true)
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false)
   const [traderSettings, setTraderSettings] = useTraderSettings()
   const positionCardRef = useRef<HTMLElement>()
   const positionButtonRef = useRef<HTMLElement>()
+  const selectedOption = selectedStrikeId !== null ? selectedMarket.liveOption(selectedStrikeId, isCall) : null
 
   const isAdvancedMode = traderSettings.isAdvancedMode
 
@@ -123,7 +110,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
     (newMarket: Market) => {
       if (newMarket.address !== selectedMarket.address) {
         // Reset selected board + option when market changes
-        setSelectedBoardId(null)
+        setSelectedBoard(null)
         setSelectedStrikeId(null)
         navigate(
           getPagePath({
@@ -134,7 +121,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
         )
       }
     },
-    [navigate, selectedMarket.address, setSelectedBoardId, setSelectedStrikeId]
+    [navigate, selectedMarket, setSelectedBoard]
   )
 
   const handleSelectOption = useCallback(
@@ -157,7 +144,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
         expiryTimestamp: newOption.board().expiryTimestamp,
       })
     },
-    [selectedStrikeId, selectedMarket.name, selectedMarket.address, isCall, setSelectedStrikeId]
+    [selectedMarket, isCall, selectedStrikeId]
   )
 
   const handleSelectChainOption = useCallback(
@@ -182,24 +169,12 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
         expiryTimestamp: newOption.board().expiryTimestamp,
       })
     },
-    [
-      selectedStrikeId,
-      isBuy,
-      isCall,
-      setIsBuy,
-      setIsCall,
-      selectedMarket.name,
-      selectedMarket.address,
-      setSelectedStrikeId,
-    ]
+    [selectedMarket, isCall, isBuy, selectedStrikeId]
   )
 
-  const handleToggleBuy = useCallback(
-    (newIsBuy: boolean) => {
-      setIsBuy(newIsBuy)
-    },
-    [setIsBuy]
-  )
+  const handleToggleBuy = useCallback((newIsBuy: boolean) => {
+    setIsBuy(newIsBuy)
+  }, [])
 
   const handleChangeAdvancedMode = useCallback(
     (newIsAdvancedMode: boolean) => {
@@ -299,7 +274,7 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
                 // Reset selected option
                 setSelectedStrikeId(null)
               }
-              setSelectedBoardId(newBoard?.id ?? null)
+              setSelectedBoard(newBoard)
             }}
             selectedOption={selectedOption}
             onSelectOption={handleSelectOption}
