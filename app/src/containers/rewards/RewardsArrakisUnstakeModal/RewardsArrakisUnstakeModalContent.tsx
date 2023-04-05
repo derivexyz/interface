@@ -12,7 +12,7 @@ import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
-import { useMutateArrakisStaking } from '@/app/hooks/rewards/useMutateArrakisStaking'
+import { useMutateArrakisStaking } from '@/app/hooks/rewards/useArrakisStaking'
 import { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
 import { unstakeArrakisLPToken } from '@/app/utils/rewards/unstakeArrakisLPToken'
 

@@ -4,6 +4,7 @@ import CardBody from '@lyra/ui/components/Card/CardBody'
 import Flex from '@lyra/ui/components/Flex'
 import Grid from '@lyra/ui/components/Grid'
 import { IconType } from '@lyra/ui/components/Icon'
+import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
@@ -17,20 +18,51 @@ import { ZERO_BN } from '@/app/constants/bn'
 import { REWARDS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { AppNetwork } from '@/app/constants/networks'
 import { PageId } from '@/app/constants/pages'
+import withSuspense from '@/app/hooks/data/withSuspense'
+import useArrakisStaking from '@/app/hooks/rewards/useArrakisStaking'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getPagePath from '@/app/utils/getPagePath'
-import { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
 
-type Props = {
-  arrakisStaking: ArrakisStaking | null
-} & MarginProps
+type Props = MarginProps
 
-export default function RewardsArrakisCard({ arrakisStaking, ...styleProps }: Props) {
+const RewardsArrakisStakingTVLText = withSuspense(
+  () => {
+    const arrakisStaking = useArrakisStaking()
+    return <Text variant="bodyLarge">{formatTruncatedUSD(arrakisStaking?.stakedTVL ?? ZERO_BN)}</Text>
+  },
+  () => <TextShimmer variant="bodyLarge" width={40} />
+)
+
+const RewardsArrakisStakingLiquidityText = withSuspense(
+  () => {
+    const arrakisStaking = useArrakisStaking()
+    const liquidityValue = arrakisStaking
+      ? fromBigNumber(arrakisStaking?.stakedLPTokenBalance) * arrakisStaking.lpTokenValue
+      : 0
+    return <Text variant="bodyLarge">{formatTruncatedUSD(liquidityValue)}</Text>
+  },
+  () => <TextShimmer variant="bodyLarge" width={80} />
+)
+
+const RewardsArrakisStakingAPYText = withSuspense(
+  () => {
+    const arrakisStaking = useArrakisStaking()
+    return (
+      <Text
+        variant="bodyLarge"
+        color={arrakisStaking && arrakisStaking.stakedLPTokenBalance.gt(0) ? 'primaryText' : 'text'}
+      >
+        {formatPercentage(arrakisStaking?.apy ?? 0, true)}
+      </Text>
+    )
+  },
+  () => <TextShimmer variant="bodyLarge" width={40} />
+)
+
+export default function RewardsArrakisCard({ ...styleProps }: Props) {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
-  const liquidityValue = arrakisStaking
-    ? fromBigNumber(arrakisStaking?.stakedLPTokenBalance) * arrakisStaking.lpTokenValue
-    : 0
+
   return (
     <Card onClick={() => navigate(getPagePath({ page: PageId.RewardsArrakis }))} {...styleProps}>
       <CardBody>
@@ -49,23 +81,23 @@ export default function RewardsArrakisCard({ arrakisStaking, ...styleProps }: Pr
           </Flex>
           {!isMobile ? (
             <>
-              <Flex alignItems="center">
+              <Flex>
                 <Text mr={2} color="secondaryText" variant="bodyLarge">
                   TVL
                 </Text>
-                <Text variant="bodyLarge">{formatTruncatedUSD(arrakisStaking?.stakedTVL ?? ZERO_BN)}</Text>
+                <RewardsArrakisStakingTVLText />
               </Flex>
-              <Flex alignItems="center">
+              <Flex>
                 <Text mr={2} color="secondaryText" variant="bodyLarge">
                   Your Liquidity
                 </Text>
-                <Text variant="bodyLarge">{formatTruncatedUSD(liquidityValue)}</Text>
+                <RewardsArrakisStakingLiquidityText />
               </Flex>
-              <Flex alignItems="center" ml="auto">
+              <Flex ml="auto">
                 <Text mr={2} color="secondaryText" variant="bodyLarge">
                   APY
                 </Text>
-                <Text variant="bodyLarge">{formatPercentage(arrakisStaking?.apy ?? 0, true)}</Text>
+                <RewardsArrakisStakingAPYText />
               </Flex>
             </>
           ) : null}

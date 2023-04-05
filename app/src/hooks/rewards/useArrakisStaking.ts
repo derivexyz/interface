@@ -4,7 +4,13 @@ import { FetchId } from '@/app/constants/fetch'
 import fetchArrakisStaking, { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
 
 import useWalletAccount from '../account/useWalletAccount'
-import { useMutate } from '../data/useFetch'
+import useFetch, { useMutate } from '../data/useFetch'
+
+export default function useArrakisStaking() {
+  const account = useWalletAccount()
+  const [data] = useFetch(FetchId.ArrakisStaking, [account], fetchArrakisStaking)
+  return data
+}
 
 export const useMutateArrakisStaking = (): (() => Promise<ArrakisStaking | null>) => {
   const mutate = useMutate(FetchId.ArrakisStaking, fetchArrakisStaking)

@@ -42,10 +42,11 @@ export enum FetchId {
   LatestRewardEpoch = 'LatestRewardEpoch',
   ArrakisOptimismAccount = 'ArrakisOptimismAccount',
   ArrakisStaking = 'ArrakisStaking',
+  CamelotStaking = 'CamelotStaking',
   ClaimableStakingRewards = 'ClaimableStakingRewards',
   TokenSupply = 'TokenSupply',
   NetworkTradingVolume = 'NetworkTradingVolume',
-  CamelotStaking = 'CamelotStaking',
+  VelodromeStaking = 'VelodromeStaking',
 
   // shared
   PositionHistory = 'PositionHistory',

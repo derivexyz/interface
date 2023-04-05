@@ -5,26 +5,13 @@ import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import React from 'react'
 
-import { CamelotStaking } from '@/app/utils/fetchCamelotStaking'
-import { VelodromeStaking } from '@/app/utils/fetchVelodromeStaking'
-import { ArrakisStaking } from '@/app/utils/rewards/fetchArrakisStaking'
-
 import RewardsArrakisCard from './RewardsArrakisCard'
 import RewardsCamelotCard from './RewardsCamelotCard'
 import RewardsVelodromeCard from './RewardsVelodromeCard'
 
-type Props = {
-  arrakisStaking: ArrakisStaking | null
-  camelotStaking: CamelotStaking | null
-  velodromeStaking: VelodromeStaking | null
-} & MarginProps
+type Props = MarginProps
 
-const RewardsWethLyraLPSection = ({
-  arrakisStaking,
-  camelotStaking,
-  velodromeStaking,
-  ...marginProps
-}: Props): CardElement => {
+const RewardsWethLyraLPSection = ({ ...marginProps }: Props): CardElement => {
   return (
     <Flex flexDirection="column" mt={[6, 0]}>
       <Box px={[6, 0]} mb={5}>
@@ -34,9 +21,9 @@ const RewardsWethLyraLPSection = ({
         <Text color="secondaryText">Earn rewards on the Uniswap v3 pool via Arrakis Finance and Camelot DEX.</Text>
       </Box>
       <Flex flexDirection="column" {...marginProps}>
-        <RewardsArrakisCard arrakisStaking={arrakisStaking} />
-        <RewardsCamelotCard camelotStaking={camelotStaking} mt={4} />
-        <RewardsVelodromeCard velodromeStaking={velodromeStaking} mt={4} />
+        <RewardsArrakisCard />
+        <RewardsCamelotCard mt={4} />
+        <RewardsVelodromeCard mt={4} />
       </Flex>
     </Flex>
   )

@@ -16,16 +16,12 @@ const RewardsIndexPage = withSuspense(
       return <PageError error="Failed to load page" />
     }
     const latestRewardEpochs = filterNulls(Object.values(data.epochs).map(epoch => epoch.latestRewardEpoch))
-    const { vaults, arrakisStaking, camelotStaking, velodromeStaking, lyraBalances, lyraStaking, lyraStakingAccount } =
-      data
+    const { vaults, lyraBalances, lyraStaking, lyraStakingAccount } = data
     return (
       <RewardsIndexPageHelper
         latestRewardEpochs={latestRewardEpochs}
         vaults={vaults}
         lyraBalances={lyraBalances}
-        arrakisStaking={arrakisStaking}
-        camelotStaking={camelotStaking}
-        velodromeStaking={velodromeStaking}
         lyraStaking={lyraStaking}
         lyraStakingAccount={lyraStakingAccount}
       />

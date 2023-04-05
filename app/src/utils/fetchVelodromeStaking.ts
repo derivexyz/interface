@@ -23,11 +23,11 @@ export default async function fetchVelodromeStaking(address: string | null): Pro
   const velodromePool = getContract(ContractId.VelodromePool, AppNetwork.Optimism)
   const velodromeStakingPool = getContract(ContractId.VelodromeStaking, AppNetwork.Optimism)
 
-  const optimismToken = getTokenInfo('OP', Network.Optimism)
+  const lyraToken = getTokenInfo('LYRA', Network.Optimism)
   const veloToken = getTokenInfo('VELO', Network.Optimism)
   const usdcToken = getTokenInfo('USDC', Network.Optimism)
 
-  if (!optimismToken || !veloToken || !usdcToken) {
+  if (!lyraToken || !veloToken || !usdcToken) {
     console.warn('Missing token info in tokenlist.json')
     return {
       tvl: 0,
@@ -76,7 +76,7 @@ export default async function fetchVelodromeStaking(address: string | null): Pro
         args: [veloToken.address],
       },
     ]),
-    fetchTokenSpotPrice(optimismToken.address, AppNetwork.Optimism),
+    fetchTokenSpotPrice(lyraToken.address, AppNetwork.Optimism),
     fetchTokenSpotPrice(veloToken.address, AppNetwork.Optimism),
     address ? velodromeStakingPool.balanceOf(address) : ZERO_BN,
   ])
