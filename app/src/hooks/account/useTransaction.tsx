@@ -52,11 +52,16 @@ const USER_ERRORS = [
 // Catches common error patterns
 const TX_ERROR_PATTERNS: Record<TransactionErrorReason, { message?: string; code?: number | string; name?: string }[]> =
   {
-    [TransactionErrorReason.TradeSlippage]: [{ name: 'TotalCostOutsideOfSpecifiedBounds' }],
+    [TransactionErrorReason.TradeSlippage]: [
+      { message: 'Insufficient balance after any settlement owing' },
+      { name: 'TotalCostOutsideOfSpecifiedBounds' },
+    ],
     [TransactionErrorReason.UserDenied]: [
       { message: 'User denied transaction signature' },
       { message: 'User rejected transaction' },
       { message: "Cannot set properties of undefined (setting 'loadingDefaults')" },
+      { message: 'Sign request rejected by user' },
+      { message: 'cancelled' },
       { code: 'ACTION_REJECTED' },
       { code: 4001 },
     ],
