@@ -83,7 +83,7 @@ const RewardsArrakiStakeModalContent = ({ arrakisStaking, amount, onChange, onSt
         rightIcon={IconType.ArrowUpRight}
         size="lg"
         variant={arrakisStaking.unstakedLPTokenBalance.gt(0) ? 'default' : 'primary'}
-        href={ARRAKIS_LIQUIDITY_URL + '/add'}
+        href={ARRAKIS_LIQUIDITY_URL}
         target="_blank"
         mb={3}
       />

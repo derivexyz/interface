@@ -144,7 +144,7 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
                     label="Add Liquidity"
                     rightIcon={IconType.ArrowUpRight}
                     size="lg"
-                    href={ARRAKIS_LIQUIDITY_URL + '/add'}
+                    href={ARRAKIS_LIQUIDITY_URL}
                     target="_blank"
                   />
                 </Flex>

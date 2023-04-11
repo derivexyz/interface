@@ -75,7 +75,7 @@ const RewardsArrakisUnstakeModalContent = ({ amount, arrakisStaking, onChange, o
         label="Remove Liquidity"
         rightIcon={IconType.ArrowUpRight}
         size="lg"
-        href={ARRAKIS_LIQUIDITY_URL + '/remove'}
+        href={ARRAKIS_LIQUIDITY_URL}
         target="_blank"
       />
     </>

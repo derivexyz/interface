@@ -80,7 +80,7 @@ export default function RewardsArrakisOpUnstakeModal({ isOpen, arrakisOpStaking,
           label="Remove Liquidity"
           rightIcon={IconType.ArrowUpRight}
           size="lg"
-          href={ARRAKIS_OP_LIQUIDITY_URL + '/remove'} // TODO: @dillon LEAP-44 update this link
+          href={ARRAKIS_OP_LIQUIDITY_URL}
           target="_blank"
         />
       </CardBody>
