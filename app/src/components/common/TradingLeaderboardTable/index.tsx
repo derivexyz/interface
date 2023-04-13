@@ -145,7 +145,9 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
     return null
   }
 
-  const sortedRows = rows.sort((a, b) => b.dailyRewards - a.dailyRewards)
+  const sortedRows = accountIsTopWallet
+    ? [rows[0], ...rows.slice(1).sort((a, b) => b.dailyRewards - a.dailyRewards)]
+    : rows.sort((a, b) => b.dailyRewards - a.dailyRewards)
   return (
     <Table
       data={sortedRows}

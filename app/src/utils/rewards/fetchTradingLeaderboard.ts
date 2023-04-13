@@ -42,7 +42,7 @@ export type TradingRewardsLeaderboard = {
   }
 }
 
-const fetchTradingLeaderboard = async (network: Network): Promise<TradingRewardsLeaderboard | null> => {
+const fetchTradingLeaderboard = async (network: Network): Promise<TradingRewardsLeaderboard[] | null> => {
   const res = await fetch(`${process.env.REACT_APP_API_URL}/rewards/tradingLeaderboard?network=${network}`, {
     method: 'GET',
     mode: 'cors',
@@ -51,7 +51,7 @@ const fetchTradingLeaderboard = async (network: Network): Promise<TradingRewards
     return null
   }
   const data: TradingRewardsLeaderboard[] = await res.json()
-  return data[0]
+  return data
 }
 
 export default fetchTradingLeaderboard
