@@ -1,7 +1,6 @@
 import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
 import IconButton from '@lyra/ui/components/Button/IconButton'
-import Flex from '@lyra/ui/components/Flex'
 import { IconType } from '@lyra/ui/components/Icon'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
@@ -62,27 +61,6 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
 
   const columns = useMemo<TableColumn<LeaderboardTableData>[]>(() => {
     return filterNulls([
-      {
-        accessor: 'rank',
-        Header: 'Rank',
-        width: 50,
-        Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          const { showBoostButton } = props.row.original
-          const leftAlign = props.cell.value < 100 ? 2 : 0
-          return (
-            <Flex flexDirection="row" justifyContent="space-between" alignItems="center" width="100%">
-              <Text variant="bodyMedium" color="text" ml={leftAlign}>
-                {props.cell.value}
-              </Text>
-              <Box
-                variant="cardSeparator"
-                width={3}
-                height={showBoostButton ? TRADING_LEADERBOARD_ROW_HEIGHT - 2 : TRADING_LEADERBOARD_ROW_HEIGHT}
-              />
-            </Flex>
-          )
-        },
-      },
       {
         accessor: 'trader',
         Header: 'Trader',
@@ -167,7 +145,7 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
     return null
   }
 
-  const sortedRows = rows.sort((a, b) => b.boost - a.boost)
+  const sortedRows = rows.sort((a, b) => b.dailyRewards - a.dailyRewards)
   return (
     <Table
       data={sortedRows}

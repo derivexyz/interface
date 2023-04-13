@@ -6,7 +6,6 @@ import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import React from 'react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import TradingLeaderboardTable from '@/app/components/common/TradingLeaderboardTable'
 import { PageId } from '@/app/constants/pages'
@@ -25,7 +24,6 @@ const LeaderboardTable = withSuspense(
   ({ data, ...marginProps }: Props) => {
     const { traders, latestGlobalRewardEpoch } = data
     const lyraBalances = useAccountLyraBalances()
-    const navigate = useNavigate()
     const [isOpen, setIsOpen] = useState(false)
     if (!traders.length) {
       return (
