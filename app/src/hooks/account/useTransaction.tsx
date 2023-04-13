@@ -352,6 +352,7 @@ export default function useTransaction(network: Network) {
       if ('method' in txInputs) {
         const method = txInputs['method']
         const params = txInputs['params']
+
         const options = txInputs['options']
         contract = txInputs['contract'].connect(signer)
         metadata = txInputs['metadata']

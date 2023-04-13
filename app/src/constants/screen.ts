@@ -35,4 +35,5 @@ export enum TransactionType {
   VoteProposal = 'VoteProposal',
   QueueProposal = 'QueueProposal',
   ExecuteProposal = 'ExecuteProposal',
+  Referral = 'Referral',
 }

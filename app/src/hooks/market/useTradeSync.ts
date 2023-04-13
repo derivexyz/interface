@@ -16,6 +16,7 @@ export default function useTradeSync({
   balances,
   setToCollateral,
   isBaseCollateral,
+  referrer,
 }: {
   option: Option
   isBuy: boolean
@@ -25,6 +26,7 @@ export default function useTradeSync({
   position?: Position | null
   setToCollateral?: BigNumber | null
   isBaseCollateral?: boolean
+  referrer?: string
 }): Trade {
   const account = useWalletAccount() ?? ZERO_ADDRESS
   return useMemo(() => {
@@ -33,7 +35,8 @@ export default function useTradeSync({
       setToCollateral: setToCollateral ?? undefined,
       isBaseCollateral,
       iterations: ITERATIONS,
+      referrer,
     })
     return trade
-  }, [option, account, isBuy, size, balances, position, setToCollateral, isBaseCollateral, slippage])
+  }, [option, account, isBuy, size, slippage, balances, position, setToCollateral, isBaseCollateral, referrer])
 }

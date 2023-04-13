@@ -48,6 +48,15 @@ export enum FetchId {
   NetworkTradingVolume = 'NetworkTradingVolume',
   VelodromeStaking = 'VelodromeStaking',
 
+  // leaderboard
+  LeaderboardPageData = 'LeaderboardPageData',
+  LeaderboardHistoryPageData = 'LeaderboardHistoryPageData',
+
+  // referrals
+  ReferralsPageData = 'ReferralsPageData',
+  ReferralCode = 'ReferralCode',
+  ReferrerAttribution = 'ReferrerAttribution',
+
   // shared
   PositionHistory = 'PositionHistory',
   TradeHistory = 'TradeHistory',

@@ -6,14 +6,7 @@ import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import {
-  AccountRewardEpoch,
-  CollateralUpdateEvent,
-  Position,
-  RewardEpochTokenAmount,
-  SettleEvent,
-  TradeEvent,
-} from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch, CollateralUpdateEvent, Position, SettleEvent, TradeEvent } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import filterNulls from '@/app/utils/filterNulls'
@@ -39,7 +32,6 @@ export type TradeEventTableData = TableData<{
   timestamp: number
   premium: number
   fee: number
-  feeRebate: RewardEpochTokenAmount[]
   pnl: number
   collateralValue: number
   collateralAmount: number
@@ -57,7 +49,7 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
       const accountRewardEpoch = accountRewardEpochs?.find(
         epoch => epoch.globalEpoch.startTimestamp < event.timestamp && epoch.globalEpoch.endTimestamp >= event.timestamp
       )
-      let feeRebate: RewardEpochTokenAmount[] = []
+
       let collateralValue = 0
       let collateralAmount = 0
       let premium = 0
@@ -73,9 +65,6 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
           collateralAmount = -fromBigNumber(collateralUpdate.changeAmount(position))
         }
         fee = fromBigNumber(event.fee)
-        feeRebate = accountRewardEpoch
-          ? accountRewardEpoch.globalEpoch.tradingRewards(fee, accountRewardEpoch.stakedLyraBalance)
-          : feeRebate
       } else if (event instanceof CollateralUpdateEvent) {
         collateralValue = -fromBigNumber(event.changeValue(position))
         collateralAmount = -fromBigNumber(event.changeAmount(position))
@@ -98,7 +87,6 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
         isCall,
         premium,
         fee,
-        feeRebate,
         collateralAmount,
         collateralValue,
         isBaseCollateral,
@@ -174,10 +162,9 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
       },
       {
         accessor: 'premium',
-        Header: 'Premiums / Rebate',
+        Header: 'Premiums',
         Cell: (props: TableCellProps<TradeEventTableData>) => {
-          const { position, feeRebate } = props.row.original
-          const totalFeeRebate = feeRebate.reduce((sum, rebate) => sum + rebate.amount, 0)
+          const { position } = props.row.original
           const market = position.market()
           return (
             <Box>
@@ -189,11 +176,6 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
                     )
                   : '-'}
               </Text>
-              {totalFeeRebate > 0 ? (
-                <Text variant="small" color="secondaryText">
-                  {feeRebate.map(rebate => formatNumber(rebate.amount, { maxDps: 3 })).join(', ')}
-                </Text>
-              ) : null}
             </Box>
           )
         },

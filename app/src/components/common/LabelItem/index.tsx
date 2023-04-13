@@ -6,6 +6,7 @@ import React from 'react'
 
 type Props = {
   label: string | React.ReactNode
+  labelColor?: TextColor
   value: string | React.ReactNode
   valueColor?: TextColor
   textVariant?: TextVariant
@@ -17,6 +18,7 @@ type Props = {
 
 export default function LabelItem({
   label,
+  labelColor = 'secondaryText',
   value,
   valueColor,
   noPadding,
@@ -30,7 +32,7 @@ export default function LabelItem({
   return (
     <Flex flexDirection="column" {...styleProps}>
       {typeof label === 'string' ? (
-        <Text variant={labelTextVariant} color="secondaryText" mb={!noPadding ? 2 : 0}>
+        <Text variant={labelTextVariant} color={labelColor} mb={!noPadding ? 2 : 0}>
           {label}
         </Text>
       ) : (

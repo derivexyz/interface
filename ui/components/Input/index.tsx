@@ -1,5 +1,6 @@
 import { Input as RebassInput } from '@rebass/forms'
 import React, { ChangeEventHandler, FocusEventHandler, useEffect, useRef, useState } from 'react'
+import { SxStyleProp } from 'rebass'
 import { FlexGrowProps, LayoutProps, MarginProps } from 'styled-system'
 
 import Box from '../Box'
@@ -27,6 +28,8 @@ export type InputProps = {
   isDisabled?: boolean
   textAlign?: 'start' | 'end' | 'left' | 'right' | 'center' | 'justify' | 'match-parent'
   isTransparent?: boolean
+  inputContainerStyles?: SxStyleProp
+  rebassInputStyles?: SxStyleProp
 } & HTMLInputProps &
   MarginProps &
   LayoutProps &
@@ -50,6 +53,8 @@ export default function Input({
   onFocus,
   isDisabled,
   textAlign,
+  inputContainerStyles,
+  rebassInputStyles,
   ...styleProps
 }: InputProps): InputElement {
   const [_isFocused, setIsFocused] = useState(false)
@@ -80,11 +85,12 @@ export default function Input({
       )}
       <Flex
         alignItems="center"
-        variant="inputContainer"
+        variant={isDisabled ? 'inputContainerDisabled' : 'inputContainer'}
         sx={{
-          bg: _isFocused ? 'buttonBackground' : undefined,
+          bg: _isFocused ? 'buttonBackground' : isDisabled ? 'disabledButtonBg' : undefined,
           borderColor: error ? 'inputError' : success ? 'inputSuccess' : _isFocused && !!value ? 'outline' : undefined,
           cursor: isDisabled ? 'not-allowed' : 'text',
+          ...inputContainerStyles,
         }}
         onClick={() => {
           inputRef.current?.focus()
@@ -111,7 +117,7 @@ export default function Input({
           disabled={isDisabled}
           minHeight="35px"
           height="100%"
-          sx={{ textAlign }}
+          sx={{ textAlign, ...rebassInputStyles }}
         />
         {rightContent != null && (
           <Flex ml={1} alignItems="center" mr={3}>

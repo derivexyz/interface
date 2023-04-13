@@ -79,6 +79,7 @@ export type TradeOptions = {
   setToFullCollateral?: boolean
   isBaseCollateral?: boolean
   iterations?: number
+  referrer?: string
 }
 
 export type TradeOptionsSync = {
@@ -154,6 +155,7 @@ export class Trade {
       setToFullCollateral = false,
       iterations = DEFAULT_ITERATIONS,
       isBaseCollateral: _isBaseCollateral,
+      referrer = ZERO_ADDRESS,
     } = options ?? {}
 
     this.__option = option
@@ -326,7 +328,6 @@ export class Trade {
         : !this.isForceClose
         ? 'closePosition'
         : 'forceClosePosition'
-
     if (lyra.version === Version.Avalon) {
       this.params = [
         {
@@ -351,7 +352,7 @@ export class Trade {
           setCollateralTo,
           minTotalCost,
           maxTotalCost,
-          referrer: ZERO_ADDRESS,
+          referrer: referrer,
         },
       ]
     }

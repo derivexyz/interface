@@ -25,6 +25,10 @@ const getRewardsTradingPath = (args: PageArgsMap[PageId.RewardsTrading]): string
   return `/rewards/trading/${args.network}`.toLowerCase()
 }
 
+const getRewardsReferralsPath = (args: PageArgsMap[PageId.RewardsTrading]): string => {
+  return `/rewards/referrals/${args.network}`.toLowerCase()
+}
+
 const getRewardsVaultsPath = (args: PageArgsMap[PageId.RewardsVaults]): string => {
   return `/rewards/vaults/${args.network}/${args.marketAddressOrName}`.toLowerCase()
 }
@@ -53,6 +57,10 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
       return '/storybook'
     case PageId.Faucet:
       return '/faucet'
+    case PageId.Leaderboard:
+      return '/leaderboard'
+    case PageId.LeaderboardHistory:
+      return '/leaderboard/history'
     case PageId.VaultsIndex:
       return '/vaults'
     case PageId.VaultsHistory:
@@ -75,6 +83,8 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
       return getVoteProposalDetailsPath(args as PageArgsMap[PageId.VoteProposalDetails])
     case PageId.RewardsArrakis:
       return '/rewards/arrakis'
+    case PageId.RewardsReferrals:
+      return getRewardsReferralsPath(args as PageArgsMap[PageId.RewardsReferrals])
     case PageId.NotFound:
       return '/404'
   }

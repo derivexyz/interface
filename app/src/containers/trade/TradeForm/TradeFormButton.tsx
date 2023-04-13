@@ -92,7 +92,6 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
   const market = option.market()
 
   const account = useAccount(trade.lyra.network)
-
   const mutateTrade = useMutateTrade(trade)
   const mutateTradeApprove = useMutateTradeApprove(trade)
 

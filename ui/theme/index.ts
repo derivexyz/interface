@@ -94,6 +94,7 @@ const lightColors = {
   inputHoverBg: '#E8E8E880',
   inputSuccess: '#57B29C',
   inputError: '#D86969',
+  inputDisabledBg: '#E8E8E899',
 
   // modal
   modalBg: '#FEFEFE',
@@ -204,6 +205,7 @@ const darkColors = {
   inputHoverBg: '#3A4450BF',
   inputSuccess: '#57B29C',
   inputError: '#D86969',
+  inputDisabledBg: '#3A445099',
 
   // modal
   modalBg: '#27303A',
@@ -458,6 +460,11 @@ const theme = {
       ':hover': {
         bg: 'inputHoverBg',
       },
+    },
+    inputContainerDisabled: {
+      variant: 'inputContainer',
+      bg: 'inputDisabledBg',
+      ':hover': 'none',
     },
     toast: {
       cursor: 'pointer',

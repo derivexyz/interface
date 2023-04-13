@@ -9,6 +9,8 @@ export enum PageId {
   Vaults = 'Vaults',
   VaultsIndex = 'VaultsIndex',
   VaultsHistory = 'VaultsHistory',
+  Leaderboard = 'Leaderboard',
+  LeaderboardHistory = 'LeaderboardHistory',
   RewardsIndex = 'RewardsIndex',
   RewardsTrading = 'RewardsTrading',
   RewardsVaults = 'RewardsVaults',
@@ -17,6 +19,7 @@ export enum PageId {
   VoteProposalCreate = 'VoteProposalCreate',
   VoteProposalDetails = 'VoteProposalDetails',
   RewardsArrakis = 'RewardsArrakis',
+  RewardsReferrals = 'RewardsReferrals',
   Storybook = 'Storybook',
   Faucet = 'Faucet',
 }
@@ -43,6 +46,8 @@ export type PageArgsMap = {
   }
   [PageId.Portfolio]: undefined
   [PageId.History]: undefined
+  [PageId.Leaderboard]: undefined
+  [PageId.LeaderboardHistory]: undefined
   [PageId.VaultsIndex]: undefined
   [PageId.VaultsHistory]: undefined
   [PageId.Vaults]: {
@@ -64,6 +69,9 @@ export type PageArgsMap = {
     proposalId: number
   }
   [PageId.RewardsArrakis]: undefined
+  [PageId.RewardsReferrals]: {
+    network: string
+  }
   [PageId.Storybook]: undefined
   [PageId.Faucet]: undefined
 }

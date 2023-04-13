@@ -23,6 +23,7 @@ export const SOCKET_URL = 'https://www.bungee.exchange/'
 export const TWITTER_URL = 'https://twitter.com'
 
 export const TERMS_OF_USE_URL = 'https://www.lyra.finance/terms-of-use'
+export const REFERRALS_TERMS_OF_USE_URL = 'https://www.lyra.finance/referral-terms'
 
 // Docs
 export const DOCS_URL = 'https://docs.lyra.finance'
@@ -36,7 +37,8 @@ export const CIRCUIT_BREAKER_DOC_URL =
 export const KEEPER_BOT_DOC_URL =
   'https://docs.lyra.finance/developers/contracts/actor-functions#liquiditypool.processwithdrawalqueue'
 export const VAULT_REWARDS_DOC_URL = 'https://docs.lyra.finance/governance/incentives#vault-rewards-and-boosting'
-export const TRADING_REWARDS_DOC_URL = 'https://docs.lyra.finance/governance/incentives#trading-rewards-and-boosting'
+export const TRADING_REWARDS_DOC_URL = 'https://gov.lyra.finance/rewards/trading-rewards'
+export const REFERRALS_DOC_URL = 'https://gov.lyra.finance/rewards/referrals'
 export const VAULTS_ABOUT_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/market-maker-vaults'
 export const DYNAMIC_FEES_DOC_URL =
   'https://docs.lyra.finance/overview/how-does-lyra-work/options-pricing-and-the-amm#dynamic-fees'
@@ -64,3 +66,6 @@ export const CAMELOT_API_URL = 'https://api.camelot.exchange'
 
 export const VELODROME_ADD_LIQUIDITY_URL =
   'https://app.velodrome.finance/liquidity/manage?address=0xdee1856d7b75abf4c1bdf986da4e1c6c7864d640'
+
+export const TRADING_REWARDS_BLOG_URL = 'https://blog.lyra.finance/trading-rewards-v2/'
+export const REFERRALS_TERMS_URL = 'https://www.lyra.finance/referral-terms'

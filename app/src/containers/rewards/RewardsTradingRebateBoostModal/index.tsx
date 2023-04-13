@@ -54,7 +54,7 @@ export default function RewardsTradingRebateBoostModal({
     >
       <ModalBody>
         <Text color="secondaryText" mb={10}>
-          Your are currently receiving a {formatPercentage(effectiveRebate, true)} rebate on your trading fees.{' '}
+          You are currently receiving a {formatPercentage(effectiveRebate, true)} rebate on your trading fees.{' '}
           {!isMaxFeeRebate
             ? `Stake ${formatNumber(stkLyraDiff)} more LYRA to earn a ${formatPercentage(
                 nextEffectiveRebateTier.feeRebate,

@@ -48,6 +48,13 @@ export type GlobalTradingRewards = {
 export type GlobalTradingRewardsConfig = {
   useRebateTable: boolean
   rebateRateTable: { cutoff: number; returnRate: number }[]
+  boostRateTable: {
+    stakingCutoff: number
+    tradingCutoff: number
+    isReferred: boolean
+    label: string
+    boostRate: number
+  }[]
   maxRebatePercentage: number
   netVerticalStretch: number // param a // netVerticalStretch
   verticalShift: number // param b // verticalShift

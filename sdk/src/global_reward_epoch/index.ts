@@ -19,6 +19,14 @@ export type GlobalRewardEpochTradingFeeRebateTier = {
   feeRebate: number
 }
 
+export type GlobalRewardEpochTradingBoostTier = {
+  stakingCutoff: number
+  tradingCutoff: number
+  isReferred: boolean
+  label: string
+  boost: number
+}
+
 export type RewardEpochToken = {
   address: string
   symbol: string
@@ -60,6 +68,7 @@ export class GlobalRewardEpoch {
   maxTradingFeeRebate: number
   tradingRewardsCap: RewardEpochTokenAmount[]
   tradingFeeRebateTiers: GlobalRewardEpochTradingFeeRebateTier[]
+  tradingBoostTiers: GlobalRewardEpochTradingBoostTier[]
   vaultRewardTokens: RewardEpochToken[]
   tradingRewardTokens: RewardEpochToken[]
   rewardTokens: RewardEpochToken[]
@@ -84,6 +93,13 @@ export class GlobalRewardEpoch {
     this.tradingFeeRebateTiers = epoch.tradingRewardConfig?.rebateRateTable?.map(tier => ({
       stakedLyraCutoff: tier.cutoff,
       feeRebate: tier.returnRate,
+    }))
+    this.tradingBoostTiers = epoch.tradingRewardConfig?.boostRateTable?.map(tier => ({
+      stakingCutoff: tier.stakingCutoff,
+      tradingCutoff: tier.tradingCutoff,
+      isReferred: tier.isReferred,
+      label: tier.label,
+      boost: tier.boostRate,
     }))
 
     this.blockTimestamp = block.timestamp

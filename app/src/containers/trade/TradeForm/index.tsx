@@ -6,18 +6,21 @@ import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
 import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Market, Option, Position } from '@lyrafinance/lyra-js'
+import { Market, Network, Option, Position } from '@lyrafinance/lyra-js'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import RowItem from '@/app/components/common/RowItem'
-import { ZERO_BN } from '@/app/constants/bn'
+import { ZERO_ADDRESS, ZERO_BN } from '@/app/constants/bn'
 import { SLIPPAGE } from '@/app/constants/contracts'
 import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
 import TradeFormSizeInput from '@/app/containers/trade/TradeForm/TradeFormSizeInput'
 import useAccountBalances from '@/app/hooks/account/useAccountBalances'
+import useNetwork from '@/app/hooks/account/useNetwork'
+import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
+import useReferrerAttribution from '@/app/hooks/referrals/useReferrerAttribution'
 import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
@@ -36,10 +39,13 @@ type Props = {
 
 const TradeForm = withSuspense(
   ({ isBuy, option, position, onTrade, hideTitle }: Props) => {
+    const account = useWalletAccount()
+    const network = useNetwork()
     const market = option.market()
 
     // TODO: @dappbeast parallelize requests
     const balances = useAccountBalances(market)
+    const referrerAddress = useReferrerAttribution(account ?? ZERO_ADDRESS)
 
     const isLong = position ? position.isLong : isBuy
 
@@ -95,6 +101,7 @@ const TradeForm = withSuspense(
       isBaseCollateral,
       // TODO: @dappbeast make slippage configurable
       slippage: SLIPPAGE,
+      referrer: network === Network.Arbitrum && !!referrerAddress ? referrerAddress : undefined,
     })
 
     const pnl = useMemo(() => trade.pnl(), [trade])

@@ -8,9 +8,12 @@ import PortfolioHistoryPageHelper from './page_helpers/PortfolioHistoryPageHelpe
 import AdminBoardPage from './pages/AdminBoardPage'
 import AdminMarketPage from './pages/AdminPage'
 import FaucetPage from './pages/FaucetPage'
+import LeaderboardHistoryPage from './pages/LeaderboardHistoryPage'
+import LeaderboardPage from './pages/LeaderboardPage'
 import NotFoundPage from './pages/NotFoundPage'
 import PortfolioPage from './pages/PortfolioPage'
 import PositionPage from './pages/PositionPage'
+import ReferralsPage from './pages/ReferralsPage'
 import RewardsArrakisPage from './pages/RewardsArrakisPage'
 import RewardsIndexPage from './pages/RewardsIndexPage'
 import RewardsTradingPage from './pages/RewardsTradingPage'
@@ -42,6 +45,9 @@ export default function PageRoutes() {
       <Route path="/position/:network/:marketAddressOrName/:positionId" element={<PositionPage />} />
       {isMainnet() ? (
         <>
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/leaderboard/history" element={<LeaderboardHistoryPage />} />
+          <Route path="/rewards/referrals/:network" element={<ReferralsPage />} />
           <Route path="/rewards" element={<RewardsIndexPage />} />
           <Route path="/rewards/trading/:network" element={<RewardsTradingPage />} />
           <Route path="/rewards/vaults/:network/:marketAddressOrName" element={<RewardsVaultsPage />} />

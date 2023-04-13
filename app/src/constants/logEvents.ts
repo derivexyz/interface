@@ -4,6 +4,7 @@ export enum LogEvent {
   NavPortfolioAnnouncementCTAClick = 'NavPortfolioAnnouncementCTAClick',
   NavVaultsTabClick = 'NavVaultsTabClick',
   NavTradeTabClick = 'NavTradeTabClick',
+  NavLeaderboardTabClick = 'NavLeaderboardTabClick',
   NavRewardsTabClick = 'NavRewardsTabClick',
   NavFaucetTabClick = 'NavFaucetTabClick',
   NavVoteTabClick = 'NavVoteTabClick',

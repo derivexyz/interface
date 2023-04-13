@@ -29,16 +29,76 @@ export type AccountMMVRewards = {
   }
 }
 
-export type AccountTradingRewards = {
+export type TokenReward = {
+  address: string
+  symbol: string
+  decimals: number
+  amount: number
+}
+
+export type DailyPoint = {
+  points: number
+  day: number
   fees: number
-  effectiveRebateRate: number
+  premium: number
+  size: number
+  volume: number
+  durationInSeconds: number
+  startOfDayTimestamp: number
+  endOfDayTimestamp: number
+  stakingBoost: number
+  tradingBoost: number
+  referralBoost: number
+  referrer: string | null
+  referrerFees: number
+  referrerBoost: number
+}
+
+export type DailyPoints = {
+  [startTimestamp: number]: DailyPoint
+}
+
+export type NewTradingRewardsReferredTraders = {
+  [trader: string]: {
+    trader: string
+    trades: number
+    fees: number
+    premium: number
+    volume: number
+    tokens: TokenReward[]
+  }
+}
+
+export type NewTradingRewards = {
+  points: {
+    daily: DailyPoints
+    trades: number
+    fees: number
+    premium: number
+    size: number
+    durationInSeconds: number
+    averageBoost: number
+    total: number
+    volume: number
+    totalPercent: number
+  }
+  tokens: TokenReward[]
+  referredTraders: NewTradingRewardsReferredTraders
+}
+
+export type AccountTradingRewards = {
+  fees: number // USD
+  effectiveRebateRate: number // post xLyra percentage
   tradingRebateRewardDollars: number
+  shortCollateralRewardDollars: number
   totalTradingRewardDollars: number
   shortCallSeconds: number
   shortPutSeconds: number
   rewards: {
-    trading: RewardEpochTokenAmount[]
+    trading: TokenReward[]
+    shortCollateral: TokenReward[]
   }
+  newRewards: NewTradingRewards
 }
 
 export default async function fetchAccountRewardEpochData(

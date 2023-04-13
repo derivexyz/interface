@@ -42,23 +42,19 @@ const RewardsTradingCard = ({ globalRewardEpoch, accountRewardEpoch, ...stylePro
     const pendingVaultRewards = accountRewardEpoch?.tradingRewards ?? []
     const claimableVaultRewards = accountRewardEpoch?.totalClaimableTradingRewards ?? []
     const vaultRewards = sumRewardTokenAmounts([...pendingVaultRewards, ...claimableVaultRewards])
-
     return (
-      vaultRewards.length ? vaultRewards : globalRewardEpoch.tradingRewardTokens.map(t => ({ ...t, amount: 0 }))
+      vaultRewards.length ? vaultRewards : globalRewardEpoch?.tradingRewardTokens?.map(t => ({ ...t, amount: 0 }))
     )[0]
   }, [accountRewardEpoch, firstRewardToken, globalRewardEpoch])
 
-  const effectiveRebate = accountRewardEpoch?.tradingFeeRebate ?? globalRewardEpoch.tradingFeeRebate(0)
+  const effectiveRebate = accountRewardEpoch?.tradingFeeRebate ?? globalRewardEpoch?.tradingFeeRebate(0)
 
   if (!firstRewardToken || !tradingRewards) {
     return null
   }
 
   return (
-    <Card
-      onClick={() => navigate(getPagePath({ page: PageId.RewardsTrading, network: globalRewardEpoch.lyra.network }))}
-      {...styleProps}
-    >
+    <Card onClick={() => navigate(getPagePath({ page: PageId.Leaderboard }))} {...styleProps}>
       <CardBody>
         <Grid
           sx={{
@@ -86,12 +82,7 @@ const RewardsTradingCard = ({ globalRewardEpoch, accountRewardEpoch, ...stylePro
                 <Text mr={2} variant="bodyLarge" color="secondaryText">
                   Rebate
                 </Text>
-                <Text
-                  color={
-                    effectiveRebate > globalRewardEpoch.tradingFeeRebateTiers[0].feeRebate ? 'primaryText' : 'text'
-                  }
-                  variant="bodyLarge"
-                >
+                <Text color={'text'} variant="bodyLarge">
                   {formatPercentage(effectiveRebate, true)}
                 </Text>
               </Flex>

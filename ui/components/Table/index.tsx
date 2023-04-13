@@ -3,7 +3,7 @@ import IconButton from '@lyra/ui/components/Button/IconButton'
 import Icon, { IconType } from '@lyra/ui/components/Icon'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Cell, CellProps, Column, Row, useFlexLayout, useRowState, useSortBy, useTable } from 'react-table'
-import { Box, Flex } from 'rebass'
+import { Box, Flex, SxProps } from 'rebass'
 import { LayoutProps, MarginProps } from 'styled-system'
 
 import Collapsible from '../Collapsible'
@@ -37,8 +37,10 @@ export type TableProps<T extends TableRecordType> = {
   columnOptions?: Array<ColumnOptions>
   pageSize?: number
   isOutline?: boolean
+  isOutlineFirstRow?: boolean
   hideHeader?: boolean
   tableRowMarker?: TableMarkerOptions
+  rowStyleProps?: SxProps
 } & MarginProps &
   LayoutProps
 
@@ -65,8 +67,10 @@ export default function Table<T extends TableRecordType>({
   data,
   pageSize,
   isOutline,
+  isOutlineFirstRow = false,
   hideHeader = false,
   tableRowMarker: tableMarker,
+  rowStyleProps,
   ...styleProps
 }: TableProps<T>): TableElement<T> {
   const { getTableProps, headerGroups, rows, prepareRow } = useTable(
@@ -231,6 +235,8 @@ export default function Table<T extends TableRecordType>({
                     '&:active': {
                       bg: isClickable && !isExpandedContentClickable ? 'active' : 'transparent',
                     },
+                    border: isOutlineFirstRow && rowIdx === 0 ? '1px solid #69D8BD' : 'none',
+                    ...rowStyleProps?.sx,
                   }}
                   {...(prepareRowProps(row) as any)}
                 >

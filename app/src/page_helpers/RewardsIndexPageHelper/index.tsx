@@ -6,8 +6,8 @@ import React from 'react'
 import { Vault } from '@/app/constants/vault'
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
 import RewardsLastUpdatedAlert from '@/app/containers/rewards_index/RewardsLastUpdatedAlert'
+import RewardsReferralsSection from '@/app/containers/rewards_index/RewardsReferralsSection'
 import RewardsStakingCard from '@/app/containers/rewards_index/RewardsStakingCard'
-import RewardsTradingSection from '@/app/containers/rewards_index/RewardsTradingSection'
 import RewardsVaultsSection from '@/app/containers/rewards_index/RewardsVaultsSection'
 import RewardsWethLyraLPSection from '@/app/containers/rewards_index/RewardsWethLyraLPSection'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
@@ -44,7 +44,7 @@ const RewardsIndexPageHelper = ({
           lyraStakingAccount={lyraStakingAccount}
         />
         <RewardsVaultsSection vaults={vaults} />
-        <RewardsTradingSection latestRewardEpochs={latestRewardEpochs} />
+        <RewardsReferralsSection />
         <RewardsWethLyraLPSection />
       </PageGrid>
     </Page>
