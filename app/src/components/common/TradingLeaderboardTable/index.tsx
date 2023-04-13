@@ -167,9 +167,10 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
     return null
   }
 
+  const sortedRows = rows.sort((a, b) => b.boost - a.boost)
   return (
     <Table
-      data={rows}
+      data={sortedRows}
       columns={columns}
       pageSize={pageSize}
       {...styleProps}
