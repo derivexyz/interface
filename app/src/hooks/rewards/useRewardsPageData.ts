@@ -6,6 +6,7 @@ import {
   LyraStakingAccount,
   Network,
 } from '@lyrafinance/lyra-js'
+import { NewTradingRewardsReferredTraders } from '@lyrafinance/lyra-js/src/utils/fetchAccountRewardEpochData'
 import { useCallback } from 'react'
 
 import { FetchId } from '@/app/constants/fetch'
@@ -24,7 +25,7 @@ export type LatestRewardEpoch = {
   account?: AccountRewardEpoch | null
 }
 
-type NetworkRewardsData = {
+export type NetworkRewardsData = {
   vaults: Vault[]
   globalRewardEpochs: GlobalRewardEpoch[]
   accountRewardEpochs: AccountRewardEpoch[]
@@ -37,9 +38,12 @@ export type RewardsPageData = {
   lyraStaking: LyraStaking
   lyraBalances: AccountLyraBalances
   lyraStakingAccount: LyraStakingAccount | null
+  referredTraders: NewTradingRewardsReferredTraders
 }
 
 export const fetchRewardsPageData = async (walletAddress: string | null): Promise<RewardsPageData> => {
+  const referredTraders: NewTradingRewardsReferredTraders = {}
+
   const [globalRewardEpochs, accountRewardEpochs, vaults, lyraStaking, lyraBalances, lyraStakingAccount] =
     await Promise.all([
       Promise.all(Object.values(Network).map(network => getLyraSDK(network).globalRewardEpochs())),
@@ -71,6 +75,42 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
       e => e.globalEpoch.startTimestamp === latestGlobalRewardEpoch.startTimestamp
     )
 
+    networkAccountRewardEpochs.map(epoch => {
+      const epochReferredTraders = epoch?.accountEpoch?.tradingRewards?.newRewards?.referredTraders
+      if (epochReferredTraders) {
+        for (const trader in epochReferredTraders) {
+          if (!referredTraders[trader]) {
+            referredTraders[trader] = {
+              trader: epochReferredTraders[trader].trader,
+              trades: epochReferredTraders[trader].trades,
+              fees: epochReferredTraders[trader].fees,
+              premium: epochReferredTraders[trader].premium,
+              volume: epochReferredTraders[trader].volume,
+              tokens: epochReferredTraders[trader].tokens,
+            }
+          } else {
+            referredTraders[trader].trades += epochReferredTraders[trader].trades
+            referredTraders[trader].fees += epochReferredTraders[trader].fees
+            referredTraders[trader].premium += epochReferredTraders[trader].premium
+            referredTraders[trader].volume += epochReferredTraders[trader].volume
+            epochReferredTraders[trader].tokens.forEach(newToken => {
+              const existingToken = referredTraders[trader].tokens.find(
+                token => token.address.toLowerCase() === newToken.address.toLowerCase()
+              )
+              if (!existingToken) {
+                referredTraders[trader].tokens.push(newToken)
+              } else {
+                const existingTokenIndex = referredTraders[trader].tokens.findIndex(
+                  token => token.address.toLowerCase() === newToken.address.toLowerCase()
+                )
+                referredTraders[trader].tokens[existingTokenIndex].amount += newToken.amount
+              }
+            })
+          }
+        }
+      }
+    })
+
     return {
       ...map,
       [network]: {
@@ -80,6 +120,7 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
           global: latestGlobalRewardEpoch,
           account: latestAccountRewardEpoch,
         },
+        referredTraders: network === Network.Arbitrum ? referredTraders : undefined,
       },
     }
   }, {} as Record<Network, NetworkRewardsData>)
@@ -90,6 +131,7 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
     lyraBalances,
     lyraStaking,
     lyraStakingAccount,
+    referredTraders,
   }
 }
 

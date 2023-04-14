@@ -3,13 +3,16 @@ import { CardElement } from '@lyra/ui/components/Card'
 import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
+import { NewTradingRewardsReferredTraders } from '@lyrafinance/lyra-js/src/utils/fetchAccountRewardEpochData'
 import React from 'react'
 
 import RewardsReferralsCard from './RewardsReferralsCard'
 
-type Props = MarginProps
+type Props = {
+  referredTraders: NewTradingRewardsReferredTraders
+} & MarginProps
 
-const RewardsReferralsSection = ({ ...marginProps }: Props): CardElement => {
+const RewardsReferralsSection = ({ referredTraders, ...marginProps }: Props): CardElement => {
   return (
     <Flex flexDirection="column" mt={[6, 4]}>
       <Flex alignItems="center" px={[6, 0]} mb={5}>
@@ -21,7 +24,7 @@ const RewardsReferralsSection = ({ ...marginProps }: Props): CardElement => {
         </Box>
       </Flex>
       <Flex flexDirection="column">
-        <RewardsReferralsCard />
+        <RewardsReferralsCard referredTraders={referredTraders} />
       </Flex>
     </Flex>
   )
