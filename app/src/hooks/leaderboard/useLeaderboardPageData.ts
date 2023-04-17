@@ -4,10 +4,7 @@ import { useCallback } from 'react'
 import { FetchId } from '@/app/constants/fetch'
 import fetchENSNames from '@/app/utils/fetchENSNames'
 import getLyraSDK from '@/app/utils/getLyraSDK'
-import fetchTradingLeaderboard, {
-  TradingRewardsLeaderboard,
-  TradingRewardToken,
-} from '@/app/utils/rewards/fetchTradingLeaderboard'
+import fetchTradingLeaderboard, { TradingRewardToken } from '@/app/utils/rewards/fetchTradingLeaderboard'
 
 import useNetwork from '../account/useNetwork'
 import useWallet from '../account/useWallet'
@@ -35,10 +32,9 @@ export const fetchLeaderboardPageData = async (
   network: Network,
   walletAddress: string | null
 ): Promise<LeaderboardPageData> => {
-  const [globalRewardEpochs, accountRewardEpochs, tradingLeaderboards] = await Promise.all([
+  const [globalRewardEpochs, accountRewardEpochs] = await Promise.all([
     getLyraSDK(network).globalRewardEpochs(),
     walletAddress ? getLyraSDK(network).accountRewardEpochs(walletAddress) : [],
-    fetchTradingLeaderboard(network),
   ])
 
   let latestGlobalRewardEpoch: GlobalRewardEpoch
@@ -54,8 +50,10 @@ export const fetchLeaderboardPageData = async (
   const latestAccountRewardEpoch = accountRewardEpochs.find(
     e => e.globalEpoch.startTimestamp === latestGlobalRewardEpoch.startTimestamp
   )
-  const epochNumber = network === Network.Arbitrum ? latestGlobalRewardEpoch.id - 5 : latestGlobalRewardEpoch.id - 18
-  const tradingLeaderboard: TradingRewardsLeaderboard = tradingLeaderboards ? tradingLeaderboards[epochNumber] : {}
+  let tradingLeaderboard = null
+  if (latestGlobalRewardEpoch) {
+    tradingLeaderboard = await fetchTradingLeaderboard(network, latestGlobalRewardEpoch.startTimestamp)
+  }
 
   const leaderboard = []
   const traders: TradingRewardsTraders = []

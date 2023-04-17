@@ -42,15 +42,21 @@ export type TradingRewardsLeaderboard = {
   }
 }
 
-const fetchTradingLeaderboard = async (network: Network): Promise<TradingRewardsLeaderboard[] | null> => {
-  const res = await fetch(`${process.env.REACT_APP_API_URL}/rewards/tradingLeaderboard?network=${network}`, {
-    method: 'GET',
-    mode: 'cors',
-  })
+const fetchTradingLeaderboard = async (
+  network: Network,
+  startTimestamp: number
+): Promise<TradingRewardsLeaderboard | null> => {
+  const res = await fetch(
+    `${process.env.REACT_APP_API_URL}/rewards/tradingLeaderboard?network=${network}&startTimestamp=${startTimestamp}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+    }
+  )
   if (res.status !== 200) {
     return null
   }
-  const data: TradingRewardsLeaderboard[] = await res.json()
+  const data: TradingRewardsLeaderboard = await res.json()
   return data
 }
 
