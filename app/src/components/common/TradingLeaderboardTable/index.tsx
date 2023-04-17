@@ -23,8 +23,9 @@ type Props = {
 } & MarginProps
 
 export type LeaderboardTableData = TableData<{
-  rank: number
   trader: string
+  traderEns: string | null
+  emoji: string | null
   boost: number
   showBoostButton: boolean
   rewardSymbol: string
@@ -41,12 +42,22 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
   const accountIsTopWallet = useMemo(() => {
     return traders[0].trader.toLowerCase() === account?.toLowerCase()
   }, [account, traders])
+
   const rows: LeaderboardTableData[] = useMemo(
     () =>
-      traders.map(trader => {
+      traders.map((trader, index) => {
+        let emoji: null | string = null
+        if (index === 0) {
+          emoji = accountIsTopWallet ? null : '🥇'
+        } else if (index === 1) {
+          emoji = accountIsTopWallet ? '🥇' : '🥈'
+        } else if (index === 2) {
+          emoji = accountIsTopWallet ? '🥈' : '🥉'
+        }
         return {
-          rank: trader.rank,
-          trader: trader.traderEns ?? trader.trader,
+          trader: trader.trader,
+          traderEns: trader.traderEns,
+          emoji: emoji,
           boost: trader.boost,
           showBoostButton: trader.trader.toLowerCase() === account?.toLowerCase(),
           rewardSymbol: trader.dailyReward.symbol,
@@ -56,7 +67,7 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
           onClick: onClick ? () => onClick(trader.trader) : undefined,
         }
       }),
-    [account, onBoostClick, onClick, traders]
+    [account, accountIsTopWallet, onBoostClick, onClick, traders]
   )
 
   const columns = useMemo<TableColumn<LeaderboardTableData>[]>(() => {
@@ -66,9 +77,13 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
         Header: 'Trader',
         width: 150,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
+          const { traderEns, trader, emoji } = props.row.original
+          const formattedAddress = !!traderEns
+            ? formatTruncatedAddress(traderEns, 15, 0)
+            : formatTruncatedAddress(trader)
           return (
             <Text variant="bodyMedium" color="text">
-              {formatTruncatedAddress(props.cell.value)}
+              {emoji ? emoji : ''} {formattedAddress}
             </Text>
           )
         },
@@ -145,12 +160,9 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
     return null
   }
 
-  const sortedRows = accountIsTopWallet
-    ? [rows[0], ...rows.slice(1).sort((a, b) => b.dailyRewards - a.dailyRewards)]
-    : rows.sort((a, b) => b.dailyRewards - a.dailyRewards)
   return (
     <Table
-      data={sortedRows}
+      data={rows}
       columns={columns}
       pageSize={pageSize}
       {...styleProps}

@@ -44,14 +44,14 @@ const LeaderboardTable = withSuspense(
           traders={traders}
           onClick={trader => {
             window.open(
-              `${getPagePath({
-                page: PageId.Portfolio,
+              `/#${getPagePath({
+                page: PageId.History,
               })}?see=${trader}`,
               '_blank'
             )
           }}
           onBoostClick={() => setIsOpen(true)}
-          pageSize={10}
+          pageSize={100}
         />
         <LeaderboardBoostModal
           isOpen={isOpen}

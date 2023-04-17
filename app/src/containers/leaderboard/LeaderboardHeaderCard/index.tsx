@@ -40,10 +40,10 @@ const LeaderboardHeaderCard = ({
   return (
     <Card variant="outline" minWidth={['100%', 360]} sx={{ borderRadius: 'card' }} {...styleProps}>
       <CardBody>
-        <Text variant="heading" mb={4}>
+        <Text variant="heading2" mb={2}>
           Trading Rewards
         </Text>
-        <Text variant="secondary" color="secondaryText" mb={4}>
+        <Text variant="secondary" color="secondaryText" mb={8}>
           Rewards from previous epochs
         </Text>
         {claimableAmount > 0 ? (

@@ -1,3 +1,4 @@
+import Flex from '@lyra/ui/components/Flex'
 import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
@@ -11,6 +12,7 @@ import LeaderboardPageHeader from '@/app/containers/leaderboard/LeaderboardPageH
 import LeaderboardTable from '@/app/containers/leaderboard/LeaderboardTable'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import { LeaderboardPageData } from '@/app/hooks/leaderboard/useLeaderboardPageData'
+import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 
 import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
@@ -39,9 +41,14 @@ const LeaderboardPageHelper = ({ data, ...marginProps }: Props): JSX.Element => 
       {...marginProps}
     >
       <PageGrid>
-        <Text variant="heading" color="text" mt={[4, 0]} ml={[4, 0]}>
-          Epoch {epochNumber}
-        </Text>
+        <Flex mt={[4, 0]} ml={[4, 0]}>
+          <Text variant="title" color="text">
+            Epoch {epochNumber}
+          </Text>
+          <Text color="secondaryText" variant="title">
+            &nbsp;·&nbsp;{getNetworkDisplayName(latestGlobalRewardEpoch.lyra.network)}
+          </Text>
+        </Flex>
         <Text variant="secondary" color="secondaryText" sx={{ lineHeight: 2 }} mt={[0, -4]} ml={[4, 0]}>
           Traders earn their share of a pool of rewards every 2 weeks for opening and holding positions. Traders earn
           more rewards when they pay more fees, open shorter-dated positions and hold positions until expiry. Traders

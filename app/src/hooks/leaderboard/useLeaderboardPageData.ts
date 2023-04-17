@@ -18,7 +18,6 @@ export type LeaderboardPageData = {
 }
 
 export type TradingRewardsTrader = {
-  rank: number
   trader: string
   traderEns: string | null
   boost: number
@@ -62,7 +61,7 @@ export const fetchLeaderboardPageData = async (
   const traderENSMap: Record<string, string | null> = {}
   allENS.forEach((ens, index) => {
     const traderAddress = traderAddresses[index]
-    traderENSMap[traderAddress] = ens != '' ? ens : traderAddress
+    traderENSMap[traderAddress] = ens != '' ? ens : null
   })
 
   let currentTrader: TradingRewardsTrader | null = null
@@ -90,10 +89,9 @@ export const fetchLeaderboardPageData = async (
       totalRewards: totalRewards,
     })
   }
-  leaderboard.sort((a, b) => b.totalRewards.amount - a.totalRewards.amount)
-  leaderboard.forEach((trader, idx) => {
+  leaderboard.sort((a, b) => b.dailyReward.amount - a.dailyReward.amount)
+  leaderboard.forEach(trader => {
     const tradingRewardTrader = {
-      rank: idx + 1,
       ...trader,
     }
     traders.push(tradingRewardTrader)

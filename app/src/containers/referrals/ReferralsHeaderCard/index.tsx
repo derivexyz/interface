@@ -36,10 +36,10 @@ const ReferralsHeaderCard = ({ data, ...marginProps }: Props) => {
   return (
     <Card variant="outline" minWidth={['100%', 360]} sx={{ borderRadius: 'card' }} {...marginProps}>
       <CardBody>
-        <Text variant="heading" mb={4}>
+        <Text variant="heading2" mb={2}>
           Referral rewards
         </Text>
-        <Text variant="secondary" color="secondaryText" mb={4}>
+        <Text variant="secondary" color="secondaryText" mb={8}>
           Rewards from previous epochs
         </Text>
         <Text variant="secondary" color="text" mb={4}>
