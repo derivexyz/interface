@@ -54,7 +54,10 @@ const RewardsTradingCard = ({ globalRewardEpoch, accountRewardEpoch, ...stylePro
   }
 
   return (
-    <Card onClick={() => navigate(getPagePath({ page: PageId.Leaderboard }))} {...styleProps}>
+    <Card
+      onClick={() => navigate(getPagePath({ page: PageId.Leaderboard, network: globalRewardEpoch.lyra.network }))}
+      {...styleProps}
+    >
       <CardBody>
         <Grid
           sx={{

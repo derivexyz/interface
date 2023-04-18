@@ -9,6 +9,7 @@ import { AccountRewardEpoch, GlobalRewardEpoch } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { PageId } from '@/app/constants/pages'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import useWallet from '@/app/hooks/account/useWallet'
 import getPagePath from '@/app/utils/getPagePath'
 
@@ -29,6 +30,7 @@ export default function LeaderboardPageHeader({
 }: Props) {
   const isMobile = useIsMobile()
   const { isConnected } = useWallet()
+  const network = useNetwork()
   return (
     <Box mb={4} p={[6, 0]}>
       <Grid sx={{ gridTemplateColumns: ['1fr', '1fr auto'], alignItems: 'center' }}>
@@ -51,7 +53,7 @@ export default function LeaderboardPageHeader({
       </Grid>
       {showBackButton ? (
         <Flex mt={8}>
-          <IconButton icon={IconType.ArrowLeft} href={getPagePath({ page: PageId.Leaderboard })} />
+          <IconButton icon={IconType.ArrowLeft} href={getPagePath({ page: PageId.Leaderboard, network })} />
         </Flex>
       ) : null}
     </Box>

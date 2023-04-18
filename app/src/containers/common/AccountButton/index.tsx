@@ -69,6 +69,8 @@ const AccountButton = withSuspense(
                 marketAddressOrName: getDefaultMarket(newNetwork),
               })
             )
+          } else if (rootPage === PageId.Leaderboard) {
+            navigate(getPagePath({ page: PageId.Leaderboard, network: newNetwork }))
           }
         }
       },

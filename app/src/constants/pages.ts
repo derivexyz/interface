@@ -46,7 +46,9 @@ export type PageArgsMap = {
   }
   [PageId.Portfolio]: undefined
   [PageId.History]: undefined
-  [PageId.Leaderboard]: undefined
+  [PageId.Leaderboard]: {
+    network: string
+  }
   [PageId.LeaderboardHistory]: undefined
   [PageId.VaultsIndex]: undefined
   [PageId.VaultsHistory]: undefined

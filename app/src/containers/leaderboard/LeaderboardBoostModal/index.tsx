@@ -11,7 +11,7 @@ import RowItem from '@/app/components/common/RowItem'
 import { TradingBoostTable } from '@/app/components/rewards/TradingBoostTable'
 import { ZERO_BN } from '@/app/constants/bn'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
-import { TradingRewardsTraders } from '@/app/hooks/leaderboard/useLeaderboardPageData'
+import { TradingRewardsTrader } from '@/app/hooks/leaderboard/useLeaderboardPageData'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import RewardsStakeFormAmountInput from '../../rewards_index/RewardsStakeModal/RewardsStakeFormAmountInput'
@@ -19,14 +19,14 @@ import StakeFormButton from '../../rewards_index/RewardsStakeModal/RewardsStakeF
 
 type Props = {
   latestGlobalRewardEpoch: GlobalRewardEpoch
-  traders: TradingRewardsTraders
+  leaderboard: TradingRewardsTrader[]
   lyraBalances: AccountLyraBalances
   isOpen: boolean
   onClose: () => void
 }
 
 export default function LeaderboardBoostModal({
-  traders,
+  leaderboard,
   latestGlobalRewardEpoch,
   isOpen,
   onClose,
@@ -37,7 +37,7 @@ export default function LeaderboardBoostModal({
   const maxStakeBalance = lyraBalances.ethereumLyra
   const boost: number = useMemo(() => {
     let boost = 1
-    const trader = traders.find(trader => trader.trader.toLowerCase() === account?.toLowerCase())
+    const trader = leaderboard.find(trader => trader.trader.toLowerCase() === account?.toLowerCase())
     const inputAmount = fromBigNumber(amount)
     const amountBoost: number =
       inputAmount >= 250000
@@ -53,7 +53,7 @@ export default function LeaderboardBoostModal({
       boost = Math.max(trader?.boost ?? 1, boost)
     }
     return Math.max(boost, amountBoost)
-  }, [account, amount, traders])
+  }, [account, amount, leaderboard])
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={<Text variant="heading">Boost</Text>}>
       <ModalBody>

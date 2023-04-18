@@ -10,7 +10,6 @@ import { TRADING_REWARDS_BLOG_URL } from '@/app/constants/links'
 import LeaderboardKeyMetricsCard from '@/app/containers/leaderboard/LeaderboardKeyMetricsCard'
 import LeaderboardPageHeader from '@/app/containers/leaderboard/LeaderboardPageHeader'
 import LeaderboardTable from '@/app/containers/leaderboard/LeaderboardTable'
-import useNetwork from '@/app/hooks/account/useNetwork'
 import { LeaderboardPageData } from '@/app/hooks/leaderboard/useLeaderboardPageData'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 
@@ -18,13 +17,12 @@ import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
 
 type Props = {
+  network: Network
   data: LeaderboardPageData
 } & MarginProps
 
-const LeaderboardPageHelper = ({ data, ...marginProps }: Props): JSX.Element => {
-  const network = useNetwork()
-  const { latestGlobalRewardEpoch, latestAccountRewardEpoch } = data
-  const epochNumber = network === Network.Arbitrum ? latestGlobalRewardEpoch.id - 5 : latestGlobalRewardEpoch.id - 18
+const LeaderboardPageHelper = ({ data, network, ...marginProps }: Props): JSX.Element => {
+  const { latestGlobalRewardEpoch, latestAccountRewardEpoch, leaderboardEpochNumber } = data
   const isMobile = useIsMobile()
   return (
     <Page
@@ -43,7 +41,7 @@ const LeaderboardPageHelper = ({ data, ...marginProps }: Props): JSX.Element => 
       <PageGrid>
         <Flex mt={[4, 0]} ml={[4, 0]}>
           <Text variant="title" color="text">
-            Epoch {epochNumber}
+            Epoch {leaderboardEpochNumber}
           </Text>
           <Text color="secondaryText" variant="title">
             &nbsp;·&nbsp;{getNetworkDisplayName(latestGlobalRewardEpoch.lyra.network)}
@@ -59,7 +57,7 @@ const LeaderboardPageHelper = ({ data, ...marginProps }: Props): JSX.Element => 
           </Link>
         </Text>
         <LeaderboardKeyMetricsCard my={4} data={data} />
-        <LeaderboardTable data={data} />
+        <LeaderboardTable data={data} network={network} />
       </PageGrid>
     </Page>
   )

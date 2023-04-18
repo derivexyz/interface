@@ -37,6 +37,10 @@ const getVoteProposalDetailsPath = (args: PageArgsMap[PageId.VoteProposalDetails
   return `/vote/proposal/${args.proposalId}`
 }
 
+const getLeaderboardPath = (args: PageArgsMap[PageId.Leaderboard]): string => {
+  return `/leaderboard/${args.network}`
+}
+
 // TODO: @dappbeast Fix page path typescript in switch statement
 export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathArgs<T>): string => {
   const page = args.page as PageId
@@ -58,7 +62,7 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
     case PageId.Faucet:
       return '/faucet'
     case PageId.Leaderboard:
-      return '/leaderboard'
+      return getLeaderboardPath(args as PageArgsMap[PageId.Leaderboard])
     case PageId.LeaderboardHistory:
       return '/leaderboard/history'
     case PageId.VaultsIndex:

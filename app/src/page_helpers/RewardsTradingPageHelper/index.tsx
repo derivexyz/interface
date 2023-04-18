@@ -27,7 +27,6 @@ import RewardsClaimModal from '@/app/containers/rewards/RewardsClaimModal'
 import RewardsClaimModalButton from '@/app/containers/rewards/RewardsClaimModalButton'
 import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
 import RewardsTradingRebateBoostModal from '@/app/containers/rewards/RewardsTradingRebateBoostModal'
-import useNetwork from '@/app/hooks/account/useNetwork'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
 import { getDefaultMarket } from '@/app/utils/getDefaultMarket'
@@ -47,7 +46,6 @@ type Props = {
 
 const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs }: Props) => {
   const isMobile = useIsMobile()
-  const network = useNetwork()
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
   const [isStakeModalOpen, setIsStakeModalOpen] = useState(false)
   const account = useWalletAccount()
@@ -86,8 +84,8 @@ const RewardsTradingPageHelper = ({ latestRewardEpoch, accountRewardEpochs }: Pr
             </Text>
             <Text color="secondaryText">
               This program allows traders to earn back part of their fees as LYRA
-              {network === Network.Optimism ? ' and OP' : ''} tokens every two weeks. Traders can stake LYRA to boost
-              fee rebates.
+              {latestGlobalRewardEpoch.lyra.network === Network.Optimism ? ' and OP' : ''} tokens every two weeks.
+              Traders can stake LYRA to boost fee rebates.
             </Text>
           </CardSection>
           <CardSeparator isHorizontal />

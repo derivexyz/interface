@@ -19,12 +19,12 @@ type Props = {
 
 const LeaderboardKeyMetricsCard = ({ data, ...marginProps }: Props) => {
   const isMobile = useIsMobile()
-  const { latestGlobalRewardEpoch, traders } = data
+  const { latestGlobalRewardEpoch, leaderboard } = data
   const reward = latestGlobalRewardEpoch.tradingRewardsCap[0]
   const traderCount = useMemo(() => {
-    const traderAddresses = traders.map(trader => trader.trader)
-    return [...new Set(traderAddresses)].length
-  }, [traders])
+    const traderAddresses = leaderboard.map(trader => trader.trader)
+    return new Set(traderAddresses).size
+  }, [leaderboard])
 
   return (
     <Card

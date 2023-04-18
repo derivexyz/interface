@@ -45,7 +45,8 @@ export default function PageRoutes() {
       <Route path="/position/:network/:marketAddressOrName/:positionId" element={<PositionPage />} />
       {isMainnet() ? (
         <>
-          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/leaderboard" element={<Navigate to={`/leaderboard/${network}`} />} />
+          <Route path="/leaderboard/:network" element={<LeaderboardPage />} />
           <Route path="/leaderboard/history" element={<LeaderboardHistoryPage />} />
           <Route path="/rewards/referrals/:network" element={<ReferralsPage />} />
           <Route path="/rewards" element={<RewardsIndexPage />} />

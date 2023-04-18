@@ -27,7 +27,7 @@ const getTabs = (network: Network): Tab[] => [
     logEvent: LogEvent.NavTradeTabClick,
   },
   {
-    path: getPagePath({ page: PageId.Leaderboard }),
+    path: getPagePath({ page: PageId.Leaderboard, network }),
     rootPageId: PageId.Leaderboard,
     name: 'Leaderboard',
     logEvent: LogEvent.NavLeaderboardTabClick,

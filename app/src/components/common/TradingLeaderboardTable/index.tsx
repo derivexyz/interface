@@ -8,15 +8,22 @@ import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
+import { Network } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 
+import { PageId } from '@/app/constants/pages'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
-import { TradingRewardsTraders } from '@/app/hooks/leaderboard/useLeaderboardPageData'
+import { TradingRewardsTrader } from '@/app/hooks/leaderboard/useLeaderboardPageData'
 import filterNulls from '@/app/utils/filterNulls'
 import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
+import { getDefaultMarket } from '@/app/utils/getDefaultMarket'
+import getPagePath from '@/app/utils/getPagePath'
 
 type Props = {
-  traders: TradingRewardsTraders
+  network: Network
+  leaderboard: TradingRewardsTrader[]
+  currentTrader: TradingRewardsTrader | null
   onBoostClick?: () => void
   onClick?: (trader: string) => void
   pageSize?: number
@@ -28,31 +35,39 @@ export type LeaderboardTableData = TableData<{
   emoji: string | null
   boost: number
   showBoostButton: boolean
+  showTradeButton: boolean
   rewardSymbol: string
   dailyRewards: number
   totalRewards: number
+  onBoostClick?: () => void
 }>
 
 const TRADING_LEADERBOARD_ROW_HEIGHT = 80
 
-const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...styleProps }: Props) => {
+const TradingLeaderboardTable = ({
+  network,
+  leaderboard,
+  currentTrader,
+  onClick,
+  onBoostClick,
+  pageSize,
+  ...styleProps
+}: Props) => {
   const isMobile = useIsMobile()
   const isDarkMode = useIsDarkMode()
   const account = useWalletAccount()
-  const accountIsTopWallet = useMemo(() => {
-    return traders[0].trader.toLowerCase() === account?.toLowerCase()
-  }, [account, traders])
+  const navigate = useNavigate()
 
   const rows: LeaderboardTableData[] = useMemo(
     () =>
-      traders.map((trader, index) => {
+      leaderboard.map((trader, i) => {
         let emoji: null | string = null
-        if (index === 0) {
-          emoji = accountIsTopWallet ? null : '🥇'
-        } else if (index === 1) {
-          emoji = accountIsTopWallet ? '🥇' : '🥈'
-        } else if (index === 2) {
-          emoji = accountIsTopWallet ? '🥈' : '🥉'
+        if (i === 0) {
+          emoji = '🥇'
+        } else if (i === 1) {
+          emoji = '🥈'
+        } else if (i === 2) {
+          emoji = '🥉'
         }
         return {
           trader: trader.trader,
@@ -60,6 +75,7 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
           emoji: emoji,
           boost: trader.boost,
           showBoostButton: trader.trader.toLowerCase() === account?.toLowerCase(),
+          showTradeButton: false,
           rewardSymbol: trader.dailyReward.symbol,
           dailyRewards: trader.dailyReward.amount,
           totalRewards: trader.totalRewards.amount,
@@ -67,7 +83,7 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
           onClick: onClick ? () => onClick(trader.trader) : undefined,
         }
       }),
-    [account, accountIsTopWallet, onBoostClick, onClick, traders]
+    [account, onBoostClick, onClick, leaderboard]
   )
 
   const columns = useMemo<TableColumn<LeaderboardTableData>[]>(() => {
@@ -131,10 +147,24 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
         Header: '',
         width: 55,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          const { showBoostButton } = props.row.original
+          const { showBoostButton, showTradeButton } = props.row.original
           return (
             <Box>
-              {showBoostButton && onBoostClick ? (
+              {showTradeButton ? (
+                <Button
+                  variant="primary"
+                  size={isMobile ? 'sm' : 'md'}
+                  px={isMobile ? 0 : 2}
+                  label="Trade"
+                  onClick={e => {
+                    navigate(
+                      getPagePath({ page: PageId.Trade, network, marketAddressOrName: getDefaultMarket(network) })
+                    )
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
+                />
+              ) : showBoostButton && onBoostClick ? (
                 <Button
                   variant="primary"
                   size={isMobile ? 'sm' : 'md'}
@@ -154,10 +184,26 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
         },
       },
     ])
-  }, [isMobile, onBoostClick])
+  }, [isMobile, onBoostClick, navigate, network])
 
   if (rows.length === 0) {
     return null
+  }
+
+  if (account && currentTrader) {
+    rows.unshift({
+      trader: currentTrader.trader,
+      traderEns: currentTrader.traderEns,
+      boost: currentTrader.boost,
+      emoji: null,
+      showBoostButton: true,
+      showTradeButton: currentTrader.totalRewards.amount === 0,
+      rewardSymbol: currentTrader.dailyReward.symbol,
+      dailyRewards: currentTrader.dailyReward.amount,
+      totalRewards: currentTrader.totalRewards.amount,
+      onBoostClick: onBoostClick ? () => onBoostClick() : undefined,
+      onClick: onClick ? () => onClick(currentTrader.trader) : undefined,
+    })
   }
 
   return (
@@ -166,7 +212,7 @@ const TradingLeaderboardTable = ({ traders, onClick, onBoostClick, pageSize, ...
       columns={columns}
       pageSize={pageSize}
       {...styleProps}
-      isOutlineFirstRow={accountIsTopWallet}
+      isOutlineFirstRow={!!account}
       rowStyleProps={{
         sx: {
           height: TRADING_LEADERBOARD_ROW_HEIGHT,

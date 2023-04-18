@@ -1,20 +1,28 @@
-import { AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
+import { AccountLyraBalances, AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
+import { ZERO_ADDRESS } from '@/app/constants/bn'
 import { FetchId } from '@/app/constants/fetch'
 import fetchENSNames from '@/app/utils/fetchENSNames'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import fetchTradingLeaderboard, { TradingRewardToken } from '@/app/utils/rewards/fetchTradingLeaderboard'
 
+import { EMPTY_LYRA_BALANCES } from '../account/useAccountLyraBalances'
 import useNetwork from '../account/useNetwork'
 import useWallet from '../account/useWallet'
 import useWalletAccount from '../account/useWalletAccount'
 import useFetch, { useMutate } from '../data/useFetch'
 
+const ARBITRUM_OLD_REWARDS_EPOCHS = 5
+const OPTIMISM_OLD_REWARDS_EPOCHS = 18
+
 export type LeaderboardPageData = {
   latestGlobalRewardEpoch: GlobalRewardEpoch
   latestAccountRewardEpoch?: AccountRewardEpoch
-  traders: TradingRewardsTraders
+  leaderboardEpochNumber: number
+  leaderboard: TradingRewardsTrader[]
+  lyraBalances: AccountLyraBalances
+  currentTrader: TradingRewardsTrader | null
 }
 
 export type TradingRewardsTrader = {
@@ -25,49 +33,37 @@ export type TradingRewardsTrader = {
   totalRewards: TradingRewardToken
 }
 
-export type TradingRewardsTraders = TradingRewardsTrader[]
-
 export const fetchLeaderboardPageData = async (
   network: Network,
   walletAddress: string | null
 ): Promise<LeaderboardPageData> => {
-  const [globalRewardEpochs, accountRewardEpochs] = await Promise.all([
-    getLyraSDK(network).globalRewardEpochs(),
-    walletAddress ? getLyraSDK(network).accountRewardEpochs(walletAddress) : [],
+  const lyra = getLyraSDK(network)
+  const [globalRewardEpochs, accountRewardEpochs, lyraBalances] = await Promise.all([
+    lyra.globalRewardEpochs(),
+    walletAddress ? lyra.accountRewardEpochs(walletAddress) : [],
+    walletAddress ? lyra.account(walletAddress).lyraBalances() : EMPTY_LYRA_BALANCES,
   ])
+  const latestGlobalRewardEpoch =
+    globalRewardEpochs.find(e => e.isCurrent) ??
+    (globalRewardEpochs.length ? globalRewardEpochs.sort((a, b) => b.endTimestamp - a.endTimestamp)[0] : null)
 
-  let latestGlobalRewardEpoch: GlobalRewardEpoch
-  const currGlobalRewardEpoch = globalRewardEpochs.find(e => e.isCurrent)
-  if (currGlobalRewardEpoch) {
-    latestGlobalRewardEpoch = currGlobalRewardEpoch
-  } else if (globalRewardEpochs.length > 0) {
-    // If no current epoch is available, use latest epoch less than current timestamp
-    latestGlobalRewardEpoch = globalRewardEpochs.sort((a, b) => b.endTimestamp - a.endTimestamp)[0]
-  } else {
+  if (!latestGlobalRewardEpoch) {
     throw new Error('No global epochs for network')
   }
+
   const latestAccountRewardEpoch = accountRewardEpochs.find(
     e => e.globalEpoch.startTimestamp === latestGlobalRewardEpoch.startTimestamp
   )
-  let tradingLeaderboard = null
-  if (latestGlobalRewardEpoch) {
-    tradingLeaderboard = await fetchTradingLeaderboard(network, latestGlobalRewardEpoch.startTimestamp)
-  }
-
-  const leaderboard = []
-  const traders: TradingRewardsTraders = []
+  const tradingLeaderboard = await fetchTradingLeaderboard(network, latestGlobalRewardEpoch.startTimestamp)
   const traderAddresses = tradingLeaderboard ? Object.keys(tradingLeaderboard) : []
-  const allENS = await fetchENSNames(traderAddresses)
+  const [accountENS, ...allENS] = await fetchENSNames([walletAddress ?? ZERO_ADDRESS, ...traderAddresses])
   const traderENSMap: Record<string, string | null> = {}
   allENS.forEach((ens, index) => {
     const traderAddress = traderAddresses[index]
     traderENSMap[traderAddress] = ens != '' ? ens : null
   })
-
-  let currentTrader: TradingRewardsTrader | null = null
-  for (const trader in tradingLeaderboard) {
-    const traderStat = tradingLeaderboard[trader]
-    const totalRewards = traderStat?.tokens[0]
+  const leaderboard: TradingRewardsTrader[] = Object.entries(tradingLeaderboard ?? {}).map(([trader, traderStat]) => {
+    const totalRewards = traderStat.tokens[0]
     const totalPoints = traderStat.points.total
     const dailyRewards = Object.values(traderStat.points.daily).sort(
       (a, b) => b.startOfDayTimestamp - a.startOfDayTimestamp
@@ -78,41 +74,58 @@ export const fetchLeaderboardPageData = async (
       totalPoints > 0 && latestDaily.points > 0
         ? (Math.sqrt(latestDaily.points) / totalPoints) * totalRewards.amount
         : 0
-    leaderboard.push({
-      trader: trader,
+    return {
+      rank: 0,
+      trader,
       traderEns: traderENSMap[trader],
-      boost: boost,
+      boost,
       dailyReward: {
         ...totalRewards,
         amount: dailyReward,
       },
-      totalRewards: totalRewards,
-    })
-  }
-  leaderboard.sort((a, b) => b.dailyReward.amount - a.dailyReward.amount)
-  leaderboard.forEach(trader => {
-    const tradingRewardTrader = {
-      ...trader,
-    }
-    traders.push(tradingRewardTrader)
-    if (trader.trader.toLowerCase() === walletAddress?.toLowerCase()) {
-      currentTrader = tradingRewardTrader
+      totalRewards,
     }
   })
-  if (currentTrader) {
-    traders.unshift(currentTrader)
+
+  let currentTrader: TradingRewardsTrader | null = null
+  leaderboard
+    .sort((a, b) => b.dailyReward.amount - a.dailyReward.amount)
+    .forEach(trader => {
+      if (trader.trader.toLowerCase() === walletAddress?.toLowerCase()) {
+        currentTrader = { ...trader }
+      }
+    })
+  // Create default trader stats if leaderboard exists
+  if (walletAddress && !currentTrader && leaderboard.length) {
+    currentTrader = {
+      trader: walletAddress,
+      traderEns: accountENS !== '' ? accountENS : null,
+      boost: 1,
+      dailyReward: { ...leaderboard[0].dailyReward, amount: 0 },
+      totalRewards: { ...leaderboard[0].dailyReward, amount: 0 },
+    }
   }
+
   return {
-    latestGlobalRewardEpoch: latestGlobalRewardEpoch,
-    latestAccountRewardEpoch: latestAccountRewardEpoch,
-    traders: traders,
+    latestGlobalRewardEpoch,
+    latestAccountRewardEpoch,
+    leaderboardEpochNumber:
+      network === Network.Arbitrum
+        ? latestGlobalRewardEpoch.id - ARBITRUM_OLD_REWARDS_EPOCHS
+        : latestGlobalRewardEpoch.id - OPTIMISM_OLD_REWARDS_EPOCHS,
+    leaderboard,
+    lyraBalances,
+    currentTrader,
   }
 }
 
-export default function useLeaderboardPageData(): LeaderboardPageData | null {
+export default function useLeaderboardPageData(network: Network | null): LeaderboardPageData | null {
   const account = useWalletAccount()
-  const network = useNetwork()
-  const [leaderboardPageData] = useFetch(FetchId.LeaderboardPageData, [network, account], fetchLeaderboardPageData)
+  const [leaderboardPageData] = useFetch(
+    FetchId.LeaderboardPageData,
+    network ? [network, account] : null,
+    fetchLeaderboardPageData
+  )
   return leaderboardPageData
 }
 
