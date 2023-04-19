@@ -63,25 +63,17 @@ export const fetchLeaderboardPageData = async (
     traderENSMap[traderAddress] = ens != '' ? ens : null
   })
   const leaderboard: TradingRewardsTrader[] = Object.entries(tradingLeaderboard ?? {}).map(([trader, traderStat]) => {
-    const totalRewards = traderStat.tokens[0]
-    const totalPoints = traderStat.points.total
-    const dailyRewards = Object.values(traderStat.points.daily).sort(
-      (a, b) => b.startOfDayTimestamp - a.startOfDayTimestamp
-    )
-    const latestDaily = dailyRewards[0]
-    const boost = Math.max(latestDaily.referralBoost, latestDaily.stakingBoost, latestDaily.tradingBoost)
-    const dailyReward =
-      totalPoints > 0 && latestDaily.points > 0
-        ? (Math.sqrt(latestDaily.points) / totalPoints) * totalRewards.amount
-        : 0
+    const boost = traderStat.boost
+    const dailyReward = traderStat.dailyRewards[0]
+    const totalRewards = traderStat.totalRewards[0]
+
     return {
-      rank: 0,
       trader,
       traderEns: traderENSMap[trader],
       boost,
       dailyReward: {
         ...totalRewards,
-        amount: dailyReward,
+        amount: dailyReward.amount,
       },
       totalRewards,
     }

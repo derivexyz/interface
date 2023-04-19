@@ -1,23 +1,5 @@
 import { Network } from '@/app/constants/networks'
 
-type DailyPoint = {
-  points: number
-  day: number
-  fees: number
-  premium: number
-  size: number
-  durationInSeconds: number
-  startOfDayTimestamp: number
-  endOfDayTimestamp: number
-  stakingBoost: number
-  tradingBoost: number
-  referralBoost: number
-}
-
-type DailyPoints = {
-  [startTimestamp: number]: DailyPoint
-}
-
 export type TradingRewardToken = {
   address: string
   symbol: string
@@ -27,18 +9,10 @@ export type TradingRewardToken = {
 
 export type TradingRewardsLeaderboard = {
   [trader: string]: {
-    points: {
-      daily: DailyPoints
-      trades: number
-      fees: number
-      premium: number
-      size: number
-      durationInSeconds: number
-      averageBoost: number
-      total: number
-      totalPercent: number
-    }
-    tokens: TradingRewardToken[]
+    trader: string
+    boost: number
+    dailyRewards: TradingRewardToken[]
+    totalRewards: TradingRewardToken[]
   }
 }
 
