@@ -17,3 +17,5 @@ export { ShortExecutor__factory } from "./ShortExecutor__factory";
 export { TransferEth__factory } from "./TransferEth__factory";
 export { VelodromePool__factory } from "./VelodromePool__factory";
 export { VelodromeStaking__factory } from "./VelodromeStaking__factory";
+export { VestingEscrow__factory } from "./VestingEscrow__factory";
+export { VestingEscrowFactory__factory } from "./VestingEscrowFactory__factory";

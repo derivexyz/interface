@@ -21,6 +21,7 @@ export enum TransactionType {
   TradeCollateralUpdate = 'TradeCollateralUpdate',
   VaultDeposit = 'VaultDeposit',
   VaultWithdraw = 'VaultWithdraw',
+  ClaimEscrow = 'ClaimEscrow',
   ClaimRewards = 'ClaimRewards',
   ClaimStakedLyraRewards = 'ClaimStakedLyraRewards',
   ClaimArrakisRewards = 'ClaimArrakisRewards',

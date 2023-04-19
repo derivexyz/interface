@@ -75,4 +75,7 @@ export enum FetchId {
   ShortExecutorData = 'ShortExecutorData',
   LyraGovernanceData = 'LyraGovernanceData',
   CreateProposal = 'CreateProposal',
+
+  // escrow
+  EscrowPageData = 'EscrowPageData',
 }
