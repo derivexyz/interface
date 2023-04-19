@@ -49,7 +49,7 @@ const LeaderboardTable = ({ data, network, ...marginProps }: Props) => {
           )
         }}
         onBoostClick={() => setIsOpen(true)}
-        pageSize={10}
+        pageSize={30}
       />
       <LeaderboardBoostModal
         isOpen={isOpen}

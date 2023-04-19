@@ -62,10 +62,23 @@ export const fetchLeaderboardPageData = async (
     const traderAddress = traderAddresses[index]
     traderENSMap[traderAddress] = ens != '' ? ens : null
   })
+
+  const emptyTradingRewardToken: TradingRewardToken = {
+    ...latestGlobalRewardEpoch.tradingRewardsCap[0],
+    amount: 0,
+  }
   const leaderboard: TradingRewardsTrader[] = Object.entries(tradingLeaderboard ?? {}).map(([trader, traderStat]) => {
     const boost = traderStat.boost
-    const dailyReward = traderStat.dailyRewards[0]
-    const totalRewards = traderStat.totalRewards[0]
+    const dailyReward: TradingRewardToken = traderStat.dailyRewards
+      ? traderStat.dailyRewards.length > 0
+        ? traderStat.dailyRewards[0]
+        : emptyTradingRewardToken
+      : emptyTradingRewardToken
+    const totalRewards = traderStat.totalRewards
+      ? traderStat.totalRewards.length > 0
+        ? traderStat?.totalRewards[0]
+        : emptyTradingRewardToken
+      : emptyTradingRewardToken
 
     return {
       trader,
@@ -73,7 +86,7 @@ export const fetchLeaderboardPageData = async (
       boost,
       dailyReward: {
         ...totalRewards,
-        amount: dailyReward.amount,
+        amount: dailyReward?.amount ?? 0,
       },
       totalRewards,
     }
