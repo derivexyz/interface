@@ -130,7 +130,7 @@ const EscrowTable = ({
       },
     ]
     return columns
-  }, [escrowEvents])
+  }, [escrowEvents, handleClaimEscrow])
 
   return <Table width="100%" data={rows} columns={columns} {...styleProps} />
 }
