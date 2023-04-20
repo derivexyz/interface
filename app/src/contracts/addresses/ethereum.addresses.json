@@ -7,5 +7,7 @@
   "ShortExecutor": "0xEE86E99b42981623236824D33b4235833Afd8044",
   "LongExecutor": "0x394169592B06cAe64ed48316a79f9Bcf1330AF99",
   "TransferEth": "0xe0d43Bb1FFB5634125F28E920528f64a43c1b0BD",
-  "LyraStaking": "0xcb9f85730f57732fc899fb158164b9ed60c77d49"
+  "LyraStaking": "0xcb9f85730f57732fc899fb158164b9ed60c77d49",
+  "VestingEscrowFactory1": "0x8e4c90b803f6FF35ffbC16C08F198129Ebe9d1F2",
+  "VestingEscrowFactory2": "0xe2A0b127F01EB03373C2c75abd2f6fF4e83b670E"
 }

@@ -17,6 +17,8 @@ import SHORT_EXECUTOR_ABI from '../../contracts/abis/ShortExecutor.json'
 import TRANSFER_ETH_ABI from '../../contracts/abis/TransferEth.json'
 import VELODROME_POOL_ABI from '../../contracts/abis/VelodromePool.json'
 import VELODROME_STAKING_ABI from '../../contracts/abis/VelodromeStaking.json'
+import VESTING_ESCROW_ABI from '../../contracts/abis/VestingEscrow.json'
+import VESTING_ESCROW_FACTORY_ABI from '../../contracts/abis/VestingEscrowFactory.json'
 import ARBITRUM_ADDRESS_MAP from '../../contracts/addresses/arbitrum.addresses.json'
 import ADDRESS_MAP from '../../contracts/addresses/ethereum.addresses.json'
 import ETHEREUM_GOERLI_ADDRESS_MAP from '../../contracts/addresses/ethereum-goerli.addresses.json'
@@ -67,6 +69,12 @@ const getContractABI = (contractId: ContractId): ContractInterface => {
       return TRANSFER_ETH_ABI
     case ContractId.LyraStaking:
       return LYRA_STAKING_ABI
+    case ContractId.VestingEscrowFactory1:
+      return VESTING_ESCROW_FACTORY_ABI
+    case ContractId.VestingEscrowFactory2:
+      return VESTING_ESCROW_FACTORY_ABI
+    case ContractId.VestingEscrow:
+      return VESTING_ESCROW_ABI
   }
 }
 

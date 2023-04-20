@@ -7,6 +7,7 @@ import useNetwork from './hooks/account/useNetwork'
 import PortfolioHistoryPageHelper from './page_helpers/PortfolioHistoryPageHelper'
 import AdminBoardPage from './pages/AdminBoardPage'
 import AdminMarketPage from './pages/AdminPage'
+import EscrowPage from './pages/EscrowPage'
 import FaucetPage from './pages/FaucetPage'
 import LeaderboardHistoryPage from './pages/LeaderboardHistoryPage'
 import LeaderboardPage from './pages/LeaderboardPage'
@@ -63,6 +64,7 @@ export default function PageRoutes() {
       <Route path="/admin" element={<Navigate to={`/admin/${network}/${getDefaultMarket(network)}`} />} />
       <Route path="/admin/:network/:marketAddressOrName" element={<AdminMarketPage />} />
       <Route path="/admin/:network/:marketAddressOrName/:boardId" element={<AdminBoardPage />} />
+      <Route path="/escrow" element={<EscrowPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )

@@ -14,6 +14,8 @@ import {
   TransferEth,
   VelodromePool,
   VelodromeStaking,
+  VestingEscrow,
+  VestingEscrowFactory,
 } from '../contracts/typechain'
 import { LyraStaking } from '../contracts/typechain/LyraStaking'
 import { ONE_BN } from './bn'
@@ -52,6 +54,9 @@ export enum ContractId {
   CamelotNitroPool = 'CamelotNitroPool',
   VelodromePool = 'VelodromePool',
   VelodromeStaking = 'VelodromeStaking',
+  VestingEscrowFactory1 = 'VestingEscrowFactory1',
+  VestingEscrowFactory2 = 'VestingEscrowFactory2',
+  VestingEscrow = 'VestingEscrow',
   Multicall3 = 'Multicall3',
   ShortExecutor = 'ShortExecutor',
   LongExecutor = 'LongExecutor',
@@ -70,6 +75,9 @@ export type ContractMap = {
   [ContractId.CamelotNitroPool]: CamelotNitroPool
   [ContractId.VelodromePool]: VelodromePool
   [ContractId.VelodromeStaking]: VelodromeStaking
+  [ContractId.VestingEscrowFactory1]: VestingEscrowFactory
+  [ContractId.VestingEscrowFactory2]: VestingEscrowFactory
+  [ContractId.VestingEscrow]: VestingEscrow
   [ContractId.Multicall3]: Multicall3
   [ContractId.ShortExecutor]: ShortExecutor
   [ContractId.LongExecutor]: LongExecutor
