@@ -1,4 +1,5 @@
-import { TransactionError, TransactionErrorOptions } from '../hooks/account/useTransaction'
+import { TransactionError } from '../constants/transactionErrors'
+import { TransactionErrorOptions } from '../hooks/account/useTransaction'
 import { getChainIdForNetwork } from './getChainIdForNetwork'
 
 export default async function postTransactionError(
@@ -18,6 +19,7 @@ export default async function postTransactionError(
         chain: getChainIdForNetwork(options.network),
         txName: options.txName,
         stage: options.stage,
+        wallet: options.wallet,
         signer: options.signer,
         txHash: options.receipt?.transactionHash ?? '',
         txBlock: options.receipt?.blockNumber ?? '',

@@ -1,4 +1,3 @@
-import { ErrorDescription } from '@ethersproject/abi/lib/interface'
 import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { IconType } from '@lyra/ui/components/Icon'
 import Spinner from '@lyra/ui/components/Spinner'
@@ -8,6 +7,8 @@ import React, { useCallback } from 'react'
 
 import { AppNetwork, Network } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
+import { TransactionError, TransactionErrorReason, TransactionErrorStage } from '@/app/constants/transactionErrors'
+import extractError, { TransactionErrorHandler } from '@/app/utils/common/extractError'
 import getExplorerUrl from '@/app/utils/getExplorerUrl'
 import getNetworkConfig from '@/app/utils/getNetworkConfig'
 import getProvider from '@/app/utils/getProvider'
@@ -21,25 +22,10 @@ const DEFAULT_TOAST_INFO_TIMEOUT = 1000 * 5 // 5 seconds
 const DEFAULT_TOAST_ERROR_TIMEOUT = 1000 * 10 // 10 seconds
 const POLL_INTERVAL = 250 // 0.25 seconds
 
-enum TransactionErrorReason {
-  NotEnoughFunds = 'NotEnoughFunds',
-  UserDenied = 'UserDenied',
-  NetworkChanged = 'NetworkChanged',
-  RpcError = 'RpcError',
-  TradeSlippage = 'TradeSlippage',
-  WalletSetup = 'WalletSetup',
-}
-
 // https://docs.ethers.io/v5/single-page/#/v5/api/providers/types/-%23-providers-TransactionReceipt
 enum TransactionStatus {
   Failure = 0,
   Success = 1,
-}
-
-enum TransactionErrorStage {
-  GasEstimate = 'GasEstimate',
-  Wallet = 'Wallet',
-  Reverted = 'Reverted',
 }
 
 const USER_ERRORS = [
@@ -49,45 +35,9 @@ const USER_ERRORS = [
   TransactionErrorReason.WalletSetup,
 ]
 
-// Catches common error patterns
-const TX_ERROR_PATTERNS: Record<TransactionErrorReason, { message?: string; code?: number | string; name?: string }[]> =
-  {
-    [TransactionErrorReason.TradeSlippage]: [
-      { message: 'Insufficient balance after any settlement owing' },
-      { name: 'TotalCostOutsideOfSpecifiedBounds' },
-    ],
-    [TransactionErrorReason.UserDenied]: [
-      { message: 'User denied transaction signature' },
-      { message: 'User rejected transaction' },
-      { message: "Cannot set properties of undefined (setting 'loadingDefaults')" },
-      { message: 'Sign request rejected by user' },
-      { message: 'cancelled' },
-      { code: 'ACTION_REJECTED' },
-      { code: 4001 },
-    ],
-    [TransactionErrorReason.NotEnoughFunds]: [
-      { message: 'Not enough funds for gas' },
-      { message: 'Failed to execute call with revert code InsufficientGasFunds' },
-    ],
-    [TransactionErrorReason.WalletSetup]: [
-      { message: 'Manifest not set. Read more at https://github.com/trezor/connect/blob/develop/docs/index.md' },
-    ],
-    [TransactionErrorReason.NetworkChanged]: [{ message: 'Underlying network changed' }],
-    [TransactionErrorReason.RpcError]: [
-      // @see https://eips.ethereum.org/EIPS/eip-1474#error-codes
-      { code: -32005 },
-      { message: 'Non-200 status code' },
-      { message: 'Request limit exceeded' },
-      { message: 'Internal json-rpc error' },
-      { message: 'Response has no error or result' },
-      { message: "We can't execute this request" },
-      { message: "Couldn't connect to the network" },
-    ],
-  }
-
 type Value = string | number | boolean
 
-type TransactionMetadata = Record<string, Value | Record<string, Value> | Array<Record<string, Value>>>
+export type TransactionMetadata = Record<string, Value | Record<string, Value> | Array<Record<string, Value>>>
 
 export type TransactionSuccessOptions = {
   network: Network
@@ -103,19 +53,11 @@ export type TransactionErrorOptions = {
   toastId: string
   txName: TransactionType
   signer: string
+  wallet: string
   receipt?: ContractReceipt
   handler?: TransactionErrorHandler
   contract?: Contract
   metadata?: TransactionMetadata
-}
-
-export type TransactionError = {
-  code?: number
-  message?: string
-  data?: any
-  description?: ErrorDescription | null
-  reason?: TransactionErrorReason
-  rawError: any
 }
 
 export type Transaction<
@@ -137,8 +79,6 @@ export type Transaction<
       metadata?: TransactionMetadata
     }
 
-export type TransactionErrorHandler = (error: TransactionError, rawError: any, receipt?: ContractReceipt) => any
-
 export type TransactionOptions = {
   onComplete?: (receipt: ContractReceipt) => any
   onError?: TransactionErrorHandler
@@ -146,49 +86,6 @@ export type TransactionOptions = {
 }
 
 const ToastSpinner = () => <Spinner size={20} />
-
-const extractError = (rawError: any, options: TransactionErrorOptions): TransactionError => {
-  const error = rawError?.error?.error ?? rawError?.error ?? rawError
-  const errorCode = error?.code
-  const errorData = error?.data?.data ?? error?.data
-
-  let errorDescription: ErrorDescription | null = null
-  if (errorData && options['contract']) {
-    try {
-      errorDescription = options['contract'].interface.parseError(errorData)
-    } catch (_err) {}
-  }
-
-  const errorMessage = error?.message
-
-  for (const [reason, patterns] of Object.entries(TX_ERROR_PATTERNS)) {
-    for (const pattern of patterns) {
-      const matchCode = pattern.code && errorCode === pattern.code
-      const matchMessage =
-        pattern.message && errorMessage && errorMessage.toLowerCase().includes(pattern.message.toLowerCase())
-      const matchName =
-        pattern.name && errorDescription && errorDescription.name.toLowerCase().includes(pattern.name.toLowerCase())
-      if (matchCode || matchMessage || matchName) {
-        return {
-          code: errorCode,
-          message: errorMessage,
-          data: errorData,
-          description: errorDescription,
-          reason: reason as TransactionErrorReason,
-          rawError,
-        }
-      }
-    }
-  }
-
-  return {
-    code: errorCode,
-    message: errorMessage,
-    data: errorData,
-    description: errorDescription,
-    rawError,
-  }
-}
 
 const formatErrorReasonMessage = (
   errorReason: TransactionErrorReason,
@@ -307,8 +204,7 @@ async function getContractTxGasLimit(
 }
 
 export default function useTransaction(network: Network) {
-  const { account, signer } = useWallet()
-
+  const { account, signer, connector } = useWallet()
   return useCallback(
     async <
       C extends Contract = Contract,
@@ -324,7 +220,7 @@ export default function useTransaction(network: Network) {
       const onComplete = options?.onComplete
       const onError = options?.onError
 
-      if (!signer || !account) {
+      if (!signer || !account || !connector) {
         console.warn('No signer')
         return null
       }
@@ -343,6 +239,7 @@ export default function useTransaction(network: Network) {
         metadata: options?.metadata,
         signer: account,
         handler: onError,
+        wallet: connector.name,
       }
 
       let response: TransactionResponse
@@ -373,7 +270,12 @@ export default function useTransaction(network: Network) {
         try {
           response = await contract[method](...params, { gasLimit })
         } catch (rawError) {
-          handleError(rawError, { ...successOrErrorOptions, metadata, contract, stage: TransactionErrorStage.Wallet })
+          handleError(rawError, {
+            ...successOrErrorOptions,
+            metadata,
+            contract,
+            stage: TransactionErrorStage.Wallet,
+          })
           return null
         }
       } else {
@@ -401,7 +303,12 @@ export default function useTransaction(network: Network) {
         try {
           response = await signer.sendTransaction(tx)
         } catch (rawError) {
-          handleError(rawError, { ...successOrErrorOptions, metadata, contract, stage: TransactionErrorStage.Wallet })
+          handleError(rawError, {
+            ...successOrErrorOptions,
+            metadata,
+            contract,
+            stage: TransactionErrorStage.Wallet,
+          })
           return null
         }
       }
