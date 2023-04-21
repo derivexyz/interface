@@ -42,21 +42,21 @@ export default function EscrowPageHelper({ escrowPageData }: EscrowPageHelperPro
 
   return (
     <Page header="Escrow" mobileCollapsedHeader="Escrow">
-      account ? (
-      <Box width="1100px">
-        <Text variant="bodyLarge"> Total Locked:</Text>
-        <TokenAmountText
-          tokenNameOrAddress="lyra"
-          amount={escrowPageData?.reduce((total, event) => (total += event.amount), 0) ?? ZERO_BN}
-        />
-        <EscrowTable escrowEvents={escrowPageData ?? []} handleClaimEscrow={handleClaimEscrow} />
-      </Box>
+      {account ? (
+        <Box width="1100px">
+          <Text variant="bodyLarge"> Total Locked:</Text>
+          <TokenAmountText
+            tokenNameOrAddress="lyra"
+            amount={escrowPageData?.reduce((total, event) => (total += event.amount), 0) ?? ZERO_BN}
+          />
+          <EscrowTable escrowEvents={escrowPageData ?? []} handleClaimEscrow={handleClaimEscrow} />
+        </Box>
       ) : (
-      <Box>
-        <Text marginBottom={4}>Connect with a beneficiary wallet of the escrow</Text>
-        <ConnectWalletButton network={AppNetwork.Ethereum} size="lg" width={200} />
-      </Box>
-      )
+        <Box>
+          <Text marginBottom={4}>Connect with a beneficiary wallet of the escrow</Text>
+          <ConnectWalletButton network={AppNetwork.Ethereum} size="lg" width={200} />
+        </Box>
+      )}
     </Page>
   )
 }
