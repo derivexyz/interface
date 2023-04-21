@@ -61,6 +61,7 @@ export type GlobalTradingRewardsConfig = {
   vertIntercept: number // param c // minReward // vertIntercept
   stretchiness: number // param d // stretchiness
   tokens: GlobalTradingRewardsRewardEpochTokenConfig[]
+  referredTradersTokens?: RewardEpochToken[]
 }
 
 export type GlobalMMVConfig = {

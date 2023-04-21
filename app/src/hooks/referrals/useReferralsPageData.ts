@@ -26,15 +26,11 @@ export const fetchReferralsPageData = async (network: Network, walletAddress?: s
     walletAddress ? getLyraSDK(network).accountRewardEpochs(walletAddress) : [],
     walletAddress ? fetchReferrerCode(walletAddress) : null,
   ])
+  const latestGlobalRewardEpoch =
+    globalRewardEpochs.find(e => e.isCurrent) ??
+    (globalRewardEpochs.length ? globalRewardEpochs.sort((a, b) => b.endTimestamp - a.endTimestamp)[0] : null)
 
-  let latestGlobalRewardEpoch: GlobalRewardEpoch
-  const currGlobalRewardEpoch = globalRewardEpochs.find(e => e.isCurrent)
-  if (currGlobalRewardEpoch) {
-    latestGlobalRewardEpoch = currGlobalRewardEpoch
-  } else if (globalRewardEpochs.length > 0) {
-    // If no current epoch is available, use latest epoch less than current timestamp
-    latestGlobalRewardEpoch = globalRewardEpochs.sort((a, b) => b.endTimestamp - a.endTimestamp)[0]
-  } else {
+  if (!latestGlobalRewardEpoch) {
     throw new Error('No global epochs for network')
   }
   const latestAccountRewardEpoch = accountRewardEpochs.find(
@@ -45,7 +41,11 @@ export const fetchReferralsPageData = async (network: Network, walletAddress?: s
     latestAccountRewardEpoch?.accountEpoch?.tradingRewards?.newRewards?.referredTraders
   let currentEpochReferredTradersCount = 0
   let currentEpochReferredTradersVolume = 0
-  const currentEpochReferredTradersRewards: RewardEpochTokenAmount[] = []
+  const currentEpochReferredTradersRewards: RewardEpochTokenAmount[] =
+    latestGlobalRewardEpoch.epoch.tradingRewardConfig.referredTradersTokens?.map(rewardToken => ({
+      ...rewardToken,
+      amount: 0,
+    })) ?? []
   if (currentEpochReferredTraders) {
     currentEpochReferredTradersCount = Object.keys(currentEpochReferredTraders).length
     currentEpochReferredTradersVolume = Object.values(currentEpochReferredTraders).reduce(
@@ -61,10 +61,7 @@ export const fetchReferralsPageData = async (network: Network, walletAddress?: s
           if (!existingToken) {
             currentEpochReferredTradersRewards.push(newToken)
           } else {
-            const existingTokenIndex = currentEpochReferredTradersRewards.findIndex(
-              token => token.address.toLowerCase() === newToken.address.toLowerCase()
-            )
-            currentEpochReferredTradersRewards[existingTokenIndex].amount += newToken.amount
+            existingToken.amount += newToken.amount
           }
         })
       }
@@ -72,35 +69,28 @@ export const fetchReferralsPageData = async (network: Network, walletAddress?: s
   }
 
   const allReferredTraders: NewTradingRewardsReferredTraders = {}
-  accountRewardEpochs.map(epoch => {
+  accountRewardEpochs.forEach(epoch => {
     const epochReferredTraders = epoch?.accountEpoch?.tradingRewards?.newRewards?.referredTraders
     if (epochReferredTraders) {
       for (const trader in epochReferredTraders) {
-        if (!allReferredTraders[trader]) {
+        const referredTrader = allReferredTraders[trader]
+        if (!referredTrader) {
           allReferredTraders[trader] = {
-            trader: epochReferredTraders[trader].trader,
-            trades: epochReferredTraders[trader].trades,
-            fees: epochReferredTraders[trader].fees,
-            premium: epochReferredTraders[trader].premium,
-            volume: epochReferredTraders[trader].volume,
-            tokens: epochReferredTraders[trader].tokens,
+            ...epochReferredTraders[trader],
           }
         } else {
-          allReferredTraders[trader].trades += epochReferredTraders[trader].trades
-          allReferredTraders[trader].fees += epochReferredTraders[trader].fees
-          allReferredTraders[trader].premium += epochReferredTraders[trader].premium
-          allReferredTraders[trader].volume += epochReferredTraders[trader].volume
-          epochReferredTraders[trader].tokens.forEach(newToken => {
+          referredTrader.trades += epochReferredTraders[trader].trades
+          referredTrader.fees += epochReferredTraders[trader].fees
+          referredTrader.premium += epochReferredTraders[trader].premium
+          referredTrader.volume += epochReferredTraders[trader].volume
+          referredTrader.tokens.forEach(newToken => {
             const existingToken = allReferredTraders[trader].tokens.find(
               token => token.address.toLowerCase() === newToken.address.toLowerCase()
             )
             if (!existingToken) {
               allReferredTraders[trader].tokens.push(newToken)
             } else {
-              const existingTokenIndex = allReferredTraders[trader].tokens.findIndex(
-                token => token.address.toLowerCase() === newToken.address.toLowerCase()
-              )
-              allReferredTraders[trader].tokens[existingTokenIndex].amount += newToken.amount
+              existingToken.amount += newToken.amount
             }
           })
         }

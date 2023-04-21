@@ -20,7 +20,7 @@ type Props = {
 } & MarginProps
 
 const ReferralsPageHelper = ({ data, ...marginProps }: Props): JSX.Element => {
-  const { latestGlobalRewardEpoch, latestAccountRewardEpoch, allReferredTraders } = data
+  const { latestGlobalRewardEpoch, allReferredTraders, referrerCode } = data
   const isMobile = useIsMobile()
   return (
     <Page noHeaderPadding header={!isMobile ? <ReferralsPageHeader data={data} /> : null} {...marginProps}>
@@ -45,7 +45,7 @@ const ReferralsPageHelper = ({ data, ...marginProps }: Props): JSX.Element => {
             .
           </Text>
         </Flex>
-        <ReferralsCreateCard data={data} />
+        <ReferralsCreateCard key={referrerCode} data={data} />
         <Text variant="heading" color="text" mt={[4, 8]} ml={[4, 0]}>
           Traders you referred
         </Text>
