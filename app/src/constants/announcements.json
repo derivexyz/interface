@@ -35,5 +35,21 @@
     "graphicSize": [72, 96],
     "startTimestamp": 1675206000,
     "expiryTimestamp": 1677589200
+  },
+  {
+    "id": "trading-rewards-V2",
+    "header": "Trading Rewards V2",
+    "title": "Start earning with an overhauled trading rewards program, tailored for options traders.",
+    "cta": [
+      {
+        "label": "Leaderboard",
+        "href": "/#/leaderboard",
+        "variant": "default"
+      }
+    ],
+    "graphic": "images/trading-rewards-v2.png",
+    "graphicSize": [100, 100],
+    "startTimestamp": 1681691400,
+    "expiryTimestamp": 1683246600
   }
 ]

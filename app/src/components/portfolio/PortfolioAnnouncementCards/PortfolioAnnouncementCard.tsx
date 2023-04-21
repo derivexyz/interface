@@ -1,3 +1,4 @@
+import Box from '@lyra/ui/components/Box'
 import IconButton from '@lyra/ui/components/Button/IconButton'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
@@ -66,27 +67,19 @@ export default function PortfolioAnnouncementCard({
     <Card>
       <CardBody noPadding px={6} py={3} flexDirection="row" alignItems="center">
         {announcement.graphic && !isMobile ? (
-          <Image
+          <Box
             mr={4}
-            src={getAssetSrc(announcement.graphic)}
             height={announcement.graphicSize ?? IMAGE_SIZE}
             minHeight={announcement.graphicSize ?? IMAGE_SIZE}
             width={announcement.graphicSize ?? IMAGE_SIZE}
             minWidth={announcement.graphicSize ?? IMAGE_SIZE}
-          />
+            sx={{ borderRadius: 'text', overflow: 'hidden' }}
+          >
+            <Image src={getAssetSrc(announcement.graphic)} />
+          </Box>
         ) : null}
         <Flex flexDirection="column" flexGrow={1}>
           <Flex mb={[2, 0]} alignItems="center">
-            {announcement.graphic && isMobile ? (
-              <Image
-                mr={3}
-                src={getAssetSrc(announcement.graphic)}
-                height={announcement.graphicSize ?? IMAGE_SIZE}
-                minHeight={announcement.graphicSize ?? IMAGE_SIZE}
-                width={announcement.graphicSize ?? IMAGE_SIZE}
-                minWidth={announcement.graphicSize ?? IMAGE_SIZE}
-              />
-            ) : null}
             <Text mr={2} variant="bodyLargeMedium" color="text">
               {announcement.header}
               {announcement.showCountdown && !isMobile ? (
@@ -96,7 +89,13 @@ export default function PortfolioAnnouncementCard({
                 </>
               ) : null}
             </Text>
-            <IconButton ml="auto" variant="light" icon={IconType.X} onClick={handleClickClose} />
+            <IconButton
+              ml="auto"
+              size={isMobile ? 'sm' : 'md'}
+              variant="light"
+              icon={IconType.X}
+              onClick={handleClickClose}
+            />
           </Flex>
           <Text mb={[2, 0]} variant="secondary" color="secondaryText">
             {announcement.title}
