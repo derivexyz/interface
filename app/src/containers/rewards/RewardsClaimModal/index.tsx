@@ -13,7 +13,7 @@ import { useState } from 'react'
 import { useMemo } from 'react'
 
 import RowItem from '@/app/components/common/RowItem'
-import { REWARDS_MIGRATION_DOC_URL } from '@/app/constants/links'
+import { VAULT_REWARDS_DOC_URL } from '@/app/constants/links'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
@@ -142,7 +142,7 @@ export default function RewardsClaimModal({ accountRewardEpoch, isOpen, onClose 
                 tooltip={
                   <Text variant="secondary" color="secondaryText">
                     You have unclaimed rewards from old reward programs.{' '}
-                    <Link textVariant="secondary" showRightIcon href={REWARDS_MIGRATION_DOC_URL} target="_blank">
+                    <Link textVariant="secondary" showRightIcon href={VAULT_REWARDS_DOC_URL} target="_blank">
                       Learn more
                     </Link>
                   </Text>

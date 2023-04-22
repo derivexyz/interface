@@ -30,23 +30,19 @@ export const DOCS_URL = 'https://docs.lyra.finance'
 export const STATS_URL = 'https://stats.lyra.finance'
 export const WITHDRAW_WARNING_DOC_URL = 'https://docs.lyra.finance/overview/risks#withdrawal-delay-risk'
 export const RISK_DOC_URL = 'https://docs.lyra.finance/overview/risks'
-export const REWARDS_DOC_URL = 'https://docs.lyra.finance/governance/incentives'
-export const STAKING_REWARDS_DOC_URL = 'https://docs.lyra.finance/governance/incentives#staking-rewards'
 export const CIRCUIT_BREAKER_DOC_URL =
   'https://docs.lyra.finance/overview/how-does-lyra-work/market-maker-vaults#circuit-breakers'
 export const KEEPER_BOT_DOC_URL =
   'https://docs.lyra.finance/developers/contracts/actor-functions#liquiditypool.processwithdrawalqueue'
-export const VAULT_REWARDS_DOC_URL = 'https://docs.lyra.finance/governance/incentives#vault-rewards-and-boosting'
+export const STAKING_REWARDS_DOC_URL = 'https://gov.lyra.finance/rewards/staking-lyra'
+export const VAULT_REWARDS_DOC_URL = 'https://gov.lyra.finance/rewards/vault-rewards'
 export const TRADING_REWARDS_DOC_URL = 'https://gov.lyra.finance/rewards/trading-rewards'
 export const REFERRALS_DOC_URL = 'https://gov.lyra.finance/rewards/referrals'
 export const VAULTS_ABOUT_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/market-maker-vaults'
 export const DYNAMIC_FEES_DOC_URL =
   'https://docs.lyra.finance/overview/how-does-lyra-work/options-pricing-and-the-amm#dynamic-fees'
 export const GOVERNANCE_DOC_URL = 'https://gov.lyra.finance'
-export const SHORT_COLLATERAL_REWARDS_DOC_URL =
-  'https://docs.lyra.finance/governance/incentives#short-collateral-rewards'
 export const TRADING_CUTOFF_DOC_URL = 'https://docs.lyra.finance/overview/how-does-lyra-work/trading#trading-cutoffs'
-export const REWARDS_MIGRATION_DOC_URL = 'https://docs.lyra.finance/governance/incentives' // TODO: @dillon add new docs for - 'https://gov.lyra.finance/rewards/migrations'
 
 export const SWAP_LYRA_1INCH_URL = 'https://app.1inch.io/#/1/simple/swap/ETH/LYRA'
 

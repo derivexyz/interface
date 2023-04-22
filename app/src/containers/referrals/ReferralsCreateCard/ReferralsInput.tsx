@@ -90,6 +90,7 @@ const ReferralsInput = withSuspense(
             borderColor:
               isInvalidCode || isTakenCode ? 'errorButtonBg' : isScreened ? 'disabledButtonBg' : 'primaryText',
             borderRadius: 25,
+            cursor: 'pointer',
           }}
           rebassInputStyles={{
             color: isCreateMode ? '#95A4B5' : null,
