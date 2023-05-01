@@ -12,7 +12,7 @@ import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
 import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import getContract from '@/app/utils/common/getContract'
-import { getLyraBalanceForNetwork, getStkLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
+import { getStkLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import logEvent from '@/app/utils/logEvent'
 import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
@@ -66,10 +66,10 @@ const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStaking, onClose,
     })
     onClose && onClose()
   }, [account, amount, execute, onClose, mutateRewardsPageData])
-  const lyraBalance = getLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
-  const insufficientBalance = amount ? lyraBalance < fromBigNumber(amount) : false
+  const stkLyraBalance = getStkLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
+  const insufficientBalance = amount ? stkLyraBalance < fromBigNumber(amount) : false
   const isCooldown = !!lyraStaking?.isInCooldown
-  const hasUnstakeableBalance = getStkLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum) > 0
+  const hasUnstakeableBalance = stkLyraBalance > 0
 
   return (
     <Box {...styleProps}>
