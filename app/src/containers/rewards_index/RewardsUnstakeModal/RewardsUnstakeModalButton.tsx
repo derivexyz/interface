@@ -78,7 +78,7 @@ const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStaking, onClose,
           network={AppNetwork.Ethereum}
           transactionType={TransactionType.UnstakeLyra}
           width="100%"
-          isDisabled={hasUnstakeableBalance || isCooldown}
+          isDisabled={!hasUnstakeableBalance || isCooldown}
           onClick={handleClickRequestUnstake}
           label={isCooldown ? `Unstake` : `Request Unstake`}
         />

@@ -18,7 +18,7 @@ import { AppNetwork } from '@/app/constants/networks'
 import RewardsUnstakeModal from '@/app/containers/rewards_index/RewardsUnstakeModal'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
 import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
-import { getLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
+import { getStkLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
 import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
 
 import RewardsStakeModal from '../RewardsStakeModal'
@@ -45,10 +45,10 @@ const RewardsStakedCardSection = ({
 
   const { l2Balance, balance } = useMemo(() => {
     const l2Balance = [AppNetwork.Arbitrum, AppNetwork.Optimism].reduce(
-      (sum, network) => sum + getLyraBalanceForNetwork(lyraBalances, network),
+      (sum, network) => sum + getStkLyraBalanceForNetwork(lyraBalances, network),
       0
     )
-    const balance = l2Balance + getLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
+    const balance = l2Balance + getStkLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
     return {
       l2Balance,
       balance,
