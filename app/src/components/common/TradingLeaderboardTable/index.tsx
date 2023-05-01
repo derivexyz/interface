@@ -58,7 +58,7 @@ const TradingLeaderboardTable = ({
   const account = useWalletAccount()
   const navigate = useNavigate()
 
-  const rows: LeaderboardTableData[] = useMemo(
+  let rows: LeaderboardTableData[] = useMemo(
     () =>
       leaderboard.map((trader, i) => {
         let emoji: null | string = null
@@ -191,11 +191,13 @@ const TradingLeaderboardTable = ({
   }
 
   if (account && currentTrader) {
+    const emoji = rows.find(trader => trader.trader.toLowerCase() === currentTrader.trader.toLowerCase())?.emoji ?? null
+    rows = rows.filter(row => row.trader !== currentTrader.trader)
     rows.unshift({
       trader: currentTrader.trader,
       traderEns: currentTrader.traderEns,
       boost: currentTrader.boost,
-      emoji: null,
+      emoji: emoji,
       showBoostButton: true,
       showTradeButton: currentTrader.totalRewards.amount === 0,
       rewardSymbol: currentTrader.dailyReward.symbol,

@@ -103,6 +103,7 @@ export default function Table<T extends TableRecordType>({
     }
   }, [rows, page, pageSize])
 
+  const isSorted = headerGroups.some(headerGroup => headerGroup.headers.some(column => !!(column as any).isSorted))
   return (
     <Box {...styleProps}>
       <Box
@@ -235,7 +236,7 @@ export default function Table<T extends TableRecordType>({
                     '&:active': {
                       bg: isClickable && !isExpandedContentClickable ? 'active' : 'transparent',
                     },
-                    border: isOutlineFirstRow && rowIdx === 0 && page === 0 ? '1px solid #69D8BD' : 'none',
+                    border: isOutlineFirstRow && rowIdx === 0 && page === 0 && !isSorted ? '1px solid #69D8BD' : 'none',
                     ...rowStyleProps?.sx,
                   }}
                   {...(prepareRowProps(row) as any)}
