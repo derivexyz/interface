@@ -18,9 +18,11 @@ import postReferralsTermsOfUse from '@/app/utils/referrals/postReferralsTermsOfU
 type Props = {
   isOpen: boolean
   onClose: () => void
+  onCreate: (value: string) => Promise<boolean>
+  referrerCode: string | null | undefined
 }
 
-export default function ReferralsTermsOfUseModal({ isOpen, onClose }: Props) {
+export default function ReferralsTermsOfUseModal({ isOpen, onClose, onCreate, referrerCode }: Props) {
   const [isChecked, setIsChecked] = useState(false)
   const [isBChecked, setIsBChecked] = useState(false)
   const { account } = useWallet()
@@ -70,18 +72,21 @@ export default function ReferralsTermsOfUseModal({ isOpen, onClose }: Props) {
           variant="primary"
           isLoading={isLoading}
           size="lg"
-          onClick={() => {
+          onClick={async () => {
             setIsReferralTermsAccepted()
             if (isScreeningEnabled()) {
               setIsLoading(true)
-              postReferralsTermsOfUse(account)
-                .then(ok => {
-                  if (ok) {
-                    onClose()
-                  }
-                  setIsLoading(false)
-                })
-                .catch(() => setIsLoading(false))
+              const isPostSuccessful = await postReferralsTermsOfUse(account)
+              if (isPostSuccessful) {
+                setIsLoading(false)
+                if (!!referrerCode) {
+                  await onCreate(referrerCode)
+                  onClose()
+                }
+                onClose()
+              } else {
+                setIsLoading(false)
+              }
             } else {
               onClose()
             }

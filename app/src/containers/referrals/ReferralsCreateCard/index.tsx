@@ -28,8 +28,8 @@ import getReferralLink from '@/app/utils/referrals/getReferralLink'
 import validateReferrerCode from '@/app/utils/referrals/validateReferrerCode'
 
 import ConnectWalletButton from '../../common/ConnectWalletButton'
-import ReferralsTermsOfUseModal from '../../common/ReferralsTermsOfUseModal'
 import ReferralsInput from './ReferralsInput'
+import ReferralsTermsOfUseModal from './ReferralsTermsOfUseModal'
 
 type Props = {
   data: ReferralsPageData
@@ -75,20 +75,30 @@ const ReferralsCreateCard = ({ data, ...marginProps }: Props) => {
     }, 600)
   }, [])
 
-  const onClickCreate = useCallback(
+  const handleCreateClick = useCallback(async (value: string) => {
+    let isTaken = false
+    const isAvailable = await checkReferrerCode(value)
+    if (!isAvailable) {
+      setIsTakenCode(true)
+      isTaken = true
+    }
+    return isTaken
+  }, [])
+
+  const handleCreate = useCallback(
     async (value: string) => {
-      const isAvailable = await checkReferrerCode(value)
-      if (!isAvailable) {
-        setIsTakenCode(true)
-      } else if (isOwnAccount) {
+      let success = false
+      if (account) {
         const createCodeResult = await createReferrerCode(account, value)
         if (createCodeResult) {
           setReferrerCode(createCodeResult)
           setIsCreateMode(false)
+          success = true
         }
       }
+      return success
     },
-    [account, isOwnAccount]
+    [account]
   )
 
   return (
@@ -116,10 +126,9 @@ const ReferralsCreateCard = ({ data, ...marginProps }: Props) => {
                 isTakenCode={isTakenCode}
                 onClickCopy={onClickCopy}
                 onChangeReferralCode={onChangeReferralCode}
-                onClickCreate={value => {
-                  if (isReferralTermsAccepted) {
-                    onClickCreate(value)
-                  } else {
+                onClickCreate={async value => {
+                  const isTaken = await handleCreateClick(value)
+                  if (!isReferralTermsAccepted && !isTaken) {
                     setIsTermsOpen(true)
                   }
                 }}
@@ -186,7 +195,12 @@ const ReferralsCreateCard = ({ data, ...marginProps }: Props) => {
           </CardSection>
         </CardSection>
       </Card>
-      <ReferralsTermsOfUseModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
+      <ReferralsTermsOfUseModal
+        isOpen={isOwnAccount && isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+        onCreate={handleCreate}
+        referrerCode={referrerCode}
+      />
     </>
   )
 }
