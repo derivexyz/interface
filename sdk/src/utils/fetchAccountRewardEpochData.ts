@@ -29,13 +29,6 @@ export type AccountMMVRewards = {
   }
 }
 
-export type TokenReward = {
-  address: string
-  symbol: string
-  decimals: number
-  amount: number
-}
-
 export type DailyPoint = {
   points: number
   day: number
@@ -65,7 +58,7 @@ export type NewTradingRewardsReferredTraders = {
     fees: number
     premium: number
     volume: number
-    tokens: TokenReward[]
+    tokens: RewardEpochTokenAmount[]
   }
 }
 
@@ -82,7 +75,7 @@ export type NewTradingRewards = {
     volume: number
     totalPercent: number
   }
-  tokens: TokenReward[]
+  tokens: RewardEpochTokenAmount[]
   referredTraders: NewTradingRewardsReferredTraders
 }
 
@@ -95,8 +88,8 @@ export type AccountTradingRewards = {
   shortCallSeconds: number
   shortPutSeconds: number
   rewards: {
-    trading: TokenReward[]
-    shortCollateral: TokenReward[]
+    trading: RewardEpochTokenAmount[]
+    shortCollateral: RewardEpochTokenAmount[]
   }
   newRewards: NewTradingRewards
 }

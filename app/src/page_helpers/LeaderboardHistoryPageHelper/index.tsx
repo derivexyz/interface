@@ -88,7 +88,6 @@ const LeaderboardHistoryPageHelper = ({ data, ...marginProps }: Props): JSX.Elem
                   if (!market) {
                     return null
                   }
-
                   return (
                     <Flex py={3} key={globalEpoch.id}>
                       <Text minWidth={MIN_COL_WIDTH}>{formatDate(globalEpoch.endTimestamp)}</Text>

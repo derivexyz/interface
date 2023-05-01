@@ -2,7 +2,6 @@ import { Block } from '@ethersproject/providers'
 
 import { Deployment, Market, MarketLiquiditySnapshot } from '..'
 import { AccountRewardEpoch } from '../account_reward_epoch'
-import { MIN_REWARD_AMOUNT } from '../constants/rewards'
 import { SECONDS_IN_DAY, SECONDS_IN_YEAR } from '../constants/time'
 import Lyra from '../lyra'
 import fetchGlobalRewardEpochData, { GlobalRewardEpochData } from '../utils/fetchGlobalRewardEpochData'
@@ -324,21 +323,19 @@ export class GlobalRewardEpoch {
   }
 
   tradingRewards(tradingFees: number, stakedLyraBalance: number): RewardEpochTokenAmount[] {
-    return this.epoch.tradingRewardConfig.tokens
-      .map(token => {
-        const currentPrice = this.tokenPriceMap[token.address]?.price ?? 0
-        const price = this.isComplete ? token.fixedPrice : Math.max(currentPrice, token.floorTokenPrice)
-        const feeRebate = this.tradingFeeRebate(stakedLyraBalance)
-        const feesRebated = feeRebate * tradingFees
-        const rewardAmount = (feesRebated * token.portion) / price
-        return {
-          amount: rewardAmount,
-          address: token.address,
-          decimals: token.decimals,
-          symbol: token.symbol,
-        }
-      })
-      .filter(e => e.amount > MIN_REWARD_AMOUNT)
+    return this.epoch.tradingRewardConfig.tokens.map(token => {
+      const currentPrice = this.tokenPriceMap[token.address]?.price ?? 0
+      const price = this.isComplete ? token.fixedPrice : Math.max(currentPrice, token.floorTokenPrice)
+      const feeRebate = this.tradingFeeRebate(stakedLyraBalance)
+      const feesRebated = feeRebate * tradingFees
+      const rewardAmount = (feesRebated * token.portion) / price
+      return {
+        amount: isNaN(rewardAmount) ? 0 : rewardAmount,
+        address: token.address,
+        decimals: token.decimals,
+        symbol: token.symbol,
+      }
+    })
   }
 
   // Edge

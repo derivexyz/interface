@@ -89,16 +89,20 @@ export class AccountRewardEpoch {
     )
 
     this.tradingFeeRebate = globalEpoch.tradingFeeRebate(this.stakedLyraBalance)
+    const hasNewRewards = !!accountEpoch.tradingRewards.newRewards
+    const oldTradingRewardTokens = accountEpoch.tradingRewards?.rewards?.trading ?? []
+    const newTradingRewardTokens = accountEpoch?.tradingRewards?.newRewards?.tokens ?? []
+    const oldTradingRewardFees = accountEpoch.tradingRewards.fees ?? 0
+    const newTradingRewardFees = accountEpoch.tradingRewards?.newRewards?.points?.fees ?? 0
     const integratorTradingFees = accountEpoch.integratorTradingRewards?.fees ?? 0
-    this.tradingFees = integratorTradingFees > 0 ? integratorTradingFees : accountEpoch.tradingRewards.fees
-
-    this.tradingRewards = globalEpoch.tradingRewards(this.tradingFees, this.stakedLyraBalance)
-
+    this.tradingFees =
+      integratorTradingFees > 0 ? integratorTradingFees : hasNewRewards ? newTradingRewardFees : oldTradingRewardFees
+    const tradingRewardTokens = hasNewRewards ? newTradingRewardTokens : oldTradingRewardTokens
+    this.tradingRewards =
+      tradingRewardTokens && tradingRewardTokens.length > 0 ? tradingRewardTokens : globalEpoch.tradingRewards(0, 0)
     const distributedTradingRewards = getDistributedTradingRewards(globalEpoch, claimAddedEvents)
     this.isTradingRewardsDistributed = !!distributedTradingRewards.find(d => d.amount > 0)
-    this.tradingRewards = this.isTradingRewardsDistributed
-      ? distributedTradingRewards
-      : globalEpoch.tradingRewards(this.tradingFees, this.stakedLyraBalance)
+    this.tradingRewards = this.isTradingRewardsDistributed ? distributedTradingRewards : this.tradingRewards
 
     this.totalClaimableRewards = totalClaimableRewards
     this.totalClaimableTradingRewards = getTotalClaimableTradingRewards(rewardTokens, claimAddedEvents, claimEvents)
