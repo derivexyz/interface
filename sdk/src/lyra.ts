@@ -16,7 +16,6 @@ import { Network } from './constants/network'
 import { GlobalRewardEpoch } from './global_reward_epoch'
 import { LiquidityDeposit } from './liquidity_deposit'
 import { LiquidityWithdrawal } from './liquidity_withdrawal'
-import { LyraStaking } from './lyra_staking'
 import { Market, MarketContractAddresses, MarketQuotes, MarketTradeOptions } from './market'
 import { Option, OptionQuotes } from './option'
 import { Position, PositionFilter, PositionLeaderboard, PositionLeaderboardFilter } from './position'
@@ -39,8 +38,6 @@ import getVersionForChain from './utils/getVersionForChain'
 
 export type LyraConfig = {
   provider: JsonRpcProvider
-  optimismProvider?: JsonRpcProvider
-  ethereumProvider?: JsonRpcProvider
   subgraphUri?: string
   apiUri?: string
 }
@@ -56,8 +53,6 @@ export default class Lyra {
   chain: Chain
   chainId: number
   provider: JsonRpcProvider
-  optimismProvider?: JsonRpcProvider
-  ethereumProvider?: JsonRpcProvider
   subgraphUri: string
   subgraphClient: ApolloClient<NormalizedCacheObject>
   apiUri: string
@@ -69,8 +64,6 @@ export default class Lyra {
       // Config
       const configObj = config as LyraConfig
       this.provider = config.provider
-      this.optimismProvider = config.optimismProvider
-      this.ethereumProvider = config.ethereumProvider
       this.chain = getLyraChainForChainId(this.provider.network.chainId)
       this.subgraphUri = configObj?.subgraphUri ?? getLyraDeploymentSubgraphURI(this.chain)
       this.apiUri = configObj.apiUri ?? LYRA_API_URL
@@ -306,18 +299,6 @@ export default class Lyra {
 
   async claimRewards(address: string, tokenAddresses: string[]) {
     return await AccountRewardEpoch.claim(this, address, tokenAddresses)
-  }
-
-  async lyraStaking(): Promise<LyraStaking> {
-    return await LyraStaking.get(this)
-  }
-
-  async lyraStakingAccount(address: string) {
-    return await LyraStaking.getByOwner(this, address)
-  }
-
-  async claimableStakingRewards(address: string) {
-    return LyraStaking.claimableRewards(this, address)
   }
 
   async globalRewardEpochs(): Promise<GlobalRewardEpoch[]> {

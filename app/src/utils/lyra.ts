@@ -4,7 +4,6 @@ import { LyraNetwork } from '../constants/networks'
 import CachedStaticJsonRpcProvider from './CachedStaticJsonRpcProvider'
 import getNetworkConfig from './getNetworkConfig'
 import isMainnet from './isMainnet'
-import mainnetProvider from './mainnetProvider'
 
 const optimismNetworkConfig = getNetworkConfig(LyraNetwork.Optimism)
 const optimismProvider = new CachedStaticJsonRpcProvider(optimismNetworkConfig.rpcUrl, optimismNetworkConfig.chainId)
@@ -37,14 +36,10 @@ export const lyraOptimism = new Lyra({
   provider: optimismProvider,
   apiUri: process.env.REACT_APP_API_URL,
   subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Optimism : Chain.OptimismGoerli),
-  optimismProvider: optimismProvider,
-  ethereumProvider: mainnetProvider,
 })
 
 export const lyraArbitrum = new Lyra({
   provider: arbitrumProvider,
   apiUri: process.env.REACT_APP_API_URL,
   subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Arbitrum : Chain.ArbitrumGoerli),
-  optimismProvider: optimismProvider,
-  ethereumProvider: mainnetProvider,
 })

@@ -2,8 +2,8 @@ import { AccountRewardEpoch, Market, Network, RewardEpochTokenAmount } from '@ly
 
 import { ONE_BN, UNIT, ZERO_ADDRESS, ZERO_BN } from '../constants/bn'
 import { Vault } from '../constants/vault'
-import { EMPTY_LYRA_BALANCES } from '../hooks/account/useAccountLyraBalances'
 import getAverageCostPerLPToken from '../hooks/vaults/getAverageCostPerLPToken'
+import fetchLyraBalances from './common/fetchLyraBalances'
 import fromBigNumber from './fromBigNumber'
 import getEmptyMarketBalances from './getEmpyMarketBalances'
 import getLyraSDK from './getLyraSDK'
@@ -14,13 +14,11 @@ const fetchVault = async (network: Network, market: Market, walletAddress?: stri
   const lyra = getLyraSDK(network)
   const account = lyra.account(walletAddress ?? ZERO_ADDRESS)
 
-  const fetchLyraBalances = async () => (account ? account.lyraBalances() : EMPTY_LYRA_BALANCES)
-
   const [marketLiquidity, globalRewardEpoch, balances, lyraBalances, deposits, withdrawals] = await Promise.all([
     market.liquidity(),
     lyra.latestGlobalRewardEpoch(),
     account.balances(),
-    fetchLyraBalances(),
+    fetchLyraBalances(walletAddress),
     lyra.deposits(market.address, account.address),
     lyra.withdrawals(market.address, account.address),
   ])

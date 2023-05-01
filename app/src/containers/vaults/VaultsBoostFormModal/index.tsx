@@ -8,10 +8,13 @@ import React, { useState } from 'react'
 
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import { ZERO_BN } from '@/app/constants/bn'
+import { AppNetwork } from '@/app/constants/networks'
 import { Vault } from '@/app/constants/vault'
+import { getLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
 import formatAPY from '@/app/utils/formatAPY'
 import formatAPYRange from '@/app/utils/formatAPYRange'
 import fromBigNumber from '@/app/utils/fromBigNumber'
+import toBigNumber from '@/app/utils/toBigNumber'
 
 import RowItem from '../../../components/common/RowItem'
 import StakeFormButton from '../../rewards_index/RewardsStakeModal/RewardsStakeFormButton'
@@ -25,24 +28,24 @@ type Props = {
 const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
   const { market, lyraBalances, marketBalances } = vault
   const [amount, setAmount] = useState(ZERO_BN)
-
-  const lyraBalance = lyraBalances.ethereumLyra
-  const stakedLyraBalance = lyraBalances.ethereumStkLyra.add(lyraBalances.optimismStkLyra)
-  const newStakedLyraBalance = stakedLyraBalance.add(amount)
+  const amountNum = fromBigNumber(amount)
+  const lyraBalance = getLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
+  const stakedLyraBalance = lyraBalances.totalStkLyra.amount
+  const newStakedLyraBalance = stakedLyraBalance + amountNum
   const totalApy = vault.apy.reduce((total, token) => total + token.amount, 0)
   const minTotalApy = vault.minApy.reduce((total, token) => total + token.amount, 0)
 
   const newTotalApy =
     vault.globalRewardEpoch?.vaultApy(
       market.address,
-      fromBigNumber(newStakedLyraBalance),
+      newStakedLyraBalance,
       fromBigNumber(marketBalances.liquidityToken.balance)
     ) ?? []
 
   const newApyMultiplier =
     vault.globalRewardEpoch?.vaultApyMultiplier(
       market.address,
-      fromBigNumber(newStakedLyraBalance),
+      newStakedLyraBalance,
       fromBigNumber(marketBalances.liquidityToken.balance)
     ) ?? 1
 
@@ -60,7 +63,7 @@ const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
               width="50%"
               value={amount}
               onChange={setAmount}
-              max={lyraBalance}
+              max={toBigNumber(lyraBalance)}
               textAlign="right"
               showMaxButton
             />
@@ -71,7 +74,7 @@ const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
           value={
             <AmountUpdateText
               prevAmount={lyraBalance}
-              newAmount={lyraBalance.gt(amount) ? lyraBalance.sub(amount) : ZERO_BN}
+              newAmount={lyraBalance > amountNum ? lyraBalance - amountNum : ZERO_BN}
               symbol="LYRA"
               variant="secondary"
             />

@@ -9,7 +9,6 @@ export enum FetchId {
   AccountIsSmartContractWallet = 'AccountIsSmartContractWallet',
   AccountScreenTransaction = 'AccountScreenTransaction',
   AccountBalances = 'AccountBalances',
-  AccountLyraBalances = 'AccountLyraBalances',
 
   // portfolio
   PortfolioPageData = 'PortfolioPageData',
@@ -43,7 +42,7 @@ export enum FetchId {
   ArrakisOptimismAccount = 'ArrakisOptimismAccount',
   ArrakisStaking = 'ArrakisStaking',
   CamelotStaking = 'CamelotStaking',
-  ClaimableStakingRewards = 'ClaimableStakingRewards',
+  LyraStaking = 'LyraStaking',
   TokenSupply = 'TokenSupply',
   NetworkTradingVolume = 'NetworkTradingVolume',
   VelodromeStaking = 'VelodromeStaking',

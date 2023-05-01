@@ -1,46 +1,43 @@
 import Modal from '@lyra/ui/components/Modal'
-import { AccountLyraBalances, GlobalRewardEpoch, LyraStakingAccount } from '@lyrafinance/lyra-js'
+import { GlobalRewardEpoch } from '@lyrafinance/lyra-js'
 import React from 'react'
+
+import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
+import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
 
 import UnstakeModalBody from './RewardsUnstakeModalBody'
 import RewardsUnstakeRequestModalBody from './RewardsUnstakeRequestModalBody'
 
 type Props = {
   globalRewardEpoch: GlobalRewardEpoch
-  lyraBalances: AccountLyraBalances
-  lyraStakingAccount: LyraStakingAccount | null
+  lyraBalances: LyraBalances
+  lyraStaking: LyraStaking
   isOpen: boolean
   onClose: () => void
 }
 
-export default function RewardsUnstakeModal({
-  isOpen,
-  onClose,
-  lyraBalances,
-  lyraStakingAccount,
-  globalRewardEpoch,
-}: Props) {
+export default function RewardsUnstakeModal({ isOpen, onClose, lyraBalances, lyraStaking, globalRewardEpoch }: Props) {
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={
-        lyraStakingAccount?.isInUnstakeWindow
+        lyraStaking.isInUnstakeWindow
           ? 'Complete Unstake'
-          : lyraStakingAccount?.isInCooldown
+          : lyraStaking.isInCooldown
           ? 'Request Sent'
           : 'Request to Unstake'
       }
     >
-      {lyraStakingAccount?.isInUnstakeWindow ? (
+      {lyraStaking.isInUnstakeWindow ? (
         <UnstakeModalBody
           onClose={onClose}
           lyraBalances={lyraBalances}
-          lyraStakingAccount={lyraStakingAccount}
+          lyraStaking={lyraStaking}
           globalRewardEpoch={globalRewardEpoch}
         />
       ) : (
-        <RewardsUnstakeRequestModalBody lyraBalances={lyraBalances} lyraStakingAccount={lyraStakingAccount} />
+        <RewardsUnstakeRequestModalBody lyraBalances={lyraBalances} lyraStaking={lyraStaking} />
       )}
     </Modal>
   )

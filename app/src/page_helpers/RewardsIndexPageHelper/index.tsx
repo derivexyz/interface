@@ -1,6 +1,4 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { AccountLyraBalances, LyraStakingAccount } from '@lyrafinance/lyra-js'
-import { LyraStaking } from '@lyrafinance/lyra-js'
 import { NewTradingRewardsReferredTraders } from '@lyrafinance/lyra-js/src/utils/fetchAccountRewardEpochData'
 import React from 'react'
 
@@ -12,6 +10,8 @@ import RewardsStakingCard from '@/app/containers/rewards_index/RewardsStakingCar
 import RewardsVaultsSection from '@/app/containers/rewards_index/RewardsVaultsSection'
 import RewardsWethLyraLPSection from '@/app/containers/rewards_index/RewardsWethLyraLPSection'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
+import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
+import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
 
 import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
@@ -19,20 +19,12 @@ import PageGrid from '../common/Page/PageGrid'
 type Props = {
   latestRewardEpochs: LatestRewardEpoch[]
   vaults: Vault[]
-  lyraBalances: AccountLyraBalances
+  lyraBalances: LyraBalances
   lyraStaking: LyraStaking
-  lyraStakingAccount: LyraStakingAccount | null
   referredTraders: NewTradingRewardsReferredTraders
 }
 
-const RewardsIndexPageHelper = ({
-  latestRewardEpochs,
-  vaults,
-  lyraBalances,
-  lyraStaking,
-  lyraStakingAccount,
-  referredTraders,
-}: Props) => {
+const RewardsIndexPageHelper = ({ latestRewardEpochs, vaults, lyraBalances, lyraStaking, referredTraders }: Props) => {
   const isMobile = useIsMobile()
 
   return (
@@ -44,7 +36,6 @@ const RewardsIndexPageHelper = ({
           latestRewardEpochs={latestRewardEpochs}
           lyraBalances={lyraBalances}
           lyraStaking={lyraStaking}
-          lyraStakingAccount={lyraStakingAccount}
         />
         <RewardsVaultsSection vaults={vaults} />
         <RewardsReferralsSection referredTraders={referredTraders} />

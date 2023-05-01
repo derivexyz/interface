@@ -1,34 +1,35 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import Box from '@lyra/ui/components/Box'
 import { MarginProps } from '@lyra/ui/types'
-import { AccountLyraBalances, LyraStakingAccount } from '@lyrafinance/lyra-js'
 import React, { useCallback } from 'react'
 
 import { ContractId } from '@/app/constants/contracts'
 import { LogEvent } from '@/app/constants/logEvents'
 import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
-import { useMutateAccountLyraBalances } from '@/app/hooks/account/useAccountLyraBalances'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
+import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import getContract from '@/app/utils/common/getContract'
+import { getLyraBalanceForNetwork, getStkLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
+import fromBigNumber from '@/app/utils/fromBigNumber'
 import logEvent from '@/app/utils/logEvent'
+import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
 
 import TransactionButton from '../../common/TransactionButton'
 
 type Props = {
-  lyraBalances: AccountLyraBalances
-  lyraStakingAccount: LyraStakingAccount | null
+  lyraBalances: LyraBalances
+  lyraStaking: LyraStaking
   amount?: BigNumber
   onClose?: () => void
 } & MarginProps
 
-const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStakingAccount, onClose, ...styleProps }: Props) => {
+const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStaking, onClose, ...styleProps }: Props) => {
   const account = useWalletAccount()
   const execute = useTransaction(AppNetwork.Ethereum)
   const mutateRewardsPageData = useMutateRewardsPageData()
-  const mutateLyraBalances = useMutateAccountLyraBalances()
 
   const handleClickRequestUnstake = useCallback(async () => {
     if (!account) {
@@ -61,18 +62,18 @@ const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStakingAccount, o
     const lyraStaking = getContract(ContractId.LyraStaking, AppNetwork.Ethereum)
 
     await execute({ contract: lyraStaking, method: 'redeem', params: [account, amount] }, TransactionType.UnstakeLyra, {
-      onComplete: async () => await Promise.all([mutateRewardsPageData(), mutateLyraBalances()]),
+      onComplete: async () => await mutateRewardsPageData(),
     })
     onClose && onClose()
-  }, [account, amount, execute, onClose, mutateRewardsPageData, mutateLyraBalances])
-
-  const insufficientBalance = amount ? lyraBalances.ethereumStkLyra.lt(amount) : false
-  const isCooldown = !!lyraStakingAccount?.isInCooldown
-  const hasUnstakeableBalance = lyraBalances.ethereumStkLyra.lte(0)
+  }, [account, amount, execute, onClose, mutateRewardsPageData])
+  const lyraBalance = getLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
+  const insufficientBalance = amount ? lyraBalance < fromBigNumber(amount) : false
+  const isCooldown = !!lyraStaking?.isInCooldown
+  const hasUnstakeableBalance = getStkLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum) > 0
 
   return (
     <Box {...styleProps}>
-      {!lyraStakingAccount?.isInUnstakeWindow ? (
+      {!lyraStaking?.isInUnstakeWindow ? (
         <TransactionButton
           network={AppNetwork.Ethereum}
           transactionType={TransactionType.UnstakeLyra}

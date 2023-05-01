@@ -1,9 +1,8 @@
 import { Chain } from '../constants/chain'
 import Lyra from '../lyra'
 
-const getLyraGovernanceSubgraphURI = (lyra: Lyra, chain: Chain | 'ethereum'): string => {
+const getLyraGovernanceSubgraphURI = (lyra: Lyra, chain: Chain): string => {
   switch (chain) {
-    case 'ethereum':
     case Chain.Optimism:
     case Chain.OptimismGoerli:
       return new URL(`/subgraph/optimism-governance/v1/api`, lyra.apiUri).toString()

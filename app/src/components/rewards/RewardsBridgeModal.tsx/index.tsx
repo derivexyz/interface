@@ -8,13 +8,13 @@ import Modal from '@lyra/ui/components/Modal'
 import ModalBody from '@lyra/ui/components/Modal/ModalBody'
 import Text from '@lyra/ui/components/Text'
 import formatBalance from '@lyra/ui/utils/formatBalance'
-import { AccountLyraBalances } from '@lyrafinance/lyra-js'
-import { BigNumber } from 'ethers'
 import React from 'react'
 import { useState } from 'react'
 import { useMemo } from 'react'
 
 import { AppNetwork, LyraNetwork } from '@/app/constants/networks'
+import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
+import { getLyraBalanceForNetwork, getStkLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
 import getNetworkConfig from '@/app/utils/getNetworkConfig'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 
@@ -22,18 +22,22 @@ import NetworkImage from '../../common/NetworkImage'
 import RowItem from '../../common/RowItem'
 
 type Props = {
-  balances: AccountLyraBalances
+  balances: LyraBalances
   isOpen: boolean
   onClose: () => void
   isStkLYRA?: boolean
 }
 
-const getBalance = (balances: AccountLyraBalances, network: LyraNetwork, isStkLYRA: boolean): BigNumber => {
+const getBalance = (balances: LyraBalances, network: LyraNetwork, isStkLYRA: boolean): number => {
   switch (network) {
     case LyraNetwork.Arbitrum:
-      return isStkLYRA ? balances.arbitrumStkLyra : balances.arbitrumLyra
+      return isStkLYRA
+        ? getStkLyraBalanceForNetwork(balances, AppNetwork.Arbitrum)
+        : getLyraBalanceForNetwork(balances, AppNetwork.Arbitrum)
     case LyraNetwork.Optimism:
-      return isStkLYRA ? balances.optimismStkLyra : balances.optimismLyra
+      return isStkLYRA
+        ? getStkLyraBalanceForNetwork(balances, AppNetwork.Optimism)
+        : getLyraBalanceForNetwork(balances, AppNetwork.Optimism)
   }
 }
 
@@ -41,7 +45,7 @@ export default function RewardsBridgeModal({ balances, isOpen, onClose, isStkLYR
   const [isDropdownOpen, setIsDrodpownOpen] = useState(false)
 
   const networks = useMemo(
-    () => Object.values(LyraNetwork).filter(network => getBalance(balances, network, isStkLYRA).gt(0)),
+    () => Object.values(LyraNetwork).filter(network => getBalance(balances, network, isStkLYRA) > 0),
     [balances, isStkLYRA]
   )
   const defaultNetwork = networks[0]
@@ -71,7 +75,9 @@ export default function RewardsBridgeModal({ balances, isOpen, onClose, isStkLYR
             </Flex>
           }
           value={formatBalance({
-            amount: isStkLYRA ? balances.ethereumStkLyra : balances.ethereumLyra,
+            amount: isStkLYRA
+              ? getStkLyraBalanceForNetwork(balances, AppNetwork.Ethereum)
+              : getLyraBalanceForNetwork(balances, AppNetwork.Ethereum),
             symbol: isStkLYRA ? 'stkLYRA' : 'LYRA',
             decimals: 18,
           })}

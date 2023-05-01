@@ -1,7 +1,6 @@
 import {
   AccountBalances,
   AccountLiquidityTokenBalance,
-  AccountLyraBalances,
   AccountRewardEpoch,
   GlobalRewardEpoch,
   LiquidityDeposit,
@@ -11,11 +10,13 @@ import {
   RewardEpochTokenAmount,
 } from '@lyrafinance/lyra-js'
 
+import { LyraBalances } from '../utils/common/fetchLyraBalances'
+
 export type Vault = {
   market: Market
   marketLiquidity: MarketLiquiditySnapshot
   marketBalances: AccountBalances
-  lyraBalances: AccountLyraBalances
+  lyraBalances: LyraBalances
   globalRewardEpoch: GlobalRewardEpoch | null
   accountRewardEpoch: AccountRewardEpoch | null
   tvl: number

@@ -9,10 +9,10 @@ import { ContractId } from '@/app/constants/contracts'
 import { LogEvent } from '@/app/constants/logEvents'
 import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
-import useAccountLyraBalances, { useMutateAccountLyraBalances } from '@/app/hooks/account/useAccountLyraBalances'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
+import useLyraStaking, { useMutateLyraStaking } from '@/app/hooks/rewards/useLyraStaking'
 import getContract from '@/app/utils/common/getContract'
 import getERC20Contract from '@/app/utils/common/getERC20Contract'
 import getTokenInfo from '@/app/utils/getTokenInfo'
@@ -22,6 +22,7 @@ import TransactionButton from '../../common/TransactionButton'
 
 type Props = {
   amount: BigNumber
+
   onClose: () => void
 } & MarginProps
 
@@ -29,12 +30,12 @@ const LYRA_TOKEN = getTokenInfo('LYRA', AppNetwork.Ethereum)
 
 const StakeFormButton = withSuspense(
   ({ amount, onClose, ...styleProps }: Props) => {
-    const lyraBalances = useAccountLyraBalances()
     const account = useWalletAccount()
+    const lyraStaking = useLyraStaking()
     const execute = useTransaction(AppNetwork.Ethereum)
-    const insufficientBalance = lyraBalances.ethereumLyra.lt(amount)
-    const insufficientAllowance = lyraBalances.stakingAllowance.lt(amount)
-    const mutateLyraBalances = useMutateAccountLyraBalances()
+    const insufficientBalance = lyraStaking?.lyraBalance.lt(amount)
+    const insufficientAllowance = lyraStaking?.stakingAllowance.lt(amount)
+    const mutateLyraStaking = useMutateLyraStaking()
     const handleClickApprove = useCallback(async () => {
       if (!account) {
         console.warn('Account does not exist')
@@ -55,11 +56,11 @@ const StakeFormButton = withSuspense(
         {
           onComplete: async () => {
             logEvent(LogEvent.StakeLyraApproveSuccess)
-            await mutateLyraBalances()
+            await mutateLyraStaking()
           },
         }
       )
-    }, [account, execute, mutateLyraBalances])
+    }, [account, execute, mutateLyraStaking])
 
     const handleClickStake = useCallback(async () => {
       if (!account) {
@@ -73,12 +74,12 @@ const StakeFormButton = withSuspense(
       await execute({ contract: lyraStaking, method: 'stake', params: [account, amount] }, TransactionType.StakeLyra, {
         onComplete: async () => {
           logEvent(LogEvent.StakeLyraSuccess, { stakeAmount: amount })
-          await mutateLyraBalances()
+          await mutateLyraStaking()
         },
       })
 
       onClose()
-    }, [account, amount, execute, onClose, mutateLyraBalances])
+    }, [account, amount, execute, onClose, mutateLyraStaking])
 
     if (!LYRA_TOKEN) {
       return null
@@ -96,7 +97,7 @@ const StakeFormButton = withSuspense(
             : undefined
         }
         width="100%"
-        isDisabled={amount.lte(0) || insufficientBalance}
+        isDisabled={!lyraStaking || amount.lte(0) || insufficientBalance}
         network={AppNetwork.Ethereum}
         label={amount.lte(0) ? 'Enter Amount' : insufficientBalance ? 'Insufficient Balance' : 'Stake'}
         onClick={handleClickStake}

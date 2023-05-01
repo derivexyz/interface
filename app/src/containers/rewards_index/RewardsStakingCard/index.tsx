@@ -5,29 +5,22 @@ import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
-import { AccountLyraBalances, LyraStakingAccount } from '@lyrafinance/lyra-js'
-import { LyraStaking } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
+import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
+import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
 
 import RewardsNotStakedCardSection from './RewardsNotStakedCardSection'
 import RewardsStakedCardSection from './RewardsStakedCardSection'
 
 type Props = {
   latestRewardEpochs: LatestRewardEpoch[]
-  lyraBalances: AccountLyraBalances
+  lyraBalances: LyraBalances
   lyraStaking: LyraStaking
-  lyraStakingAccount: LyraStakingAccount | null
 } & MarginProps
 
-const RewardsStakingCard = ({
-  latestRewardEpochs,
-  lyraBalances,
-  lyraStaking,
-  lyraStakingAccount,
-  ...marginProps
-}: Props): CardElement => {
+const RewardsStakingCard = ({ latestRewardEpochs, lyraBalances, lyraStaking, ...marginProps }: Props): CardElement => {
   const isMobile = useIsMobile()
   return (
     <Flex flexDirection="column">
@@ -44,7 +37,6 @@ const RewardsStakingCard = ({
           latestRewardEpochs={latestRewardEpochs}
           lyraStaking={lyraStaking}
           lyraBalances={lyraBalances}
-          lyraStakingAccount={lyraStakingAccount}
         />
         <CardSeparator isVertical={!isMobile} />
         <RewardsNotStakedCardSection lyraBalances={lyraBalances} />

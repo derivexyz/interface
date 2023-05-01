@@ -2,7 +2,7 @@ import Modal from '@lyra/ui/components/Modal'
 import ModalBody from '@lyra/ui/components/Modal/ModalBody'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import { AccountLyraBalances, GlobalRewardEpoch } from '@lyrafinance/lyra-js'
+import { GlobalRewardEpoch } from '@lyrafinance/lyra-js'
 import { BigNumber } from 'ethers'
 import React from 'react'
 import { useMemo, useState } from 'react'
@@ -10,9 +10,13 @@ import { useMemo, useState } from 'react'
 import RowItem from '@/app/components/common/RowItem'
 import { TradingBoostTable } from '@/app/components/rewards/TradingBoostTable'
 import { ZERO_BN } from '@/app/constants/bn'
+import { AppNetwork } from '@/app/constants/networks'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import { TradingRewardsTrader } from '@/app/hooks/leaderboard/useLeaderboardPageData'
+import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
+import { getLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
 import fromBigNumber from '@/app/utils/fromBigNumber'
+import toBigNumber from '@/app/utils/toBigNumber'
 
 import RewardsStakeFormAmountInput from '../../rewards_index/RewardsStakeModal/RewardsStakeFormAmountInput'
 import StakeFormButton from '../../rewards_index/RewardsStakeModal/RewardsStakeFormButton'
@@ -20,7 +24,7 @@ import StakeFormButton from '../../rewards_index/RewardsStakeModal/RewardsStakeF
 type Props = {
   latestGlobalRewardEpoch: GlobalRewardEpoch
   leaderboard: TradingRewardsTrader[]
-  lyraBalances: AccountLyraBalances
+  lyraBalances: LyraBalances
   isOpen: boolean
   onClose: () => void
 }
@@ -34,7 +38,7 @@ export default function LeaderboardBoostModal({
 }: Props) {
   const [amount, setAmount] = useState<BigNumber>(ZERO_BN)
   const account = useWalletAccount()
-  const maxStakeBalance = lyraBalances.ethereumLyra
+  const maxStakeBalance = getLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
   const boost: number = useMemo(() => {
     let boost = 1
     const trader = leaderboard.find(trader => trader.trader.toLowerCase() === account?.toLowerCase())
@@ -69,11 +73,11 @@ export default function LeaderboardBoostModal({
               ml="auto"
               amount={amount}
               onChangeAmount={newAmount => setAmount(newAmount)}
-              max={maxStakeBalance}
+              max={toBigNumber(maxStakeBalance)}
             />
           }
         />
-        <RowItem mb={8} label="Balance" value={`${formatNumber(lyraBalances.ethereumLyra)} LYRA`} />
+        <RowItem mb={8} label="Balance" value={`${formatNumber(maxStakeBalance)} LYRA`} />
         <TradingBoostTable
           latestGlobalRewardEpoch={latestGlobalRewardEpoch}
           maxHeight={245}

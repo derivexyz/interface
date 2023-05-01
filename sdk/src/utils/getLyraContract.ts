@@ -1,5 +1,4 @@
 import { Contract, ContractInterface } from '@ethersproject/contracts'
-import { JsonRpcProvider } from '@ethersproject/providers'
 
 import Lyra, { Chain, Version } from '..'
 import { LyraContractId } from '../constants/contracts'
@@ -17,11 +16,7 @@ import NEWPORT_TEST_FAUCET_ABI from '../contracts/newport/abis/NewportTestFaucet
 import NEWPORT_ARBITRUM_MAINNET_ADDRESS_MAP from '../contracts/newport/addresses/arbitrum.addresses.json'
 import NEWPORT_ARBITRUM_TESTNET_ADDRESS_MAP from '../contracts/newport/addresses/arbitrum-goerli.addresses.json'
 
-export const getLyraContractAddress = (
-  chain: Chain | 'ethereum',
-  version: Version,
-  contractId: LyraContractId
-): string => {
+export const getLyraContractAddress = (chain: Chain, version: Version, contractId: LyraContractId): string => {
   switch (chain) {
     case Chain.Arbitrum:
       switch (version) {
@@ -39,7 +34,6 @@ export const getLyraContractAddress = (
           return NEWPORT_ARBITRUM_TESTNET_ADDRESS_MAP[contractId]
       }
       break
-    case 'ethereum':
     case Chain.Optimism:
       switch (version) {
         case Version.Avalon:
@@ -101,11 +95,10 @@ export const getLyraContractABI = (version: Version, contractId: LyraContractId)
 export default function getLyraContract<V extends Version, C extends LyraContractId>(
   lyra: Lyra,
   version: V,
-  contractId: C,
-  useCustomProvider?: JsonRpcProvider
+  contractId: C
 ): LyraContractMap<V, C> {
   const { provider } = lyra
   const address = getLyraContractAddress(lyra.chain, version, contractId)
   const abi = getLyraContractABI(version, contractId)
-  return new Contract(address, abi, useCustomProvider ? useCustomProvider : provider) as LyraContractMap<V, C>
+  return new Contract(address, abi, provider) as LyraContractMap<V, C>
 }

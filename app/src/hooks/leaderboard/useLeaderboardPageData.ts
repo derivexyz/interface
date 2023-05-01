@@ -1,13 +1,13 @@
-import { AccountLyraBalances, AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
 import { ZERO_ADDRESS } from '@/app/constants/bn'
 import { FetchId } from '@/app/constants/fetch'
+import fetchLyraBalances, { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import fetchENSNames from '@/app/utils/fetchENSNames'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import fetchTradingLeaderboard, { TradingRewardToken } from '@/app/utils/rewards/fetchTradingLeaderboard'
 
-import { EMPTY_LYRA_BALANCES } from '../account/useAccountLyraBalances'
 import useNetwork from '../account/useNetwork'
 import useWallet from '../account/useWallet'
 import useWalletAccount from '../account/useWalletAccount'
@@ -21,7 +21,7 @@ export type LeaderboardPageData = {
   latestAccountRewardEpoch?: AccountRewardEpoch
   leaderboardEpochNumber: number
   leaderboard: TradingRewardsTrader[]
-  lyraBalances: AccountLyraBalances
+  lyraBalances: LyraBalances
   currentTrader: TradingRewardsTrader | null
 }
 
@@ -41,7 +41,7 @@ export const fetchLeaderboardPageData = async (
   const [globalRewardEpochs, accountRewardEpochs, lyraBalances] = await Promise.all([
     lyra.globalRewardEpochs(),
     walletAddress ? lyra.accountRewardEpochs(walletAddress) : [],
-    walletAddress ? lyra.account(walletAddress).lyraBalances() : EMPTY_LYRA_BALANCES,
+    fetchLyraBalances(walletAddress),
   ])
   const latestGlobalRewardEpoch =
     globalRewardEpochs.find(e => e.isCurrent) ??

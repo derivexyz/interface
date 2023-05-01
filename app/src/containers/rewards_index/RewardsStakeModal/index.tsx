@@ -3,28 +3,25 @@ import ModalBody from '@lyra/ui/components/Modal/ModalBody'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
-import { AccountLyraBalances } from '@lyrafinance/lyra-js'
-import { LyraStaking } from '@lyrafinance/lyra-js'
 import { BigNumber } from 'ethers'
 import React from 'react'
 import { useState } from 'react'
 
 import RowItem from '@/app/components/common/RowItem'
 import { ZERO_BN } from '@/app/constants/bn'
+import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
 
 import RewardsStakeFormAmountInput from './RewardsStakeFormAmountInput'
 import StakeFormButton from './RewardsStakeFormButton'
 
 type Props = {
   lyraStaking: LyraStaking
-  lyraBalances: AccountLyraBalances
   isOpen: boolean
   onClose: () => void
 }
 
-export default function RewardsStakeModal({ isOpen, onClose, lyraStaking, lyraBalances }: Props) {
+export default function RewardsStakeModal({ isOpen, onClose, lyraStaking }: Props) {
   const [amount, setAmount] = useState<BigNumber>(ZERO_BN)
-  const maxStakeBalance = lyraBalances.ethereumLyra
   return (
     <Modal noPadding isOpen={isOpen} onClose={onClose} title="Stake LYRA">
       <ModalBody variant="elevated">
@@ -38,7 +35,7 @@ export default function RewardsStakeModal({ isOpen, onClose, lyraStaking, lyraBa
           value={
             <RewardsStakeFormAmountInput
               amount={amount}
-              max={maxStakeBalance}
+              max={lyraStaking.lyraBalance}
               onChangeAmount={newAmount => setAmount(newAmount)}
               ml="auto"
               mr={-3}
@@ -49,7 +46,7 @@ export default function RewardsStakeModal({ isOpen, onClose, lyraStaking, lyraBa
           textVariant="body"
           my={6}
           label="Balance"
-          value={<Text>{formatNumber(lyraBalances.ethereumLyra)} LYRA</Text>}
+          value={<Text>{formatNumber(lyraStaking.lyraBalance)} LYRA</Text>}
         />
         <RowItem
           textVariant="body"

@@ -7,28 +7,33 @@ import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
-import { AccountLyraBalances } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 import { useState } from 'react'
 
 import RewardsBridgeModal from '@/app/components/rewards/RewardsBridgeModal.tsx'
 import { SWAP_LYRA_1INCH_URL } from '@/app/constants/links'
+import { AppNetwork } from '@/app/constants/networks'
+import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
+import { getLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
 
 type Props = {
-  lyraBalances: AccountLyraBalances
+  lyraBalances: LyraBalances
 }
 
 const RewardsNotStakedCardSection = ({ lyraBalances }: Props): CardElement => {
   const isMobile = useIsMobile()
 
-  const { optimismLyra, arbitrumLyra, ethereumLyra } = lyraBalances
   const { l2Balance, balance } = useMemo(() => {
-    const l2Balance = optimismLyra.add(arbitrumLyra)
+    const l2Balance = [AppNetwork.Arbitrum, AppNetwork.Optimism].reduce(
+      (sum, network) => sum + getLyraBalanceForNetwork(lyraBalances, network),
+      0
+    )
+    const balance = l2Balance + getLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
     return {
       l2Balance,
-      balance: ethereumLyra.add(l2Balance),
+      balance,
     }
-  }, [ethereumLyra, optimismLyra, arbitrumLyra])
+  }, [lyraBalances])
 
   const [isOpen, setIsOpen] = useState(false)
 
@@ -42,7 +47,7 @@ const RewardsNotStakedCardSection = ({ lyraBalances }: Props): CardElement => {
         <Text variant="heading" mb={2}>
           Not Staked
         </Text>
-        <Text variant="heading" color={balance.isZero() ? 'secondaryText' : l2Balance.gt(0) ? 'warningText' : 'text'}>
+        <Text variant="heading" color={balance === 0 ? 'secondaryText' : l2Balance > 0 ? 'warningText' : 'text'}>
           {formatTruncatedNumber(balance)} LYRA
         </Text>
       </Flex>
@@ -51,7 +56,7 @@ const RewardsNotStakedCardSection = ({ lyraBalances }: Props): CardElement => {
         14 day unstaking period.
       </Text>
       <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr'], gridGap: 3 }}>
-        {l2Balance.gt(0) ? (
+        {l2Balance > 0 ? (
           <>
             <Button label="Bridge" size="lg" variant="warning" onClick={() => setIsOpen(true)} />
             <RewardsBridgeModal balances={lyraBalances} isOpen={isOpen} onClose={() => setIsOpen(false)} />

@@ -52,12 +52,12 @@ export enum ContractId {
   ArrakisOpStakingRewards = 'ArrakisOpStakingRewards',
   CamelotPool = 'CamelotPool',
   CamelotNitroPool = 'CamelotNitroPool',
+  Multicall3 = 'Multicall3',
   VelodromePool = 'VelodromePool',
   VelodromeStaking = 'VelodromeStaking',
   VestingEscrowFactory1 = 'VestingEscrowFactory1',
   VestingEscrowFactory2 = 'VestingEscrowFactory2',
   VestingEscrow = 'VestingEscrow',
-  Multicall3 = 'Multicall3',
   ShortExecutor = 'ShortExecutor',
   LongExecutor = 'LongExecutor',
   LyraGovernanceStrategy = 'LyraGovernanceStrategy',
@@ -73,12 +73,12 @@ export type ContractMap = {
   [ContractId.ArrakisOpStakingRewards]: ArrakisStakingRewards
   [ContractId.CamelotPool]: CamelotPool
   [ContractId.CamelotNitroPool]: CamelotNitroPool
+  [ContractId.Multicall3]: Multicall3
   [ContractId.VelodromePool]: VelodromePool
   [ContractId.VelodromeStaking]: VelodromeStaking
   [ContractId.VestingEscrowFactory1]: VestingEscrowFactory
   [ContractId.VestingEscrowFactory2]: VestingEscrowFactory
   [ContractId.VestingEscrow]: VestingEscrow
-  [ContractId.Multicall3]: Multicall3
   [ContractId.ShortExecutor]: ShortExecutor
   [ContractId.LongExecutor]: LongExecutor
   [ContractId.LyraGovernanceStrategy]: LyraGovernanceStrategy

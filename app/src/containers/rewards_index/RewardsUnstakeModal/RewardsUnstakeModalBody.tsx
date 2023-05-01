@@ -5,26 +5,31 @@ import ModalBody from '@lyra/ui/components/Modal/ModalBody'
 import Text from '@lyra/ui/components/Text'
 import Countdown from '@lyra/ui/components/Text/CountdownText'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import { AccountLyraBalances, GlobalRewardEpoch, LyraStakingAccount } from '@lyrafinance/lyra-js'
+import { GlobalRewardEpoch } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import RowItem from '@/app/components/common/RowItem'
 import { ZERO_BN } from '@/app/constants/bn'
+import { AppNetwork } from '@/app/constants/networks'
+import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
+import { getLyraBalanceForNetwork, getStkLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
+import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
+import toBigNumber from '@/app/utils/toBigNumber'
 
 import RewardsUnstakeModalButton from './RewardsUnstakeModalButton'
 
 type Props = {
   globalRewardEpoch: GlobalRewardEpoch
-  lyraBalances: AccountLyraBalances
-  lyraStakingAccount: LyraStakingAccount | null
+  lyraBalances: LyraBalances
+  lyraStaking: LyraStaking
   onClose: () => void
 }
 
-const UnstakeModalBody = ({ lyraBalances, lyraStakingAccount, globalRewardEpoch, onClose }: Props) => {
+const UnstakeModalBody = ({ lyraBalances, lyraStaking, globalRewardEpoch, onClose }: Props) => {
   const [amount, setAmount] = useState<BigNumber>(ZERO_BN)
-  const maxStakeBalance = lyraBalances.ethereumStkLyra
+  const maxStakeBalance = getLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
   const currentTimestamp = globalRewardEpoch.blockTimestamp
-  const unstakeWindowEndTimestamp = lyraStakingAccount?.unstakeWindowEndTimestamp ?? 0
+  const unstakeWindowEndTimestamp = lyraStaking?.unstakeWindowEndTimestamp ?? 0
   return (
     <ModalBody>
       <Text variant="body" color="secondaryText" width="100%" mb={10}>
@@ -43,7 +48,7 @@ const UnstakeModalBody = ({ lyraBalances, lyraStakingAccount, globalRewardEpoch,
             value={amount}
             onChange={newAmount => setAmount(newAmount)}
             placeholder={ZERO_BN}
-            max={maxStakeBalance ?? ZERO_BN}
+            max={toBigNumber(maxStakeBalance) ?? ZERO_BN}
             min={ZERO_BN}
             textAlign="right"
             showMaxButton
@@ -54,7 +59,7 @@ const UnstakeModalBody = ({ lyraBalances, lyraStakingAccount, globalRewardEpoch,
         mb={8}
         textVariant="body"
         label="Staked Balance"
-        value={<Text>{formatNumber(lyraBalances.ethereumStkLyra)} stkLYRA</Text>}
+        value={<Text>{formatNumber(getStkLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum))} stkLYRA</Text>}
       />
       <RowItem textVariant="body" mb={7} label="Cooldown Period" value={'Complete'} />
       {unstakeWindowEndTimestamp > currentTimestamp ? (
@@ -67,7 +72,7 @@ const UnstakeModalBody = ({ lyraBalances, lyraStakingAccount, globalRewardEpoch,
       ) : null}
       <RewardsUnstakeModalButton
         lyraBalances={lyraBalances}
-        lyraStakingAccount={lyraStakingAccount}
+        lyraStaking={lyraStaking}
         amount={amount}
         onClose={onClose}
       />
