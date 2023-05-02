@@ -1,4 +1,4 @@
-import { AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch, GlobalRewardEpoch, GlobalRewardEpochTradingBoostTier, Network } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
 import { ZERO_ADDRESS } from '@/app/constants/bn'
@@ -33,6 +33,12 @@ export type TradingRewardsTrader = {
   totalRewards: TradingRewardToken
 }
 
+const getStakedLyraBoost = (tiers: GlobalRewardEpochTradingBoostTier[], stakedLyra: number): number => {
+  tiers.sort((a, b) => b.stakingCutoff - a.stakingCutoff)
+  const tier = tiers.find(tier => tier.stakingCutoff <= stakedLyra)
+  return tier?.boost ?? 1
+}
+
 export const fetchLeaderboardPageData = async (
   network: Network,
   walletAddress: string | null
@@ -54,6 +60,7 @@ export const fetchLeaderboardPageData = async (
   const latestAccountRewardEpoch = accountRewardEpochs.find(
     e => e.globalEpoch.startTimestamp === latestGlobalRewardEpoch.startTimestamp
   )
+
   const tradingLeaderboard = await fetchTradingLeaderboard(network, latestGlobalRewardEpoch.startTimestamp)
   const traderAddresses = tradingLeaderboard ? Object.keys(tradingLeaderboard) : []
   const [accountENS, ...allENS] = await fetchENSNames([walletAddress ?? ZERO_ADDRESS, ...traderAddresses])
@@ -67,6 +74,8 @@ export const fetchLeaderboardPageData = async (
     ...latestGlobalRewardEpoch.tradingRewardsCap[0],
     amount: 0,
   }
+
+  const stakingBoost = getStakedLyraBoost(latestGlobalRewardEpoch.tradingBoostTiers, lyraBalances.totalStkLyra.amount)
   const leaderboard: TradingRewardsTrader[] = Object.entries(tradingLeaderboard ?? {}).map(([trader, traderStat]) => {
     const boost = traderStat.boost
     const dailyReward: TradingRewardToken = traderStat.dailyRewards
@@ -98,6 +107,7 @@ export const fetchLeaderboardPageData = async (
     .forEach(trader => {
       if (trader.trader.toLowerCase() === walletAddress?.toLowerCase()) {
         currentTrader = { ...trader }
+        currentTrader.boost = Math.max(stakingBoost, currentTrader.boost)
       }
     })
   // Create default trader stats if leaderboard exists
@@ -105,7 +115,7 @@ export const fetchLeaderboardPageData = async (
     currentTrader = {
       trader: walletAddress,
       traderEns: accountENS !== '' ? accountENS : null,
-      boost: 1,
+      boost: stakingBoost,
       dailyReward: { ...leaderboard[0].dailyReward, amount: 0 },
       totalRewards: { ...leaderboard[0].dailyReward, amount: 0 },
     }

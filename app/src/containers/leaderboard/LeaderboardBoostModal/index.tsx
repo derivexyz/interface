@@ -42,6 +42,17 @@ export default function LeaderboardBoostModal({
   const boost: number = useMemo(() => {
     let boost = 1
     const trader = leaderboard.find(trader => trader.trader.toLowerCase() === account?.toLowerCase())
+    const stakedLyraAmount = lyraBalances.totalStkLyra.amount
+    const stakedBoost =
+      stakedLyraAmount >= 250000
+        ? 2.5
+        : stakedLyraAmount >= 50000
+        ? 2
+        : stakedLyraAmount >= 10000
+        ? 1.5
+        : stakedLyraAmount >= 1000
+        ? 1.2
+        : 1
     const inputAmount = fromBigNumber(amount)
     const amountBoost: number =
       inputAmount >= 250000
@@ -54,10 +65,10 @@ export default function LeaderboardBoostModal({
         ? 1.2
         : 1
     if (trader?.boost) {
-      boost = Math.max(trader?.boost ?? 1, boost)
+      boost = Math.max(trader?.boost ?? 1, boost, stakedBoost)
     }
     return Math.max(boost, amountBoost)
-  }, [account, amount, leaderboard])
+  }, [account, amount, leaderboard, lyraBalances.totalStkLyra.amount])
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={<Text variant="heading">Boost</Text>}>
       <ModalBody>
