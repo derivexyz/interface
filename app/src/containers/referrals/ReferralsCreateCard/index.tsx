@@ -140,6 +140,7 @@ const ReferralsCreateCard = ({ data, ...marginProps }: Props) => {
                 ml={2}
                 label="Tweet"
                 rightIcon={IconType.Twitter}
+                sx={{ alignSelf: 'end' }}
                 onClick={() => {
                   window.open(
                     encodeURI(
