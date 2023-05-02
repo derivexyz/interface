@@ -1,6 +1,7 @@
 import { AccountRewardEpoch, GlobalRewardEpoch, Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
 import { NewTradingRewardsReferredTraders } from '@lyrafinance/lyra-js/src/utils/fetchAccountRewardEpochData'
 import { useCallback } from 'react'
+import { useParams } from 'react-router-dom'
 
 import { FetchId } from '@/app/constants/fetch'
 import getLyraSDK from '@/app/utils/getLyraSDK'
@@ -111,7 +112,8 @@ export const fetchReferralsPageData = async (network: Network, walletAddress?: s
 
 export default function useReferralsPageData(): ReferralsPageData | null {
   const { account } = useWallet()
-  const network = useNetwork()
+  const { network: networkStr } = useParams()
+  const network = networkStr === Network.Arbitrum ? Network.Arbitrum : null
   const [referralsPageData] = useFetch(
     FetchId.ReferralsPageData,
     network ? [network, account] : null,
