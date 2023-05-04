@@ -2,7 +2,6 @@ import Flex from '@lyra/ui/components/Flex'
 import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { MarginProps } from '@lyra/ui/types'
 import { Network } from '@lyrafinance/lyra-js'
 import React from 'react'
 
@@ -19,9 +18,9 @@ import PageGrid from '../common/Page/PageGrid'
 type Props = {
   network: Network
   data: LeaderboardPageData
-} & MarginProps
+}
 
-const LeaderboardPageHelper = ({ data, network, ...marginProps }: Props): JSX.Element => {
+const LeaderboardPageHelper = ({ data, network }: Props): JSX.Element => {
   const { latestGlobalRewardEpoch, latestAccountRewardEpoch, leaderboardEpochNumber } = data
   const isMobile = useIsMobile()
   return (
@@ -36,7 +35,6 @@ const LeaderboardPageHelper = ({ data, network, ...marginProps }: Props): JSX.El
           />
         ) : null
       }
-      {...marginProps}
     >
       <PageGrid>
         <Flex mt={[4, 0]} ml={[4, 0]}>

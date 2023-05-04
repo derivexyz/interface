@@ -36,10 +36,10 @@ export default function LeaderboardPageHeader({
       <Grid sx={{ gridTemplateColumns: ['1fr', '1fr auto'], alignItems: 'center' }}>
         <Box>
           <Text variant="xlTitle" mb={2}>
-            Leaderboard
+            Airdrop
           </Text>
           <Text variant="heading" color="secondaryText" sx={{ fontWeight: 'light' }}>
-            Earn rewards for trading
+            Earn ARB and OP trading rewards
           </Text>
         </Box>
         {!isMobile && isConnected ? (

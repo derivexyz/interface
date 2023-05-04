@@ -27,12 +27,6 @@ const getTabs = (network: Network): Tab[] => [
     logEvent: LogEvent.NavTradeTabClick,
   },
   {
-    path: getPagePath({ page: PageId.Leaderboard, network }),
-    rootPageId: PageId.Leaderboard,
-    name: 'Leaderboard',
-    logEvent: LogEvent.NavLeaderboardTabClick,
-  },
-  {
     path: getPagePath({ page: PageId.VaultsIndex }),
     rootPageId: PageId.VaultsIndex,
     name: 'Vaults',
@@ -51,6 +45,12 @@ const getTabs = (network: Network): Tab[] => [
         name: 'Faucet',
         logEvent: LogEvent.NavFaucetTabClick,
       },
+  {
+    path: getPagePath({ page: PageId.Leaderboard, network }),
+    rootPageId: PageId.Leaderboard,
+    name: 'Airdrop',
+    logEvent: LogEvent.NavLeaderboardTabClick,
+  },
   // {
   //   path: getPagePath({ page: PageId.VoteIndex }),
   //   rootPageId: PageId.VoteIndex,

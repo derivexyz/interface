@@ -1,55 +1,18 @@
 [
   {
-    "id": "migrate-stklyra",
-    "header": "Migrate Staked LYRA",
-    "title": "Stakers must migrate their staked LYRA from Optimism to Ethereum mainnet to continue earning rewards.",
+    "id": "arb-airdrop",
+    "header": "300,000 $ARB Airdrop",
+    "title": "The Lyra DAO is airdropping its $ARB DAO distribution over the next 8 weeks to traders and LPs.",
     "cta": [
-      {
-        "label": "Migrate",
-        "href": "/rewards",
-        "variant": "default"
-      },
       {
         "label": "Learn More",
-        "href": "https://blog.lyra.finance/lyra-staking-l1-migration/",
-        "target": "_blank",
+        "href": "/#/airdrop/arbitrum",
         "variant": "default"
       }
     ],
-    "graphic": "images/staked-lyra-token.png",
-    "startTimestamp": 1673993660,
-    "expiryTimestamp": 1675170000
-  },
-  {
-    "id": "arbitrum-trading",
-    "header": "Trade on Arbitrum",
-    "title": "Trade ETH options on Arbitrum. Integrating with GMX.",
-    "cta": [
-      {
-        "label": "Trade",
-        "href": "/trade/arbitrum/eth-usdc",
-        "variant": "default"
-      }
-    ],
-    "graphic": "images/arbitrum-vaults.png",
-    "graphicSize": [72, 96],
-    "startTimestamp": 1675206000,
-    "expiryTimestamp": 1677589200
-  },
-  {
-    "id": "trading-rewards-V2",
-    "header": "Trading Rewards V2",
-    "title": "Start earning with an overhauled trading rewards program, tailored for options traders.",
-    "cta": [
-      {
-        "label": "Leaderboard",
-        "href": "/#/leaderboard",
-        "variant": "default"
-      }
-    ],
-    "graphic": "images/trading-rewards-v2.png",
-    "graphicSize": [100, 100],
-    "startTimestamp": 1681691400,
-    "expiryTimestamp": 1683246600
+    "graphic": "images/arbitrum.png",
+    "graphicSize": [80, 80],
+    "startTimestamp": 1683131266,
+    "expiryTimestamp": 1688047200
   }
 ]

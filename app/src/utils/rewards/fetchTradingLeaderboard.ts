@@ -7,19 +7,19 @@ export type TradingRewardToken = {
   amount: number
 }
 
-export type TradingRewardsLeaderboard = {
-  [trader: string]: {
-    trader: string
-    boost: number
-    dailyRewards: TradingRewardToken[]
-    totalRewards: TradingRewardToken[]
-  }
+export type TradingRewardsData = {
+  trader: string
+  boost: number
+  dailyRewards: TradingRewardToken[]
+  dailyPoints: number
+  totalRewards: TradingRewardToken[]
+  totalPoints: number
 }
 
 const fetchTradingLeaderboard = async (
   network: Network,
   startTimestamp: number
-): Promise<TradingRewardsLeaderboard | null> => {
+): Promise<Record<string, TradingRewardsData>> => {
   const res = await fetch(
     `${process.env.REACT_APP_API_URL}/rewards/tradingLeaderboard?network=${network}&startTimestamp=${startTimestamp}`,
     {
@@ -28,9 +28,9 @@ const fetchTradingLeaderboard = async (
     }
   )
   if (res.status !== 200) {
-    return null
+    return {}
   }
-  const data: TradingRewardsLeaderboard = await res.json()
+  const data: Record<string, TradingRewardsData> = await res.json()
   return data
 }
 

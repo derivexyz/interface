@@ -1,6 +1,6 @@
-import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
 import IconButton from '@lyra/ui/components/Button/IconButton'
+import Flex from '@lyra/ui/components/Flex'
 import { IconType } from '@lyra/ui/components/Icon'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
@@ -8,13 +8,14 @@ import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
-import { Network } from '@lyrafinance/lyra-js'
+import { GlobalRewardEpoch, GlobalRewardEpochTradingBoostTier, Network } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { PageId } from '@/app/constants/pages'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import { TradingRewardsTrader } from '@/app/hooks/leaderboard/useLeaderboardPageData'
+import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import filterNulls from '@/app/utils/filterNulls'
 import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
 import { getDefaultMarket } from '@/app/utils/getDefaultMarket'
@@ -23,31 +24,36 @@ import getPagePath from '@/app/utils/getPagePath'
 type Props = {
   network: Network
   leaderboard: TradingRewardsTrader[]
-  currentTrader: TradingRewardsTrader | null
+  globalRewardEpoch: GlobalRewardEpoch
+  lyraBalances: LyraBalances
   onBoostClick?: () => void
   onClick?: (trader: string) => void
   pageSize?: number
 } & MarginProps
 
 export type LeaderboardTableData = TableData<{
+  rank: number
   trader: string
   traderEns: string | null
-  emoji: string | null
   boost: number
-  showBoostButton: boolean
-  showTradeButton: boolean
-  rewardSymbol: string
-  dailyRewards: number
-  totalRewards: number
+  dailyPoints: number
+  totalPoints: number
   onBoostClick?: () => void
 }>
 
 const TRADING_LEADERBOARD_ROW_HEIGHT = 80
 
+const getStakedLyraBoost = (tiers: GlobalRewardEpochTradingBoostTier[], stakedLyra: number): number => {
+  tiers.sort((a, b) => b.stakingCutoff - a.stakingCutoff)
+  const tier = tiers.find(tier => tier.stakingCutoff <= stakedLyra)
+  return tier?.boost ?? 1
+}
+
 const TradingLeaderboardTable = ({
   network,
   leaderboard,
-  currentTrader,
+  globalRewardEpoch,
+  lyraBalances,
   onClick,
   onBoostClick,
   pageSize,
@@ -58,155 +64,127 @@ const TradingLeaderboardTable = ({
   const account = useWalletAccount()
   const navigate = useNavigate()
 
-  let rows: LeaderboardTableData[] = useMemo(
-    () =>
-      leaderboard.map((trader, i) => {
-        let emoji: null | string = null
-        if (i === 0) {
-          emoji = '🥇'
-        } else if (i === 1) {
-          emoji = '🥈'
-        } else if (i === 2) {
-          emoji = '🥉'
-        }
-        return {
-          trader: trader.trader,
-          traderEns: trader.traderEns,
-          emoji: emoji,
-          boost: trader.boost,
-          showBoostButton: trader.trader.toLowerCase() === account?.toLowerCase(),
-          showTradeButton: false,
-          rewardSymbol: trader.dailyReward.symbol,
-          dailyRewards: trader.dailyReward.amount,
-          totalRewards: trader.totalRewards.amount,
-          onBoostClick: onBoostClick ? () => onBoostClick() : undefined,
-          onClick: onClick ? () => onClick(trader.trader) : undefined,
-        }
-      }),
-    [account, onBoostClick, onClick, leaderboard]
-  )
+  const rows: LeaderboardTableData[] = useMemo(() => {
+    const rows = leaderboard.map((trader, i) => ({
+      rank: i,
+      trader: trader.trader,
+      traderEns: trader.traderEns,
+      boost: trader.boost,
+      dailyPoints: trader.dailyPoints,
+      totalPoints: trader.totalPoints,
+      onBoostClick: onBoostClick ? () => onBoostClick() : undefined,
+      onClick: onClick ? () => onClick(trader.trader) : undefined,
+    }))
+
+    const myRowIdx = rows.findIndex(row => row.trader.toLowerCase() === account?.toLowerCase())
+    if (myRowIdx > 0) {
+      const myRow = rows[myRowIdx]
+      rows.splice(myRowIdx, 1)
+      rows.unshift(myRow)
+    } else if (account) {
+      rows.unshift({
+        rank: rows.length,
+        trader: account,
+        traderEns: null,
+        boost: getStakedLyraBoost(globalRewardEpoch.tradingBoostTiers, lyraBalances.totalStkLyra.amount),
+        dailyPoints: 0,
+        totalPoints: 0,
+        onBoostClick: onBoostClick,
+        onClick: onClick ? () => onClick(account) : undefined,
+      })
+    }
+
+    return rows
+  }, [
+    leaderboard,
+    account,
+    onBoostClick,
+    onClick,
+    globalRewardEpoch.tradingBoostTiers,
+    lyraBalances.totalStkLyra.amount,
+  ])
 
   const columns = useMemo<TableColumn<LeaderboardTableData>[]>(() => {
     return filterNulls([
       {
+        accessor: 'rank',
+        Header: 'Rank',
+        width: 40,
+        Cell: (props: TableCellProps<LeaderboardTableData>) => <Text>{props.cell.value + 1}</Text>,
+      },
+      {
         accessor: 'trader',
         Header: 'Trader',
-        width: 150,
+        width: 170,
+        canSort: false,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          const { traderEns, trader, emoji } = props.row.original
-          const formattedAddress = !!traderEns
-            ? formatTruncatedAddress(traderEns, 15, 0)
-            : formatTruncatedAddress(trader)
-          return (
-            <Text variant="bodyMedium" color="text">
-              {emoji ? emoji : ''} {formattedAddress}
-            </Text>
-          )
+          const { traderEns, trader } = props.row.original
+          const formattedAddress = trader === account ? 'You' : traderEns ? traderEns : formatTruncatedAddress(trader)
+          return <Text>{formattedAddress}</Text>
         },
       },
       {
         accessor: 'boost',
         Header: 'Boost',
-        width: 150,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          return (
-            <Text variant="bodyMedium" color="text">
-              {props.cell.value}x
-            </Text>
-          )
+          return <Text>{props.cell.value}x</Text>
         },
       },
       {
-        accessor: 'dailyRewards',
-        Header: '24H Rewards',
-        width: 150,
+        accessor: 'dailyPoints',
+        Header: '24H Points',
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          const symbol = props.cell.row.original.rewardSymbol
-          return (
-            <Text variant="bodyMedium" color="text">
-              {formatTruncatedNumber(props.cell.value)} {symbol.toUpperCase()}
-            </Text>
-          )
+          return <Text>{formatTruncatedNumber(props.cell.value)}</Text>
         },
       },
       {
-        accessor: 'totalRewards',
-        Header: 'Total Rewards',
-        width: 150,
+        accessor: 'totalPoints',
+        Header: 'Total Points',
+        width: 90,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          const symbol = props.cell.row.original.rewardSymbol
-          return (
-            <Text variant="bodyMedium" color="text">
-              {formatTruncatedNumber(props.cell.value)} {symbol.toUpperCase()}
-            </Text>
-          )
+          return <Text>{formatTruncatedNumber(props.cell.value)}</Text>
         },
       },
       {
-        accessor: 'showBoostButton',
+        accessor: 'id',
         Header: '',
-        width: 55,
+        width: 90,
+        canSort: false,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          const { showBoostButton, showTradeButton } = props.row.original
+          const { trader, totalPoints } = props.row.original
           return (
-            <Box>
-              {showTradeButton ? (
+            <Flex justifyContent="flex-end" width="100%">
+              {account !== trader ? (
+                <IconButton icon={IconType.ArrowUpRight} size="md" />
+              ) : totalPoints === 0 ? (
                 <Button
                   variant="primary"
                   size={isMobile ? 'sm' : 'md'}
-                  px={isMobile ? 0 : 2}
                   label="Trade"
                   onClick={e => {
+                    e.stopPropagation()
                     navigate(
                       getPagePath({ page: PageId.Trade, network, marketAddressOrName: getDefaultMarket(network) })
                     )
-                    e.preventDefault()
-                    e.stopPropagation()
                   }}
                 />
-              ) : showBoostButton && onBoostClick ? (
+              ) : onBoostClick ? (
                 <Button
                   variant="primary"
                   size={isMobile ? 'sm' : 'md'}
-                  px={isMobile ? 0 : 2}
                   label="Boost"
                   onClick={e => {
-                    onBoostClick()
-                    e.preventDefault()
                     e.stopPropagation()
+                    onBoostClick()
                   }}
                 />
-              ) : (
-                <IconButton ml={[0, 4]} icon={IconType.ArrowUpRight} size="md" />
-              )}
-            </Box>
+              ) : null}
+            </Flex>
           )
         },
       },
     ])
-  }, [isMobile, onBoostClick, navigate, network])
-
-  if (rows.length === 0) {
-    return null
-  }
-
-  if (account && currentTrader) {
-    const emoji = rows.find(trader => trader.trader.toLowerCase() === currentTrader.trader.toLowerCase())?.emoji ?? null
-    rows = rows.filter(row => row.trader !== currentTrader.trader)
-    rows.unshift({
-      trader: currentTrader.trader,
-      traderEns: currentTrader.traderEns,
-      boost: currentTrader.boost,
-      emoji: emoji,
-      showBoostButton: true,
-      showTradeButton: currentTrader.totalRewards.amount === 0,
-      rewardSymbol: currentTrader.dailyReward.symbol,
-      dailyRewards: currentTrader.dailyReward.amount,
-      totalRewards: currentTrader.totalRewards.amount,
-      onBoostClick: onBoostClick ? () => onBoostClick() : undefined,
-      onClick: onClick ? () => onClick(currentTrader.trader) : undefined,
-    })
-  }
+  }, [account, isMobile, onBoostClick, navigate, network])
 
   return (
     <Table

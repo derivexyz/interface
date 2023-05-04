@@ -1,7 +1,6 @@
-import { AccountRewardEpoch, GlobalRewardEpoch, GlobalRewardEpochTradingBoostTier, Network } from '@lyrafinance/lyra-js'
+import { AccountRewardEpoch, GlobalRewardEpoch, Network } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
-import { ZERO_ADDRESS } from '@/app/constants/bn'
 import { FetchId } from '@/app/constants/fetch'
 import fetchLyraBalances, { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import fetchENSNames from '@/app/utils/fetchENSNames'
@@ -16,13 +15,14 @@ import useFetch, { useMutate } from '../data/useFetch'
 const ARBITRUM_OLD_REWARDS_EPOCHS = 5
 const OPTIMISM_OLD_REWARDS_EPOCHS = 18
 
+const POINTS_MULTIPLIER = 100
+
 export type LeaderboardPageData = {
   latestGlobalRewardEpoch: GlobalRewardEpoch
   latestAccountRewardEpoch?: AccountRewardEpoch
   leaderboardEpochNumber: number
   leaderboard: TradingRewardsTrader[]
   lyraBalances: LyraBalances
-  currentTrader: TradingRewardsTrader | null
 }
 
 export type TradingRewardsTrader = {
@@ -30,13 +30,9 @@ export type TradingRewardsTrader = {
   traderEns: string | null
   boost: number
   dailyReward: TradingRewardToken
+  dailyPoints: number
   totalRewards: TradingRewardToken
-}
-
-const getStakedLyraBoost = (tiers: GlobalRewardEpochTradingBoostTier[], stakedLyra: number): number => {
-  tiers.sort((a, b) => b.stakingCutoff - a.stakingCutoff)
-  const tier = tiers.find(tier => tier.stakingCutoff <= stakedLyra)
-  return tier?.boost ?? 1
+  totalPoints: number
 }
 
 export const fetchLeaderboardPageData = async (
@@ -63,7 +59,7 @@ export const fetchLeaderboardPageData = async (
 
   const tradingLeaderboard = await fetchTradingLeaderboard(network, latestGlobalRewardEpoch.startTimestamp)
   const traderAddresses = tradingLeaderboard ? Object.keys(tradingLeaderboard) : []
-  const [accountENS, ...allENS] = await fetchENSNames([walletAddress ?? ZERO_ADDRESS, ...traderAddresses])
+  const allENS = await fetchENSNames(traderAddresses)
   const traderENSMap: Record<string, string | null> = {}
   allENS.forEach((ens, index) => {
     const traderAddress = traderAddresses[index]
@@ -75,51 +71,37 @@ export const fetchLeaderboardPageData = async (
     amount: 0,
   }
 
-  const stakingBoost = getStakedLyraBoost(latestGlobalRewardEpoch.tradingBoostTiers, lyraBalances.totalStkLyra.amount)
-  const leaderboard: TradingRewardsTrader[] = Object.entries(tradingLeaderboard ?? {}).map(([trader, traderStat]) => {
-    const boost = traderStat.boost
-    const dailyReward: TradingRewardToken = traderStat.dailyRewards
-      ? traderStat.dailyRewards.length > 0
-        ? traderStat.dailyRewards[0]
+  const leaderboard: TradingRewardsTrader[] = Object.entries(tradingLeaderboard ?? {})
+    .map(([trader, traderStat]) => {
+      const boost = traderStat.boost
+      const dailyReward: TradingRewardToken = traderStat.dailyRewards
+        ? traderStat.dailyRewards.length > 0
+          ? traderStat.dailyRewards[0]
+          : emptyTradingRewardToken
         : emptyTradingRewardToken
-      : emptyTradingRewardToken
-    const totalRewards = traderStat.totalRewards
-      ? traderStat.totalRewards.length > 0
-        ? traderStat?.totalRewards[0]
+      const totalRewards = traderStat.totalRewards
+        ? traderStat.totalRewards.length > 0
+          ? traderStat?.totalRewards[0]
+          : emptyTradingRewardToken
         : emptyTradingRewardToken
-      : emptyTradingRewardToken
 
-    return {
-      trader,
-      traderEns: traderENSMap[trader],
-      boost,
-      dailyReward: {
-        ...totalRewards,
-        amount: dailyReward?.amount ?? 0,
-      },
-      totalRewards,
-    }
-  })
+      const dailyPoints = traderStat.dailyPoints
+      const totalPoints = traderStat.totalPoints
 
-  let currentTrader: TradingRewardsTrader | null = null
-  leaderboard
-    .sort((a, b) => b.dailyReward.amount - a.dailyReward.amount)
-    .forEach(trader => {
-      if (trader.trader.toLowerCase() === walletAddress?.toLowerCase()) {
-        currentTrader = { ...trader }
-        currentTrader.boost = Math.max(stakingBoost, currentTrader.boost)
+      return {
+        trader,
+        traderEns: traderENSMap[trader],
+        boost,
+        dailyReward: {
+          ...totalRewards,
+          amount: dailyReward?.amount ?? 0,
+        },
+        dailyPoints: !dailyPoints || isNaN(dailyPoints) ? 0 : dailyPoints * POINTS_MULTIPLIER,
+        totalRewards,
+        totalPoints: !totalPoints || isNaN(totalPoints) ? 0 : totalPoints * POINTS_MULTIPLIER,
       }
     })
-  // Create default trader stats if leaderboard exists
-  if (walletAddress && !currentTrader && leaderboard.length) {
-    currentTrader = {
-      trader: walletAddress,
-      traderEns: accountENS !== '' ? accountENS : null,
-      boost: stakingBoost,
-      dailyReward: { ...leaderboard[0].dailyReward, amount: 0 },
-      totalRewards: { ...leaderboard[0].dailyReward, amount: 0 },
-    }
-  }
+    .sort((a, b) => b.dailyPoints - a.dailyPoints)
 
   return {
     latestGlobalRewardEpoch,
@@ -130,7 +112,6 @@ export const fetchLeaderboardPageData = async (
         : latestGlobalRewardEpoch.id - OPTIMISM_OLD_REWARDS_EPOCHS,
     leaderboard,
     lyraBalances,
-    currentTrader,
   }
 }
 

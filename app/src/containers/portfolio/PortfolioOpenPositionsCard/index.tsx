@@ -3,7 +3,6 @@ import Button from '@lyra/ui/components/Button'
 import Card, { CardElement } from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Flex from '@lyra/ui/components/Flex'
-import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import { Position } from '@lyrafinance/lyra-js'
 import React from 'react'
@@ -13,7 +12,6 @@ import PositionsTable from '@/app/components/common/PositionsTable'
 import { PageId } from '@/app/constants/pages'
 import useNetwork from '@/app/hooks/account/useNetwork'
 import useWallet from '@/app/hooks/account/useWallet'
-import { getDefaultMarket } from '@/app/utils/getDefaultMarket'
 import getPagePath from '@/app/utils/getPagePath'
 
 type Props = {
@@ -53,21 +51,9 @@ const PortfolioOpenPositionsCard = ({ openPositions }: Props): CardElement => {
           />
         ) : (
           <Box mx={6} mb={6}>
-            <Text variant="secondary" color="secondaryText" mb={6}>
+            <Text variant="secondary" color="secondaryText">
               You have no open positions
             </Text>
-            <Button
-              variant="primary"
-              label="Start Trading"
-              width={200}
-              size="lg"
-              rightIcon={IconType.ArrowRight}
-              href={getPagePath({
-                page: PageId.Trade,
-                network: network,
-                marketAddressOrName: getDefaultMarket(network),
-              })}
-            />
           </Box>
         )}
       </CardBody>

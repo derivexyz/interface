@@ -14,7 +14,7 @@ export const getNavPageFromPath = (path: string): PageId | null => {
     return PageId.Trade
   } else if (rootPath === 'portfolio') {
     return PageId.Portfolio
-  } else if (rootPath === 'leaderboard') {
+  } else if (rootPath === 'airdrop') {
     return PageId.Leaderboard
   } else if (rootPath === 'vaults') {
     return PageId.VaultsIndex

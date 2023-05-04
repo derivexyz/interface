@@ -17,7 +17,6 @@ import PositionPage from './pages/PositionPage'
 import ReferralsPage from './pages/ReferralsPage'
 import RewardsArrakisPage from './pages/RewardsArrakisPage'
 import RewardsIndexPage from './pages/RewardsIndexPage'
-import RewardsTradingPage from './pages/RewardsTradingPage'
 import RewardsVaultsPage from './pages/RewardsVaultsPage'
 import StoryBookPage from './pages/StoryBookPage'
 import TradePage from './pages/TradePage'
@@ -32,7 +31,6 @@ import isMainnet from './utils/isMainnet'
 
 export default function PageRoutes() {
   const network = useNetwork()
-
   return (
     <Routes>
       <Route index element={<Navigate to="/portfolio" />} />
@@ -46,12 +44,14 @@ export default function PageRoutes() {
       <Route path="/position/:network/:marketAddressOrName/:positionId" element={<PositionPage />} />
       {isMainnet() ? (
         <>
-          <Route path="/leaderboard" element={<Navigate to={`/leaderboard/${network}`} />} />
-          <Route path="/leaderboard/:network" element={<LeaderboardPage />} />
-          <Route path="/leaderboard/history" element={<LeaderboardHistoryPage />} />
+          <Route path="/leaderboard" element={<Navigate to={`/airdrop/${network}`} />} />
+          <Route path="/leaderboard/:network" element={<Navigate to={`/airdrop/${network}`} />} />
+          <Route path="/leaderboard/history" element={<Navigate to="/airdrop/history" />} />
+          <Route path="/airdrop" element={<Navigate to={`/leaderboard/${network}`} />} />
+          <Route path="/airdrop/:network" element={<LeaderboardPage />} />
+          <Route path="/airdrop/history" element={<LeaderboardHistoryPage />} />
           <Route path="/rewards/referrals/:network" element={<ReferralsPage />} />
           <Route path="/rewards" element={<RewardsIndexPage />} />
-          <Route path="/rewards/trading/:network" element={<RewardsTradingPage />} />
           <Route path="/rewards/vaults/:network/:marketAddressOrName" element={<RewardsVaultsPage />} />
           <Route path="/rewards/arrakis" element={<RewardsArrakisPage />} />
         </>

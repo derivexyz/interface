@@ -2,7 +2,6 @@ import Button from '@lyra/ui/components/Button'
 import Flex from '@lyra/ui/components/Flex'
 import ButtonShimmer from '@lyra/ui/components/Shimmer/ButtonShimmer'
 import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
-import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { Network } from '@lyrafinance/lyra-js'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import React, { useCallback } from 'react'
@@ -36,16 +35,14 @@ const AccountButton = withSuspense(
     const network = useNetwork()
     const [_1, setDefaultNetwork] = useLocalStorage(LOCAL_STORAGE_DEFAULT_NETWORK_KEY)
 
-    const isMobile = useIsMobile()
-
     const getButtonLabel = useCallback(() => {
       const accountStr = account ? formatTruncatedAddress(account) : ''
       if (isOverride && account) {
-        return formatTruncatedAddress(account, 4, isMobile ? 0 : 4, '...')
+        return formatTruncatedAddress(account)
       } else {
         return ens?.name ?? accountStr
       }
-    }, [account, isOverride, ens, isMobile])
+    }, [account, isOverride, ens])
 
     const { pathname } = useLocation()
     const navigate = useNavigate()

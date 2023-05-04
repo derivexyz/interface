@@ -1,6 +1,6 @@
 const formatTruncatedAddress = (
   text: string,
-  charsStart: number = 5,
+  charsStart: number = 6,
   charsEnd: number = 4,
   separator = '...'
 ): string => {

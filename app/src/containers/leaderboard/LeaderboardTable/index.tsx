@@ -19,7 +19,7 @@ type Props = {
 } & MarginProps
 
 const LeaderboardTable = ({ data, network, ...marginProps }: Props) => {
-  const { leaderboard, latestGlobalRewardEpoch, lyraBalances, currentTrader } = data
+  const { leaderboard, latestGlobalRewardEpoch, lyraBalances } = data
   const [isOpen, setIsOpen] = useState(false)
   if (!leaderboard.length) {
     return (
@@ -38,8 +38,9 @@ const LeaderboardTable = ({ data, network, ...marginProps }: Props) => {
     <>
       <TradingLeaderboardTable
         network={network}
-        currentTrader={currentTrader}
         leaderboard={leaderboard}
+        globalRewardEpoch={latestGlobalRewardEpoch}
+        lyraBalances={lyraBalances}
         onClick={trader => {
           window.open(
             `/#${getPagePath({
@@ -49,7 +50,7 @@ const LeaderboardTable = ({ data, network, ...marginProps }: Props) => {
           )
         }}
         onBoostClick={() => setIsOpen(true)}
-        pageSize={30}
+        pageSize={100}
       />
       <LeaderboardBoostModal
         isOpen={isOpen}

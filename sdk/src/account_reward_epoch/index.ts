@@ -1,6 +1,6 @@
 import { BigNumber, PopulatedTransaction } from 'ethers'
 
-import { AccountBalances, AccountLiquidityTokenBalance, AccountLyraBalances } from '../account'
+import { AccountBalances, AccountLiquidityTokenBalance } from '../account'
 import { Deployment, LyraGlobalContractId } from '../constants/contracts'
 import { MIN_REWARD_AMOUNT } from '../constants/rewards'
 import { GlobalRewardEpoch, RewardEpochToken } from '../global_reward_epoch'
@@ -10,6 +10,7 @@ import buildTx from '../utils/buildTx'
 import fetchAccountRewardEpochData, { AccountRewardEpochData } from '../utils/fetchAccountRewardEpochData'
 import fetchClaimAddedEvents from '../utils/fetchClaimAddedEvents'
 import fetchClaimEvents from '../utils/fetchClaimEvents'
+import fetchStkLyraBalance from '../utils/fetchStkLyraBalance'
 import findMarketX from '../utils/findMarketX'
 import fromBigNumber from '../utils/fromBigNumber'
 import getGlobalContract from '../utils/getGlobalContract'
@@ -46,7 +47,6 @@ export class AccountRewardEpoch {
   stakedLyraBalance: number
   tradingFeeRebate: number
   tradingFees: number
-  lyraBalances: AccountLyraBalances
   tradingRewards: RewardEpochTokenAmount[]
   isTradingRewardsDistributed: boolean
   totalClaimableRewards: RewardEpochTokenAmount[]
@@ -63,7 +63,7 @@ export class AccountRewardEpoch {
     accountEpoch: AccountRewardEpochData,
     globalEpoch: GlobalRewardEpoch,
     balances: AccountBalances[],
-    lyraBalances: AccountLyraBalances,
+    stkLyraBalance: number,
     claimAddedEvents: ClaimAddedEvent[],
     claimEvents: ClaimEvent[],
     rewardTokens: RewardEpochToken[],
@@ -73,12 +73,9 @@ export class AccountRewardEpoch {
     this.account = account
     this.globalEpoch = globalEpoch
     this.accountEpoch = accountEpoch
-    this.lyraBalances = lyraBalances
     const avgStkLyraBalance =
       globalEpoch.progressDays > 0 ? accountEpoch.stakingRewards.stkLyraDays / globalEpoch.progressDays : 0
-    this.stakedLyraBalance = globalEpoch.isComplete
-      ? avgStkLyraBalance
-      : fromBigNumber(lyraBalances.ethereumStkLyra.add(lyraBalances.optimismStkLyra).add(lyraBalances.arbitrumStkLyra))
+    this.stakedLyraBalance = globalEpoch.isComplete ? avgStkLyraBalance : stkLyraBalance
 
     this.vaultTokenBalancesMap = balances.reduce(
       (lpTokenBalances, balance) => ({
@@ -145,14 +142,15 @@ export class AccountRewardEpoch {
     if (lyra.deployment !== Deployment.Mainnet) {
       return []
     }
-    const [accountEpochDatas, globalEpochs, lyraBalances, balances, claimAddedEvents, claimEvents] = await Promise.all([
-      fetchAccountRewardEpochData(lyra, address),
-      GlobalRewardEpoch.getAll(lyra),
-      lyra.account(address).lyraBalances(),
-      lyra.account(address).balances(),
-      fetchClaimAddedEvents(lyra, lyra.chain, address),
-      fetchClaimEvents(lyra, lyra.chain, address),
-    ])
+    const [accountEpochDatas, globalEpochs, stkLyraBalance, balances, claimAddedEvents, claimEvents] =
+      await Promise.all([
+        fetchAccountRewardEpochData(lyra, address),
+        GlobalRewardEpoch.getAll(lyra),
+        fetchStkLyraBalance(lyra, address),
+        lyra.account(address).balances(),
+        fetchClaimAddedEvents(lyra, lyra.chain, address),
+        fetchClaimEvents(lyra, lyra.chain, address),
+      ])
 
     const uniqueRewardTokens = getUniqueBy(
       globalEpochs.flatMap(e => e.rewardTokens),
@@ -191,7 +189,7 @@ export class AccountRewardEpoch {
           accountEpochData,
           globalEpoch,
           balances,
-          lyraBalances,
+          stkLyraBalance,
           claimAddedEvents,
           claimEvents,
           uniqueRewardTokens,
