@@ -2591,10 +2591,10 @@
     superstruct "^0.14.2"
     tweetnacl "^1.0.3"
 
-"@spindl-xyz/attribution-lite@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@spindl-xyz/attribution-lite/-/attribution-lite-0.0.5.tgz#179694d2414792799ffb6fdea0b63426a5ee78ad"
-  integrity sha512-BMuqBsgJN8qxCKeXZKBiZzavBG2qPS2dS7GEw6dNei7LkU81Elthts3jfggDdb4IqKk4/foy3sRSQDjxL/S0sA==
+"@spindl-xyz/attribution-lite@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@spindl-xyz/attribution-lite/-/attribution-lite-0.0.7.tgz#f7d91b66f016480d0ac59e6cb907b8a4078281e3"
+  integrity sha512-y9oUqOxsulQr2vaG4pDiTzhmFUpAHWMgqND8SVi208kjfWvQC7gze/IRQtvtVkHRjx4JIpifUQEtLOlHBtNGjQ==
 
 "@styled-system/background@^5.1.2":
   version "5.1.2"
