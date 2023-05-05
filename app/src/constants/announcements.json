@@ -6,7 +6,7 @@
     "cta": [
       {
         "label": "Learn More",
-        "href": "/#/airdrop/arbitrum",
+        "href": "/airdrop/arbitrum",
         "variant": "default"
       }
     ],
