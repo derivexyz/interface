@@ -2,5 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { parseUnits } from '@ethersproject/units'
 
 export default function toBigNumber(number: number, decimals: number = 18): BigNumber {
-  return parseUnits(number.toString(), decimals)
+  const numberStr = number.toString().includes('e') ? number.toFixed(decimals).toString() : number.toString()
+  return parseUnits(numberStr, decimals)
 }
