@@ -22,16 +22,27 @@ import type {
 
 export interface CamelotNitroPoolInterface extends utils.Interface {
   functions: {
+    "rewardsToken1PerSecond()": FunctionFragment;
     "userInfo(address)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "userInfo"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "rewardsToken1PerSecond" | "userInfo"
+  ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "rewardsToken1PerSecond",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "userInfo",
     values: [PromiseOrValue<string>]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "rewardsToken1PerSecond",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "userInfo", data: BytesLike): Result;
 
   events: {};
@@ -64,6 +75,8 @@ export interface CamelotNitroPool extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    rewardsToken1PerSecond(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     userInfo(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -77,6 +90,8 @@ export interface CamelotNitroPool extends BaseContract {
       }
     >;
   };
+
+  rewardsToken1PerSecond(overrides?: CallOverrides): Promise<BigNumber>;
 
   userInfo(
     arg0: PromiseOrValue<string>,
@@ -92,6 +107,8 @@ export interface CamelotNitroPool extends BaseContract {
   >;
 
   callStatic: {
+    rewardsToken1PerSecond(overrides?: CallOverrides): Promise<BigNumber>;
+
     userInfo(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -109,6 +126,8 @@ export interface CamelotNitroPool extends BaseContract {
   filters: {};
 
   estimateGas: {
+    rewardsToken1PerSecond(overrides?: CallOverrides): Promise<BigNumber>;
+
     userInfo(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -116,6 +135,10 @@ export interface CamelotNitroPool extends BaseContract {
   };
 
   populateTransaction: {
+    rewardsToken1PerSecond(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     userInfo(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides

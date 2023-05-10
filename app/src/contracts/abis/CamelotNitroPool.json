@@ -1,13 +1,52 @@
 [
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [],
+    "name": "rewardsToken1PerSecond",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "userInfo",
     "outputs": [
-      { "internalType": "uint256", "name": "totalDepositAmount", "type": "uint256" },
-      { "internalType": "uint256", "name": "rewardDebtToken1", "type": "uint256" },
-      { "internalType": "uint256", "name": "rewardDebtToken2", "type": "uint256" },
-      { "internalType": "uint256", "name": "pendingRewardsToken1", "type": "uint256" },
-      { "internalType": "uint256", "name": "pendingRewardsToken2", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "totalDepositAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rewardDebtToken1",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rewardDebtToken2",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pendingRewardsToken1",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pendingRewardsToken2",
+        "type": "uint256"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
