@@ -75,6 +75,7 @@ const VaultsIndexChartCard = () => {
             }}
             isOpen={isOpen}
             label={selectedChart?.label ?? ''}
+            mobileTitle="Select Chart"
           >
             {VAULTS_INDEX_CHARTS.map(chart => {
               return (

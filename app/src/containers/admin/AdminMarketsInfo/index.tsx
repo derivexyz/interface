@@ -19,7 +19,7 @@ const AdminMarketsInfo = ({ markets }: Props) => {
   return (
     <Card>
       <CardBody noPadding>
-        <Text m={6} variant="heading">
+        <Text m={6} variant="cardHeading">
           Markets
         </Text>
         <List>

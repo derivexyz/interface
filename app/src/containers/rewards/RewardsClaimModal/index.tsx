@@ -71,7 +71,7 @@ export default function RewardsClaimModal({ accountRewardEpoch, isOpen, onClose 
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Claim Rewards" width={450}>
+    <Modal isOpen={isOpen} onClose={onClose} title="Claim Rewards">
       <ModalSection noPadding pb={4}>
         <Flex px={6} py={6}>
           <Text color="secondaryText">
@@ -89,7 +89,6 @@ export default function RewardsClaimModal({ accountRewardEpoch, isOpen, onClose 
                 width="100%"
                 mx={6}
                 my={4}
-                textVariant="bodyMedium"
                 label="Vaults"
                 value={
                   <Flex ml="auto">
@@ -109,7 +108,6 @@ export default function RewardsClaimModal({ accountRewardEpoch, isOpen, onClose 
                     key={market.address}
                     my={2}
                     mx={6}
-                    textVariant="secondary"
                     label={`${formatTokenName(market.baseToken)} Vault`}
                     value={formatRewardTokenAmounts(
                       vaultRewards.length
@@ -124,25 +122,18 @@ export default function RewardsClaimModal({ accountRewardEpoch, isOpen, onClose 
           </Collapsible>
         ) : null}
         {totalTradingRewards.length ? (
-          <RowItem
-            mx={6}
-            my={4}
-            textVariant="bodyMedium"
-            label="Trading"
-            value={formatRewardTokenAmounts(totalTradingRewards)}
-          />
+          <RowItem mx={6} my={4} label="Trading" value={formatRewardTokenAmounts(totalTradingRewards)} />
         ) : null}
         {totalOtherRewards.length ? (
           <RowItem
             mx={6}
             my={4}
-            textVariant="bodyMedium"
             label={
               <Tooltip
                 tooltip={
-                  <Text variant="secondary" color="secondaryText">
+                  <Text color="secondaryText">
                     You have unclaimed rewards from old reward programs.{' '}
-                    <Link textVariant="secondary" showRightIcon href={VAULT_REWARDS_DOC_URL} target="_blank">
+                    <Link showRightIcon href={VAULT_REWARDS_DOC_URL} target="_blank">
                       Learn more
                     </Link>
                   </Text>
@@ -160,7 +151,7 @@ export default function RewardsClaimModal({ accountRewardEpoch, isOpen, onClose 
       </ModalSection>
       <CardSeparator />
       <ModalSection>
-        <RowItem mb={8} textVariant="bodyMedium" label="Total" value={formatRewardTokenAmounts(totalRewards)} />
+        <RowItem mb={8} label="Total" value={formatRewardTokenAmounts(totalRewards)} />
         <TransactionButton
           network={accountRewardEpoch.lyra.network}
           transactionType={TransactionType.ClaimRewards}

@@ -15,7 +15,7 @@ import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import RowItem from '@/app/components/common/RowItem'
 import { ZERO_BN } from '@/app/constants/bn'
 import { SLIPPAGE } from '@/app/constants/contracts'
-import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
+import { TRADE_CARD_MIN_HEIGHT } from '@/app/constants/layout'
 import useAccountBalances from '@/app/hooks/account/useAccountBalances'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
@@ -95,7 +95,6 @@ const TradeCollateralFormModal = withSuspense(({ isOpen, onClose, onTrade, optio
               label="Balance"
               value={
                 <AmountUpdateText
-                  variant="secondary"
                   prevAmount={
                     isBaseCollateral
                       ? fromBigNumber(baseBalance.balance, baseBalance.decimals)
@@ -117,7 +116,6 @@ const TradeCollateralFormModal = withSuspense(({ isOpen, onClose, onTrade, optio
                 />
               }
               valueColor="text"
-              textVariant="secondary"
             />
             <TradeFormButton mt={3} width="100%" trade={trade} onTrade={handleTrade} />
           </CardSection>
@@ -140,7 +138,7 @@ const TradeCollateralFormModal = withSuspense(({ isOpen, onClose, onTrade, optio
           </CardSection>
           <CardSeparator />
           <CardSection>
-            <Text variant="secondary" color="secondaryText">
+            <Text color="secondaryText">
               This position is too small and has fixed collateral requirements that can't be adjusted.
             </Text>
             <Button mt={6} size="lg" label="Close" onClick={() => onClose()} />
@@ -151,7 +149,7 @@ const TradeCollateralFormModal = withSuspense(({ isOpen, onClose, onTrade, optio
   )
 })
 ;() => (
-  <CardSection height={MIN_TRADE_CARD_HEIGHT}>
+  <CardSection height={TRADE_CARD_MIN_HEIGHT}>
     <Center width="100%" flexGrow={1}>
       <Spinner />
     </Center>

@@ -97,11 +97,11 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
               <Flex alignItems="center">
                 <MarketImage market={market} />
                 <Box ml={2}>
-                  <Text variant="secondaryMedium">{props.cell.value} Vault</Text>
+                  <Text variant="bodyMedium">{props.cell.value} Vault</Text>
                   <Text variant="small" color="secondaryText">
                     {isNew ? (
                       <>
-                        <Text variant="smallMedium" as="span" color="primaryText">
+                        <Text as="span" color="primaryText">
                           NEW
                         </Text>{' '}
                         ·{' '}
@@ -125,9 +125,7 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
             } = props.row.original
             return (
               <Box>
-                <Text variant={props.cell.value > 0 ? 'secondaryMedium' : 'secondary'}>
-                  {formatUSD(props.cell.value)}
-                </Text>
+                <Text>{formatUSD(props.cell.value)}</Text>
                 <Text variant="small" color="secondaryText">
                   {market.quoteToken.symbol}
                 </Text>
@@ -145,16 +143,12 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
                   vault: { market, pendingDeposits },
                 } = props.row.original
                 if (!depositing || !pendingDeposits.length) {
-                  return (
-                    <Text variant="secondary" color="secondaryText">
-                      -
-                    </Text>
-                  )
+                  return <Text color="secondaryText">-</Text>
                 }
                 const latestDepositTimestamp = Math.max(...pendingDeposits.map(d => d.depositTimestamp))
                 return (
                   <Box>
-                    <Text variant="secondary">{formatUSD(depositing)}</Text>
+                    <Text>{formatUSD(depositing)}</Text>
                     <Text variant="small" color="secondaryText">
                       in {formatTruncatedDuration(Math.max(0, latestDepositTimestamp - market.block.timestamp))}
                     </Text>
@@ -173,18 +167,12 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
                   vault: { market, pendingWithdrawals },
                 } = props.row.original
                 if (!withdrawing || !pendingWithdrawals.length) {
-                  return (
-                    <Text variant="secondary" color="secondaryText">
-                      -
-                    </Text>
-                  )
+                  return <Text color="secondaryText">-</Text>
                 }
                 const latestWithdrawTimestamp = Math.max(...pendingWithdrawals.map(d => d.withdrawalTimestamp))
                 return (
                   <Box>
-                    <Text variant="secondary">
-                      {formatBalance({ amount: toBigNumber(withdrawing), ...market.liquidityToken })}
-                    </Text>
+                    <Text>{formatBalance({ amount: toBigNumber(withdrawing), ...market.liquidityToken })}</Text>
                     <Text variant="small" color="secondaryText">
                       in {formatTruncatedDuration(Math.max(0, latestWithdrawTimestamp - market.block.timestamp))}
                     </Text>
@@ -197,7 +185,7 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
           accessor: 'tvl',
           Header: 'TVL',
           Cell: (props: TableCellProps<VaultsIndexTableData>) => {
-            return <Text variant="secondary">{formatTruncatedUSD(props.cell.value)}</Text>
+            return <Text>{formatTruncatedUSD(props.cell.value)}</Text>
           },
         },
         {
@@ -211,10 +199,7 @@ const VaultsIndexTable = ({ vaults, ...styleProps }: VaultsIndexTableProps): Tab
             return (
               <Box>
                 <Flex alignItems="center">
-                  <Text
-                    variant="secondary"
-                    color={totalApy > 0 && totalApy > minTotalApy * 1.01 ? 'primaryText' : 'text'}
-                  >
+                  <Text color={totalApy > 0 && totalApy > minTotalApy * 1.01 ? 'primaryText' : 'text'}>
                     {formatAPY(totalApy > 0 ? vault.apy : vault.minApy, { showSymbol: false, showEmptyDash: true })}
                     {apyMultiplier > 1.01 ? ` (${formatNumber(apyMultiplier)}x)` : ''}
                   </Text>

@@ -4,7 +4,6 @@ import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import useNetwork from './hooks/account/useNetwork'
-import PortfolioHistoryPageHelper from './page_helpers/PortfolioHistoryPageHelper'
 import AdminBoardPage from './pages/AdminBoardPage'
 import AdminMarketPage from './pages/AdminPage'
 import EscrowPage from './pages/EscrowPage'
@@ -12,13 +11,13 @@ import FaucetPage from './pages/FaucetPage'
 import LeaderboardHistoryPage from './pages/LeaderboardHistoryPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import NotFoundPage from './pages/NotFoundPage'
-import PortfolioPage from './pages/PortfolioPage'
 import PositionPage from './pages/PositionPage'
 import ReferralsPage from './pages/ReferralsPage'
 import RewardsArrakisPage from './pages/RewardsArrakisPage'
 import RewardsIndexPage from './pages/RewardsIndexPage'
 import RewardsVaultsPage from './pages/RewardsVaultsPage'
 import StoryBookPage from './pages/StoryBookPage'
+import TradeHistoryPage from './pages/TradeHistoryPage'
 import TradePage from './pages/TradePage'
 import VaultsHistoryPage from './pages/VaultsHistoryPage'
 import VaultsIndexPage from './pages/VaultsIndexPage'
@@ -33,11 +32,10 @@ export default function PageRoutes() {
   const network = useNetwork()
   return (
     <Routes>
-      <Route index element={<Navigate to="/portfolio" />} />
-      <Route path="/portfolio" element={<PortfolioPage />} />
-      <Route path="/portfolio/history" element={<PortfolioHistoryPageHelper />} />
+      <Route index element={<Navigate to="/trade" />} />
       <Route path="/trade" element={<Navigate to={`/trade/${network}/${getDefaultMarket(network)}`} />} />
       <Route path="/trade/:network/:marketAddressOrName" element={<TradePage />} />
+      <Route path="/trade/history" element={<TradeHistoryPage />} />
       <Route path="/vaults" element={<VaultsIndexPage />} />
       <Route path="/vaults/:network/:marketAddressOrName" element={<VaultsPage />} />
       <Route path="/vaults/history" element={<VaultsHistoryPage />} />

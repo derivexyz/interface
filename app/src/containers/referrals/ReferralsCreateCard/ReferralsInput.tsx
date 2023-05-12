@@ -67,9 +67,8 @@ const ReferralsInput = withSuspense(
                 <>
                   {screenData.blockDescription}&nbsp;Learn more in our{' '}
                   <Link
-                    textVariant="small"
+                    variant="small"
                     color="errorText"
-                    variant="secondary"
                     showRightIcon
                     href={REFERRALS_TERMS_OF_USE_URL}
                     target="_blank"
@@ -108,7 +107,7 @@ const ReferralsInput = withSuspense(
           rightContent={
             <Flex my={2} height={36} alignItems="center">
               {isCopied ? (
-                <Text variant="body" color="primaryText" textAlign="center" mr={2}>
+                <Text color="primaryText" textAlign="center" mr={2}>
                   Copied!
                 </Text>
               ) : (

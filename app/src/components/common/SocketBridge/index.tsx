@@ -1,9 +1,9 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import useThemeColor from '@lyra/ui/hooks/useThemeColor'
 import { Currency, Network, WidgetProps } from '@socket.tech/plugin'
+import { Bridge } from '@socket.tech/plugin'
 import { providers } from 'ethers'
 import React from 'react'
-import { SWRConfig } from 'swr'
 import { useSigner } from 'wagmi'
 
 import { LogEvent } from '@/app/constants/logEvents'
@@ -28,13 +28,7 @@ type SocketCustomizationProps = {
   outline?: string // Outline color of lines, borders and icons
 }
 
-const SocketPlugin = React.lazy(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  () => import('@socket.tech/plugin').then(module => ({ default: module.Bridge }))
-)
-
-const SocketBridge = (props: Omit<WidgetProps, 'API_KEY'>): JSX.Element => {
+const SocketBridge = (props: Omit<WidgetProps, 'API_KEY'>) => {
   const isMobile = useIsMobile()
   const { data: signer } = useSigner({ suspense: true })
   const web3Provider = signer?.provider && new providers.Web3Provider((signer?.provider as any).provider)
@@ -57,43 +51,37 @@ const SocketBridge = (props: Omit<WidgetProps, 'API_KEY'>): JSX.Element => {
     interactive: `rgb(${background.r},${background.g},${background.b})`,
     onInteractive: `rgb(${text.r},${text.g},${text.b})`,
   }
-  return (
-    <SWRConfig value={{ suspense: false }}>
-      {web3Provider && (
-        <SocketPlugin
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          {...props}
-          provider={web3Provider}
-          API_KEY={process.env.REACT_APP_SOCKET_API_KEY ?? ''}
-          customize={customize}
-          enableSameChainSwaps={true}
-          includeBridges={['hop', 'optimism-bridge']} // TODO: @dillonlin ask Socket guys to export types
-          onBridgeSuccess={(data: any) => {
-            logEvent(LogEvent.SocketBridgeSuccess, { ...data })
-          }}
-          onSourceNetworkChange={(network: Network) => {
-            logEvent(LogEvent.SocketSourceNetworkChange, { ...network })
-          }}
-          onDestinationNetworkChange={(network: Network) => {
-            logEvent(LogEvent.SocketDestinationNetworkChange, { ...network })
-          }}
-          onSourceTokenChange={(currency: Currency) => {
-            logEvent(LogEvent.SocketSourceTokenChange, { ...currency })
-          }}
-          onDestinationTokenChange={(currency: Currency) => {
-            logEvent(LogEvent.SocketDestinationTokenChange, { ...currency })
-          }}
-          onError={(data: any) => {
-            logEvent(LogEvent.SocketError, { ...data })
-          }}
-          onSubmit={(data: any) => {
-            logEvent(LogEvent.SocketSubmit, { ...data })
-          }}
-        />
-      )}
-    </SWRConfig>
-  )
+  return web3Provider ? (
+    <Bridge
+      {...props}
+      provider={web3Provider}
+      API_KEY={process.env.REACT_APP_SOCKET_API_KEY ?? ''}
+      customize={customize}
+      enableSameChainSwaps={true}
+      includeBridges={['hop', 'optimism-bridge']} // TODO: @dillonlin ask Socket guys to export types
+      onBridgeSuccess={(data: any) => {
+        logEvent(LogEvent.SocketBridgeSuccess, { ...data })
+      }}
+      onSourceNetworkChange={(network: Network) => {
+        logEvent(LogEvent.SocketSourceNetworkChange, { ...network })
+      }}
+      onDestinationNetworkChange={(network: Network) => {
+        logEvent(LogEvent.SocketDestinationNetworkChange, { ...network })
+      }}
+      onSourceTokenChange={(currency: Currency) => {
+        logEvent(LogEvent.SocketSourceTokenChange, { ...currency })
+      }}
+      onDestinationTokenChange={(currency: Currency) => {
+        logEvent(LogEvent.SocketDestinationTokenChange, { ...currency })
+      }}
+      onError={(data: any) => {
+        logEvent(LogEvent.SocketError, { ...data })
+      }}
+      onSubmit={(data: any) => {
+        logEvent(LogEvent.SocketSubmit, { ...data })
+      }}
+    />
+  ) : null
 }
 
 export default SocketBridge

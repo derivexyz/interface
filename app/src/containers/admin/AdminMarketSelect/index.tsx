@@ -25,7 +25,8 @@ const AdminMarketSelect = ({ markets, selectedMarket }: Props) => {
       onClose={onClose}
       ml={-3}
       isTransparent
-      textVariant="title"
+      textVariant="heading"
+      mobileTitle="Select Market"
       label={`${fullName}`}
       leftIcon={<MarketImage market={selectedMarket} />}
     >

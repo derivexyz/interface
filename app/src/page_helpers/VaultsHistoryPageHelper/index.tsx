@@ -76,7 +76,12 @@ const VaultsHistory = withSuspense(
 
 export default function VaultsHistoryPageHelper(): JSX.Element {
   return (
-    <Page header="History" showBackButton backHref={getPagePath({ page: PageId.VaultsIndex })}>
+    <Page
+      title="Vaults"
+      subtitle="Deposit stablecoins to earn trading fees and rewards"
+      showBackButton
+      backHref={getPagePath({ page: PageId.VaultsIndex })}
+    >
       <PageGrid>
         <Card overflow="hidden">
           <CardBody noPadding>

@@ -5,8 +5,8 @@ import fromBigNumber from '@lyra/ui/utils/fromBigNumber'
 import toBigNumber from '@lyra/ui/utils/toBigNumber'
 import React, { useCallback, useEffect, useState } from 'react'
 
+import Button from '../Button'
 import Flex from '../Flex'
-import Link from '../Link'
 import Input, { InputProps } from '.'
 
 const MAX_BN = BigNumber.from(2).pow(256).sub(1)
@@ -115,19 +115,19 @@ export default function BigNumberInput({
         <Flex alignItems="center">
           {inputProps.rightContent}
           {showMaxButton ? (
-            <Link
+            <Button
               ml={2}
-              textVariant="smallMedium"
-              variant="secondary"
+              size="sm"
+              isTransparent
+              variant="light"
               onClick={e => {
                 e.preventDefault()
                 if (onChange) {
                   onChange(max ?? ZERO_BN)
                 }
               }}
-            >
-              MAX
-            </Link>
+              label="Max"
+            />
           ) : null}
         </Flex>
       }

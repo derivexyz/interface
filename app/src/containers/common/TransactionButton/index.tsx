@@ -138,14 +138,7 @@ const TransactionButton = withSuspense(
                 screenData?.blockDescription ? (
                   <>
                     {screenData.blockDescription}&nbsp;Learn more in our{' '}
-                    <Link
-                      textVariant="small"
-                      color="errorText"
-                      variant="secondary"
-                      showRightIcon
-                      href={TERMS_OF_USE_URL}
-                      target="_blank"
-                    >
+                    <Link variant="small" color="errorText" showRightIcon href={TERMS_OF_USE_URL} target="_blank">
                       Terms of Use
                     </Link>
                   </>

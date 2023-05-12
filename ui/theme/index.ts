@@ -7,11 +7,9 @@ const lightColors = {
   hover: '#E8E8E880', // 50%
   active: '#E8E8E8CC', // 80%
   cardBg: '#FEFEFE73', // 45%
-  cardHoverBg: '#313c47', // 75%
   cardElevatedBg: '#FEFEFE',
-  cardNestedBg: '#E8E8E8CC', // 80%
-  cardNestedHover: '#CFCECE80',
-  cardOutline: '#ACB7C4',
+  cardHoverBg: '#CFCECE80',
+  cardOutline: '#C4CED7',
 
   // default button
   buttonBg: '#E8E8E899', // 60%
@@ -49,12 +47,6 @@ const lightColors = {
   errorTokenBg: '#FC4D9533',
   warningTokenBg: '#F7931A33',
 
-  // toggle
-  toggleTrackBg: '#E8E8E899',
-  toggleCheckedTrackBg: '#3CAA8F',
-  toggleThumbBg: '#6B7D94',
-  toggleCheckedThumbBg: '#FFFFFF',
-
   // charts
   primaryLine: '#3CAA8F',
   primaryArea: '#57B29C33',
@@ -80,14 +72,13 @@ const lightColors = {
   text: '#052822',
   secondaryText: '#6B7D94',
   disabledText: '#95A4B5',
-  invertedText: '#FFFFFF',
   primaryText: '#3CAA8F',
   errorText: '#FC4D95',
   warningText: '#de8417',
 
   // link
-  link: '#5FC2AA',
-  linkHover: '#72E1C6',
+  primaryLink: '#3CAA8F',
+  primaryLinkHover: '#72E1C6',
 
   // input
   inputBg: '#E8E8E899',
@@ -118,10 +109,8 @@ const darkColors = {
   hover: '#3A445033', // 20%
   active: '#3A445066', // 40%
   cardBg: '#25303BBF', // 75%
-  cardHoverBg: '#313c47', // 75%
   cardElevatedBg: '#1B252D',
-  cardNestedBg: '#3A445099',
-  cardNestedHover: '#2D3741',
+  cardHoverBg: '#2D3741',
   cardOutline: '#3A4047',
 
   // primary button
@@ -160,12 +149,6 @@ const darkColors = {
   warningTokenBg: '#F7931A26',
   errorTokenBg: '#FC4D9526',
 
-  // toggle
-  toggleTrackBg: '#3A445099',
-  toggleCheckedTrackBg: '#69D8BD',
-  toggleThumbBg: '#95A4B5',
-  toggleCheckedThumbBg: '#FFFFFF',
-
   // charts
   primaryLine: '#69D8BD',
   primaryArea: '#57B29C26',
@@ -191,14 +174,13 @@ const darkColors = {
   text: '#FFFFFF',
   secondaryText: '#95A4B5',
   disabledText: '#6B7D94',
-  invertedText: '#000000',
   primaryText: '#69D8BD',
   errorText: '#FC4D95',
   warningText: '#de8417',
 
   // link
-  link: '#69D8BD',
-  linkHover: '#a0eedb',
+  primaryLink: '#69D8BD',
+  primaryLinkHover: '#a0eedb',
 
   // input
   inputBg: '#3A445099',
@@ -229,20 +211,6 @@ const theme = {
     heading: "'Sohne', sans-serif",
     monospace: 'Menlo, monospace',
   },
-  fontSizes: ['12px', '14px', '15px', '18px', '22px', '28px', '34px', '42px', '60px', '72px'],
-  lineHeights: {
-    small: '20px', //+8
-    secondary: '21px', //+8
-    body: '23px', //+8
-    bodyLarge: '26px', //+8
-    heading: '34px', //+12
-    heading2: '24px',
-    title: '36px', //+16
-    largeTitle: '50px', //+16
-    xlTitle: '58px', //+16
-    heroHeading: '76px', //+16
-    heroTitle: '88px', //+16
-  },
   fontWeights: {
     light: 300,
     body: 400,
@@ -252,18 +220,6 @@ const theme = {
     strong: 800,
     black: 900,
   },
-  letterSpacings: {
-    heroTitle: '0px',
-    heroHeading: '0px',
-    xlTitle: '0px',
-    largeTitle: '0px',
-    title: '0px',
-    heading: '0px',
-    bodyLarge: '0px',
-    body: '0px',
-    secondary: '0px',
-    small: '0px',
-  },
   space: [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64],
   breakpoints: ['860px', '2000px'],
   radii: {
@@ -271,124 +227,69 @@ const theme = {
     text: '8px',
     alert: 18,
     list: 18,
-    card: 28,
+    card: 21,
     circle: 99999,
   },
   text: {
-    heroTitle: {
-      fontFamily: 'heading',
-      fontWeight: 'bold',
-      lineHeight: 'heroTitle',
-      letterSpacing: 'heroTitle',
-      fontSize: 9,
-    },
-    heroHeading: {
-      fontFamily: 'heading',
-      fontWeight: 'bold',
-      lineHeight: 'heroHeading',
-      letterSpacing: 'heroHeading',
-      fontSize: 8,
-    },
-    xlTitle: {
-      fontFamily: 'heading',
-      fontWeight: 'bold',
-      lineHeight: 'xlTitle',
-      letterSpacing: 'xlTitle',
-      fontSize: 7,
-    },
-    largeTitle: {
-      fontFamily: 'heading',
-      fontWeight: 'medium',
-      lineHeight: 'largeTitle',
-      letterSpacing: 'largeTitle',
-      fontSize: 6,
-    },
     title: {
       fontFamily: 'heading',
       fontWeight: 'medium',
-      lineHeight: 'title',
-      letterSpacing: 'title',
-      fontSize: 5,
+      fontSize: ['42px', '52px'],
+      lineHeight: ['50px', '60px'],
+      letterSpacing: '0px',
+    },
+    subtitle: {
+      fontFamily: 'heading',
+      fontWeight: 'light',
+      fontSize: ['24px', '28px'],
+      lineHeight: ['32px', '36px'],
+      letterSpacing: '0px',
     },
     heading: {
       fontFamily: 'heading',
       fontWeight: 'medium',
-      lineHeight: 'heading',
-      letterSpacing: 'heading',
-      fontSize: 4,
+      fontSize: '24px',
+      lineHeight: '32px',
+      letterSpacing: '0px',
     },
-    heading2: {
+    cardHeading: {
       fontFamily: 'heading',
       fontWeight: 'medium',
-      lineHeight: 'heading2',
-      letterSpacing: 'heading',
-      fontSize: 3,
-    },
-    bodyLarge: {
-      fontFamily: 'body',
-      fontWeight: 'body',
-      lineHeight: 'bodyLarge',
-      fontSize: 3,
-      letterSpacing: 'bodyLarge',
-    },
-    bodyLargeMedium: {
-      fontFamily: 'body',
-      fontWeight: 'medium',
-      lineHeight: 'bodyLarge',
-      fontSize: 3,
-      letterSpacing: 'bodyLarge',
+      fontSize: '21px',
+      lineHeight: '29px',
+      letterSpacing: '0px',
     },
     body: {
       fontFamily: 'body',
       fontWeight: 'body',
-      lineHeight: 'body',
-      fontSize: 2,
-      letterSpacing: 'body',
+      fontSize: '16px',
+      lineHeight: '24px',
+      letterSpacing: '0px',
     },
+    // TODO: Rename bodyHeading
     bodyMedium: {
       fontFamily: 'body',
       fontWeight: 'medium',
-      lineHeight: 'body',
-      fontSize: 2,
-      letterSpacing: 'body',
-    },
-    secondary: {
-      fontFamily: 'body',
-      fontWeight: 'body',
-      lineHeight: 'secondary',
-      fontSize: 1,
-      letterSpacing: 'secondary',
-    },
-    secondaryMedium: {
-      fontFamily: 'body',
-      fontWeight: 'medium',
-      lineHeight: 'secondary',
-      fontSize: 1,
-      letterSpacing: 'secondary',
+      fontSize: '16px',
+      lineHeight: '24px',
+      letterSpacing: '0px',
     },
     small: {
       fontFamily: 'body',
       fontWeight: 'body',
-      lineHeight: 'small',
-      fontSize: 0,
-      letterSpacing: 'small',
-    },
-    smallMedium: {
-      fontFamily: 'body',
-      fontWeight: 'medium',
-      lineHeight: 'small',
-      fontSize: 0,
-      letterSpacing: 'small',
+      fontSize: '14px',
+      lineHeight: '22px',
+      letterSpacing: '0px',
     },
   },
   variants: {
-    card: {
-      borderRadius: [0, 'card'],
+    cardDefault: {
+      borderRadius: 'card',
       overflow: 'hidden',
       bg: 'cardBg',
     },
     cardShadowBg: {
-      borderRadius: [0, 'card'],
+      borderRadius: 'card',
       overflow: 'hidden',
       boxShadow: (theme: Theme) => `0px -4px 72px -16px ${theme.colors ? theme.colors['elevatedShadowBg'] : ''}`,
       bg: 'cardBg',
@@ -399,11 +300,6 @@ const theme = {
       boxShadow: (theme: Theme) => `0px 0px 40px ${theme.colors ? theme.colors['elevatedShadowBg'] : ''}`,
       bg: 'cardElevatedBg',
     },
-    cardNested: {
-      borderRadius: 'card',
-      overflow: 'hidden',
-      bg: 'buttonBg',
-    },
     cardModal: {
       borderRadius: [0, 'card'],
       overflow: 'hidden',
@@ -411,7 +307,8 @@ const theme = {
       bg: 'modalBg',
     },
     cardOutlined: {
-      variant: 'variants.card',
+      borderRadius: 'card',
+      overflow: 'hidden',
       bg: 'transparent',
       border: `1px solid`,
       borderColor: 'cardOutline',
@@ -453,10 +350,10 @@ const theme = {
     inputContainer: {
       fontFamily: 'body',
       bg: 'inputBg',
-      borderRadius: '18px',
+      borderRadius: ['22px', '18px'],
       border: '1px solid',
       borderColor: 'inputBg',
-      minHeight: '35px',
+      minHeight: ['41px', '35px'],
       ':hover': {
         bg: 'inputHoverBg',
       },
@@ -521,8 +418,7 @@ const theme = {
     },
     alert: {
       borderRadius: 'alert',
-      py: 3,
-      px: 4,
+      p: 3,
     },
     alertInfo: {
       variant: 'variants.alert',
@@ -547,19 +443,39 @@ const theme = {
     link: {
       textDecoration: 'none',
       color: 'text',
-    },
-    primaryLink: {
-      textDecoration: 'none',
-      color: 'link',
-      transition: 'color 0.1s ease-out',
+      cursor: 'pointer',
       ':hover': {
-        color: 'linkHover',
+        color: 'text',
       },
     },
-    secondaryLink: {
+    linkSecondary: {
       textDecoration: 'none',
       color: 'secondaryText',
-      transition: 'color 0.1s ease-out',
+      cursor: 'pointer',
+      ':hover': {
+        color: 'text',
+      },
+    },
+    linkPrimary: {
+      textDecoration: 'none',
+      color: 'primaryLink',
+      cursor: 'pointer',
+      ':hover': {
+        color: 'primaryLinkHover',
+      },
+    },
+    linkError: {
+      textDecoration: 'none',
+      color: 'errorText',
+      cursor: 'pointer',
+      ':hover': {
+        color: 'text',
+      },
+    },
+    linkWarning: {
+      textDecoration: 'none',
+      color: 'warningText',
+      cursor: 'pointer',
       ':hover': {
         color: 'text',
       },
@@ -907,11 +823,11 @@ const theme = {
   },
   zIndex: {
     popover: 1000,
-    modal: 100,
+    modal: 101,
+    bottomNav: 100,
+    topNavBar: 5,
     chart: 2,
     desktopHeader: 1,
-    topNavBar: 5,
-    bottomNav: 101,
   },
 }
 

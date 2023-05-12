@@ -31,7 +31,7 @@ const AdminBoardStrikes = ({ board }: Props) => {
   return (
     <Card>
       <CardBody>
-        <Text mb={6} variant="heading">
+        <Text mb={6} variant="cardHeading">
           Edit Strikes
         </Text>
         <Box>
@@ -48,21 +48,15 @@ const AdminBoardStrikes = ({ board }: Props) => {
                     </Text>
                   </Box>
                   <Box>
-                    <Text variant="secondary" color="secondaryText">
-                      Current IV
-                    </Text>
+                    <Text color="secondaryText">Current IV</Text>
                     <Text>{formatNumber(strike.iv, { minDps: 0, maxDps: 4, precision: 0.0001 })}</Text>
                   </Box>
                   <Box>
-                    <Text variant="secondary" color="secondaryText">
-                      Current Skew
-                    </Text>
+                    <Text color="secondaryText">Current Skew</Text>
                     <Text>{formatNumber(strike.skew, { minDps: 0, maxDps: 4, precision: 0.0001 })}</Text>
                   </Box>
                   <Box mx={[0, 4]} my={[2, 0]}>
-                    <Text variant="secondary" color="secondaryText">
-                      Set Skew
-                    </Text>
+                    <Text color="secondaryText">Set Skew</Text>
                     <Flex>
                       <BigNumberInput
                         isDisabled={isLoading}
@@ -86,9 +80,7 @@ const AdminBoardStrikes = ({ board }: Props) => {
                     </Flex>
                   </Box>
                   <Box width={160}>
-                    <Text variant="secondary" color="secondaryText">
-                      New IV
-                    </Text>
+                    <Text color="secondaryText">New IV</Text>
                     <Text>
                       {formatNumber(board.baseIv.mul(skew).div(UNIT), { minDps: 0, maxDps: 4, precision: 0.0001 })}
                     </Text>

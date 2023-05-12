@@ -1,5 +1,4 @@
 import Text from '@lyra/ui/components/Text'
-import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React from 'react'
 import { Box, Flex } from 'rebass'
 
@@ -15,6 +14,7 @@ export type ListItemProps = {
   rightContent?: IconType | string | React.ReactNode | null
   onClick?: (e: any) => void
   isDisabled?: boolean
+  isSelected?: boolean
   target?: string
   href?: string
   children?: React.ReactNode
@@ -29,11 +29,11 @@ export default function ListItem({
   rightContent,
   onClick,
   isDisabled,
+  isSelected,
   target,
   href,
   children,
 }: ListItemProps): ListItemElement {
-  const isMobile = useIsMobile()
   return (
     <>
       <Box
@@ -52,26 +52,29 @@ export default function ListItem({
           target={target}
           alignItems="center"
           justifyContent="flex-start"
-          // TODO: @dappbeast set all mobile px to 3px
-          px={[6, 2]}
-          py={3}
+          p={[3, 2]}
           height="100%"
           sx={{
             textDecoration: 'none',
-            color: isDisabled ? 'disabledText' : 'text',
+            color: isDisabled ? 'disabledText' : isSelected ? 'text' : 'secondaryText',
+            bg: !isDisabled && isSelected ? 'hover' : null,
             ':hover': {
               color: isDisabled ? 'disabledText' : 'text',
             },
           }}
         >
           {icon ? (
-            <Center mr={2}>
-              {typeof icon === 'string' ? <IconOrImage src={icon} size={18} color="currentColor" /> : icon}
+            <Center mr={[3, 2]}>
+              {typeof icon === 'string' ? (
+                <IconOrImage src={icon} mt={['2.5px', 0]} size={[18, 16]} color="currentColor" />
+              ) : (
+                icon
+              )}
             </Center>
           ) : null}
           <Flex flexGrow={1} flexDirection="column">
             {typeof label === 'string' || typeof label === 'number' ? (
-              <Text variant={isMobile ? 'secondary' : 'body'} sx={{ transition: 'all 0.05s ease-out' }}>
+              <Text variant="small" color="inherit" sx={{ transition: 'all 0.05s ease-out' }}>
                 {label}
               </Text>
             ) : (

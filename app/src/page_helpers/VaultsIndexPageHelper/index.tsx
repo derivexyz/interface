@@ -14,7 +14,7 @@ type Props = {
 
 const VaultsIndexPageHelper = ({ vaults }: Props) => {
   return (
-    <Page header="Vaults">
+    <Page title="Vaults" subtitle="Deposit stables, earn trading fees">
       <PageGrid>
         <VaultsIndexChartCard />
         <VaultsIndexTableCard vaults={vaults} />

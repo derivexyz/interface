@@ -74,13 +74,11 @@ const AdminPageHelper = ({ markets, selectedMarket, selectedGlobalCache }: Props
   }, [])
 
   return (
-    <Page
-      header={<AdminMarketSelect markets={markets} selectedMarket={selectedMarket} />}
-      desktopRightColumn={
-        <AdminTransactionCard network={selectedMarket.lyra.network} globalOwner={selectedGlobalOwner} />
-      }
-    >
-      <PageGrid>
+    <Page>
+      <PageGrid
+        rightColumn={<AdminTransactionCard network={selectedMarket.lyra.network} globalOwner={selectedGlobalOwner} />}
+      >
+        <AdminMarketSelect markets={markets} selectedMarket={selectedMarket} />
         <AdminGlobalInfo isGlobalPaused={selectedMarket.params.isGlobalPaused} globalOwner={selectedGlobalOwner} />
         <AdminMarketPauseButton market={selectedMarket} />
         <AdminMarketBoardsInfo market={selectedMarket} />
@@ -88,7 +86,7 @@ const AdminPageHelper = ({ markets, selectedMarket, selectedGlobalCache }: Props
         <Card>
           <CardBody noPadding>
             <Flex my={6} mx={6} mb={4}>
-              <Text variant="heading">Market Parameters</Text>
+              <Text variant="cardHeading">Market Parameters</Text>
               <Flex ml="auto">
                 <Button label="Expand All" onClick={() => setAllExpanded(true)} />
                 <Button ml={2} label="Collapse All" onClick={() => setAllExpanded(false)} />

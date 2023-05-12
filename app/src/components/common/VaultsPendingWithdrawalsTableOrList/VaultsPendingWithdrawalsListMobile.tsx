@@ -32,9 +32,7 @@ const VaultsPendingWithdrawalsListMobile = ({
             onClick={onClick ? () => onClick(withdrawal) : undefined}
             rightContent={
               <Box textAlign="right">
-                <Text variant="secondary">
-                  {formatBalance({ amount: withdrawal.balance, ...market.liquidityToken })}
-                </Text>
+                <Text>{formatBalance({ amount: withdrawal.balance, ...market.liquidityToken })}</Text>
                 {!delayReason ? (
                   <Text variant="small" color="secondaryText">
                     in {formatDuration(Math.max(0, withdrawal.withdrawalTimestamp - market.block.timestamp))}

@@ -9,11 +9,10 @@ import Shimmer from '.'
 
 type Props = {
   variant?: TextVariant
-  nested?: boolean
 } & Omit<LayoutProps, 'h' | 'height'> &
   MarginProps
 
-export default function TextShimmer({ variant = 'body', nested = false, ...styleProps }: Props) {
+export default function TextShimmer({ variant = 'body', ...styleProps }: Props) {
   const lineHeight = useLineHeight(variant)
   const fontSize = useFontSize(variant)
   if (isNaN(lineHeight) || isNaN(fontSize)) {
@@ -23,7 +22,7 @@ export default function TextShimmer({ variant = 'body', nested = false, ...style
   const PY = (lineHeight - fontSize) / 2
   return (
     <Flex {...styleProps} width={styleProps.width ?? 100} py={`${PY}px`}>
-      <Shimmer borderRadius={'text'} height={`${fontSize}px`} width="100%" nested={nested} />
+      <Shimmer borderRadius={'text'} height={`${fontSize}px`} width="100%" />
     </Flex>
   )
 }

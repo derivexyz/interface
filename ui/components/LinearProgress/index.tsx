@@ -13,7 +13,7 @@ type Props = {
 export default function LinearProgress({ color = 'primaryText', progress, ...styleProps }: Props) {
   const fill = useThemeColor(color)
   return (
-    <Box width="100%" height={8} bg="cardNestedBg" sx={{ borderRadius: '20px' }} {...styleProps}>
+    <Box width="100%" height={8} bg="active" sx={{ borderRadius: '20px' }} {...styleProps}>
       <Box width={`${progress * 100}%`} height="100%" bg={fill} sx={{ borderRadius: '20px' }}></Box>
     </Box>
   )

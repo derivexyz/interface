@@ -27,7 +27,7 @@ export default function AdminBoardBaseIv({ board }: Props) {
   return (
     <Card>
       <CardBody>
-        <Text mb={6} variant="heading">
+        <Text mb={6} variant="cardHeading">
           Board Base IV
         </Text>
         <BigNumberInput mb={6} label="Base IV" value={baseIv} onChange={setBaseIv} placeholder={board.baseIv} />

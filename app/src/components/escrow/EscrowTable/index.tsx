@@ -57,7 +57,7 @@ const EscrowTable = ({
         Cell: (props: TableCellProps<EscrowEventTableData>) => {
           const { vestingBegin } = props.row.original
           const formattedVestingBegin = formatDate(vestingBegin)
-          return <Text variant="secondary">{formattedVestingBegin}</Text>
+          return <Text>{formattedVestingBegin}</Text>
         },
       },
       {
@@ -66,7 +66,7 @@ const EscrowTable = ({
         Cell: (props: TableCellProps<EscrowEventTableData>) => {
           const { vestingEnd } = props.row.original
           const formattedVestingEnd = formatDate(vestingEnd)
-          return <Text variant="secondary">{formattedVestingEnd}</Text>
+          return <Text>{formattedVestingEnd}</Text>
         },
       },
       {
@@ -83,7 +83,7 @@ const EscrowTable = ({
         Cell: (props: TableCellProps<EscrowEventTableData>) => {
           const { vestingCliff } = props.row.original
           const formattedVestingCliff = formatDate(vestingCliff)
-          return <Text variant="secondary">{formattedVestingCliff}</Text>
+          return <Text>{formattedVestingCliff}</Text>
         },
       },
       {

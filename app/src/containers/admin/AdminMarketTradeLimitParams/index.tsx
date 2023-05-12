@@ -39,7 +39,7 @@ const AdminMarketTradeLimitParams = ({ market, isExpanded, onClickExpand }: Prop
   return (
     <>
       <Collapsible
-        header={<Text variant="heading2">Trade Limit Parameters</Text>}
+        header={<Text variant="cardHeading">Trade Limit Parameters</Text>}
         onClickHeader={onClickExpand}
         isExpanded={isExpanded}
       >

@@ -1,8 +1,6 @@
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import coerce from '@lyra/ui/utils/coerce'
 import React from 'react'
 
-import Icon, { IconType } from '../Icon'
 import ListItem, { ListItemProps } from '../List/ListItem'
 import Text from '../Text'
 
@@ -13,41 +11,17 @@ export type DropdownButtonListItemElement = React.ReactElement<DropdownButtonLis
 export default function DropdownButtonListItem({
   label,
   isDisabled,
-  rightContent: _rightContent,
-  icon: _icon,
   isSelected,
   ...props
 }: DropdownButtonListItemProps): DropdownButtonListItemElement {
   const isMobile = useIsMobile()
   let dropdownLabel = label
-  let icon = _icon
-  if (isMobile) {
-    // TODO: @dappbeast Remove hacks
-    if (typeof label === 'string') {
-      dropdownLabel = (
-        <Text variant="heading" color={isDisabled ? 'disabledText' : 'secondaryText'} my={2}>
-          {label}
-        </Text>
-      )
-    }
-    const iconType = coerce(IconType, icon)
-    if (iconType) {
-      icon = null
-    }
+  if (typeof label === 'string') {
+    dropdownLabel = (
+      <Text variant={!isMobile ? 'small' : 'cardHeading'} my={!isMobile ? 0 : 1}>
+        {label}
+      </Text>
+    )
   }
-  return (
-    <ListItem
-      label={dropdownLabel}
-      rightContent={
-        _rightContent ? _rightContent : isSelected ? <Icon icon={IconType.Check} color="text" size={16} /> : null
-      }
-      icon={icon}
-      isDisabled={isDisabled}
-      sx={{
-        color: isSelected ? 'text' : 'secondaryText',
-        bg: isSelected ? 'hover' : undefined,
-      }}
-      {...props}
-    />
-  )
+  return <ListItem label={dropdownLabel} isDisabled={isDisabled} isSelected={isSelected} {...props} />
 }

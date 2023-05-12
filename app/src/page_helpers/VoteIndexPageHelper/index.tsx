@@ -4,15 +4,14 @@ import Flex from '@lyra/ui/components/Flex'
 import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { MarginProps } from '@lyra/ui/types'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GOVERNANCE_DOC_URL } from '@/app/constants/links'
 import { LogEvent } from '@/app/constants/logEvents'
 import { PageId } from '@/app/constants/pages'
+import TotalSupplyHeaderCard from '@/app/containers/common/TotalSupplyHeaderCard'
 import VoteProposalCard from '@/app/containers/vote/VoteProposalCard'
-import VotePageHeader from '@/app/containers/vote_index/VotePageHeader'
 import { VoteIndexPageData } from '@/app/hooks/vote/useVoteIndexPageData'
 import getPagePath from '@/app/utils/getPagePath'
 import logEvent from '@/app/utils/logEvent'
@@ -22,23 +21,21 @@ import PageGrid from '../common/Page/PageGrid'
 
 type Props = {
   data: VoteIndexPageData
-} & MarginProps
+}
 
-const VoteIndexPageHelper = ({ data, ...marginProps }: Props) => {
+const VoteIndexPageHelper = ({ data }: Props) => {
   const isMobile = useIsMobile()
   const navigate = useNavigate()
   return (
-    <Page noHeaderPadding header={!isMobile ? <VotePageHeader /> : null} {...marginProps}>
+    <Page title="Vote" subtitle="View and create proposals" headerCard={<TotalSupplyHeaderCard />}>
       <PageGrid>
-        {isMobile ? <VotePageHeader /> : null}
         <Box px={[6, 0]}>
           <Text variant="heading">Proposals</Text>
           <Flex flexDirection={isMobile ? 'column' : 'row'} alignItems="center">
-            <Text variant="secondary" color="secondaryText">
+            <Text color="secondaryText">
               Staked LYRA tokens represent voting rights in Lyra governance. You can vote on each proposal yourself or
               delegate your votes to a third party.{' '}
               <Link
-                textVariant="secondary"
                 mt="auto"
                 href={GOVERNANCE_DOC_URL}
                 showRightIcon

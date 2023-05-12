@@ -18,15 +18,15 @@ export default function StakeAPYTooltip({ children, lyraApy, ...flexProps }: Pro
     <Tooltip
       tooltip={
         <Box>
-          <Text variant="secondary" color="secondaryText" mb={4}>
+          <Text color="secondaryText" mb={4}>
             Earn stkLYRA when you stake LYRA.
           </Text>
           <Flex alignItems="center" mb={2}>
             <TokenImage size={24} nameOrAddress="stkLyra" />
-            <Text ml={2} variant="secondary" color="secondaryText">
+            <Text ml={2} color="secondaryText">
               stkLYRA
             </Text>
-            <Text variant="secondary" ml="auto" color="primaryText">
+            <Text ml="auto" color="primaryText">
               {formatPercentage(lyraApy, true)}
             </Text>
           </Flex>

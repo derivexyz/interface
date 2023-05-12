@@ -88,14 +88,14 @@ export default function Tooltip({
                 </Text>
               ) : null}
               {typeof tooltip === 'string' ? (
-                <Text textAlign="left" color="secondaryText" variant="secondary">
+                <Text textAlign="left" color="secondaryText">
                   {tooltip}
                 </Text>
               ) : (
                 tooltip
               )}
               {href ? (
-                <Link mt={4} textVariant="secondary" href={href} target={target} showRightIcon>
+                <Link mt={4} href={href} target={target} showRightIcon>
                   {hrefLabel}
                 </Link>
               ) : null}

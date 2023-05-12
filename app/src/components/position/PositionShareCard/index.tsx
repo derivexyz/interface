@@ -93,7 +93,7 @@ const PositionShareCard = ({ position, ...marginProps }: Props) => {
               </>
             ) : (
               <Center flexDirection="column">
-                <Text mb={4} variant="heading" color="secondaryText">
+                <Text mb={4} variant="cardHeading" color="secondaryText">
                   Copied
                 </Text>
                 <Icon size={64} icon={IconType.Check} color="secondaryText" />

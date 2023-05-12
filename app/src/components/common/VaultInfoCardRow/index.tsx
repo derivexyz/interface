@@ -28,16 +28,15 @@ export default function VaultInfoCardRow({ ...styleProps }: Props) {
       <Card>
         <CardBody height="100%">
           <Icon mb={4} icon={IconType.Stack} size={30} color="primaryText" />
-          <Text variant="heading" mb={4}>
+          <Text variant="cardHeading" mb={4}>
             About
           </Text>
-          <Text variant="secondary" color="secondaryText" mb={4}>
+          <Text color="secondaryText" mb={4}>
             Market Maker Vaults use your funds to make options markets on your chosen asset. Lyra vaults quote options
             via a supply / demand driven volatility surface, and have delta hedging capabilities to try to minimize
             market exposure.
           </Text>
           <Link
-            textVariant="secondary"
             mt="auto"
             href={VAULTS_ABOUT_DOC_URL}
             onClick={() => logEvent(LogEvent.VaultAboutLearnMoreClick)}
@@ -51,16 +50,15 @@ export default function VaultInfoCardRow({ ...styleProps }: Props) {
       <Card>
         <CardBody height="100%">
           <Icon mb={4} icon={IconType.Flag} size={30} color="primaryText" />
-          <Text variant="heading" mb={4}>
+          <Text variant="cardHeading" mb={4}>
             Risks
           </Text>
-          <Text variant="secondary" color="secondaryText" mb={4}>
+          <Text color="secondaryText" mb={4}>
             Interacting with the Lyra Protocol can lead to the loss of all assets that form part of a transaction due to
             risks including but not limited to: Smart Contract Risk, AMM Liquidity Provision Risk, Synthetix and GMX
             Risk, and Settlement Risk.
           </Text>
           <Link
-            textVariant="secondary"
             mt="auto"
             href={RISK_DOC_URL}
             onClick={() => logEvent(LogEvent.VaultRisksLearnMoreClick)}
@@ -74,15 +72,14 @@ export default function VaultInfoCardRow({ ...styleProps }: Props) {
       <Card>
         <CardBody height="100%">
           <Icon mb={4} icon={IconType.Rewards} size={30} color="primaryText" />
-          <Text variant="heading" mb={4}>
+          <Text variant="cardHeading" mb={4}>
             Rewards
           </Text>
-          <Text variant="secondary" color="secondaryText" mb={4}>
+          <Text color="secondaryText" mb={4}>
             Liquidity providers earn trading fees, collect bid-ask spreads and aim to generate market-neutral returns
             with automated delta hedging. In return, they take on options market making risk.
           </Text>
           <Link
-            textVariant="secondary"
             mt="auto"
             href={VAULTS_ABOUT_DOC_URL}
             onClick={() => logEvent(LogEvent.VaultRewardsLearnMoreClick)}

@@ -17,26 +17,20 @@ const AdminAddStrikeToBoardTransactionListItem = ({ boardId, strikePrice, skew }
   return (
     <Box>
       <Flex>
-        <Text variant="secondary" color="secondaryText">
-          Board ID:
-        </Text>
-        <Text ml={1} variant="secondary" color="secondaryText">
+        <Text color="secondaryText">Board ID:</Text>
+        <Text ml={1} color="secondaryText">
           {boardId.toNumber()}
         </Text>
       </Flex>
       <Flex>
-        <Text variant="secondary" color="secondaryText">
-          Strike:
-        </Text>
-        <Text ml={1} variant="secondary" color="secondaryText">
+        <Text color="secondaryText">Strike:</Text>
+        <Text ml={1} color="secondaryText">
           {fromBigNumber(strikePrice)}
         </Text>
       </Flex>
       <Flex>
-        <Text variant="secondary" color="secondaryText">
-          Skew:
-        </Text>
-        <Text ml={1} variant="secondary" color="secondaryText">
+        <Text color="secondaryText">Skew:</Text>
+        <Text ml={1} color="secondaryText">
           {formatNumber(skew)}
         </Text>
       </Flex>

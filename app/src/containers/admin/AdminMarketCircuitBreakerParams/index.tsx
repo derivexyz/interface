@@ -48,7 +48,7 @@ const AdminMarketCircuitBreakerParams = ({ market, isExpanded, onClickExpand }: 
     <>
       <Collapsible
         onClickHeader={onClickExpand}
-        header={<Text variant="heading2">Circuit Breaker Parameters</Text>}
+        header={<Text variant="cardHeading">Circuit Breaker Parameters</Text>}
         isExpanded={isExpanded}
       >
         <Box p={4}>

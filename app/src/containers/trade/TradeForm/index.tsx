@@ -13,7 +13,7 @@ import AmountUpdateText from '@/app/components/common/AmountUpdateText'
 import RowItem from '@/app/components/common/RowItem'
 import { ZERO_ADDRESS, ZERO_BN } from '@/app/constants/bn'
 import { SLIPPAGE } from '@/app/constants/contracts'
-import { MIN_TRADE_CARD_HEIGHT } from '@/app/constants/layout'
+import { TRADE_CARD_MIN_HEIGHT } from '@/app/constants/layout'
 import TradeFormSizeInput from '@/app/containers/trade/TradeForm/TradeFormSizeInput'
 import useAccountBalances from '@/app/hooks/account/useAccountBalances'
 import useNetwork from '@/app/hooks/account/useNetwork'
@@ -110,7 +110,7 @@ const TradeForm = withSuspense(
       <>
         <CardSection>
           {!hideTitle ? (
-            <Text mb={6} variant="heading">
+            <Text mb={6} variant="cardHeading">
               {isBuy ? 'Buy' : 'Sell'} {formatTokenName(option.market().baseToken)}{' '}
               {formatUSD(option.strike().strikePrice)} {option.isCall ? 'Call' : 'Put'}
             </Text>
@@ -120,9 +120,8 @@ const TradeForm = withSuspense(
               label="Position"
               value={
                 <AmountUpdateText
-                  variant="secondary"
                   color={position.isLong ? 'primaryText' : 'errorText'}
-                  prefix={position.isLong ? 'LONG' : 'SHORT'}
+                  prefix={position.isLong ? 'Long' : 'Short'}
                   prevAmount={position.size}
                   newAmount={trade.newSize}
                 />
@@ -157,7 +156,6 @@ const TradeForm = withSuspense(
         <CardSection>
           <RowItem
             mb={5}
-            textVariant="secondary"
             label={trade.isBuy ? 'Max Cost' : 'Min Received'}
             valueColor={trade.premium.gt(0) || !trade.isDisabled ? 'text' : 'secondaryText'}
             value={
@@ -171,7 +169,6 @@ const TradeForm = withSuspense(
           />
           {trade.forceClosePenalty.gt(0) ? (
             <RowItem
-              textVariant="secondary"
               label="Force Close Penalty"
               valueColor="warningText"
               value={formatUSD(trade.forceClosePenalty)}
@@ -183,7 +180,7 @@ const TradeForm = withSuspense(
             label="Balance"
             value={
               <AmountUpdateText
-                variant="secondary"
+                textAlign="right"
                 prevAmount={
                   showBaseBalance
                     ? fromBigNumber(baseBalance.balance, baseBalance.decimals)
@@ -204,8 +201,6 @@ const TradeForm = withSuspense(
                 symbol={showBaseBalance ? trade.baseToken.symbol : trade.quoteToken.symbol}
               />
             }
-            valueColor="text"
-            textVariant="secondary"
           />
           {!trade.isOpen ? (
             <RowItem
@@ -227,7 +222,7 @@ const TradeForm = withSuspense(
     )
   },
   () => (
-    <CardSection height={MIN_TRADE_CARD_HEIGHT}>
+    <CardSection height={TRADE_CARD_MIN_HEIGHT}>
       <Center width="100%" flexGrow={1}>
         <Spinner />
       </Center>

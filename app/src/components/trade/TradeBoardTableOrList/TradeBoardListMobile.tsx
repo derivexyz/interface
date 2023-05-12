@@ -11,9 +11,10 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Option, Quote } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
-import { MAX_IV } from '@/app/constants/contracts'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
+import LabelItem from '../../common/LabelItem'
 import OptionStatsGrid from '../../common/OptionStatsGrid'
 import { TradeBoardTableOrListProps } from '.'
 import TradeBoardPriceButton from './TradeBoardPriceButton'
@@ -28,11 +29,32 @@ const TradeBoardListMobile = ({
     null
   )
   const strikeId = selectedOption?.strike().id
+  const spotPriceRowIdx = quotes.reduce(
+    (markerIdx, { option }) => (option.market().spotPrice.lt(option.strike().strikePrice) ? markerIdx : markerIdx + 1),
+    0
+  )
   return (
     <Box>
-      {quotes.map(({ option, bid, ask }) => {
+      {quotes.map(({ option, bid, ask }, idx) => {
         const quote = isBuy ? ask : bid
         const strike = option.strike()
+        const market = option.market()
+        if (idx === spotPriceRowIdx) {
+          const spotPrice = market.spotPrice
+          return (
+            <React.Fragment key="spot">
+              <CardSection>
+                <Text>
+                  {formatTokenName(market.baseToken)} Price:{' '}
+                  <Text as="span" color="primaryText">
+                    {formatUSD(spotPrice)}
+                  </Text>
+                </Text>
+              </CardSection>
+              {idx < quotes.length - 1 ? <CardSeparator /> : null}
+            </React.Fragment>
+          )
+        }
         if (!quote) {
           return null
         }
@@ -47,22 +69,8 @@ const TradeBoardListMobile = ({
                 {formatUSD(option.strike().strikePrice)} {option.isCall ? 'Call' : 'Put'}
               </Text>
               <Flex alignItems="center">
-                <Box>
-                  <Text variant="secondary" color="secondaryText" mb={2}>
-                    Break Even
-                  </Text>
-                  <Text variant="secondary" color="text">
-                    {formatUSD(quote.breakEven)}
-                  </Text>
-                </Box>
-                <Box ml={6}>
-                  <Text variant="secondary" color="secondaryText" mb={2}>
-                    Implied Vol
-                  </Text>
-                  <Text variant="secondary" color="text">
-                    {quote.iv.gt(0) && quote.iv.lt(MAX_IV) ? formatPercentage(fromBigNumber(quote.iv), true) : '-'}
-                  </Text>
-                </Box>
+                <LabelItem label="Break Even" value={formatUSD(quote.breakEven)} />
+                <LabelItem ml={6} label="Implied Vol" value={formatPercentage(fromBigNumber(quote.iv), true)} />
                 <TradeBoardPriceButton
                   ml="auto"
                   quote={quote}
@@ -71,7 +79,7 @@ const TradeBoardListMobile = ({
                 />
               </Flex>
             </CardSection>
-            <CardSeparator />
+            {idx < quotes.length - 1 ? <CardSeparator /> : null}
           </React.Fragment>
         )
       })}
@@ -80,7 +88,7 @@ const TradeBoardListMobile = ({
         onClose={() => setExpandedQuote(null)}
         title={
           expandedQuote ? (
-            <Text variant="heading" ml={6} mt={6}>
+            <Text variant="cardHeading">
               {expandedQuote.option.market().name} ${fromBigNumber(expandedQuote.option.strike().strikePrice)}{' '}
               {expandedQuote.option.isCall ? 'Call' : 'Put'}
               <Text as="span" color="secondaryText">

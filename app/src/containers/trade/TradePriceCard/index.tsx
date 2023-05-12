@@ -1,13 +1,10 @@
 import Box from '@lyra/ui/components/Box'
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
-import IconButton from '@lyra/ui/components/Button/IconButton'
 import { OhlcData } from '@lyra/ui/components/CandleChart'
-import Card, { CardElement } from '@lyra/ui/components/Card'
+import { CardElement } from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
-import Center from '@lyra/ui/components/Center'
 import Flex from '@lyra/ui/components/Flex'
-import Icon, { IconType } from '@lyra/ui/components/Icon'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { Market, SnapshotPeriod } from '@lyrafinance/lyra-js'
 import React, { useCallback, useState } from 'react'
@@ -78,8 +75,8 @@ const TradePriceCard = ({ market }: Props): CardElement => {
   const [candle, setCandle] = useState<OhlcData | null>(null)
   const [isSnapshotPeriodDropdownOpen, setIsSnapshotPeriodDropdownOpen] = useState(false)
   const [candleDuration, setCandleDuration] = useState<SnapshotPeriod>(getDefaultCandleDurationForPeriod(interval))
-  const [traderSettings, setTraderSettings] = useTraderSettings()
-  const isCandleChart = traderSettings.isCandleChart
+  const [traderSettings] = useTraderSettings()
+  const { isAdvancedMode } = traderSettings
   const isMobile = useIsMobile()
 
   const handleCandleHover = useCallback((ohlcData: OhlcData | null) => {
@@ -91,109 +88,80 @@ const TradePriceCard = ({ market }: Props): CardElement => {
     setSpotPrice(spotPrice)
   }, [])
 
-  const handleToggleCandleChart = useCallback(
-    () => setTraderSettings('isCandleChart', !isCandleChart),
-    [isCandleChart, setTraderSettings]
-  )
-
   const handleChangeChartInterval = useCallback((chartInterval: ChartInterval) => {
     setInterval(chartInterval)
     setCandleDuration(getDefaultCandleDurationForPeriod(chartInterval))
   }, [])
 
   return (
-    <Card>
-      {/* No top spacing on mobile */}
-      <CardBody pt={isMobile ? 0 : 6}>
-        <Flex width="100%" alignItems="flex-start" pb={2}>
-          <Box flexGrow={1}>
-            <SpotPriceChartTitle
-              market={market}
-              isCandleChart={isCandleChart}
-              interval={interval}
-              hoverSpotPrice={spotPrice}
-              hoverCandle={candle}
-            />
-          </Box>
-          {isCandleChart && !isMobile ? (
-            <DropdownButton
-              mr={2}
-              textVariant="secondary"
-              label={formatCandleDuration(candleDuration)}
-              isOpen={isSnapshotPeriodDropdownOpen}
-              onClick={() => setIsSnapshotPeriodDropdownOpen(!isSnapshotPeriodDropdownOpen)}
-              onClose={() => setIsSnapshotPeriodDropdownOpen(false)}
-            >
-              {candlePeriodValues.map(candlePeriodVal => (
-                <DropdownButtonListItem
-                  isSelected={candlePeriodVal === candleDuration}
-                  key={candlePeriodVal}
-                  label={formatCandleDuration(candlePeriodVal)}
-                  onClick={() => {
-                    setCandleDuration(candlePeriodVal)
-                    setIsSnapshotPeriodDropdownOpen(false)
-                  }}
-                />
-              ))}
-            </DropdownButton>
-          ) : null}
-          {!isMobile ? (
-            <Flex>
-              <ChartIntervalSelector
-                intervals={CANDLE_CHART_INTERVALS}
-                mr={2}
-                ml="auto"
-                selectedInterval={interval}
-                onChangeInterval={handleChangeChartInterval}
-              />
-              <IconButton
-                icon={
-                  isCandleChart ? (
-                    <Icon icon={IconType.Activity} size={16} />
-                  ) : (
-                    <Icon icon={IconType.Candle} size={24} />
-                  )
-                }
-                onClick={handleToggleCandleChart}
-              />
-            </Flex>
-          ) : null}
-        </Flex>
-        {isCandleChart ? (
-          <SpotPriceCandleChart
+    <CardBody>
+      <Flex width="100%" alignItems="flex-start" pb={2}>
+        <Box flexGrow={1}>
+          <SpotPriceChartTitle
             market={market}
+            isCandleChart={isAdvancedMode}
             interval={interval}
-            candleDuration={candleDuration}
-            onHover={handleCandleHover}
-            height={TRADE_SPOT_CANDLE_CHART_HEIGHT}
-          />
-        ) : (
-          <SpotPriceLineChart
-            market={market}
-            onHover={handleLineHover}
             hoverSpotPrice={spotPrice}
-            height={TRADE_SPOT_LINE_CHART_HEIGHT}
-            interval={interval}
+            hoverCandle={candle}
           />
-        )}
-        {isMobile ? (
-          <Center mt={2}>
-            <ChartIntervalSelector
-              intervals={CANDLE_CHART_INTERVALS}
-              selectedInterval={interval}
-              onChangeInterval={handleChangeChartInterval}
-            />
-            <IconButton
-              mr={2}
-              icon={
-                isCandleChart ? <Icon icon={IconType.Activity} size={16} /> : <Icon icon={IconType.Candle} size={24} />
-              }
-              onClick={handleToggleCandleChart}
-            />
-          </Center>
+        </Box>
+        {isAdvancedMode && !isMobile ? (
+          <DropdownButton
+            mobileTitle="Select Candle"
+            mr={2}
+            label={formatCandleDuration(candleDuration)}
+            isOpen={isSnapshotPeriodDropdownOpen}
+            onClick={() => setIsSnapshotPeriodDropdownOpen(!isSnapshotPeriodDropdownOpen)}
+            onClose={() => setIsSnapshotPeriodDropdownOpen(false)}
+          >
+            {candlePeriodValues.map(candlePeriodVal => (
+              <DropdownButtonListItem
+                isSelected={candlePeriodVal === candleDuration}
+                key={candlePeriodVal}
+                label={formatCandleDuration(candlePeriodVal)}
+                onClick={() => {
+                  setCandleDuration(candlePeriodVal)
+                  setIsSnapshotPeriodDropdownOpen(false)
+                }}
+              />
+            ))}
+          </DropdownButton>
+        ) : isMobile ? (
+          <ChartIntervalSelector
+            ml="auto"
+            intervals={CANDLE_CHART_INTERVALS}
+            selectedInterval={interval}
+            onChangeInterval={handleChangeChartInterval}
+          />
         ) : null}
-      </CardBody>
-    </Card>
+        {!isMobile ? (
+          <ChartIntervalSelector
+            intervals={CANDLE_CHART_INTERVALS}
+            mr={2}
+            ml="auto"
+            selectedInterval={interval}
+            onChangeInterval={handleChangeChartInterval}
+          />
+        ) : null}
+      </Flex>
+      {isAdvancedMode ? (
+        <SpotPriceCandleChart
+          market={market}
+          interval={interval}
+          candleDuration={candleDuration}
+          onHover={handleCandleHover}
+          height={TRADE_SPOT_CANDLE_CHART_HEIGHT}
+        />
+      ) : (
+        <SpotPriceLineChart
+          market={market}
+          onHover={handleLineHover}
+          hoverSpotPrice={spotPrice}
+          height={TRADE_SPOT_LINE_CHART_HEIGHT}
+          interval={interval}
+        />
+      )}
+    </CardBody>
   )
 }
 

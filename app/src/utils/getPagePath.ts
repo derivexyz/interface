@@ -53,16 +53,18 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
       return getTradePath(args as PageArgsMap[PageId.Trade])
     case PageId.Position:
       return getPositionPath(args as PageArgsMap[PageId.Position])
-    case PageId.Portfolio:
-      return '/portfolio'
-    case PageId.History:
-      return '/portfolio/history'
+    case PageId.TradeIndex:
+      return '/trade'
+    case PageId.TradeHistory:
+      return '/trade/history'
     case PageId.Storybook:
       return '/storybook'
     case PageId.Faucet:
       return '/faucet'
     case PageId.Leaderboard:
       return getLeaderboardPath(args as PageArgsMap[PageId.Leaderboard])
+    case PageId.LeaderboardIndex:
+      return '/leaderboard'
     case PageId.LeaderboardHistory:
       return '/leaderboard/history'
     case PageId.VaultsIndex:

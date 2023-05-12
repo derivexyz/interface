@@ -16,17 +16,17 @@ type Props = {
 } & LayoutProps &
   MarginProps
 
-const NETWORK_BADGE_SIZE = 16
-
-export default function MarketImage({ market, size = 32, ...styleProps }: Props): JSX.Element {
+export default function MarketImage({ market, size = 36, ...styleProps }: Props): JSX.Element {
   const trueSize = parseInt(String(useThemeValue(size)))
   const logoURI: string = getMarketLogoURI(market)
 
+  const trueBadgeSize = (trueSize * 1) / 2
+
   return (
     <Flex
-      width={trueSize + (1 / 3) * NETWORK_BADGE_SIZE}
+      width={trueSize + (1 / 3) * trueBadgeSize}
       height={trueSize}
-      minWidth={trueSize + (1 / 3) * NETWORK_BADGE_SIZE}
+      minWidth={trueSize + (1 / 3) * trueBadgeSize}
       minHeight={trueSize}
       sx={{ position: 'relative' }}
       {...styleProps}
@@ -43,19 +43,19 @@ export default function MarketImage({ market, size = 32, ...styleProps }: Props)
         src={logoURI != null ? getAssetSrc(logoURI) : undefined}
       />
       <Flex
-        width={NETWORK_BADGE_SIZE}
-        height={NETWORK_BADGE_SIZE}
+        width={trueBadgeSize}
+        height={trueBadgeSize}
         sx={{
           position: 'absolute',
           bottom: '-2px',
-          left: trueSize - (2 / 3) * NETWORK_BADGE_SIZE,
+          left: trueSize - (2 / 3) * trueBadgeSize,
           backgroundColor: 'background',
           borderRadius: 'circle',
         }}
         justifyContent="center"
         alignItems="center"
       >
-        <Image minWidth="85%" width="85%" minHeight="85%" height="85%" src={getNetworkLogoURI(market.lyra.network)} />
+        <Image width={trueBadgeSize - 2} height={trueBadgeSize - 2} src={getNetworkLogoURI(market.lyra.network)} />
       </Flex>
     </Flex>
   )

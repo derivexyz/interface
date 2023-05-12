@@ -37,7 +37,7 @@ const AdminMarketForceCloseParams = ({ market, isExpanded, onClickExpand }: Prop
     <>
       <Collapsible
         onClickHeader={onClickExpand}
-        header={<Text variant="heading2">Force Close Parameters</Text>}
+        header={<Text variant="cardHeading">Force Close Parameters</Text>}
         isExpanded={isExpanded}
       >
         <Box p={4}>

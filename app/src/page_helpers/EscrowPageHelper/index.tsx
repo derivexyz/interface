@@ -41,10 +41,10 @@ export default function EscrowPageHelper({ escrowPageData }: EscrowPageHelperPro
   }
 
   return (
-    <Page header="Escrow" mobileCollapsedHeader="Escrow">
+    <Page title="Escrow" subtitle="View escrowed tokens">
       {account ? (
-        <Box width="1100px">
-          <Text variant="bodyLarge"> Total Locked:</Text>
+        <Box>
+          <Text> Total Locked:</Text>
           <TokenAmountText
             tokenNameOrAddress="lyra"
             amount={escrowPageData?.reduce((total, event) => (total += event.amount), 0) ?? ZERO_BN}

@@ -3,7 +3,6 @@ import CardBody from '@lyra/ui/components/Card/CardBody'
 import Grid from '@lyra/ui/components/Grid'
 import Text from '@lyra/ui/components/Text'
 import Token from '@lyra/ui/components/Token'
-import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import formatDate from '@lyra/ui/utils/formatDate'
 import React from 'react'
@@ -21,7 +20,6 @@ type Props = {
 
 const VoteProposalCard = ({ proposal }: Props) => {
   const navigate = useNavigate()
-  const isMobile = useIsMobile()
   const title = proposal.title
   const proposedTimestamp = proposal.timestamp
   const proposalState = proposal.proposalState
@@ -38,7 +36,7 @@ const VoteProposalCard = ({ proposal }: Props) => {
       }
       sx={{
         ':hover': {
-          bg: 'cardNestedHover',
+          bg: 'cardHoverBg',
           cursor: 'pointer',
         },
         ':active': {
@@ -57,12 +55,8 @@ const VoteProposalCard = ({ proposal }: Props) => {
             alignItems: 'center',
           }}
         >
-          <Text variant={isMobile ? 'body' : 'bodyLarge'} color="secondaryText">
-            {formatDate(proposedTimestamp, false)}
-          </Text>
-          <Text variant={isMobile ? 'body' : 'bodyLarge'} sx={{ fontWeight: 400 }}>
-            {title}
-          </Text>
+          <Text color="secondaryText">{formatDate(proposedTimestamp, false)}</Text>
+          <Text sx={{ fontWeight: 400 }}>{title}</Text>
           <Token
             label={proposalState.toUpperCase()}
             variant={getProposalStateVariant(proposalState)}

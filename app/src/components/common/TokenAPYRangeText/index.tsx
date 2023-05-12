@@ -17,12 +17,9 @@ type Props = {
 export const getTokenAPYRangeHeightForVariant = (variant: TextVariant): number => {
   switch (variant) {
     case 'heading':
-    case 'heading2':
-    case 'heroHeading':
-    case 'heroTitle':
+    case 'cardHeading':
       return 30
     case 'small':
-    case 'smallMedium':
       return 16
     default:
       return 24
@@ -32,9 +29,7 @@ export const getTokenAPYRangeHeightForVariant = (variant: TextVariant): number =
 const getMB = (variant: TextVariant): string => {
   switch (variant) {
     case 'heading':
-    case 'heading2':
-    case 'heroHeading':
-    case 'heroTitle':
+    case 'cardHeading':
       return '2px'
     default:
       return '1px'

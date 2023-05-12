@@ -22,7 +22,7 @@ const AdminGlobalInfo = ({ isGlobalPaused, globalOwner }: Props) => {
   return (
     <Card>
       <CardBody>
-        <Text variant="heading" mb={6}>
+        <Text variant="cardHeading" mb={6}>
           Global Paused: {isGlobalPaused?.toString()}
         </Text>
         <TransactionButton

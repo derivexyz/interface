@@ -105,10 +105,10 @@ const ReferralsCreateCard = ({ data, ...marginProps }: Props) => {
     <>
       <Card {...marginProps}>
         <CardSection>
-          <Text variant="heading" color="text">
+          <Text variant="cardHeading" color="text">
             {isCreateMode ? 'Create Code' : 'Code Created'}
           </Text>
-          <Text color="errorText" variant="smallMedium" mb={2} height={20}>
+          <Text color="errorText" variant="small" mb={2} height={20}>
             {isInvalidCode
               ? 'Only lowercase letters, numbers and underscores are allowed. Minimum 4 letters.'
               : isTakenCode
@@ -159,8 +159,8 @@ const ReferralsCreateCard = ({ data, ...marginProps }: Props) => {
         <CardSection flexDirection={isMobile ? 'column' : 'row'} noPadding>
           <CardSection isVertical sx={{ flexGrow: 1 }}>
             <Flex mb={8}>
-              <Text variant="heading">Your Rewards</Text>
-              <Text variant="heading" color="secondaryText">
+              <Text variant="cardHeading">Your Rewards</Text>
+              <Text variant="cardHeading" color="secondaryText">
                 &nbsp; · &nbsp;{formatDate(latestGlobalRewardEpoch.startTimestamp, true)} -{' '}
                 {formatDate(latestGlobalRewardEpoch.endTimestamp, true)}
               </Text>
@@ -168,20 +168,17 @@ const ReferralsCreateCard = ({ data, ...marginProps }: Props) => {
             {account ? (
               <>
                 <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr'] }}>
-                  <LabelItem textVariant="body" label="Referred traders" value={currentEpochReferredTradersCount} />
+                  <LabelItem label="Referred traders" value={currentEpochReferredTradersCount} />
                   <LabelItem
-                    textVariant="body"
                     label="Referred volume"
                     value={formatTruncatedUSD(currentEpochReferredTradersVolume)}
                     valueColor="text"
                   />
                   <LabelItem
-                    textVariant="body"
                     label="Pending Rewards"
                     value={<RewardTokenAmounts tokenAmounts={currentEpochReferredTradersRewards} showDash={false} />}
                   />
                   <LabelItem
-                    textVariant="body"
                     label="Ends In"
                     value={<Countdown timestamp={latestGlobalRewardEpoch.distributionTimestamp} />}
                     valueColor="text"

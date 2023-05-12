@@ -13,7 +13,7 @@ export default function TooltipDemoCard({ ...marginProps }: MarginProps): CardEl
   return (
     <Card {...marginProps}>
       <CardSection>
-        <Text variant="heading">Icon Tooltips</Text>
+        <Text variant="cardHeading">Icon Tooltips</Text>
         <Flex my={2} alignItems="center" flexDirection={isMobile ? 'column' : 'row'}>
           <Tooltip
             title="Cooldown period"
@@ -35,14 +35,14 @@ export default function TooltipDemoCard({ ...marginProps }: MarginProps): CardEl
         </Flex>
       </CardSection>
       <CardSection>
-        <Text variant="heading">Text Tooltips</Text>
+        <Text variant="cardHeading">Text Tooltips</Text>
         <Flex my={2} alignItems="center" flexDirection={isMobile ? 'column' : 'row'}>
           <Tooltip
             title="Cooldown period"
             tooltip={<Text>There is a 14 day cooldown period to claim staked LYRA.</Text>}
             target="_blank"
           >
-            <Text variant="body">Learn More</Text>
+            <Text>Learn More</Text>
           </Tooltip>
           <Tooltip
             ml={4}
@@ -51,7 +51,7 @@ export default function TooltipDemoCard({ ...marginProps }: MarginProps): CardEl
             href="lyra.finance"
             target="_blank"
           >
-            <Text variant="body">What is the lock period?</Text>
+            <Text>What is the lock period?</Text>
           </Tooltip>
         </Flex>
       </CardSection>

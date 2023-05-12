@@ -105,11 +105,7 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
         width: 65,
         Cell: (props: TableCellProps<TradeEventTableData>) => {
           const delta = Date.now() / 1000 - props.cell.value
-          return (
-            <Text variant="secondary" color="secondaryText">
-              {formatTruncatedDuration(delta)}
-            </Text>
-          )
+          return <Text color="secondaryText">{formatTruncatedDuration(delta)}</Text>
         },
       },
       {
@@ -141,19 +137,18 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
                   ? 'primaryText'
                   : 'errorText'
               }
-              variant="secondary"
             >{`${
               event instanceof TradeEvent
                 ? event.isLiquidation
-                  ? 'LIQUIDATE'
+                  ? 'Liquidate'
                   : event.isBuy
-                  ? 'BUY'
-                  : 'SELL'
+                  ? 'Buy'
+                  : 'Sell'
                 : event instanceof CollateralUpdateEvent
-                ? 'UPDATE'
+                ? 'Update'
                 : event.isInTheMoney
-                ? 'SETTLE'
-                : 'EXPIRE'
+                ? 'Settle'
+                : 'Expire'
             }${
               event instanceof TradeEvent || event instanceof SettleEvent ? ` ${formatNumber(event.size)}` : ''
             }`}</Text>
@@ -168,7 +163,7 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
           const market = position.market()
           return (
             <Box>
-              <Text variant="secondary" color={props.cell.value ? 'text' : 'secondaryText'}>
+              <Text color={props.cell.value ? 'text' : 'secondaryText'}>
                 {props.cell.value
                   ? formatBalance(
                       { amount: props.cell.value, symbol: market.quoteToken.symbol, decimals: 18 },
@@ -187,7 +182,7 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
           const { position, isBaseCollateral, collateralAmount } = props.row.original
           const market = position.market()
           return (
-            <Text variant="secondary" color={collateralAmount ? 'text' : 'secondaryText'}>
+            <Text color={collateralAmount ? 'text' : 'secondaryText'}>
               {collateralAmount
                 ? `${formatBalance(
                     {
@@ -208,7 +203,6 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
         Cell: (props: TableCellProps<TradeEventTableData>) => {
           return (
             <Text
-              variant="secondary"
               color={props.cell.value === 0 ? 'secondaryText' : props.cell.value >= 0 ? 'primaryText' : 'errorText'}
             >
               {props.cell.value === 0 ? '-' : formatUSD(props.cell.value, { showSign: true })}

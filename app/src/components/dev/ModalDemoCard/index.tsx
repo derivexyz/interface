@@ -16,17 +16,14 @@ export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElem
   return (
     <Card {...marginProps}>
       <CardSection>
-        <Text variant="heading">Modal</Text>
+        <Text variant="cardHeading">Modal</Text>
         <Button my={4} onClick={() => setIsOpen(true)} label="Open Modal" />
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
           <ModalBody>
-            <Text textAlign="center" variant="heading" color="secondaryText">
-              Welcome to
+            <Text textAlign="center" variant="cardHeading">
+              Welcome to testnet
             </Text>
-            <Text my={4} textAlign="center" variant="title" color="secondaryText">
-              Avalon Testnet
-            </Text>
-            <Text textAlign="center" variant="heading" color="secondaryText">
+            <Text textAlign="center" color="secondaryText">
               We are using sETH and sUSD for testnet. Claim your testnet tokens here.
             </Text>
             <Button mb={4} mt={8} variant="light" label="0 ETH" size="lg" leftIcon={IconType.Optimism} />
@@ -56,7 +53,7 @@ export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElem
         </Modal>
       </CardSection>
       <CardSection>
-        <Text variant="heading">Toasts</Text>
+        <Text variant="cardHeading">Toasts</Text>
         <Button
           variant={'default'}
           mr={2}
@@ -67,8 +64,6 @@ export default function ModalDemoCard({ ...marginProps }: MarginProps): CardElem
             createToast({
               variant: 'info',
               description: 'Default: This is a default toast.',
-              hrefLabel: 'This is hrefLabel',
-              href: '/portfolio',
               autoClose: 5000,
             })
           }}

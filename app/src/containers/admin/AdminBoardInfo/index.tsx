@@ -23,7 +23,7 @@ const AdminBoardInfo = ({ board }: Props) => {
   return (
     <Card>
       <CardBody>
-        <Text variant="heading" mb={6}>
+        <Text variant="cardHeading" mb={6}>
           Board #{board.id} - Exp. {formatDate(board.expiryTimestamp)}
         </Text>
         <Text mb={6}>Paused: {board.isPaused.toString()}</Text>

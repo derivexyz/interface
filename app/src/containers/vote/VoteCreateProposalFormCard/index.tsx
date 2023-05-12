@@ -36,7 +36,7 @@ const VoteCreateProposalFormCard = ({}: Props) => {
   return (
     <Card>
       <CardSection noSpacing>
-        <Text variant="heading" color="text" mb={4}>
+        <Text variant="cardHeading" color="text" mb={4}>
           Proposed action (Executor) and network
         </Text>
         <VoteCreateProposalExecutorDropdown
@@ -47,7 +47,7 @@ const VoteCreateProposalFormCard = ({}: Props) => {
       </CardSection>
       {selectedExecutor.action === ProposalAction.TransferEth ? (
         <CardSection noSpacing>
-          <Text variant="heading" color="text" mb={4}>
+          <Text variant="cardHeading" color="text" mb={4}>
             Target address and amount to transfer
           </Text>
           <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr'], gridColumnGap: [3, 6], gridRowGap: [3, 6] }}>
@@ -64,7 +64,7 @@ const VoteCreateProposalFormCard = ({}: Props) => {
       ) : null}
       {selectedExecutor.action === ProposalAction.CustomArbitrum ? (
         <CardSection noSpacing>
-          <Text variant="heading" color="text" mb={4}>
+          <Text variant="cardHeading" color="text" mb={4}>
             Values
           </Text>
           <BigNumberInput flexGrow={1} value={value} onChange={setValue} placeholder={ZERO_BN} />
@@ -87,7 +87,7 @@ const VoteCreateProposalFormCard = ({}: Props) => {
         <VoteCreateProposalCustomFields calldata={calldata} onChangeCalldata={setCalldata} />
       ) : null}
       <CardSection noSpacing>
-        <Text variant="heading" color="text" mb={4}>
+        <Text variant="cardHeading" color="text" mb={4}>
           Proposal title, summary, motivation and specification
         </Text>
         <Input

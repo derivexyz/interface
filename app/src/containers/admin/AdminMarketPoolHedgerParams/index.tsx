@@ -40,7 +40,7 @@ const AdminMarketPoolHedgerParams = withSuspense(
     return (
       <>
         <Collapsible
-          header={<Text variant="heading2">Pool Hedger Parameters</Text>}
+          header={<Text variant="cardHeading">Pool Hedger Parameters</Text>}
           onClickHeader={onClickExpand}
           isExpanded={isExpanded}
         >

@@ -30,7 +30,7 @@ const AdminBoardAddStrike = ({ board }: Props) => {
   return (
     <Card>
       <CardBody>
-        <Text mb={6} variant="heading">
+        <Text mb={6} variant="cardHeading">
           Add Strike
         </Text>
         <BigNumberInput

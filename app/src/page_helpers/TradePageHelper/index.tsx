@@ -1,34 +1,31 @@
+import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
+import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import Center from '@lyra/ui/components/Center'
 import Flex from '@lyra/ui/components/Flex'
 import Icon, { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Market, Option, Position } from '@lyrafinance/lyra-js'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import {
-  DESKTOP_HEADER_NAV_HEIGHT,
-  DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH,
-  MIN_TRADE_CARD_HEIGHT,
-} from '@/app/constants/layout'
+import { DESKTOP_HEADER_NAV_HEIGHT, TRADE_CARD_MIN_HEIGHT, TRADE_CARD_MIN_WIDTH } from '@/app/constants/layout'
 import { LogEvent } from '@/app/constants/logEvents'
 import { PageId } from '@/app/constants/pages'
 import TradeAdvancedBoardCard from '@/app/containers/trade/TradeAdvancedBoardCard'
+import TradeAnnouncementHeaderCard from '@/app/containers/trade/TradeAnnouncementHeaderCard'
 import TradeForm from '@/app/containers/trade/TradeForm'
 import TradeFormModal from '@/app/containers/trade/TradeFormModal'
 import TradeMarketDropdown from '@/app/containers/trade/TradeMarketDropdown'
-import TradeOpenPositionsFloatingButton from '@/app/containers/trade/TradeOpenPositionsFloatingButton'
 import TradePositionsCard from '@/app/containers/trade/TradePositionsCard'
 import TradePriceCard from '@/app/containers/trade/TradePriceCard'
 import TradeSimpleBoardCard from '@/app/containers/trade/TradeSimpleBoardCard'
+import useAnnouncements from '@/app/hooks/local_storage/useAnnouncements'
 import useTraderSettings from '@/app/hooks/local_storage/useTraderSettings'
 import useSelectedBoardSync from '@/app/hooks/market/useSelectedBoardSync'
-import getMarketDisplayName from '@/app/utils/getMarketDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 import logEvent from '@/app/utils/logEvent'
 
@@ -49,43 +46,11 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
   const [isBuy, setIsBuy] = useState(true)
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false)
   const [traderSettings, setTraderSettings] = useTraderSettings()
-  const positionCardRef = useRef<HTMLElement>()
-  const positionButtonRef = useRef<HTMLElement>()
   const selectedOption = selectedStrikeId !== null ? selectedMarket.liveOption(selectedStrikeId, isCall) : null
 
-  const isAdvancedMode = traderSettings.isAdvancedMode
+  const { isAdvancedMode } = traderSettings
 
   const navigate = useNavigate()
-
-  const refreshPositionButton = useCallback(() => {
-    if (positionCardRef.current && positionButtonRef.current) {
-      const rect = positionCardRef.current.getBoundingClientRect()
-      if (rect.top <= window.innerHeight) {
-        positionButtonRef.current.style.display = 'none'
-      } else {
-        positionButtonRef.current.style.display = 'block'
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    refreshPositionButton()
-  }, [refreshPositionButton])
-
-  useEffect(() => {
-    const handleRefreshPositionButton = () => requestAnimationFrame(refreshPositionButton)
-    document.addEventListener('scroll', handleRefreshPositionButton)
-    const resizeObserver = new ResizeObserver(handleRefreshPositionButton)
-    resizeObserver.observe(document.body)
-    return () => {
-      document.removeEventListener('resize', handleRefreshPositionButton)
-      resizeObserver.unobserve(document.body)
-    }
-  }, [refreshPositionButton])
-
-  const handleClickFloatingActionButton = useCallback(() => {
-    window.scrollBy({ top: document.body.scrollHeight })
-  }, [])
 
   const handleTrade = useCallback(
     (market: Market, positionId: number) => {
@@ -178,11 +143,9 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
 
   const handleChangeAdvancedMode = useCallback(
     (newIsAdvancedMode: boolean) => {
-      setTraderSettings('isAdvancedMode', {
+      setTraderSettings({
         isAdvancedMode: newIsAdvancedMode,
-        isCandleChart: newIsAdvancedMode,
       })
-      logEvent(LogEvent.TradeToggleAdvancedMode, { advancedMode: newIsAdvancedMode })
     },
     [setTraderSettings]
   )
@@ -198,63 +161,33 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
     }
   }, [openPositions, selectedMarket.address, selectedOption, selectedStrikeId])
 
-  return (
-    <Page
-      mobileCollapsedHeader={
-        <Text as="span">
-          {getMarketDisplayName(selectedMarket)}
-          <Text as="span" color="secondaryText">
-            &nbsp;·&nbsp;
-            {formatUSD(selectedMarket.spotPrice)}
-          </Text>
-        </Text>
-      }
-      desktopRightColumn={
-        <Card
-          width={DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH}
-          minHeight={MIN_TRADE_CARD_HEIGHT}
-          sx={{ position: 'sticky', top: DESKTOP_HEADER_NAV_HEIGHT }}
-        >
-          {selectedOption ? (
-            <TradeForm isBuy={isBuy} option={selectedOption} onTrade={handleTrade} position={selectedPosition} />
-          ) : (
-            <CardBody flexGrow={1}>
-              <Text variant="heading">Select Option</Text>
-              <Center flexGrow={1} flexDirection="column">
-                <Icon icon={IconType.PlusCircle} color="disabledText" size={64} strokeWidth={0.5} />
-                <Text mt={4} variant="secondary" color="secondaryText">
-                  Select an option
-                </Text>
-              </Center>
-            </CardBody>
-          )}
-        </Card>
-      }
-      header={
-        <Flex alignItems="flex-end">
-          <TradeMarketDropdown markets={markets} onChangeMarket={handleChangeMarket} selectedMarket={selectedMarket} />
-          {!isMobile ? (
-            <Flex mr={DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH} ml="auto" mb={2} alignItems="center">
-              <Button
-                isTransparent={isAdvancedMode}
-                label="Simple"
-                variant={isAdvancedMode ? 'light' : 'default'}
-                onClick={() => handleChangeAdvancedMode(false)}
-              />
-              <Button
-                ml={2}
-                isTransparent={!isAdvancedMode}
-                label="Advanced"
-                variant={isAdvancedMode ? 'default' : 'light'}
-                onClick={() => handleChangeAdvancedMode(true)}
-              />
-            </Flex>
-          ) : null}
-        </Flex>
-      }
-    >
-      <PageGrid key="layout-grid" sx={{ position: 'relative' }}>
+  const { announcements } = useAnnouncements(selectedMarket.block.timestamp)
+
+  const tradeCard = (
+    <>
+      <Flex>
+        <TradeMarketDropdown markets={markets} onChangeMarket={handleChangeMarket} selectedMarket={selectedMarket} />
+        {!isMobile ? (
+          <Flex ml="auto" mb={2} alignItems="center">
+            <Button
+              isTransparent={isAdvancedMode}
+              label="Simple"
+              variant={isAdvancedMode ? 'light' : 'default'}
+              onClick={() => handleChangeAdvancedMode(false)}
+            />
+            <Button
+              ml={2}
+              isTransparent={!isAdvancedMode}
+              label="Advanced"
+              variant={isAdvancedMode ? 'default' : 'light'}
+              onClick={() => handleChangeAdvancedMode(true)}
+            />
+          </Flex>
+        ) : null}
+      </Flex>
+      <Card>
         <TradePriceCard market={selectedMarket} />
+        <CardSeparator />
         {!isAdvancedMode || isMobile ? (
           <TradeSimpleBoardCard
             isCall={isCall}
@@ -287,29 +220,80 @@ export default function TradePageHelper({ markets, selectedMarket, openPositions
             isBuy={isBuy}
           />
         )}
-        <TradePositionsCard market={selectedMarket} openPositions={openPositions} ref={positionCardRef} />
-        {selectedOption && isMobile ? (
-          <TradeFormModal
-            option={selectedOption}
-            position={selectedPosition}
-            isBuy={isBuy}
-            onTrade={handleTrade}
-            isOpen={isTradeModalOpen}
-            onClose={() => {
-              setIsTradeModalOpen(false)
-              setSelectedStrikeId(null)
-            }}
-          />
-        ) : null}
-        {openPositions.length ? (
-          <TradeOpenPositionsFloatingButton
-            ref={positionButtonRef}
-            label="Open Positions"
-            rightIcon={IconType.ArrowDown}
-            mr={isMobile ? 0 : DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH + 24}
-            onClick={handleClickFloatingActionButton}
-          />
-        ) : null}
+      </Card>
+    </>
+  )
+
+  const positionsCard = (
+    <>
+      <Flex>
+        <Text variant="heading">Open Positions</Text>
+        <Button
+          ml="auto"
+          variant="light"
+          label="History"
+          rightIcon={IconType.ArrowRight}
+          href={getPagePath({ page: PageId.TradeHistory })}
+        />
+      </Flex>
+      <TradePositionsCard openPositions={openPositions} />
+      {selectedOption && isMobile ? (
+        <TradeFormModal
+          option={selectedOption}
+          position={selectedPosition}
+          isBuy={isBuy}
+          onTrade={handleTrade}
+          isOpen={isTradeModalOpen}
+          onClose={() => {
+            setIsTradeModalOpen(false)
+            setSelectedStrikeId(null)
+          }}
+        />
+      ) : null}
+    </>
+  )
+
+  return (
+    <Page
+      title={announcements.length ? 'Trade' : undefined}
+      subtitle={announcements.length ? 'Buy and sell crypto options' : undefined}
+      headerCard={
+        announcements.length > 0 ? (
+          <TradeAnnouncementHeaderCard blockTimestamp={selectedMarket.block.timestamp} />
+        ) : undefined
+      }
+      isFullWidth={isAdvancedMode}
+    >
+      <PageGrid
+        rightColumn={
+          <Box minWidth={TRADE_CARD_MIN_WIDTH}>
+            <Box minWidth={TRADE_CARD_MIN_WIDTH} sx={{ position: 'sticky', top: DESKTOP_HEADER_NAV_HEIGHT }} pb={12}>
+              <Card
+                width={TRADE_CARD_MIN_WIDTH}
+                minHeight={TRADE_CARD_MIN_HEIGHT}
+                sx={{ position: 'sticky', top: DESKTOP_HEADER_NAV_HEIGHT }}
+              >
+                {selectedOption ? (
+                  <TradeForm isBuy={isBuy} option={selectedOption} onTrade={handleTrade} position={selectedPosition} />
+                ) : (
+                  <CardBody flexGrow={1}>
+                    <Text variant="cardHeading">Select Option</Text>
+                    <Center flexGrow={1} flexDirection="column">
+                      <Icon icon={IconType.PlusCircle} color="disabledText" size={64} strokeWidth={0.5} />
+                      <Text mt={4} color="secondaryText">
+                        Select an option
+                      </Text>
+                    </Center>
+                  </CardBody>
+                )}
+              </Card>
+            </Box>
+          </Box>
+        }
+      >
+        {tradeCard}
+        <Box mb={2} />
+        {positionsCard}
       </PageGrid>
     </Page>
   )

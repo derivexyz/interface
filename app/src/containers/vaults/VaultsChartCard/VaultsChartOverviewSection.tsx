@@ -34,10 +34,9 @@ const VaultsChartOverviewSection = withSuspense(
           <LabelItem
             noPadding
             label="TVL"
-            valueTextVariant="bodyLargeMedium"
             value={
               <Box>
-                <Text variant="bodyLargeMedium" color="text">
+                <Text variant="bodyMedium" color="text">
                   {formatTruncatedUSD(tvl)}
                 </Text>
                 <Text
@@ -54,7 +53,7 @@ const VaultsChartOverviewSection = withSuspense(
             label="30D Volume"
             value={
               <Box>
-                <Text variant="bodyLargeMedium" color="text">
+                <Text variant="bodyMedium" color="text">
                   {formatTruncatedUSD(totalNotionalVolume)}
                 </Text>
                 <Text
@@ -72,18 +71,8 @@ const VaultsChartOverviewSection = withSuspense(
               </Box>
             }
           />
-          <LabelItem
-            noPadding
-            label="30D Fees"
-            valueTextVariant="bodyLargeMedium"
-            value={formatTruncatedUSD(totalFees)}
-          />
-          <LabelItem
-            noPadding
-            label="Open Interest"
-            valueTextVariant="bodyLargeMedium"
-            value={formatTruncatedUSD(openInterest)}
-          />
+          <LabelItem noPadding label="30D Fees" value={formatTruncatedUSD(totalFees)} />
+          <LabelItem noPadding label="Open Interest" value={formatTruncatedUSD(openInterest)} />
         </Grid>
       </CardSection>
     )
@@ -96,7 +85,7 @@ const VaultsChartOverviewSection = withSuspense(
           label="TVL"
           value={
             <Box>
-              <TextShimmer variant="bodyLargeMedium" width={100} />
+              <TextShimmer variant="bodyMedium" width={100} />
               <TextShimmer variant="small" width={80} />
             </Box>
           }
@@ -106,13 +95,13 @@ const VaultsChartOverviewSection = withSuspense(
           label="30D Volume"
           value={
             <Box>
-              <TextShimmer variant="bodyLargeMedium" width={100} />
+              <TextShimmer variant="bodyMedium" width={100} />
               <TextShimmer variant="small" width={80} />
             </Box>
           }
         />
-        <LabelItemShimmer noPadding label="30D Fees" valueTextVariant="bodyLargeMedium" />
-        <LabelItemShimmer noPadding label="Open Interest" valueTextVariant="bodyLargeMedium" />
+        <LabelItemShimmer noPadding label="30D Fees" />
+        <LabelItemShimmer noPadding label="Open Interest" />
       </Grid>
     </CardSection>
   )

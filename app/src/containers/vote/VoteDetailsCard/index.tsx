@@ -43,9 +43,7 @@ const VoteDetailsCard = ({ data }: Props) => {
     <Card>
       <CardBody>
         <Flex flexDirection="column">
-          <Text variant="title" sx={{ fontWeight: 300 }}>
-            {title}
-          </Text>
+          <Text variant="cardHeading">{title}</Text>
           <Flex flexDirection={isMobile ? 'column' : 'row'} justifyContent="space-between" mt={8}>
             <Flex flexDirection="row" alignItems="center">
               <Token
@@ -63,9 +61,9 @@ const VoteDetailsCard = ({ data }: Props) => {
                 mr={4}
               />
               {proposalState !== ProposalState.Active ? (
-                <Text variant="secondary" color="secondaryText">
+                <Text color="secondaryText">
                   {proposalState === ProposalState.Pending ? (
-                    <Text variant="secondary" color="secondaryText">
+                    <Text color="secondaryText">
                       Voting phase begins in <Countdown timestamp={startTimestamp} />
                     </Text>
                   ) : (
@@ -74,15 +72,10 @@ const VoteDetailsCard = ({ data }: Props) => {
                 </Text>
               ) : (
                 <Flex flexDirection="row">
-                  <Text variant="secondary" color="secondaryText" mr={2}>
+                  <Text color="secondaryText" mr={2}>
                     {currentTimestamp.current() >= endTimestamp ? '' : `Ends in${' '}`}
                   </Text>
-                  <Countdown
-                    timestamp={endTimestamp}
-                    fallback="Voting phase has passed"
-                    color="secondaryText"
-                    variant="secondary"
-                  />
+                  <Countdown timestamp={endTimestamp} fallback="Voting phase has passed" color="secondaryText" />
                 </Flex>
               )}
             </Flex>
@@ -106,36 +99,28 @@ const VoteDetailsCard = ({ data }: Props) => {
               <Button label="Discuss" size="sm" leftIcon={IconType.PenTool} target="_blank" href={`${FORUMS_URL}`} />
             </Flex>
           </Flex>
-          <Text variant="heading2" mt={8} mb={4}>
+          <Text variant="cardHeading" mt={8} mb={4}>
             Summary
           </Text>
-          <Text variant="body" mb={4}>
-            {summary}
-          </Text>
-          <Text variant="heading2" mt={8} mb={4}>
+          <Text mb={4}>{summary}</Text>
+          <Text variant="cardHeading" mt={8} mb={4}>
             Motivation
           </Text>
-          <Text variant="body" mb={4}>
-            {motivation}
-          </Text>
-          <Text variant="heading2" mt={8} mb={4}>
+          <Text mb={4}>{motivation}</Text>
+          <Text variant="cardHeading" mt={8} mb={4}>
             Specification
           </Text>
-          <Text variant="body" mb={4}>
-            {specification}
-          </Text>
-          <Text variant="heading2" mt={8} mb={4}>
+          <Text mb={4}>{specification}</Text>
+          <Text variant="cardHeading" mt={8} mb={4}>
             References
           </Text>
-          <Text variant="body" mb={4}>
-            {references}
-          </Text>
-          <Text variant="heading2" mt={8} mb={4}>
+          <Text mb={4}>{references}</Text>
+          <Text variant="cardHeading" mt={8} mb={4}>
             Copyright
           </Text>
-          <Text variant="body" mb={4}>
+          <Text mb={4}>
             Copyright and related rights waived via{' '}
-            <Link variant="secondary" href={CREATIVE_COMMONS_URL} showRightIcon target="_blank">
+            <Link href={CREATIVE_COMMONS_URL} showRightIcon target="_blank">
               CC0
             </Link>
             .

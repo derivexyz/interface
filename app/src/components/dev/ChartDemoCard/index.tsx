@@ -31,7 +31,7 @@ export default function ChartDemoCard({ ...marginProps }: MarginProps): JSX.Elem
     <Box {...marginProps}>
       <Card overflow="hidden">
         <CardSection>
-          <Text variant="heading">Line Chart</Text>
+          <Text variant="cardHeading">Line Chart</Text>
           <Box>
             <LineChart
               height={300}
@@ -43,7 +43,7 @@ export default function ChartDemoCard({ ...marginProps }: MarginProps): JSX.Elem
           </Box>
         </CardSection>
         <CardSection>
-          <Text variant="heading">Area Chart</Text>
+          <Text variant="cardHeading">Area Chart</Text>
           <ToggleButton>
             <ToggleButtonItem
               id="stacked"
@@ -80,7 +80,7 @@ export default function ChartDemoCard({ ...marginProps }: MarginProps): JSX.Elem
           </Box>
         </CardSection>
         <CardSection>
-          <Text variant="heading">Bar Chart</Text>
+          <Text variant="cardHeading">Bar Chart</Text>
           <ToggleButton>
             <ToggleButtonItem
               id="stacked"

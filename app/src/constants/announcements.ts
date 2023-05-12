@@ -1,22 +1,34 @@
 import { ButtonVariant } from '@lyra/ui/components/Button'
 
-import announcements from './announcements.json'
-
 export type Announcement = {
   id: string
-  header: string
   title: string
+  description: string
   cta: {
     label: string
     href: string
     variant: ButtonVariant
     target?: '_self' | '_blank'
-  }[]
+  }
   graphic?: string
-  graphicSize?: number[]
   startTimestamp: number
   expiryTimestamp: number
-  showCountdown?: boolean
 }
 
-export default announcements as Announcement[]
+const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: 'arb-airdrop-5',
+    title: '400k $ARB Airdrop',
+    description: 'The Lyra DAO is airdropping 400k $ARB to traders and LPs over 8 weeks.',
+    cta: {
+      label: 'Learn More',
+      href: '/airdrop/arbitrum',
+      variant: 'default',
+    },
+    graphic: 'images/arbitrum.png',
+    startTimestamp: 1683131266,
+    expiryTimestamp: 1688047200,
+  },
+]
+
+export default ANNOUNCEMENTS

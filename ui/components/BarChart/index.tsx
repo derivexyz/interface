@@ -81,9 +81,7 @@ export default function BarChart<T extends DataPoint>({
   if (data.length <= 1) {
     return (
       <Center {...styleProps}>
-        <Text variant="secondary" color="secondaryText">
-          {fallback}
-        </Text>
+        <Text color="secondaryText">{fallback}</Text>
       </Center>
     )
   }

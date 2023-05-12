@@ -37,8 +37,8 @@ export default function Slider({
       {minButtonLabel ? (
         <>
           <Link
-            textVariant="small"
-            variant="secondary"
+            variant="small"
+            color="secondaryText"
             sx={{
               position: 'absolute',
               top: 5,
@@ -75,8 +75,8 @@ export default function Slider({
       {maxButtonLabel ? (
         <>
           <Link
-            textVariant="small"
-            variant="secondary"
+            variant="small"
+            color="secondaryText"
             sx={{
               position: 'absolute',
               top: 5,

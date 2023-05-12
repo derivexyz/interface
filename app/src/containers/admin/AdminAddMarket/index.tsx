@@ -65,7 +65,7 @@ const AdminAddMarket = ({ globalOwner }: { globalOwner: string }) => {
   return (
     <Card>
       <CardBody>
-        <Text mb={6} variant="heading">
+        <Text mb={6} variant="cardHeading">
           Add Market
         </Text>
         <NetworkDropdownButton mb={6} selectedNetwork={addMarketNetwork} onSelectNetwork={setAddMarketNetwork} />

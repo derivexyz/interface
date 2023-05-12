@@ -1,16 +1,15 @@
+import useThemeColor from '@lyra/ui/hooks/useThemeColor'
+import useThemeValue from '@lyra/ui/hooks/useThemeValue'
 import { ResponsiveValue } from '@lyra/ui/types'
 import React from 'react'
-import ReactDOM from 'react-dom'
+import Modal from 'react-modal'
 
-import Box from '../Box'
 import IconButton from '../Button/IconButton'
-import Card from '../Card'
 import Flex from '../Flex'
-import { IconType } from '../Icon/IconSVG'
+import { IconType } from '../Icon'
 import Text from '../Text'
-import ModalSection from './ModalSection'
 
-const DESKTOP_MODAL_WIDTH = 360
+const DESKTOP_MODAL_WIDTH = 420
 
 export type Props = {
   isOpen: boolean
@@ -22,49 +21,55 @@ export type Props = {
 }
 
 export default function ModalDesktop({ isOpen, onClose, title, children, width = DESKTOP_MODAL_WIDTH }: Props) {
-  return isOpen
-    ? ReactDOM.createPortal(
-        <Flex
-          justifyContent="center"
-          sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, bg: 'modalOverlayBg', zIndex: 'modal' }}
-          onClick={e => {
-            if (onClose) {
+  const modalBg = useThemeColor('modalBg')
+  const modalOverlayBg = useThemeColor('modalOverlayBg')
+  const widthVal = parseInt(useThemeValue(width)?.toString(), 10)
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      shouldCloseOnOverlayClick
+      shouldCloseOnEsc
+      style={{
+        content: {
+          top: '50%',
+          left: '50%',
+          right: 'auto',
+          bottom: 'auto',
+          marginRight: '-50%',
+          transform: 'translate(-50%, -50%)',
+          overflow: 'auto',
+          background: modalBg,
+          width: widthVal,
+          border: '0px solid',
+          padding: 0,
+          borderRadius: 21,
+          zIndex: 101,
+        },
+        overlay: {
+          background: modalOverlayBg,
+          overflow: 'auto',
+          paddingTop: '120px',
+          paddingBottom: '120px',
+          zIndex: 100,
+        },
+      }}
+    >
+      <Flex px={6} pt={4} width="100%" bg="modalBg" alignItems="center">
+        {typeof title === 'string' ? <Text variant="cardHeading">{title}</Text> : title}
+        {onClose ? (
+          <IconButton
+            ml="auto"
+            variant="light"
+            icon={IconType.X}
+            onClick={e => {
               onClose()
-            }
-            e.stopPropagation()
-          }}
-        >
-          <Box pt={100} pb={8} overflow="auto">
-            <Card
-              flexDirection="column"
-              width={width}
-              variant="modal"
-              onClick={e => {
-                e.stopPropagation()
-              }}
-              sx={{ ':hover': null, ':active': null }}
-            >
-              <ModalSection noPadding variant="elevated" noSpacing>
-                <Flex px={6} pt={4} width="100%" bg="modalBg" alignItems="center">
-                  {typeof title === 'string' ? <Text variant="heading">{title}</Text> : title}
-                  {onClose ? (
-                    <IconButton
-                      ml="auto"
-                      variant="light"
-                      icon={IconType.X}
-                      onClick={e => {
-                        onClose()
-                        e.stopPropagation()
-                      }}
-                    />
-                  ) : null}
-                </Flex>
-              </ModalSection>
-              {children}
-            </Card>
-          </Box>
-        </Flex>,
-        document.body
-      )
-    : null
+              e.stopPropagation()
+            }}
+          />
+        ) : null}
+      </Flex>
+      {children}
+    </Modal>
+  )
 }

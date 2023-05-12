@@ -41,19 +41,16 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
   return (
     <Card flexGrow={1}>
       <CardBody height="100%">
-        <Text variant="heading" mb={8}>
+        <Text variant="cardHeading" mb={6}>
           Position
         </Text>
-        <Grid
-          flexGrow={1}
-          sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr 1fr'], gap: [3, 6], gridRowGap: [6, 8] }}
-        >
+        <Grid flexGrow={1} sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr 1fr'], gap: [3, 6] }}>
           {/* First row */}
           {!position.isOpen ? <LabelItem label="Status" value={<PositionStatusText position={position} />} /> : null}
           <LabelItem
             label="Contracts"
             valueColor={position.isLong ? 'primaryText' : 'errorText'}
-            value={`${position.isLong ? 'LONG' : 'SHORT'} ${formatNumber(position.sizeBeforeClose())}`}
+            value={`${position.isLong ? 'Long' : 'Short'} ${formatNumber(position.sizeBeforeClose())}`}
           />
           <LabelItem label="Equity" value={position.isOpen ? formatUSD(equity) : '-'} />
           <LabelItem label="Average Cost" value={averageCost.isZero() ? '-' : formatUSD(averageCost)} />
@@ -73,7 +70,7 @@ const PositionCard = ({ position, option }: Props): JSX.Element | null => {
           ) : null}
         </Grid>
         {(isOwner || isDev()) && position.isOpen ? (
-          <Grid mt={8} sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr 1fr'], gap: [3, 6] }}>
+          <Grid mt={6} sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr 1fr 1fr'], gap: [3, 6] }}>
             <Button
               variant="primary"
               isOutline

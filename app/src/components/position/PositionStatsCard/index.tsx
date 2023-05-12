@@ -18,7 +18,7 @@ const PositionStatsCard = ({ option }: Props): JSX.Element | null => {
   return (
     <Card>
       <CardSection>
-        <Text variant="heading" mb={6}>
+        <Text variant="cardHeading" mb={6}>
           Stats
         </Text>
         <OptionStatsGrid option={option} bid={bid} ask={ask} />

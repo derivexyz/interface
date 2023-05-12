@@ -17,6 +17,7 @@ export type DropdownButtonProps = {
   children?: DropdownButtonListItemElement | (DropdownButtonListItemElement | null)[] | null
   placement?: Placement
   hideRightIcon?: boolean
+  mobileTitle?: string
 } & Omit<ButtonProps, 'rightIcon' | 'children'>
 
 export type DropdownButtonElement = React.ReactElement<DropdownButtonProps>
@@ -27,6 +28,7 @@ export default function DropdownButton({
   isOpen,
   onClose,
   hideRightIcon,
+  mobileTitle,
   ...buttonProps
 }: DropdownButtonProps): DropdownButtonElement {
   const [ref, setRef] = useState<HTMLElement | null>(null)
@@ -57,7 +59,7 @@ export default function DropdownButton({
           </Card>
         </Popover>
       ) : (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal title={mobileTitle} isOpen={isOpen} onClose={onClose}>
           <List>{children}</List>
         </Modal>
       )}

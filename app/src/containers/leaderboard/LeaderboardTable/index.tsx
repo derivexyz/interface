@@ -1,4 +1,3 @@
-import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
@@ -24,13 +23,9 @@ const LeaderboardTable = ({ data, network, ...marginProps }: Props) => {
   if (!leaderboard.length) {
     return (
       <CardBody {...marginProps} height={112} justifyContent="center">
-        <Card variant="nested" width={232}>
-          <CardBody p={4}>
-            <Text variant="secondary" color="secondaryText">
-              There is no available data for this leaderboard.
-            </Text>
-          </CardBody>
-        </Card>
+        <Text variant="small" color="secondaryText">
+          There is no available data for this leaderboard.
+        </Text>
       </CardBody>
     )
   }
@@ -44,7 +39,7 @@ const LeaderboardTable = ({ data, network, ...marginProps }: Props) => {
         onClick={trader => {
           window.open(
             `/#${getPagePath({
-              page: PageId.History,
+              page: PageId.TradeHistory,
             })}?see=${trader}`,
             '_blank'
           )

@@ -5,6 +5,7 @@ import { MarginProps } from '@lyra/ui/types'
 import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
 import React, { useMemo, useState } from 'react'
 
+import LabelItem from '@/app/components/common/LabelItem'
 import { ReferralsPageData } from '@/app/hooks/referrals/useReferralsPageData'
 
 import RewardsClaimModal from '../../rewards/RewardsClaimModal'
@@ -15,7 +16,7 @@ type Props = {
   showHistoryButton?: boolean
 } & MarginProps
 
-const ReferralsHeaderCard = ({ data, ...marginProps }: Props) => {
+const ReferralsHeaderCard = ({ data }: Props) => {
   const { latestAccountRewardEpoch, latestGlobalRewardEpoch, currentEpochReferredTradersRewards, allReferredTraders } =
     data
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
@@ -34,18 +35,18 @@ const ReferralsHeaderCard = ({ data, ...marginProps }: Props) => {
   const claimableAmount = 0
 
   return (
-    <Card variant="outline" minWidth={['100%', 360]} sx={{ borderRadius: 'card' }} {...marginProps}>
-      <CardBody>
-        <Text variant="heading2" mb={2}>
+    <Card variant="outline" width="100%" height="100%">
+      <CardBody height="100%">
+        <Text variant="cardHeading" mb={2}>
           Referral rewards
         </Text>
-        <Text variant="secondary" color="secondaryText" mb={8}>
-          Rewards from previous epochs
-        </Text>
-        <Text variant="secondary" color="text" mb={4}>
-          {formatTruncatedNumber(claimableAmount)} stkLYRA
-        </Text>
+        <LabelItem
+          mt="auto"
+          label="Rewards from previous epochs"
+          value={`${formatTruncatedNumber(claimableAmount)} LYRA`}
+        />
         <RewardsClaimModalButton
+          mt="auto"
           onClick={() => setIsClaimModalOpen(true)}
           accountRewardEpoch={latestAccountRewardEpoch}
           minWidth={100}

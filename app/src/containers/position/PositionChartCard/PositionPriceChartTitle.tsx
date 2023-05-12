@@ -30,8 +30,8 @@ const PositionPriceChartTitle = withSuspense(
     const pctChange = change ? change / prevOptionPrice : 0
     return (
       <Box {...styleProps}>
-        <Text variant="heading">{formatUSD(optionPrice)}</Text>
-        <Text variant="smallMedium" color={pctChange < 0 ? 'errorText' : 'primaryText'}>
+        <Text variant="cardHeading">{formatUSD(optionPrice)}</Text>
+        <Text variant="small" color={pctChange < 0 ? 'errorText' : 'primaryText'}>
           {formatPercentage(pctChange)}
         </Text>
       </Box>
@@ -39,8 +39,8 @@ const PositionPriceChartTitle = withSuspense(
   },
   ({ option, hoverOptionPrice, interval, ...styleProps }) => (
     <Box {...styleProps}>
-      <TextShimmer variant="heading" />
-      <TextShimmer variant="smallMedium" width={100} />
+      <TextShimmer variant="cardHeading" />
+      <TextShimmer variant="small" width={100} />
     </Box>
   )
 )

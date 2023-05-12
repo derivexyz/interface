@@ -38,7 +38,7 @@ const AdminMarketLpParams = ({ market, isExpanded, onClickExpand }: Props) => {
   return (
     <>
       <Collapsible
-        header={<Text variant="heading2">Liquidity Pool Parameters</Text>}
+        header={<Text variant="cardHeading">Liquidity Pool Parameters</Text>}
         isExpanded={isExpanded}
         onClickHeader={onClickExpand}
       >
@@ -108,7 +108,6 @@ const AdminMarketLpParams = ({ market, isExpanded, onClickExpand }: Props) => {
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         title="Confirm New Liquidity Pools Parameters"
-        width={600}
       >
         <CardBody>
           <Box>

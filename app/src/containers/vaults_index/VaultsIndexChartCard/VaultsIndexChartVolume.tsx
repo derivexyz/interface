@@ -68,7 +68,7 @@ const VaultsIndexChartVolume = withSuspense(
 
     return (
       <Flex {...styleProps} flexDirection="column">
-        <Text variant="bodyLargeMedium">
+        <Text variant="bodyMedium">
           {formatTruncatedUSD(hoverData?.notionalVolume ?? vaultStats?.totalNotionalVolume ?? 0)}
         </Text>
         <Text variant="small" color="secondaryText">
@@ -96,7 +96,7 @@ const VaultsIndexChartVolume = withSuspense(
   },
   ({ interval, ...styleProps }: Props) => (
     <Box {...styleProps}>
-      <TextShimmer width={100} variant="bodyLargeMedium" />
+      <TextShimmer width={100} variant="bodyMedium" />
       <TextShimmer width={60} variant="small" />
       <Shimmer mt={1} height={VAULTS_INDEX_CHART_HEIGHT} width="100%" />
     </Box>

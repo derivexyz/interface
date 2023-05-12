@@ -38,7 +38,7 @@ const VaultsStatsCard = withSuspense(
     return (
       <Card>
         <CardBody>
-          <Text mb={6} variant="heading">
+          <Text mb={6} variant="cardHeading">
             Stats
           </Text>
           <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gridColumnGap: 6, gridRowGap: 6 }}>
@@ -81,7 +81,7 @@ const VaultsStatsCard = withSuspense(
   () => (
     <Card>
       <CardBody>
-        <Text mb={6} variant="heading">
+        <Text mb={6} variant="cardHeading">
           Stats
         </Text>
         <Center height={[272, 124]}>

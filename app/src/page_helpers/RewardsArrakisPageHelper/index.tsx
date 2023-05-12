@@ -19,11 +19,11 @@ import TokenImageStack from '@/app/components/common/TokenImageStack'
 import { ARRAKIS_LIQUIDITY_URL } from '@/app/constants/links'
 import { AppNetwork } from '@/app/constants/networks'
 import ConnectWalletButton from '@/app/containers/common/ConnectWalletButton'
+import TotalSupplyHeaderCard from '@/app/containers/common/TotalSupplyHeaderCard'
 import RewardsArrakisClaimModal from '@/app/containers/rewards/RewardsArrakisClaimModal'
 import RewardsArrakisOpUnstakeModal from '@/app/containers/rewards/RewardsArrakisOpUnstakeModal'
 import RewardsArrakisStakeModal from '@/app/containers/rewards/RewardsArrakisStakeModal'
 import RewardsArrakisUnstakeModal from '@/app/containers/rewards/RewardsArrakisUnstakeModal'
-import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import { ArrakisOpStaking } from '@/app/utils/rewards/fetchArrakisOptimismAccount'
@@ -50,18 +50,17 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
   const poolLyraBalance = stakedLPTokenBalance * arrakisStaking.lyraPerToken
   const poolWethBalance = stakedLPTokenBalance * arrakisStaking.wethPerToken
   return (
-    <Page header={!isMobile ? <RewardPageHeader /> : null} noHeaderPadding>
+    <Page title="Rewards" subtitle="Stake, deposit and refer" headerCard={<TotalSupplyHeaderCard />}>
       <PageGrid>
-        {isMobile ? <RewardPageHeader showBackButton={!isMobile} /> : null}
-        <Flex mx={[6, 0]} mb={[6, 0]}>
-          <Text variant="heading">LYRA-ETH LP Rewards</Text>
-          <Text color="secondaryText" variant="heading">
+        <Text variant="heading">
+          LYRA-ETH LP Rewards
+          <Text color="secondaryText" as="span">
             &nbsp;·&nbsp;Ethereum
           </Text>
-        </Flex>
+        </Text>
         <Card>
           <CardSection>
-            <Text variant="heading" mb={6}>
+            <Text variant="cardHeading" mb={6}>
               Overview
             </Text>
             <Text color="secondaryText" mb={6}>
@@ -75,7 +74,7 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
           </CardSection>
           <CardSeparator isHorizontal />
           <CardSection isVertical sx={{ flexGrow: 1 }}>
-            <Text mb={6} variant="heading">
+            <Text mb={6} variant="cardHeading">
               Your Rewards
             </Text>
             {account ? (

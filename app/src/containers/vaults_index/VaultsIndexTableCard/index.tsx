@@ -25,10 +25,10 @@ const VaultsIndexTableCard = ({ vaults }: Props) => {
       <CardSection pb={0}>
         <Flex alignItems="center">
           <Flex flexDirection="column">
-            <Text mb={[3, 0]} variant="heading">
+            <Text mb={[3, 0]} variant="cardHeading">
               Your Liquidity
             </Text>
-            <Text variant="heading">{formatUSD(totalLiquidityValue)}</Text>
+            <Text variant="cardHeading">{formatUSD(totalLiquidityValue)}</Text>
           </Flex>
           <Button
             ml="auto"

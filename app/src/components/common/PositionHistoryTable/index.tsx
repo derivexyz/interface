@@ -73,11 +73,7 @@ const PositionHistoryTable = ({ positions, onClick, pageSize, ...styleProps }: P
         width: 65,
         Cell: (props: TableCellProps<PositionTableData>) => {
           const now = props.row.original.position.market().block.timestamp
-          return (
-            <Text variant="secondary" color="secondaryText">
-              {formatTruncatedDuration(now - props.cell.value)}
-            </Text>
-          )
+          return <Text color="secondaryText">{formatTruncatedDuration(now - props.cell.value)}</Text>
         },
       },
       {
@@ -105,7 +101,7 @@ const PositionHistoryTable = ({ positions, onClick, pageSize, ...styleProps }: P
           const { position, openSpotPrice } = props.row.original
           return (
             <Box>
-              <Text variant="secondary">{formatUSD(props.cell.value)}</Text>
+              <Text>{formatUSD(props.cell.value)}</Text>
               <Text variant="small" color="secondaryText">
                 {formatUSD(openSpotPrice)} / {formatTokenName(position.market().baseToken)}
               </Text>
@@ -120,7 +116,7 @@ const PositionHistoryTable = ({ positions, onClick, pageSize, ...styleProps }: P
           const { position, closeSpotPrice } = props.row.original
           return (
             <Box>
-              <Text variant="secondary">{position.isSettled ? '-' : formatUSD(props.cell.value)}</Text>
+              <Text>{position.isSettled ? '-' : formatUSD(props.cell.value)}</Text>
               <Text variant="small" color="secondaryText">
                 {formatUSD(closeSpotPrice)} / {formatTokenName(position.market().baseToken)}
               </Text>
@@ -135,7 +131,7 @@ const PositionHistoryTable = ({ positions, onClick, pageSize, ...styleProps }: P
           const { pnlPercentage } = props.row.original
           return (
             <Box>
-              <Text variant="secondary" color={pnlPercentage > 0 ? 'primaryText' : 'errorText'}>
+              <Text color={pnlPercentage > 0 ? 'primaryText' : 'errorText'}>
                 {formatUSD(props.cell.value, { showSign: true })}
               </Text>
               <Text variant="small" color="secondaryText">

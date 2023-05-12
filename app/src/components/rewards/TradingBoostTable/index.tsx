@@ -20,16 +20,8 @@ export function TradingBoostTable({ latestGlobalRewardEpoch, boost, ...styleProp
     <Flex flexDirection="column">
       <RowItem
         mb={2}
-        label={
-          <Text variant="secondary" color="secondaryText">
-            Staked LYRA / Rank / Is Referred
-          </Text>
-        }
-        value={
-          <Text variant="secondary" color="secondaryText">
-            Boost
-          </Text>
-        }
+        label={<Text color="secondaryText">Staked LYRA / Rank / Is Referred</Text>}
+        value={<Text color="secondaryText">Boost</Text>}
       />
       <Flex flexDirection="column" {...styleProps}>
         {boostTiers
@@ -39,13 +31,9 @@ export function TradingBoostTable({ latestGlobalRewardEpoch, boost, ...styleProp
               my={2}
               width="100%"
               key={boostTier.stakingCutoff}
-              label={
-                <Text variant="secondary" color={currentTier === boostTier.boost ? 'primaryText' : 'text'}>
-                  {boostTier.label}
-                </Text>
-              }
+              label={<Text color={currentTier === boostTier.boost ? 'primaryText' : 'text'}>{boostTier.label}</Text>}
               value={
-                <Text variant="secondary" color={currentTier === boostTier.boost ? 'primaryText' : 'text'}>
+                <Text color={currentTier === boostTier.boost ? 'primaryText' : 'text'}>
                   {formatNumber(boostTier.boost)}x
                 </Text>
               }

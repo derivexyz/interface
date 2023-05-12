@@ -1,5 +1,7 @@
+import Box from '@lyra/ui/components/Box'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
+import Center from '@lyra/ui/components/Center'
 import Grid from '@lyra/ui/components/Grid'
 import Text from '@lyra/ui/components/Text'
 import Countdown from '@lyra/ui/components/Text/CountdownText'
@@ -9,7 +11,6 @@ import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
 import React from 'react'
 import { useMemo } from 'react'
 
-import LabelItem from '@/app/components/common/LabelItem'
 import { LeaderboardPageData } from '@/app/hooks/leaderboard/useLeaderboardPageData'
 import getAssetSrc from '@/app/utils/getAssetSrc'
 
@@ -38,44 +39,35 @@ const LeaderboardKeyMetricsCard = ({ data, ...marginProps }: Props) => {
       }}
     >
       <CardBody>
-        <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr'], gridGap: 3 }} justifyItems="center" py={4}>
-          <LabelItem
-            label="Traders"
-            labelColor="text"
-            valueTextVariant="bodyLargeMedium"
-            value={
-              <Text variant="title" color="text">
+        <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr'], gridGap: 3 }} justifyItems="center" py={2}>
+          <Center mb={[6, 0]}>
+            <Box textAlign="center">
+              <Text mb={3}>Traders</Text>
+              <Text variant="subtitle" sx={{ fontWeight: 'medium' }}>
                 {traderCount}
               </Text>
-            }
-            sx={{ alignItems: 'center' }}
-            mb={[4, 0]}
-          />
-          <LabelItem
-            label="Rewards"
-            labelColor="text"
-            valueTextVariant="bodyLargeMedium"
-            value={
-              <Text variant="title" color="primaryText">
+            </Box>
+          </Center>
+          <Center mb={[6, 0]}>
+            <Box textAlign="center">
+              <Text mb={3}>Rewards</Text>
+              <Text variant="subtitle" color="primaryText" sx={{ fontWeight: 'medium' }}>
                 {formatTruncatedNumber(reward.amount)} {reward.symbol.toUpperCase()}
               </Text>
-            }
-            sx={{ alignItems: 'center' }}
-            mb={[4, 0]}
-          />
-          <LabelItem
-            label="Countdown"
-            labelColor="text"
-            valueTextVariant="bodyLargeMedium"
-            value={
-              <Countdown
-                timestamp={latestGlobalRewardEpoch.endTimestamp}
-                variant="title"
-                fallback="Waiting for distribution"
-              />
-            }
-            sx={{ alignItems: 'center' }}
-          />
+            </Box>
+          </Center>
+          <Center mb={[6, 0]}>
+            <Box textAlign="center">
+              <Text mb={3}>Countdown</Text>
+              <Text variant="subtitle" sx={{ fontWeight: 'medium' }}>
+                <Countdown
+                  timestamp={latestGlobalRewardEpoch.endTimestamp}
+                  as="span"
+                  fallback="Waiting for distribution"
+                />
+              </Text>
+            </Box>
+          </Center>
         </Grid>
       </CardBody>
     </Card>

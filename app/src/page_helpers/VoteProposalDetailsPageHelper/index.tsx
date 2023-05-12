@@ -2,14 +2,12 @@ import Box from '@lyra/ui/components/Box'
 import Flex from '@lyra/ui/components/Flex'
 import Grid from '@lyra/ui/components/Grid'
 import Text from '@lyra/ui/components/Text'
-import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { MarginProps } from '@lyra/ui/types'
 import React from 'react'
 
+import TotalSupplyHeaderCard from '@/app/containers/common/TotalSupplyHeaderCard'
 import VoteDetailsCard from '@/app/containers/vote/VoteDetailsCard'
 import VoteFormCard from '@/app/containers/vote/VoteFormCard'
 import VoteResultsCard from '@/app/containers/vote/VoteResultsCard'
-import VotePageHeader from '@/app/containers/vote_index/VotePageHeader'
 import { VoteDetailsPageData } from '@/app/hooks/vote/useVoteDetailsPageData'
 
 import Page from '../common/Page'
@@ -17,14 +15,12 @@ import PageGrid from '../common/Page/PageGrid'
 
 type Props = {
   data: VoteDetailsPageData
-} & MarginProps
+}
 
 const VoteProposalDetailsPageHelper = ({ data }: Props) => {
-  const isMobile = useIsMobile()
   return (
-    <Page noHeaderPadding header={!isMobile ? <VotePageHeader showBackButton /> : null}>
+    <Page title="Vote" subtitle="View and create proposals" headerCard={<TotalSupplyHeaderCard />}>
       <PageGrid>
-        {isMobile ? <VotePageHeader showBackButton /> : null}
         <Box px={[6, 0]}>
           <Text variant="heading">Proposal Overview</Text>
         </Box>

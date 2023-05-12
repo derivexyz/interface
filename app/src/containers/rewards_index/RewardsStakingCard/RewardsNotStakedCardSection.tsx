@@ -44,10 +44,8 @@ const RewardsNotStakedCardSection = ({ lyraBalances }: Props): CardElement => {
       width={!isMobile ? `50%` : undefined}
     >
       <Flex flexDirection="column">
-        <Text variant="heading" mb={2}>
-          Not Staked
-        </Text>
-        <Text variant="heading" color={balance === 0 ? 'secondaryText' : l2Balance > 0 ? 'warningText' : 'text'}>
+        <Text variant="cardHeading">Not Staked</Text>
+        <Text variant="cardHeading" color={balance === 0 ? 'secondaryText' : l2Balance > 0 ? 'warningText' : 'text'}>
           {formatTruncatedNumber(balance)} LYRA
         </Text>
       </Flex>

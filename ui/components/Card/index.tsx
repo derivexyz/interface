@@ -1,9 +1,11 @@
 import Flex, { FlexProps } from '@lyra/ui/components/Flex'
 import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
+import isExternalURL from '@lyra/ui/utils/isExternalURL'
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
-export type CardVariant = 'default' | 'elevated' | 'nested' | 'modal' | 'outline'
+export type CardVariant = 'default' | 'elevated' | 'modal' | 'outline'
 
 export type CardProps = {
   children?: React.ReactNode
@@ -21,9 +23,7 @@ const getVariant = (variant: CardVariant, isDarkMode: boolean, isMobile: boolean
   switch (variant) {
     case 'default':
       // light mode desktop uses card shadows
-      return !isDarkMode && !isMobile ? 'cardShadowBg' : 'card'
-    case 'nested':
-      return 'cardNested'
+      return !isDarkMode && !isMobile ? 'cardShadowBg' : 'cardDefault'
     case 'elevated':
       return 'cardElevated'
     case 'outline':
@@ -35,19 +35,23 @@ const getVariant = (variant: CardVariant, isDarkMode: boolean, isMobile: boolean
 
 // eslint-disable-next-line react/display-name
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ children, variant = 'default', onClick, href, target, ...styleProps }: CardProps, ref): CardElement => {
+  ({ children, variant = 'default', onClick, href, target = '_self', ...styleProps }: CardProps, ref): CardElement => {
     const [isDarkMode] = useIsDarkMode()
     const isMobile = useIsMobile()
+    const navigate = useNavigate()
     return (
       <Flex
-        target={target}
-        href={href}
         ref={ref}
         onClick={e => {
           if (onClick) {
             onClick(e)
-          } else if (href) {
-            window.open(href, target)
+          }
+          if (href) {
+            if (isExternalURL(href)) {
+              window.open(href, target)
+            } else {
+              navigate(href)
+            }
           }
         }}
         flexDirection="column"
@@ -59,7 +63,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           ':hover':
             onClick || href
               ? {
-                  bg: 'cardNestedHover',
+                  bg: 'cardHoverBg',
                   cursor: 'pointer',
                 }
               : null,

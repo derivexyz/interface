@@ -61,91 +61,62 @@ const VoteResultsCard = ({ data }: Props) => {
   return (
     <Card>
       <CardBody>
-        <Text variant="heading2" mb={4}>
+        <Text variant="cardHeading" mb={4}>
           Results
         </Text>
         <Flex flexDirection="row" justifyContent="space-between" mb={2}>
-          <Text variant="body">For: {formatNumber(forVotes)} LYRA</Text>
-          <Text variant="body" color="secondaryText">
-            {formatPercentage(forPercentage, true)}
-          </Text>
+          <Text>For: {formatNumber(forVotes)} LYRA</Text>
+          <Text color="secondaryText">{formatPercentage(forPercentage, true)}</Text>
         </Flex>
         <LinearProgress color="primaryText" progress={forPercentage} mb={4} />
         <Flex flexDirection="row" justifyContent="space-between" mb={2}>
-          <Text variant="body">Against: {formatNumber(againstVotes)} LYRA</Text>
-          <Text variant="body" color="secondaryText">
-            {formatPercentage(againstPercentage, true)}
-          </Text>
+          <Text>Against: {formatNumber(againstVotes)} LYRA</Text>
+          <Text color="secondaryText">{formatPercentage(againstPercentage, true)}</Text>
         </Flex>
         <LinearProgress color="errorText" progress={againstPercentage} mb={4} />
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
-          <Text variant="secondary" color="secondaryText">
-            State
-          </Text>
-          <Text variant="secondary" color="text">
-            {proposalState}
-          </Text>
+          <Text color="secondaryText">State</Text>
+          <Text color="text">{proposalState}</Text>
         </Flex>
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
-          <Text variant="secondary" color="secondaryText">
-            Quorum
-          </Text>
-          <Text variant="secondary" color={'text'}>
-            {isQuorumValid ? 'Reached' : 'Not Reached'}
-          </Text>
+          <Text color="secondaryText">Quorum</Text>
+          <Text color={'text'}>{isQuorumValid ? 'Reached' : 'Not Reached'}</Text>
         </Flex>
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
-          <Text variant="secondary" color="secondaryText">
-            Current votes
-          </Text>
-          <Text variant="secondary" color="text">
-            {formatTruncatedNumber(totalVotes)}
-          </Text>
+          <Text color="secondaryText">Current votes</Text>
+          <Text color="text">{formatTruncatedNumber(totalVotes)}</Text>
         </Flex>
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
-          <Text variant="secondary" color="secondaryText">
-            Differential
-          </Text>
-          <Text variant="secondary" color={'text'}>
-            {isVoteDifferentialValid ? 'Reached' : 'Not Reached'}
-          </Text>
+          <Text color="secondaryText">Differential</Text>
+          <Text color={'text'}>{isVoteDifferentialValid ? 'Reached' : 'Not Reached'}</Text>
         </Flex>
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
           <Flex flexDirection="column">
-            <Text variant="secondary" color="secondaryText">
-              Current differential
-            </Text>
+            <Text color="secondaryText">Current differential</Text>
             <Text variant="small" color="secondaryText">
               Min. required
             </Text>
           </Flex>
           <Flex flexDirection="column" alignItems="flex-end">
-            <Text variant="secondary" color="text">
-              {formatTruncatedNumber(currentVoteDifferential)}
-            </Text>
+            <Text color="text">{formatTruncatedNumber(currentVoteDifferential)}</Text>
             <Text variant="small" color="secondaryText">
               {formatTruncatedNumber(minimumVoteDifferential)}
             </Text>
           </Flex>
         </Flex>
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
-          <Text variant="secondary" color="secondaryText">
-            Total voting power
-          </Text>
-          <Text variant="secondary" color="text">
-            {formatTruncatedNumber(totalVotingPower)} stkLYRA
-          </Text>
+          <Text color="secondaryText">Total voting power</Text>
+          <Text color="text">{formatTruncatedNumber(totalVotingPower)} stkLYRA</Text>
         </Flex>
-        <Text variant="heading2" mt={6} mb={2}>
+        <Text variant="cardHeading" mt={6} mb={2}>
           Timeline
         </Text>
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
-          <Text variant="secondary" color="secondaryText">
+          <Text color="secondaryText">
             Created by{' '}
             <Link
               showRightIcon
               target="_blank"
-              textVariant="secondary"
               color="secondaryText"
               href={
                 isMainnet()
@@ -156,38 +127,24 @@ const VoteResultsCard = ({ data }: Props) => {
               {formatTruncatedAddress(creator)}
             </Link>
           </Text>
-          <Text variant="secondary" color="text">
-            {formatDate(createdTimestamp)}
-          </Text>
+          <Text color="text">{formatDate(createdTimestamp)}</Text>
         </Flex>
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
-          <Text variant="secondary" color="secondaryText">
-            Started
-          </Text>
-          <Text variant="secondary" color="text">
-            {formatDate(startTimestamp)}
-          </Text>
+          <Text color="secondaryText">Started</Text>
+          <Text color="text">{formatDate(startTimestamp)}</Text>
         </Flex>
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
-          <Text variant="secondary" color="secondaryText">
-            Ends
-          </Text>
-          <Text variant="secondary" color="text">
-            {formatDate(endTimestamp)}
-          </Text>
+          <Text color="secondaryText">Ends</Text>
+          <Text color="text">{formatDate(endTimestamp)}</Text>
         </Flex>
-        <Text variant="heading2" mt={6} mb={4}>
+        <Text variant="cardHeading" mt={6} mb={4}>
           Top Addresses
         </Text>
         {votes.length > 0 ? (
           <>
             <Flex flexDirection="row" justifyContent="space-between" my={2}>
-              <Text variant="secondary" color="secondaryText">
-                Address
-              </Text>
-              <Text variant="secondary" color="secondaryText">
-                Votes
-              </Text>
+              <Text color="secondaryText">Address</Text>
+              <Text color="secondaryText">Votes</Text>
             </Flex>
             <Box sx={{ maxHeight: 200, overflowY: 'scroll' }}>
               {votes.slice(0, 7).map(vote => {
@@ -199,7 +156,6 @@ const VoteResultsCard = ({ data }: Props) => {
                       <Link
                         showRightIcon
                         target="_blank"
-                        textVariant="secondary"
                         color="secondaryText"
                         ml={2}
                         href={`${getNetworkConfig(AppNetwork.Ethereum).blockExplorerUrl}/${voter}`}
@@ -208,12 +164,10 @@ const VoteResultsCard = ({ data }: Props) => {
                       </Link>
                     </Flex>
                     <Flex>
-                      <Text variant="secondary" color={vote.position === Vote.For ? 'primaryText' : 'errorText'} mr={2}>
+                      <Text color={vote.position === Vote.For ? 'primaryText' : 'errorText'} mr={2}>
                         {vote.position.toUpperCase()}
                       </Text>
-                      <Text variant="secondary" color="secondaryText">
-                        {formatNumber(vote.amount)}
-                      </Text>
+                      <Text color="secondaryText">{formatNumber(vote.amount)}</Text>
                     </Flex>
                   </Flex>
                 )
@@ -221,9 +175,7 @@ const VoteResultsCard = ({ data }: Props) => {
             </Box>
           </>
         ) : (
-          <Text variant="secondary" color="secondaryText">
-            No votes recorded
-          </Text>
+          <Text color="secondaryText">No votes recorded</Text>
         )}
       </CardBody>
     </Card>

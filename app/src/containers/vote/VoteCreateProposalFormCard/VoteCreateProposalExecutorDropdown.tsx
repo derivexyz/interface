@@ -26,7 +26,6 @@ const VoteCreateProposalExecutorDropdown = ({
       isOpen={isOpen}
       onClose={onClose}
       onClick={() => setIsOpen(true)}
-      textVariant="body"
       label={selectedExecutor.label}
     >
       {executors.map((executor, idx) => (

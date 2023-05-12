@@ -20,7 +20,7 @@ const AdminMarketPauseButton = ({ market }: Props) => {
   return (
     <Card>
       <CardBody>
-        <Text mb={6} variant="heading">
+        <Text mb={6} variant="cardHeading">
           Market Paused: {market.params.isMarketPaused.toString()}
         </Text>
         <TransactionButton

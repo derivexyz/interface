@@ -23,16 +23,15 @@ const AdminBoardPageHelper = ({ markets, selectedBoard }: Props) => {
   const globalOwner = market.params.owner
   return (
     <Page
-      desktopRightColumn={<AdminTransactionCard network={market.lyra.network} globalOwner={globalOwner} />}
       backHref={getPagePath({
         page: PageId.Admin,
         network: market.lyra.network,
         marketAddressOrName: market.name,
       })}
-      header={<AdminMarketSelect markets={markets} selectedMarket={market} />}
       showBackButton
     >
-      <PageGrid>
+      <PageGrid rightColumn={<AdminTransactionCard network={market.lyra.network} globalOwner={globalOwner} />}>
+        <AdminMarketSelect markets={markets} selectedMarket={market} />
         <AdminBoardInfo board={selectedBoard} />
         <AdminBoardBaseIv board={selectedBoard} />
         <AdminBoardAddStrike board={selectedBoard} />

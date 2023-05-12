@@ -23,7 +23,7 @@ export default function ListDemoCard({ ...marginProps }: MarginProps): CardEleme
             label="Ethereum"
             rightContent={
               <Box>
-                <Text variant="secondary">$2562.21</Text>
+                <Text>$2562.21</Text>
                 <Text variant="small" color="primaryText">
                   +2.43%
                 </Text>

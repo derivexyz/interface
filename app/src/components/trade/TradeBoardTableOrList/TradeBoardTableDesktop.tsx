@@ -2,13 +2,12 @@ import Box from '@lyra/ui/components/Box'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
 import filterNulls from '@lyra/ui/utils/filterNulls'
-import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Quote, QuoteDisabledReason } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
 
-import { MAX_IV } from '@/app/constants/contracts'
 import { LogEvent } from '@/app/constants/logEvents'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import logEvent, { LogData } from '@/app/utils/logEvent'
 
@@ -20,7 +19,6 @@ type OptionData = TableData<{
   quote: Quote
   strike: number
   strikeId: number
-  iv: number
   marketAddressOrName: string
   breakEven: number
   toBreakEven: number
@@ -63,7 +61,6 @@ const TradeBoardTableDesktop = ({
           strikeId,
           marketAddressOrName: quote.market().address,
           strike: fromBigNumber(strike.strikePrice),
-          iv: fromBigNumber(quote.iv),
           price: fromBigNumber(quote.pricePerOption),
           breakEven: fromBigNumber(quote.breakEven),
           toBreakEven: fromBigNumber(quote.toBreakEven),
@@ -99,7 +96,7 @@ const TradeBoardTableDesktop = ({
         Header: 'Strike',
         disableSortBy: true,
         Cell: (props: TableCellProps<OptionData>) => (
-          <Text variant="secondaryMedium">{props.cell.value > 0 ? formatUSD(props.cell.value) : '-'}</Text>
+          <Text variant="bodyMedium">{props.cell.value > 0 ? formatUSD(props.cell.value) : '-'}</Text>
         ),
       },
       {
@@ -107,7 +104,7 @@ const TradeBoardTableDesktop = ({
         Header: 'Break Even',
         disableSortBy: true,
         Cell: (props: TableCellProps<OptionData>) => (
-          <Text variant="secondary">{props.cell.value > 0 ? formatUSD(props.cell.value) : '-'}</Text>
+          <Text>{props.cell.value > 0 ? formatUSD(props.cell.value) : '-'}</Text>
         ),
       },
       {
@@ -115,25 +112,14 @@ const TradeBoardTableDesktop = ({
         Header: 'To Break Even',
         disableSortBy: true,
         Cell: (props: TableCellProps<OptionData>) => (
-          <Text variant="secondary">{(props.cell.value > 0 ? '+' : '') + formatUSD(props.cell.value)}</Text>
-        ),
-      },
-      {
-        accessor: 'iv',
-        Header: 'Implied Volatility',
-        disableSortBy: true,
-        Cell: (props: TableCellProps<OptionData>) => (
-          <Text variant="secondary">
-            {props.cell.value > 0 && props.cell.value < fromBigNumber(MAX_IV)
-              ? formatPercentage(props.cell.value, true)
-              : '-'}
-          </Text>
+          <Text>{(props.cell.value > 0 ? '+' : '') + formatUSD(props.cell.value)}</Text>
         ),
       },
       {
         accessor: 'price',
         Header: 'Price',
         disableSortBy: true,
+        width: 120,
         Cell: (props: TableCellProps<OptionData>) => {
           const { quote, strikeId } = props.row.original
           const isSelected = selectedOption?.strike().id === strikeId
@@ -155,8 +141,18 @@ const TradeBoardTableDesktop = ({
       (markerIdx, row) => (row.strike && spotPrice < row.strike ? markerIdx : markerIdx + 1),
       0
     )
-    return { rowIdx: spotPriceRowIdx, content: formatUSD(spotPrice) }
-  }, [spotPrice, rows])
+    return {
+      rowIdx: spotPriceRowIdx,
+      content: (
+        <Text variant="small">
+          {formatTokenName(board.market().baseToken)} Price:{' '}
+          <Text as="span" color="primaryText">
+            {formatUSD(spotPrice)}
+          </Text>
+        </Text>
+      ),
+    }
+  }, [board, rows, spotPrice])
 
   if (rows.length === 0) {
     return null

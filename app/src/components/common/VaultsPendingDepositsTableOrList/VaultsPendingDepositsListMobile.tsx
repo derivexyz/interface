@@ -32,7 +32,7 @@ const VaultsPendingDepositsListMobile = ({
             onClick={onClick}
             rightContent={
               <Box textAlign="right">
-                <Text variant="secondary">
+                <Text>
                   {formatUSD(deposit.value)} {market.quoteToken.symbol}
                 </Text>
                 {!delayReason ? (

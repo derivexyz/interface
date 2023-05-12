@@ -1,16 +1,12 @@
-import useFontSize from '@lyra/ui/hooks/useFontSize'
-import useLineHeight from '@lyra/ui/hooks/useLineHeight'
-import getVariantSX from '@lyra/ui/utils/getVariantSX'
+import useFontSx from '@lyra/ui/hooks/useFontSx'
 import React from 'react'
 import { Link as RebassLink } from 'rebass'
 import { SxProps } from 'theme-ui'
 
 import { IconType } from '../Icon'
 import IconSVG from '../Icon/IconSVG'
-import { TextProps, TextVariant } from '../Text'
+import { TextColor, TextProps } from '../Text'
 import BaseLink from './BaseLink'
-
-type LinkVariant = 'primary' | 'secondary'
 
 type Props = {
   href?: string
@@ -18,17 +14,24 @@ type Props = {
   leftIcon?: IconType
   children?: React.ReactNode
   showRightIcon?: boolean
-  variant?: LinkVariant
-  textVariant?: TextVariant
-} & Omit<TextProps, 'variant'> &
+} & TextProps &
   SxProps
 
-const getVariant = (variant: LinkVariant) => {
-  switch (variant) {
-    case 'primary':
-      return 'primaryLink'
-    case 'secondary':
-      return 'secondaryLink'
+const getLinkVariant = (color: TextColor): string => {
+  switch (color) {
+    case 'secondaryText':
+      return 'linkSecondary'
+    case 'errorText':
+      return 'linkError'
+    case 'primaryText':
+      return 'linkPrimary'
+    case 'warningText':
+      return 'linkWarning'
+    case 'text':
+    case 'inherit':
+    case 'white':
+    case 'disabledText':
+      return 'link'
   }
 }
 
@@ -38,37 +41,29 @@ export default function Link({
   children,
   leftIcon,
   showRightIcon,
-  variant = 'primary',
-  textVariant = 'body',
-  color,
+  variant = 'body',
+  color = 'primaryText',
   ...props
 }: Props): JSX.Element | null {
-  const fontSize = Math.floor(useFontSize(textVariant) * 0.8) // Apply some buffer to center icon
-  const lineHeightSize = Math.floor(useLineHeight(textVariant) * 0.8) // Apply some buffer to center icon
-  const textSx = getVariantSX('text.' + textVariant)
-  if (isNaN(fontSize)) {
-    console.warn('lineHeight / fontSize does not exist for variant')
-    return null
-  }
+  const fontSx = useFontSx(variant)
+
   return (
     <RebassLink
       as={BaseLink}
-      variant={getVariant(variant)}
+      variant={getLinkVariant(color)}
       href={href}
       target={target}
       {...props}
       sx={{
-        ...textSx,
         display: leftIcon ? 'flex' : null,
         alignItems: leftIcon ? 'center' : null,
-        color,
-        cursor: 'pointer',
+        ...fontSx,
         ...props.sx,
       }}
     >
       {leftIcon ? (
         <>
-          <IconSVG strokeWidth={3} size={lineHeightSize} icon={leftIcon} />
+          <IconSVG strokeWidth={3} size={10} icon={leftIcon} />
           &nbsp;&nbsp;
         </>
       ) : null}
@@ -76,11 +71,7 @@ export default function Link({
       {showRightIcon ? (
         <>
           &nbsp;
-          <IconSVG
-            strokeWidth={3}
-            size={fontSize}
-            icon={target === '_blank' ? IconType.ArrowUpRight : IconType.ArrowRight}
-          />
+          <IconSVG strokeWidth={3} size={10} icon={target === '_blank' ? IconType.ArrowUpRight : IconType.ArrowRight} />
         </>
       ) : null}
     </RebassLink>

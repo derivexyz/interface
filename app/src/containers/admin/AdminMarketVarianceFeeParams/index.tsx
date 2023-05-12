@@ -37,7 +37,7 @@ const AdminMarketVarianceFeeParams = ({ market, isExpanded, onClickExpand }: Pro
   return (
     <>
       <Collapsible
-        header={<Text variant="heading2">Variance Fee Parameters</Text>}
+        header={<Text variant="cardHeading">Variance Fee Parameters</Text>}
         onClickHeader={onClickExpand}
         isExpanded={isExpanded}
       >

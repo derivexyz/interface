@@ -18,7 +18,6 @@ import { TradingRewardsTrader } from '@/app/hooks/leaderboard/useLeaderboardPage
 import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import filterNulls from '@/app/utils/filterNulls'
 import formatTruncatedAddress from '@/app/utils/formatTruncatedAddress'
-import { getDefaultMarket } from '@/app/utils/getDefaultMarket'
 import getPagePath from '@/app/utils/getPagePath'
 
 type Props = {
@@ -38,6 +37,8 @@ export type LeaderboardTableData = TableData<{
   boost: number
   dailyPoints: number
   totalPoints: number
+  totalRewards: number
+  rewardsSymbol: string
   onBoostClick?: () => void
 }>
 
@@ -72,9 +73,13 @@ const TradingLeaderboardTable = ({
       boost: trader.boost,
       dailyPoints: trader.dailyPoints,
       totalPoints: trader.totalPoints,
+      totalRewards: trader.totalRewards.amount,
+      rewardsSymbol: trader.totalRewards.symbol,
       onBoostClick: onBoostClick ? () => onBoostClick() : undefined,
       onClick: onClick ? () => onClick(trader.trader) : undefined,
     }))
+
+    const rewardsSymbol = leaderboard[0]?.totalRewards.symbol ?? ''
 
     const myRowIdx = rows.findIndex(row => row.trader.toLowerCase() === account?.toLowerCase())
     if (myRowIdx > 0) {
@@ -89,6 +94,8 @@ const TradingLeaderboardTable = ({
         boost: getStakedLyraBoost(globalRewardEpoch.tradingBoostTiers, lyraBalances.totalStkLyra.amount),
         dailyPoints: 0,
         totalPoints: 0,
+        totalRewards: 0,
+        rewardsSymbol,
         onBoostClick: onBoostClick,
         onClick: onClick ? () => onClick(account) : undefined,
       })
@@ -110,6 +117,7 @@ const TradingLeaderboardTable = ({
         accessor: 'rank',
         Header: 'Rank',
         width: 40,
+        canSort: false,
         Cell: (props: TableCellProps<LeaderboardTableData>) => <Text>{props.cell.value + 1}</Text>,
       },
       {
@@ -126,6 +134,7 @@ const TradingLeaderboardTable = ({
       {
         accessor: 'boost',
         Header: 'Boost',
+        canSort: false,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
           return <Text>{props.cell.value}x</Text>
         },
@@ -133,6 +142,7 @@ const TradingLeaderboardTable = ({
       {
         accessor: 'dailyPoints',
         Header: '24H Points',
+        canSort: false,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
           return <Text>{formatTruncatedNumber(props.cell.value)}</Text>
         },
@@ -140,9 +150,22 @@ const TradingLeaderboardTable = ({
       {
         accessor: 'totalPoints',
         Header: 'Total Points',
-        width: 90,
+        canSort: false,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
           return <Text>{formatTruncatedNumber(props.cell.value)}</Text>
+        },
+      },
+      {
+        accessor: 'totalRewards',
+        Header: 'Est. Rewards',
+        width: 90,
+        canSort: false,
+        Cell: (props: TableCellProps<LeaderboardTableData>) => {
+          return (
+            <Text>
+              {formatTruncatedNumber(props.cell.value)} {props.row.original.rewardsSymbol}
+            </Text>
+          )
         },
       },
       {
@@ -163,9 +186,7 @@ const TradingLeaderboardTable = ({
                   label="Trade"
                   onClick={e => {
                     e.stopPropagation()
-                    navigate(
-                      getPagePath({ page: PageId.Trade, network, marketAddressOrName: getDefaultMarket(network) })
-                    )
+                    navigate(getPagePath({ page: PageId.TradeIndex }))
                   }}
                 />
               ) : onBoostClick ? (
@@ -184,7 +205,7 @@ const TradingLeaderboardTable = ({
         },
       },
     ])
-  }, [account, isMobile, onBoostClick, navigate, network])
+  }, [account, isMobile, onBoostClick, navigate])
 
   return (
     <Table
@@ -197,7 +218,7 @@ const TradingLeaderboardTable = ({
         sx: {
           height: TRADING_LEADERBOARD_ROW_HEIGHT,
           ':hover': {
-            bg: 'cardNestedHover',
+            bg: 'cardHoverBg',
             cursor: 'pointer',
           },
           ':active': {

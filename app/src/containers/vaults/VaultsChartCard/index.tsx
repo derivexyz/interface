@@ -111,6 +111,7 @@ const VaultsChartCard = ({ market }: Props) => {
             }}
             isOpen={isOpen}
             label={selectedChart?.label ?? ''}
+            mobileTitle="Select Chart"
           >
             {VAULTS_CHARTS.map(chart => {
               return (

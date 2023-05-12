@@ -132,12 +132,11 @@ export default function Toast({
       height={'100%'}
       alignItems="center"
       width="100%"
-      maxWidth={340}
       pt={2}
       pb={autoClose ? '10px' : 2}
     >
       {icon ? (
-        <Box ml={2} minWidth={20}>
+        <Box ml={3} minWidth={20}>
           {typeof icon === 'string' ? (
             <IconOrImage size={20} color={variant === 'info' ? 'secondaryText' : 'white'} strokeWidth={2} src={icon} />
           ) : (
@@ -145,26 +144,21 @@ export default function Toast({
           )}
         </Box>
       ) : null}
-      <Box mx={2}>
-        <Text color="inherit" variant="secondaryMedium">
+      <Box mx={3}>
+        <Text color="inherit" variant="small">
           {description}
+          {href ? (
+            <>
+              &nbsp;
+              <Link variant="small" showRightIcon color="inherit" href={href} target="_blank">
+                {hrefLabel ?? 'View more'}
+              </Link>
+            </>
+          ) : null}
         </Text>
-        {href ? (
-          <Link
-            textVariant="secondaryMedium"
-            showRightIcon
-            variant="secondary"
-            color="inherit"
-            href={href}
-            target="_blank"
-          >
-            {hrefLabel ?? 'View more'}
-          </Link>
-        ) : null}
       </Box>
       <IconButton
         ml="auto"
-        size="sm"
         mr={2}
         variant={getButtonVariant(variant)}
         icon={IconType.X}

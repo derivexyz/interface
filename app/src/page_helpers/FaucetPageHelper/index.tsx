@@ -62,10 +62,8 @@ export default function FaucetPageHelper({ marketBalances, ethBalance }: Props) 
         <Card minWidth={380}>
           <CardBody>
             <Box mb={6}>
-              <Text variant="heading">Faucet</Text>
-              <Text variant="secondary" color="secondaryText">
-                Drip {getNetworkDisplayName(network)} test tokens
-              </Text>
+              <Text variant="cardHeading">Faucet</Text>
+              <Text color="secondaryText">Drip {getNetworkDisplayName(network)} test tokens</Text>
             </Box>
             {isMainnet() ? (
               <Button size="lg" variant="primary" label="Switch to Testnet" onClick={() => setIsMainnet(false)} />

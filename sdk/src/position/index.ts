@@ -299,8 +299,16 @@ export class Position {
     return this.market().strike(this.strikeId)
   }
 
+  liveStrike(): Strike {
+    return this.market().liveStrike(this.strikeId)
+  }
+
   async option(): Promise<Option> {
     return this.market().option(this.strikeId, this.isCall)
+  }
+
+  liveOption(): Option {
+    return this.market().liveOption(this.strikeId, this.isCall)
   }
 
   // Trade

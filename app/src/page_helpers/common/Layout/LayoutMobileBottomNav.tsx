@@ -1,22 +1,15 @@
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import Flex from '@lyra/ui/components/Flex'
 import Icon, { IconType } from '@lyra/ui/components/Icon'
-import Image from '@lyra/ui/components/Image'
 import List from '@lyra/ui/components/List'
 import Modal from '@lyra/ui/components/Modal'
-import Token from '@lyra/ui/components/Token'
-import { ModalContext } from '@lyra/ui/theme/ModalProvider'
-import React, { useCallback, useContext, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useCallback, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { MOBILE_FOOTER_HEIGHT } from '@/app/constants/layout'
-import { PageId } from '@/app/constants/pages'
+import TABS from '@/app/constants/tabs'
 import AccountButton from '@/app/containers/common/AccountButton'
-import useNetwork from '@/app/hooks/account/useNetwork'
-import getAssetSrc from '@/app/utils/getAssetSrc'
-import getPagePath from '@/app/utils/getPagePath'
-import getTabs from '@/app/utils/getTabs'
-import isMainnet from '@/app/utils/isMainnet'
+import { getNavPageFromPath } from '@/app/utils/getNavPageFromPath'
 import logEvent from '@/app/utils/logEvent'
 
 import LayoutMoreDropdownListItems from './LayoutMoreDropdownListItems'
@@ -24,13 +17,14 @@ import LayoutPrivacyModal from './LayoutPrivacyModal'
 
 export default function LayoutMobileBottomNav(): JSX.Element {
   const navigate = useNavigate()
-  const network = useNetwork()
   const [isOpen, setIsOpen] = useState(false)
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
   const onClose = useCallback(() => setIsOpen(false), [])
 
-  const { openModalId, setOpenModalId } = useContext(ModalContext)
+  const { pathname } = useLocation()
+
+  const rootPage = getNavPageFromPath(pathname)
 
   return (
     <>
@@ -51,12 +45,7 @@ export default function LayoutMobileBottomNav(): JSX.Element {
         <Flex>
           <Flex
             onClick={() => {
-              if (openModalId > 0) {
-                // Handle global close (close top modal)
-                setOpenModalId(Math.max(openModalId - 1, 0))
-              } else {
-                setIsOpen(!isOpen)
-              }
+              setIsOpen(true)
             }}
             height="100%"
             width={MOBILE_FOOTER_HEIGHT}
@@ -69,59 +58,57 @@ export default function LayoutMobileBottomNav(): JSX.Element {
               },
             }}
           >
-            <Icon
-              size={openModalId > 0 ? 24 : 33}
-              color="secondaryText"
-              icon={openModalId > 0 ? IconType.X : IconType.Menu}
-            />
+            <Icon size={32} color="secondaryText" icon={IconType.Menu} />
           </Flex>
         </Flex>
-        <Flex flexGrow={1} p={4} alignItems="center" justifyContent="flex-end">
+        <Flex flexGrow={1} p={3} alignItems="center" justifyContent="flex-end">
           <AccountButton />
         </Flex>
       </Flex>
-      <Modal isMobileFullscreen isOpen={isOpen} onClose={onClose}>
-        <Flex flexDirection="column" minHeight="100%">
-          <Flex sx={{ position: 'sticky', top: 0, left: 0, right: 0, bg: 'cardBackrgoundSolid' }} p={6}>
-            <Image
-              href={getPagePath({ page: PageId.Portfolio })}
-              src={getAssetSrc('/images/logo.png')}
-              height={24}
-              width={24}
-            />
-            {!isMainnet() ? <Token ml="auto" variant="warning" label="Testnet" /> : null}
-          </Flex>
-          <List mt="auto">
-            <>
-              {getTabs(network).map(tab => (
-                <DropdownButtonListItem
-                  key={tab.path}
-                  onClick={() => {
-                    logEvent(tab.logEvent)
-                    navigate(tab.path)
-                    onClose()
-                  }}
-                  label={tab.name}
-                />
-              ))}
-            </>
-            <DropdownButtonListItem
-              onClick={() => setIsMoreOpen(!isMoreOpen)}
-              label="More"
-              rightContent={<Icon icon={IconType.ChevronRight}></Icon>}
-            />
-          </List>
-        </Flex>
+      <Modal title="Menu" isOpen={isOpen} onClose={onClose}>
+        <List>
+          <>
+            {TABS.map(tab => (
+              <DropdownButtonListItem
+                key={tab.path}
+                isSelected={tab.rootPageId === rootPage}
+                onClick={() => {
+                  logEvent(tab.logEvent)
+                  navigate(tab.path)
+                  onClose()
+                }}
+                label={tab.name}
+              />
+            ))}
+          </>
+          <DropdownButtonListItem
+            onClick={() => {
+              setIsMoreOpen(true)
+              onClose()
+            }}
+            label="More"
+            rightContent={<Icon icon={IconType.ChevronRight}></Icon>}
+          />
+        </List>
       </Modal>
-      <Modal isMobileFullscreen isOpen={isMoreOpen} onClose={() => setIsMoreOpen(false)}>
-        <Flex flexDirection="column" height="100%">
-          <List mt="auto">
-            <LayoutMoreDropdownListItems
-              onClose={() => setIsMoreOpen(false)}
-              onClickPrivacy={() => setIsPrivacyOpen(true)}
-            />
-          </List>
-        </Flex>
+      <Modal
+        title="More"
+        isOpen={isMoreOpen}
+        onClose={() => {
+          setIsMoreOpen(false)
+        }}
+      >
+        <List>
+          <LayoutMoreDropdownListItems
+            onClose={() => {
+              setIsMoreOpen(false)
+            }}
+            onClickPrivacy={() => {
+              setIsMoreOpen(false)
+              setIsPrivacyOpen(true)
+            }}
+          />
+        </List>
       </Modal>
       <LayoutPrivacyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
     </>

@@ -45,34 +45,23 @@ const VaultsWithdrawForm = ({ vault, onClose, ...styleProps }: Props) => {
           />
         </Flex>
         <Flex alignItems="center" justifyContent="space-between">
-          <Text color="secondaryText" variant="secondary">
-            Balance
-          </Text>
-          <AmountUpdateText
-            variant="secondary"
-            symbol={lpSymbol}
-            prevAmount={lpBalance}
-            newAmount={lpBalance.sub(amount)}
-          />
+          <Text color="secondaryText">Balance</Text>
+          <AmountUpdateText symbol={lpSymbol} prevAmount={lpBalance} newAmount={lpBalance.sub(amount)} />
         </Flex>
       </CardSection>
       <CardSeparator />
       <CardSection>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>
-          <Text variant="secondary" color="secondaryText">
-            Withdrawal Delay
-          </Text>
-          <Text variant="secondary">
+          <Text color="secondaryText">Withdrawal Delay</Text>
+          <Text>
             {market.liveBoards().length === 0 || market.params.withdrawalDelay === 0
               ? 'Now'
               : formatTruncatedDuration(market.params.withdrawalDelay)}
           </Text>
         </Flex>
         <Flex alignItems="center" justifyContent="space-between" mb={6}>
-          <Text variant="secondary" color="secondaryText">
-            Withdrawal Fee
-          </Text>
-          <Text variant="secondary">{formatPercentage(fromBigNumber(market.params.withdrawalFee), true)}</Text>
+          <Text color="secondaryText">Withdrawal Fee</Text>
+          <Text>{formatPercentage(fromBigNumber(market.params.withdrawalFee), true)}</Text>
         </Flex>
         <VaultsWithdrawFormButton vault={vault} amount={amount} onWithdraw={onClose} />
       </CardSection>

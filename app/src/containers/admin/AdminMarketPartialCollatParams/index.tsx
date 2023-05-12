@@ -37,7 +37,7 @@ const AdminMarketPartialCollatParams = ({ market, isExpanded, onClickExpand }: P
   return (
     <>
       <Collapsible
-        header={<Text variant="heading2">Partial Collat Parameters</Text>}
+        header={<Text variant="cardHeading">Partial Collat Parameters</Text>}
         onClickHeader={onClickExpand}
         isExpanded={isExpanded}
       >

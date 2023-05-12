@@ -27,9 +27,9 @@ import { PageId } from '@/app/constants/pages'
 import { SECONDS_IN_MONTH } from '@/app/constants/time'
 import { Vault } from '@/app/constants/vault'
 import ConnectWalletButton from '@/app/containers/common/ConnectWalletButton'
+import TotalSupplyHeaderCard from '@/app/containers/common/TotalSupplyHeaderCard'
 import RewardsClaimModal from '@/app/containers/rewards/RewardsClaimModal'
 import RewardsClaimModalButton from '@/app/containers/rewards/RewardsClaimModalButton'
-import RewardPageHeader from '@/app/containers/rewards/RewardsPageHeader'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import formatAPY from '@/app/utils/formatAPY'
 import formatAPYRange from '@/app/utils/formatAPYRange'
@@ -88,18 +88,23 @@ const RewardsVaultsPageHelper = ({ vault, latestGlobalRewardEpoch, accountReward
   )
 
   return (
-    <Page header={!isMobile ? <RewardPageHeader /> : null} noHeaderPadding>
+    <Page
+      title="Rewards"
+      subtitle="Stake, deposit and refer"
+      headerCard={<TotalSupplyHeaderCard />}
+      showBackButton
+      backHref={getPagePath({ page: PageId.RewardsIndex })}
+    >
       <PageGrid>
-        {isMobile ? <RewardPageHeader showBackButton={!isMobile} /> : null}
-        <Flex mx={[6, 0]} mb={[6, 0]}>
-          <Text variant="title">{formatTokenName(market.baseToken)} Vault</Text>
-          <Text color="secondaryText" variant="title">
+        <Text variant="heading">
+          {formatTokenName(market.baseToken)} Vault
+          <Text color="secondaryText" as="span">
             &nbsp;·&nbsp;{getNetworkDisplayName(latestGlobalRewardEpoch.lyra.network)}
           </Text>
-        </Flex>
+        </Text>
         <Card>
           <CardSection>
-            <Text variant="heading" mb={6}>
+            <Text variant="cardHeading" mb={6}>
               Overview
             </Text>
             <Text color="secondaryText" mb={6}>
@@ -107,9 +112,8 @@ const RewardsVaultsPageHelper = ({ vault, latestGlobalRewardEpoch, accountReward
               can stake LYRA to boost their rewards.
             </Text>
             <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr' }}>
-              <LabelItem textVariant="body" label="TVL" value={formatTruncatedUSD(tvl)} />
+              <LabelItem label="TVL" value={formatTruncatedUSD(tvl)} />
               <LabelItem
-                textVariant="body"
                 label="APY"
                 value={formatAPYRange(minApy, maxApy, { showSymbol: false, showEmptyDash: true })}
               />
@@ -118,8 +122,8 @@ const RewardsVaultsPageHelper = ({ vault, latestGlobalRewardEpoch, accountReward
           <CardSeparator isHorizontal />
           <CardSection isVertical sx={{ flexGrow: 1 }}>
             <Flex mb={8}>
-              <Text variant="heading">Your Rewards</Text>
-              <Text variant="heading" color="secondaryText">
+              <Text variant="cardHeading">Your Rewards</Text>
+              <Text variant="cardHeading" color="secondaryText">
                 &nbsp; · &nbsp;{formatDate(latestGlobalRewardEpoch.startTimestamp, true)} -{' '}
                 {formatDate(latestGlobalRewardEpoch.endTimestamp, true)}
               </Text>
@@ -127,9 +131,8 @@ const RewardsVaultsPageHelper = ({ vault, latestGlobalRewardEpoch, accountReward
             {account ? (
               <>
                 <Grid sx={{ gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', rowGap: 8 }}>
-                  <LabelItem textVariant="body" label="Your Liquidity" value={formatUSD(liquidityTokenBalanceValue)} />
+                  <LabelItem label="Your Liquidity" value={formatUSD(liquidityTokenBalanceValue)} />
                   <LabelItem
-                    textVariant="body"
                     label="Your APY"
                     value={`${formatAPY(vaultApy, {
                       showSymbol: false,
@@ -140,12 +143,10 @@ const RewardsVaultsPageHelper = ({ vault, latestGlobalRewardEpoch, accountReward
                     valueColor={vaultApyMultiplier > 1.01 ? 'primaryText' : 'text'}
                   />
                   <LabelItem
-                    textVariant="body"
                     label="Pending Rewards"
                     value={<RewardTokenAmounts tokenAmounts={pendingRewards} showDash={false} />}
                   />
                   <LabelItem
-                    textVariant="body"
                     label="Ends In"
                     value={<Countdown timestamp={latestGlobalRewardEpoch.endTimestamp} />}
                     valueColor="primaryText"
@@ -194,7 +195,7 @@ const RewardsVaultsPageHelper = ({ vault, latestGlobalRewardEpoch, accountReward
         {account && accountEpochsSorted.length > 0 ? (
           <Card>
             <CardBody noPadding>
-              <Text mt={6} mb={4} mx={6} variant="heading">
+              <Text mt={6} mb={4} mx={6} variant="cardHeading">
                 Epochs
               </Text>
               <Box px={6} overflowX="scroll">
@@ -237,11 +238,9 @@ const RewardsVaultsPageHelper = ({ vault, latestGlobalRewardEpoch, accountReward
                       <Box minWidth={MIN_COL_WIDTH} ml="auto" textAlign={isMobile ? 'left' : 'right'}>
                         <Text>{vaultRewards.map(t => formatBalance(t)).join(', ')}</Text>
                         {isLateDistribution ? (
-                          <Text variant="secondary" color="secondaryText">
-                            Claiming delayed
-                          </Text>
+                          <Text color="secondaryText">Claiming delayed</Text>
                         ) : isPendingDistribution ? (
-                          <Text variant="secondary" color="secondaryText">
+                          <Text color="secondaryText">
                             Claimable in&nbsp;
                             <Countdown as="span" timestamp={globalEpoch.distributionTimestamp} />
                           </Text>

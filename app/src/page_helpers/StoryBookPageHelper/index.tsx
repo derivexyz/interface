@@ -27,7 +27,7 @@ import PageGrid from '../common/Page/PageGrid'
 export default function StoryBookPageHelper(): JSX.Element {
   const [isDarkMode, setIsDarkMode] = useIsDarkMode()
   return (
-    <Page header="Storybook" mobileCollapsedHeader="Components">
+    <Page title="Storybook" subtitle="UI components for design system">
       <PageGrid>
         <Card>
           <CardBody>
@@ -41,57 +41,31 @@ export default function StoryBookPageHelper(): JSX.Element {
             </Flex>
           </CardBody>
         </Card>
-        <Text ml={6} variant="title">
-          Cards
-        </Text>
+        <Text variant="heading">Cards</Text>
         <CardDemo />
-        <Text ml={6} variant="title">
-          Buttons
-        </Text>
+        <Text variant="heading">Buttons</Text>
         <ButtonDemoCard />
-        <Text ml={6} variant="title">
-          Inputs
-        </Text>
+        <Text variant="heading">Inputs</Text>
         <InputDemoCard />
-        <Text ml={6} variant="title">
-          Alerts
-        </Text>
+        <Text variant="heading">Alerts</Text>
         <AlertDemoCard />
-        <Text ml={6} variant="title">
-          Modals
-        </Text>
+        <Text variant="heading">Modals</Text>
         <ModalDemoCard />
-        <Text ml={6} variant="title">
-          Lists
-        </Text>
+        <Text variant="heading">Lists</Text>
         <ListDemoCard />
-        <Text ml={6} variant="title">
-          Tables
-        </Text>
+        <Text variant="heading">Tables</Text>
         <TableDemoCard />
-        <Text ml={6} variant="title">
-          Charts
-        </Text>
+        <Text variant="heading">Charts</Text>
         <ChartDemoCard />
-        <Text ml={6} variant="title">
-          Text
-        </Text>
+        <Text variant="heading">Text</Text>
         <TextDemoCard />
-        <Text ml={6} variant="title">
-          Tooltips
-        </Text>
+        <Text variant="heading">Tooltips</Text>
         <TooltipDemoCard />
-        <Text ml={6} variant="title">
-          Loading
-        </Text>
+        <Text variant="heading">Loading</Text>
         <LoadingDemoCard />
-        <Text ml={6} variant="title">
-          Socket
-        </Text>
+        <Text variant="heading">Socket</Text>
         <SocketDemoCard />
-        <Text ml={6} variant="title">
-          Sentry
-        </Text>
+        <Text variant="heading">Sentry</Text>
         <SentryDemoCard />
       </PageGrid>
     </Page>

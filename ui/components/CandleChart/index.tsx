@@ -59,7 +59,7 @@ const STATIC_CHART_OPTIONS: DeepPartial<ChartOptions> = {
 const _CandleChart = ({ data, onHover, showTimeRange, ...styleProps }: Props) => {
   const chartContainerRef = useRef<HTMLDivElement>()
   const background = useThemeColor('background')
-  const cardNestedBg = useThemeColor('cardNestedBg')
+  const active = useThemeColor('active')
   const primaryLine = useThemeColor('primaryLine')
   const errorLine = useThemeColor('errorLine')
   const textColor = useThemeColor('text')
@@ -91,7 +91,7 @@ const _CandleChart = ({ data, onHover, showTimeRange, ...styleProps }: Props) =>
           crosshair: {
             vertLine: {
               color: crosshairColor,
-              labelBackgroundColor: cardNestedBg,
+              labelBackgroundColor: active,
             },
             horzLine: {
               color: crosshairColor,
@@ -158,7 +158,7 @@ const _CandleChart = ({ data, onHover, showTimeRange, ...styleProps }: Props) =>
     errorLine,
     data,
     onHover,
-    cardNestedBg,
+    active,
     crosshairColor,
     secondaryTextColor,
     showTimeRange,

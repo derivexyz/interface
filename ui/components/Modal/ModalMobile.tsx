@@ -1,9 +1,11 @@
-import { ModalContext } from '@lyra/ui/theme/ModalProvider'
-import React, { useContext, useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
+import useThemeColor from '@lyra/ui/hooks/useThemeColor'
+import emptyFunction from '@lyra/ui/utils/emptyFunction'
+import React from 'react'
+import Sheet from 'react-modal-sheet'
 
-import Box from '../Box'
+import IconButton from '../Button/IconButton'
 import Flex from '../Flex'
+import Icon, { IconType } from '../Icon'
 import Text from '../Text'
 
 export type Props = {
@@ -14,77 +16,29 @@ export type Props = {
   children?: React.ReactNode
 }
 
-// TODO: @dappbeast Make these constants parameters
-const MOBILE_FOOTER_HEIGHT = 72
-
-export default function ModalMobile({ children, isFullscreen, isOpen, onClose, title }: Props) {
-  const { openModalId, setOpenModalId } = useContext(ModalContext)
-  const [_id, setId] = useState<number | null>(null)
-
-  useEffect(() => {
-    if (isOpen && !_id) {
-      // Assign ID on open
-      const id = openModalId + 1
-      setId(id)
-      // Increment open modals
-      setOpenModalId(id)
-    } else if (!isOpen && _id) {
-      // Decrement open modals
-      setOpenModalId(openModalId - 1)
-      // Remove ID on close
-      setId(null)
-    }
-    // Set modal to local state
-  }, [isOpen, setOpenModalId, openModalId, _id])
-
-  useEffect(() => {
-    if (_id && _id > openModalId) {
-      // Sync local state to modal (e.g. on modal close)
-      if (onClose) {
-        onClose()
-      }
-      setId(null)
-    }
-    // Causes infinite loop if onClose is not memoized
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openModalId])
-
-  return createPortal(
-    isOpen ? (
-      <Flex
-        width="100%"
-        sx={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: MOBILE_FOOTER_HEIGHT,
-          maxHeight: '100vh',
-          zIndex: 'modal',
-        }}
-        bg="modalOverlayBg"
-        flexDirection="column"
-        justifyContent="flex-end"
-        onClick={onClose}
-      >
-        {/* TODO: @michaelxuwu Animate modal appearance (using react-spring?) */}
-        <Box
-          mt="auto"
-          width="100%"
-          height={isFullscreen ? '100%' : null}
-          sx={{ borderTopRightRadius: isFullscreen ? 0 : 'card', borderTopLeftRadius: isFullscreen ? 0 : 'card' }}
-          bg="modalBg"
-          overflow="auto"
-          // Block parent onClose trigger
-          onClick={e => e.stopPropagation()}
-        >
-          <Flex alignItems="center" px={6} pt={6}>
-            {typeof title === 'string' ? <Text variant="heading">{title}</Text> : title}
+export default function ModalMobile({ children, isFullscreen, isOpen, onClose = emptyFunction, title }: Props) {
+  const modalOverlayBg = useThemeColor('modalOverlayBg')
+  return (
+    <Sheet detent={isFullscreen ? 'full-height' : 'content-height'} isOpen={isOpen} onClose={onClose}>
+      <Sheet.Container style={{ backgroundColor: 'transparent' }}>
+        <Sheet.Header>
+          <Flex
+            sx={{ borderTopRightRadius: '21px', borderTopLeftRadius: '21px' }}
+            bg="modalBg"
+            alignItems="center"
+            p={3}
+          >
+            {typeof title === 'string' ? <Text variant="cardHeading">{title}</Text> : title}
+            <IconButton ml="auto" icon={<Icon icon={IconType.X} size={24} />} isTransparent onClick={onClose} />
           </Flex>
-          {children}
-        </Box>
-      </Flex>
-    ) : null,
-    document.body
+        </Sheet.Header>
+        <Sheet.Content>
+          <Flex flexDirection="column" bg="modalBg">
+            {children}
+          </Flex>
+        </Sheet.Content>
+      </Sheet.Container>
+      <Sheet.Backdrop style={{ background: modalOverlayBg }} onTap={onClose} />
+    </Sheet>
   )
 }

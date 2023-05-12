@@ -9,7 +9,6 @@ type Props = {
 export default function PositionStatusText({ position }: Props) {
   return (
     <Text
-      variant="secondary"
       color={
         position.isOpen
           ? 'primaryText'
@@ -23,14 +22,14 @@ export default function PositionStatusText({ position }: Props) {
       }
     >
       {position.isOpen
-        ? 'OPEN'
+        ? 'Open'
         : position.isLiquidated
-        ? 'LIQUIDATED'
+        ? 'Liquidated'
         : position.isSettled
         ? position.isInTheMoney
-          ? 'SETTLED'
-          : 'EXPIRED'
-        : 'CLOSED'}
+          ? 'Settled'
+          : 'Expired'
+        : 'Closed'}
     </Text>
   )
 }

@@ -22,7 +22,7 @@ const RewardsLastUpdatedAlert = ({ latestRewardEpochs }: Props) => {
     return null
   }
   return (
-    <Flex ml={6}>
+    <Flex>
       <Alert
         title="Warning"
         icon={IconType.AlertTriangle}

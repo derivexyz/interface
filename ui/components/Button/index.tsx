@@ -1,3 +1,4 @@
+import { ResponsiveValue } from '@lyra/ui/types'
 import getVariantSX from '@lyra/ui/utils/getVariantSX'
 import React, { useCallback, useState } from 'react'
 import { Button as RebassButton } from 'rebass'
@@ -49,16 +50,17 @@ export type ButtonProps = BaseButtonProps & PaddingProps & Omit<MarginProps & La
 
 export type ButtonElement = React.ReactElement<ButtonProps>
 
-export const getButtonSizeSx = (size: ButtonSize): Record<string, string | number> => {
+export const getButtonSizeSx = (size: ButtonSize): Record<string, ResponsiveValue> => {
   switch (size) {
     case 'small':
     case 'sm':
       return {
         fontFamily: 'body',
         fontWeight: 'medium',
-        fontSize: '11px',
-        lineHeight: '11px',
+        fontSize: '14px',
+        lineHeight: '14px',
         minHeight: '22px',
+        minWidth: '22px',
         borderRadius: 'text',
         p: 0,
       }
@@ -67,10 +69,11 @@ export const getButtonSizeSx = (size: ButtonSize): Record<string, string | numbe
       return {
         fontFamily: 'body',
         fontWeight: 'medium',
-        fontSize: '15px',
-        lineHeight: '15px',
-        minHeight: '36px',
-        borderRadius: '18px',
+        fontSize: '14px',
+        lineHeight: '14px',
+        minHeight: ['42px', '36px'],
+        minWidth: ['42px', '36px'],
+        borderRadius: ['21px', '18px'],
         p: 0,
       }
     case 'large':
@@ -80,14 +83,13 @@ export const getButtonSizeSx = (size: ButtonSize): Record<string, string | numbe
         fontWeight: 'medium',
         fontSize: '16px',
         lineHeight: '16px',
-        minHeight: '56px',
-        borderRadius: '28px',
+        minHeight: ['62px', '56px'],
+        minWidth: ['62px', '56px'],
+        borderRadius: ['31px', '28px'],
         p: 0,
       }
   }
 }
-
-const EMPTY_PADDING = { px: 0, py: 0 }
 
 const getButtonPy = (size: ButtonSize): number => {
   switch (size) {

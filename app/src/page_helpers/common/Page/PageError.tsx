@@ -13,7 +13,7 @@ const PageError = ({ errorCode = '404', error }: Props): JSX.Element => {
   return (
     <Layout>
       <Center alignSelf="stretch" height="100%" flexDirection="column">
-        <Text variant="largeTitle">{errorCode}</Text>
+        <Text variant="title">{errorCode}</Text>
         {typeof error === 'string' ? <Text color="secondaryText">{error}</Text> : error}
       </Center>
     </Layout>

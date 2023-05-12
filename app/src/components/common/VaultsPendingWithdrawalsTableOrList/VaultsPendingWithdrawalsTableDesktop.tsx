@@ -75,7 +75,7 @@ const VaultsPendingWithdrawalsTableDesktop = ({
           const { market } = props.row.original
           return (
             <Box>
-              <Text variant={'secondary'}>{formatNumber(props.cell.value, { minDps: 1 })}</Text>
+              <Text>{formatNumber(props.cell.value, { minDps: 1 })}</Text>
               <Text variant="small" color="secondaryText">
                 {market.liquidityToken.symbol}
               </Text>
@@ -88,9 +88,7 @@ const VaultsPendingWithdrawalsTableDesktop = ({
         Header: 'Requested',
         Cell: (props: TableCellProps<VaultsPendingWithdrawalsTableData>) => {
           return (
-            <Text variant="secondary">
-              {formatDateTime(props.cell.value, { hideYear: true, hideMins: false, includeTimezone: true })}
-            </Text>
+            <Text>{formatDateTime(props.cell.value, { hideYear: true, hideMins: false, includeTimezone: true })}</Text>
           )
         },
       },
@@ -102,7 +100,7 @@ const VaultsPendingWithdrawalsTableDesktop = ({
           return (
             <>
               {!delayReason ? (
-                <Text variant="secondary">{formatDuration(props.cell.value)}</Text>
+                <Text>{formatDuration(props.cell.value)}</Text>
               ) : (
                 <VaultsCircuitBreakerToken delayReason={delayReason} />
               )}

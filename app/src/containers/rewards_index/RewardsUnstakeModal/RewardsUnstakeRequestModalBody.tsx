@@ -25,19 +25,17 @@ type Props = {
 const RewardsUnstakeRequestModalBody = ({ lyraStaking, lyraBalances, ...styleProps }: Props) => {
   return (
     <ModalBody {...styleProps}>
-      <Text variant="body" color="secondaryText" width="100%" mb={10}>
+      <Text color="secondaryText" width="100%" mb={10}>
         {lyraStaking?.isInCooldown
           ? `After the cooldown period, you will be able to complete the process and add unstaked LYRA to your wallet.`
           : 'Requesting to unstake begins the 14 day cooldown period. After the cooldown period, you will be able to complete the process and add unstaked LYRA to your wallet.'}
       </Text>
       <RowItem
-        textVariant="body"
         mb={6}
         label="Staked Balance"
         value={<Text>{formatNumber(getStkLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum))} stkLYRA</Text>}
       />
       <RowItem
-        textVariant="body"
         mb={8}
         label="Cooldown Period"
         value={<Countdown timestamp={lyraStaking?.unstakeWindowStartTimestamp ?? 0} fallback="14d" ml="auto" />}

@@ -2273,6 +2273,24 @@
     qrcode "1.5.0"
     react-remove-scroll "2.5.4"
 
+"@react-aria/ssr@^3.4.1":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@react-aria/ssr/-/ssr-3.6.0.tgz#e5d52bd1686ff229f68f806cf94ee29dd9f54fb7"
+  integrity sha512-OFiYQdv+Yk7AO7IsQu/fAEPijbeTwrrEYvdNoJ3sblBBedD5j5fBTNWrUPNVlwC4XWWnWTCMaRIVsJujsFiWXg==
+  dependencies:
+    "@swc/helpers" "^0.4.14"
+
+"@react-aria/utils@3.14.2":
+  version "3.14.2"
+  resolved "https://registry.yarnpkg.com/@react-aria/utils/-/utils-3.14.2.tgz#3a8d0d14abab4bb1095e101ee44dc5e3e43e6217"
+  integrity sha512-3nr5gsAf/J/W+6Tu4NF3Q7m+1mXjfpXESh7TPa6UR6v3tVDTsJVMrITg2BkHN1jM8xELcl2ZxyUffOWqOXzWuA==
+  dependencies:
+    "@react-aria/ssr" "^3.4.1"
+    "@react-stately/utils" "^3.5.2"
+    "@react-types/shared" "^3.16.0"
+    "@swc/helpers" "^0.4.14"
+    clsx "^1.1.1"
+
 "@react-spring/animated@~9.5.5":
   version "9.5.5"
   resolved "https://registry.yarnpkg.com/@react-spring/animated/-/animated-9.5.5.tgz#d3bfd0f62ed13a337463a55d2c93bb23c15bbf3e"
@@ -2358,6 +2376,18 @@
     "@react-spring/core" "~9.5.5"
     "@react-spring/shared" "~9.5.5"
     "@react-spring/types" "~9.5.5"
+
+"@react-stately/utils@^3.5.2":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@react-stately/utils/-/utils-3.6.0.tgz#f273e7fcb348254347d2e88c8f0c45571060c207"
+  integrity sha512-rptF7iUWDrquaYvBAS4QQhOBQyLBncDeHF03WnHXAxnuPJXNcr9cXJtjJPGCs036ZB8Q2hc9BGG5wNyMkF5v+Q==
+  dependencies:
+    "@swc/helpers" "^0.4.14"
+
+"@react-types/shared@^3.16.0":
+  version "3.18.0"
+  resolved "https://registry.yarnpkg.com/@react-types/shared/-/shared-3.18.0.tgz#4f2bacad5912eba6667695ee3f9e8ac9f79849f7"
+  integrity sha512-WJj7RAPj7NLdR/VzFObgvCju9NMDktWSruSPJ3DrL5qyrrvJoyMW67L4YjNoVp2b7Y+k10E0q4fSMV0PlJoL0w==
 
 "@rebass/forms@^4.0.6":
   version "4.0.6"
@@ -2531,31 +2561,42 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@socket.tech/ll-core@^0.1.10", "@socket.tech/ll-core@^0.1.14":
+"@socket.tech/ll-core-v2@^0.0.32":
+  version "0.0.32"
+  resolved "https://registry.yarnpkg.com/@socket.tech/ll-core-v2/-/ll-core-v2-0.0.32.tgz#a6188800a2aec798dc33d2fb17656361001da56b"
+  integrity sha512-E2i07xDale6CMwIoyvafRRWwIkfTnkuN7s3BGY+vOaSmBP7xvFAukRWRtgFs4M8OnYTbI2jxuAruw7uJPRs1ww==
+
+"@socket.tech/ll-core@^0.1.10":
   version "0.1.23"
   resolved "https://registry.yarnpkg.com/@socket.tech/ll-core/-/ll-core-0.1.23.tgz#0c0709ed2226cb5399c3b35dabf9778b07bc18fc"
   integrity sha512-WQ5sruMZoPTcK0SGfuuFXZB+uC7cjKReWrpkaPl9/9f6UcnU2AWZBge1OpPWhqi5NHQ1ai/Z6rvEc26D7anWmQ==
 
-"@socket.tech/plugin@^1.0.0":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@socket.tech/plugin/-/plugin-1.0.3.tgz#309471ff1a83543c2e57a6f48b1f3c69eadfcf3d"
-  integrity sha512-O9rHfc6kVd1zhVgQS/fVG7+Cpv51KWL4oDPSmOQnG3Pd89yu6pBk4QQ5Bx4zETnPyNubzzIijaRNBVdKWVxCAw==
+"@socket.tech/ll-core@^0.1.36":
+  version "0.1.36"
+  resolved "https://registry.yarnpkg.com/@socket.tech/ll-core/-/ll-core-0.1.36.tgz#634ba49cf239b085da5d63697f3393da5fccd078"
+  integrity sha512-DD7rq6xWBSJoDjNRcZXbw0exG30VG6bpjiB9MgngLvx8siIjTli2i8NfRev0WWTx3EfvEtU9IUiZHSSDG/JJQA==
+
+"@socket.tech/plugin@^1.0.14":
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/@socket.tech/plugin/-/plugin-1.0.14.tgz#a1b9315c1ef8777e4ad4536c5593da11ff9bea9d"
+  integrity sha512-82MgYVbW/Hh9uXWwyFglwqZEPW25PjuRblxFGLc3BtFWfE0hYQ/SFhzd3n/MwS4YPEsPX48EGv93qaQ3AESdVg==
   dependencies:
     "@react-spring/web" "^9.5.0"
     "@reduxjs/toolkit" "^1.8.2"
     "@socket.tech/ll-core" "^0.1.10"
-    "@socket.tech/socket-v2-sdk" "^1.21.3"
+    "@socket.tech/socket-v2-sdk" "^1.21.11"
     ethers "^5.6.9"
     react-feather "^2.0.10"
     react-redux "^8.0.2"
     swr "^1.3.0"
 
-"@socket.tech/socket-v2-sdk@^1.21.3":
-  version "1.21.5"
-  resolved "https://registry.yarnpkg.com/@socket.tech/socket-v2-sdk/-/socket-v2-sdk-1.21.5.tgz#f1de9e7be93503ea7bb6e9b72ed24d391883c3f0"
-  integrity sha512-ufYyJSN9C32G1I2KB7srczgwXBPyZJ42BAmjblMHrOosDR9XynQ3tKu/inKxOSV9jG31bH0zp3EOBssokVWmoA==
+"@socket.tech/socket-v2-sdk@^1.21.11":
+  version "1.21.11"
+  resolved "https://registry.yarnpkg.com/@socket.tech/socket-v2-sdk/-/socket-v2-sdk-1.21.11.tgz#7f8adfe157ec90b79b7baed12c5897f8196b4b21"
+  integrity sha512-yNzptkuwRhwCnw2nzweShvwpNAfgkvE2PZ8qxUl6osKxvZRHn8IQ0cb841JHGTYaElLXJp1Muizsc/JiRNOYvw==
   dependencies:
-    "@socket.tech/ll-core" "^0.1.14"
+    "@socket.tech/ll-core" "^0.1.36"
+    "@socket.tech/ll-core-v2" "^0.0.32"
     axios "^0.27.2"
     ethers "^5.6.5"
     form-data "^4.0.0"
@@ -2807,6 +2848,13 @@
     "@svgr/plugin-jsx" "^5.5.0"
     "@svgr/plugin-svgo" "^5.5.0"
     loader-utils "^2.0.0"
+
+"@swc/helpers@^0.4.14":
+  version "0.4.14"
+  resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.4.14.tgz#1352ac6d95e3617ccb7c1498ff019654f1e12a74"
+  integrity sha512-4C7nX/dvpzB7za4Ql9K81xK3HPxCpHMgwTZVyf+9JQ6VUbn9jjZVN7/Nkdz/Ugzs2CSjqnL/UPXroiVBVHUWUw==
+  dependencies:
+    tslib "^2.4.0"
 
 "@tanstack/query-core@4.20.4":
   version "4.20.4"
@@ -6833,6 +6881,11 @@ execa@^5.0.0, execa@^5.1.1:
     signal-exit "^3.0.3"
     strip-final-newline "^2.0.0"
 
+exenv@^1.2.0:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/exenv/-/exenv-1.2.2.tgz#2ae78e85d9894158670b03d47bec1f03bd91bb9d"
+  integrity sha512-Z+ktTxTwv9ILfgKCk32OX3n/doe+OcLTRtqK9pcL+JsP3J1/VW8Uvl4ZjLlKqeW4rzK4oesDOGMEMRIZqtP4Iw==
+
 exit@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/exit/-/exit-0.1.2.tgz#0632638f8d877cc82107d30a0fff1a17cba1cd0c"
@@ -10618,7 +10671,7 @@ react-jazzicon@^1.0.4:
   dependencies:
     mersenne-twister "^1.1.0"
 
-react-lifecycles-compat@^3.0.4:
+react-lifecycles-compat@^3.0.0, react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
@@ -10627,6 +10680,23 @@ react-merge-refs@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/react-merge-refs/-/react-merge-refs-1.1.0.tgz#73d88b892c6c68cbb7a66e0800faa374f4c38b06"
   integrity sha512-alTKsjEL0dKH/ru1Iyn7vliS2QRcBp9zZPGoWxUOvRGWPUYgjo+V01is7p04It6KhgrzhJGnIj9GgX8W4bZoCQ==
+
+react-modal-sheet@^1.10.2:
+  version "1.10.2"
+  resolved "https://registry.yarnpkg.com/react-modal-sheet/-/react-modal-sheet-1.10.2.tgz#8a1dfb78300fb28f271e8d6b6d4783fef5df10dd"
+  integrity sha512-KHPeLcdCHvKtypoIL++ashm5BnoDdoALu3qEWe/zFUWqITJyE8bKnQYzfCfbwddUT2OWBFCmxhThJD4QREL2fA==
+  dependencies:
+    "@react-aria/utils" "3.14.2"
+
+react-modal@^3.16.1:
+  version "3.16.1"
+  resolved "https://registry.yarnpkg.com/react-modal/-/react-modal-3.16.1.tgz#34018528fc206561b1a5467fc3beeaddafb39b2b"
+  integrity sha512-VStHgI3BVcGo7OXczvnJN7yT2TWHJPDXZWyI/a0ssFNhGZWsPmB8cF0z33ewDXq4VfYMO1vXgiv/g8Nj9NDyWg==
+  dependencies:
+    exenv "^1.2.0"
+    prop-types "^15.7.2"
+    react-lifecycles-compat "^3.0.0"
+    warning "^4.0.3"
 
 react-native-url-polyfill@^1.3.0:
   version "1.3.0"
@@ -10805,13 +10875,6 @@ react-toastify@^7.0.4:
   integrity sha512-Rol7+Cn39hZp5hQ/k6CbMNE2CKYV9E5OQdC/hBLtIQU2xz7DdAm7xil4NITQTHR6zEbE5RVFbpgSwTD7xRGLeQ==
   dependencies:
     clsx "^1.1.1"
-
-react-toggle@^4.1.3:
-  version "4.1.3"
-  resolved "https://registry.yarnpkg.com/react-toggle/-/react-toggle-4.1.3.tgz#99193392cca8e495710860c49f55e74c4e6cf452"
-  integrity sha512-WoPrvbwfQSvoagbrDnXPrlsxwzuhQIrs+V0I162j/s+4XPgY/YDAUmHSeWiroznfI73wj+MBydvW95zX8ABbSg==
-  dependencies:
-    classnames "^2.2.5"
 
 react-transition-group@2.9.0:
   version "2.9.0"
@@ -12683,7 +12746,7 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.12"
 
-warning@^4.0.2:
+warning@^4.0.2, warning@^4.0.3:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/warning/-/warning-4.0.3.tgz#16e9e077eb8a86d6af7d64aa1e05fd85b4678ca3"
   integrity sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==

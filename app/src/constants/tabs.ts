@@ -1,10 +1,7 @@
-import { Network } from '@lyrafinance/lyra-js'
-
 import { LogEvent } from '../constants/logEvents'
 import { PageId } from '../constants/pages'
-import { getDefaultMarket } from './getDefaultMarket'
-import getPagePath from './getPagePath'
-import isMainnet from './isMainnet'
+import getPagePath from '../utils/getPagePath'
+import isMainnet from '../utils/isMainnet'
 
 type Tab = {
   path: string
@@ -13,15 +10,9 @@ type Tab = {
   logEvent: LogEvent
 }
 
-const getTabs = (network: Network): Tab[] => [
+const TABS: Tab[] = [
   {
-    path: getPagePath({ page: PageId.Portfolio }),
-    rootPageId: PageId.Portfolio,
-    name: 'Portfolio',
-    logEvent: LogEvent.NavPortfolioTabClick,
-  },
-  {
-    path: getPagePath({ page: PageId.Trade, network, marketAddressOrName: getDefaultMarket(network) }),
+    path: getPagePath({ page: PageId.TradeIndex }),
     rootPageId: PageId.Trade,
     name: 'Trade',
     logEvent: LogEvent.NavTradeTabClick,
@@ -46,7 +37,7 @@ const getTabs = (network: Network): Tab[] => [
         logEvent: LogEvent.NavFaucetTabClick,
       },
   {
-    path: getPagePath({ page: PageId.Leaderboard, network }),
+    path: getPagePath({ page: PageId.LeaderboardIndex }),
     rootPageId: PageId.Leaderboard,
     name: 'Airdrop',
     logEvent: LogEvent.NavLeaderboardTabClick,
@@ -59,4 +50,4 @@ const getTabs = (network: Network): Tab[] => [
   // },
 ]
 
-export default getTabs
+export default TABS

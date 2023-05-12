@@ -37,29 +37,27 @@ const AdminMarketGuardianProcess = ({ market, globalCache, isExpanded, onClickEx
   return (
     <Collapsible
       onClickHeader={onClickExpand}
-      header={<Text variant="heading2">Guardian Process</Text>}
+      header={<Text variant="cardHeading">Guardian Process</Text>}
       isExpanded={isExpanded}
     >
       <Box p={6}>
         <Flex flexDirection="column">
           <Box mb={4}>
-            <Text variant="secondary" color="secondaryText">
+            <Text color="secondaryText">
               Cache is{' '}
               <Text as="span" color={globalCache?.isGlobalCacheStale ? 'warningText' : 'primaryText'}>
                 {globalCache?.isGlobalCacheStale ? 'stale' : 'not stale'}
               </Text>
             </Text>
-            <Text variant="secondary" color="secondaryText">
+            <Text color="secondaryText">
               Last updated at:{' '}
               {formatDateTime(globalCache?.minUpdatedAt.toNumber() ?? 0, { hideYear: true, hideMins: false })}
             </Text>
-            <Text variant="secondary" color="secondaryText">
-              Current spot price: {formatUSD(market.spotPrice)}
-            </Text>
-            <Text variant="secondary" color="secondaryText">
+            <Text color="secondaryText">Current spot price: {formatUSD(market.spotPrice)}</Text>
+            <Text color="secondaryText">
               Spot price at last update: {formatUSD(globalCache?.maxUpdatedAtPrice ?? 0)}
             </Text>
-            <Text variant="secondary" color="secondaryText">
+            <Text color="secondaryText">
               {formatPercentage(fromBigNumber(pctPriceChange))} spot move since last update
             </Text>
           </Box>

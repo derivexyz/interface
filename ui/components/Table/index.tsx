@@ -8,7 +8,6 @@ import { LayoutProps, MarginProps } from 'styled-system'
 
 import Collapsible from '../Collapsible'
 import Text from '../Text'
-import TableRowMarker, { TableRowMarkerProps } from './TableRowMarker'
 
 const DEFAULT_CELL_PX = [1, 2]
 const DEFAULT_EDGE_CELL_PX = [2, 4]
@@ -18,7 +17,8 @@ export type TableRecordType = Record<string, boolean | BigNumberish | { [key: st
 
 type TableMarkerOptions = {
   rowIdx: number
-} & TableRowMarkerProps
+  content?: React.ReactNode
+}
 
 export type TableData<T extends TableRecordType> = {
   id?: string
@@ -106,12 +106,7 @@ export default function Table<T extends TableRecordType>({
   const isSorted = headerGroups.some(headerGroup => headerGroup.headers.some(column => !!(column as any).isSorted))
   return (
     <Box {...styleProps}>
-      <Box
-        // TODO: @dappbeast Remove px
-        px={[3, 0]}
-        overflowX="auto"
-        overflowY="hidden"
-      >
+      <Box overflowX="auto" overflowY="hidden">
         <Box width="100%" height="100%" as="table" {...(getTableProps() as any)} sx={{ borderCollapse: 'collapse' }}>
           {!hideHeader ? (
             <Flex as="thead" pt={4} pb={2} px={DEFAULT_EDGE_CELL_PX}>
@@ -137,7 +132,7 @@ export default function Table<T extends TableRecordType>({
                         {typeof header === 'string' || typeof header === 'number' ? (
                           <Text
                             key={column.id}
-                            variant="secondary"
+                            variant="small"
                             color={isSorted ? 'text' : 'secondaryText'}
                             textAlign="left"
                             onClick={sortByToggleProps?.onClick}
@@ -202,6 +197,32 @@ export default function Table<T extends TableRecordType>({
             const expandedContent = row.original.expanded
             const isClickable = !!row.original.onClick || !!expandedContent
             const isExpandedContentClickable = !!row.original.isExpandedContentClickable
+
+            if (
+              tableMarker &&
+              (rowIdx === tableMarker.rowIdx || (tableMarker.rowIdx > rows.length - 1 && rowIdx === rows.length - 1))
+            ) {
+              return (
+                <Flex
+                  key="marker"
+                  alignItems="center"
+                  py={2}
+                  px={[3, 6]}
+                  as="tr"
+                  bg="hover"
+                  sx={{
+                    ':hover': {
+                      bg: 'active',
+                    },
+                    boxShadow: '10px 10px 10px elevatedShadowBg',
+                  }}
+                  mt={tableMarker.rowIdx === 0 ? 6 : 0}
+                >
+                  {React.isValidElement(tableMarker.content) ? tableMarker.content : <Text>{tableMarker.content}</Text>}
+                </Flex>
+              )
+            }
+
             return (
               <Box
                 as="tbody"
@@ -216,13 +237,11 @@ export default function Table<T extends TableRecordType>({
                   '&:active': {
                     bg: isClickable && isExpandedContentClickable ? 'active' : 'transparent',
                   },
+                  borderTop: tableMarker && tableMarker.rowIdx === rowIdx - 1 && isExpanded ? '2px solid' : undefined,
                   borderBottom: isOutline && rowIdx < pagedRows.length - 1 ? '1px solid' : undefined,
                   borderColor: 'background',
                 }}
               >
-                {tableMarker && rowIdx === tableMarker.rowIdx ? (
-                  <TableRowMarker content={tableMarker.content} mt={tableMarker.rowIdx === 0 ? 6 : 0} />
-                ) : null}
                 <Box
                   as="tr"
                   px={DEFAULT_EDGE_CELL_PX}
@@ -264,9 +283,6 @@ export default function Table<T extends TableRecordType>({
                     )
                   })}
                 </Box>
-                {tableMarker && tableMarker.rowIdx > rows.length - 1 && rowIdx === rows.length - 1 ? (
-                  <TableRowMarker content={tableMarker.content} mb={6} />
-                ) : null}
                 {expandedContent ? (
                   <Box
                     onClick={() => {
@@ -282,7 +298,7 @@ export default function Table<T extends TableRecordType>({
                     as="tr"
                     sx={{
                       borderBottom: !isOutline && isExpanded && rowIdx < pagedRows.length - 1 ? '2px solid' : undefined,
-                      borderBottomColor: 'background',
+                      borderColor: 'background',
                     }}
                   >
                     <Box as="td">
@@ -300,7 +316,7 @@ export default function Table<T extends TableRecordType>({
         </Box>
       </Box>
       {numPages > 1 ? (
-        <Flex px={DEFAULT_CELL_PX} py={3} justifyContent="center" alignItems="center">
+        <Flex px={DEFAULT_CELL_PX} py={2} justifyContent="center" alignItems="center">
           <IconButton
             variant="light"
             isTransparent

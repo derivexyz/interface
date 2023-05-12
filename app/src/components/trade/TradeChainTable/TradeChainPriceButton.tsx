@@ -5,7 +5,7 @@ import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Quote } from '@lyrafinance/lyra-js'
+import { Market, Quote } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import emptyFunction from '@/app/utils/emptyFunction'
@@ -18,35 +18,51 @@ type Props = {
   onSelected: (isSelected: boolean) => void
 } & MarginProps
 
+function getPriceColumnWidth(market: Market) {
+  switch (market.baseToken.symbol.toLowerCase()) {
+    case 'sbtc':
+    case 'wbtc':
+      return 118
+    case 'eth':
+    case 'seth':
+    case 'weth':
+    default:
+      return 106
+  }
+}
+
 export default function TradeChainPriceButton({
   quote,
   isSelected,
   onSelected = emptyFunction,
   ...styleProps
 }: Props): ButtonElement {
-  return (
+  return quote ? (
     <Button
-      width="100%"
+      width={getPriceColumnWidth(quote.market())}
       variant={quote?.isBuy ? 'primary' : 'error'}
-      textVariant="secondary"
       size="small"
       isOutline={!isSelected}
       isDisabled={!quote ? true : quote.disabledReason ? getIsQuoteHidden(quote.disabledReason) : false}
       label={
-        <Box>
-          <Text textAlign="left" variant="secondary">
-            {quote ? formatUSD(quote.premium) : 'Disabled'}
-          </Text>
-          <Text textAlign="left" variant="small" color={!quote || isSelected ? 'inherit' : 'secondaryText'}>
-            {quote ? formatPercentage(fromBigNumber(quote.iv), true) : 'N/A'}
-          </Text>
-        </Box>
+        quote && !quote?.disabledReason ? (
+          <Box p="1px">
+            <Text variant="body" textAlign="left">
+              {formatUSD(quote.premium)}
+            </Text>
+            <Text textAlign="left" variant="small" color={!quote || isSelected ? 'inherit' : 'secondaryText'}>
+              {formatPercentage(fromBigNumber(quote.iv), true)}
+            </Text>
+          </Box>
+        ) : null
       }
-      rightIcon={!isSelected ? IconType.Plus : IconType.Check}
+      rightIcon={quote && !quote.disabledReason ? (!isSelected ? IconType.Plus : IconType.Check) : null}
       rightIconSpacing={1}
       showRightIconSeparator
       onClick={() => onSelected(!isSelected)}
       {...styleProps}
     />
+  ) : (
+    <Text color="secondaryText">-</Text>
   )
 }

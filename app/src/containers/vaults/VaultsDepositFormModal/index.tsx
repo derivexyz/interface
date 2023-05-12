@@ -13,7 +13,7 @@ type Props = {
 
 export default function VaultsDepositFormModal({ isOpen, onClose, vault }: Props) {
   return (
-    <Modal isMobileFullscreen title="Deposit" isOpen={isOpen} onClose={onClose}>
+    <Modal title="Deposit" isOpen={isOpen} onClose={onClose}>
       <VaultsDepositForm vault={vault} onClose={onClose} />
     </Modal>
   )

@@ -32,12 +32,9 @@ type Props = {
 export const getTokenAmountHeightForVariant = (variant: TextVariant): number => {
   switch (variant) {
     case 'heading':
-    case 'heading2':
-    case 'heroHeading':
-    case 'heroTitle':
+    case 'cardHeading':
       return 30
     case 'small':
-    case 'smallMedium':
       return 16
     default:
       return 24

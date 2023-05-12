@@ -10,7 +10,6 @@ import CardSection from '@lyra/ui/components/Card/CardSection'
 import Flex from '@lyra/ui/components/Flex'
 import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
-import Toggle from '@lyra/ui/components/Toggle'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { MarginProps } from '@lyra/ui/types'
 import React, { useCallback, useState } from 'react'
@@ -25,11 +24,10 @@ export default function ButtonDemoCard({ ...marginProps }: MarginProps): CardEle
   const onClose2 = useCallback(() => setIsOpen2(false), [])
   const onClose3 = useCallback(() => setIsOpen3(false), [])
   const [selectedItemId, setSelectedItemId] = useState('')
-  const [isChecked, setIsChecked] = useState(false)
   return (
     <Card {...marginProps}>
       <CardSection>
-        <Text variant="heading">Default</Text>
+        <Text variant="cardHeading">Default</Text>
         <Flex mb={2} alignItems="center" flexDirection={isMobile ? 'column' : 'row'}>
           <Button mr={2} label="Large" size={'large'} />
           <Button
@@ -50,7 +48,7 @@ export default function ButtonDemoCard({ ...marginProps }: MarginProps): CardEle
         </Flex>
       </CardSection>
       <CardSection>
-        <Text variant="heading" color="secondaryText">
+        <Text variant="cardHeading" color="secondaryText">
           Light
         </Text>
         <Flex mb={2} alignItems="center" flexDirection={isMobile ? 'column' : 'row'}>
@@ -73,7 +71,7 @@ export default function ButtonDemoCard({ ...marginProps }: MarginProps): CardEle
         </Flex>
       </CardSection>
       <CardSection>
-        <Text variant="heading" color="primaryText">
+        <Text variant="cardHeading" color="primaryText">
           Primary
         </Text>
         <Flex mb={2} alignItems="center" flexDirection={isMobile ? 'column' : 'row'}>
@@ -97,7 +95,7 @@ export default function ButtonDemoCard({ ...marginProps }: MarginProps): CardEle
         </Flex>
       </CardSection>
       <CardSection>
-        <Text variant="heading" color="errorText">
+        <Text variant="cardHeading" color="errorText">
           Error
         </Text>
         <Flex mb={2} alignItems="center" flexDirection={isMobile ? 'column' : 'row'}>
@@ -120,7 +118,7 @@ export default function ButtonDemoCard({ ...marginProps }: MarginProps): CardEle
         </Flex>
       </CardSection>
       <CardSection>
-        <Text variant="heading" color="warningText">
+        <Text variant="cardHeading" color="warningText">
           Warning
         </Text>
         <Flex mb={2} alignItems="center" flexDirection={isMobile ? 'column' : 'row'}>
@@ -144,18 +142,14 @@ export default function ButtonDemoCard({ ...marginProps }: MarginProps): CardEle
         </Flex>
       </CardSection>
       <CardSection>
-        <Text variant="heading">Static</Text>
+        <Text variant="cardHeading">Static</Text>
         <Flex alignItems="center">
           <Button mr={2} variant="static" label="Large" size={'large'} />
           <Button mr={2} variant="static" label="Transparent" isTransparent />
         </Flex>
       </CardSection>
       <CardSection>
-        <Text variant="heading">Toggle</Text>
-        <Toggle isChecked={isChecked} onChange={newIsChecked => setIsChecked(newIsChecked.target.checked)} />
-      </CardSection>
-      <CardSection>
-        <Text variant="heading">Toggle Button</Text>
+        <Text variant="cardHeading">Toggle Button</Text>
         <ToggleButton maxWidth={200}>
           {[
             { id: 1, label: '1' },
@@ -173,9 +167,10 @@ export default function ButtonDemoCard({ ...marginProps }: MarginProps): CardEle
         </ToggleButton>
       </CardSection>
       <CardSection>
-        <Text variant="heading">Dropdowns</Text>
+        <Text variant="cardHeading">Dropdowns</Text>
         <Flex my={4}>
           <DropdownButton
+            mobileTitle="Title"
             onClick={() => setIsOpen(true)}
             mr={2}
             label={`Item ${selectedItemId}`}

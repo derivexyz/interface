@@ -5,16 +5,18 @@ import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import Countdown from '@lyra/ui/components/Text/CountdownText'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { MarginProps } from '@lyra/ui/types'
 import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatDate from '@lyra/ui/utils/formatDate'
 import React from 'react'
 import { useMemo } from 'react'
 
+import { PageId } from '@/app/constants/pages'
 import { SECONDS_IN_MONTH } from '@/app/constants/time'
-import LeaderboardPageHeader from '@/app/containers/leaderboard/LeaderboardPageHeader'
+import LeaderboardHeaderCard from '@/app/containers/leaderboard/LeaderboardHeaderCard'
+import useNetwork from '@/app/hooks/account/useNetwork'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import { LeaderboardHistoryPageData } from '@/app/hooks/leaderboard/useLeaderboardHistoryPageData'
+import getPagePath from '@/app/utils/getPagePath'
 
 import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
@@ -23,9 +25,9 @@ const MIN_COL_WIDTH = 150
 
 type Props = {
   data: LeaderboardHistoryPageData
-} & MarginProps
+}
 
-const LeaderboardHistoryPageHelper = ({ data, ...marginProps }: Props): JSX.Element => {
+const LeaderboardHistoryPageHelper = ({ data }: Props): JSX.Element => {
   const { latestGlobalRewardEpoch, latestAccountRewardEpoch } = data
   const isMobile = useIsMobile()
   const account = useWalletAccount()
@@ -34,19 +36,19 @@ const LeaderboardHistoryPageHelper = ({ data, ...marginProps }: Props): JSX.Elem
     () => accountRewardEpochs?.sort((a, b) => b.accountEpoch.startTimestamp - a.accountEpoch.startTimestamp),
     [accountRewardEpochs]
   )
+  const network = useNetwork()
   return (
     <Page
-      noHeaderPadding
-      header={
-        !isMobile ? (
-          <LeaderboardPageHeader
-            latestGlobalRewardEpoch={latestGlobalRewardEpoch}
-            latestAccountRewardEpoch={latestAccountRewardEpoch}
-            showHistoryButton={false}
-          />
-        ) : null
+      title="Leaderboard"
+      subtitle="Earn rewards for trading"
+      headerCard={
+        <LeaderboardHeaderCard
+          latestAccountRewardEpoch={latestAccountRewardEpoch}
+          latestGlobalRewardEpoch={latestGlobalRewardEpoch}
+        />
       }
-      {...marginProps}
+      showBackButton
+      backHref={getPagePath({ page: PageId.Leaderboard, network })}
     >
       <PageGrid>
         <Text variant="heading" color="text" mt={[4, 0]} ml={[4, 0]}>
@@ -55,7 +57,7 @@ const LeaderboardHistoryPageHelper = ({ data, ...marginProps }: Props): JSX.Elem
         {account && accountRewardEpochs && accountRewardEpochs.length > 0 ? (
           <Card>
             <CardBody noPadding>
-              <Text mt={6} mb={4} mx={6} variant="heading">
+              <Text mt={6} mb={4} mx={6} variant="cardHeading">
                 Epochs
               </Text>
               <Box px={6} overflowX="scroll">
@@ -104,11 +106,9 @@ const LeaderboardHistoryPageHelper = ({ data, ...marginProps }: Props): JSX.Elem
                       <Box minWidth={MIN_COL_WIDTH} ml="auto" textAlign={isMobile ? 'left' : 'right'}>
                         <Text>{accountEpoch.tradingRewards.map(t => formatBalance(t)).join(', ')}</Text>
                         {isLateDistribution ? (
-                          <Text variant="secondary" color="secondaryText">
-                            Claiming delayed
-                          </Text>
+                          <Text color="secondaryText">Claiming delayed</Text>
                         ) : isPendingDistribution ? (
-                          <Text variant="secondary" color="secondaryText">
+                          <Text color="secondaryText">
                             Claimable in&nbsp;
                             <Countdown as="span" timestamp={globalEpoch.distributionTimestamp} />
                           </Text>

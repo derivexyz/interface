@@ -47,11 +47,8 @@ const VaultsDepositForm = ({ vault, onClose }: Props) => {
           />
         </Flex>
         <Flex alignItems="center" justifyContent="space-between">
-          <Text color="secondaryText" variant="secondary">
-            Balance
-          </Text>
+          <Text color="secondaryText">Balance</Text>
           <AmountUpdateText
-            variant="secondary"
             symbol={market.quoteToken.symbol}
             isUSDFormat
             prevAmount={quoteBalance}
@@ -63,26 +60,20 @@ const VaultsDepositForm = ({ vault, onClose }: Props) => {
       <CardSeparator />
       <CardSection>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>
-          <Text variant="secondary" color="secondaryText">
-            Deposit Delay
-          </Text>
-          <Text variant="secondary">
+          <Text color="secondaryText">Deposit Delay</Text>
+          <Text>
             {!market.liveBoards().length || !market.params.depositDelay
               ? 'None'
               : formatTruncatedDuration(market.params.depositDelay)}
           </Text>
         </Flex>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>
-          <Text variant="secondary" color="secondaryText">
-            Withdrawal Delay
-          </Text>
-          <Text variant="secondary">{formatTruncatedDuration(market.params.withdrawalDelay)}</Text>
+          <Text color="secondaryText">Withdrawal Delay</Text>
+          <Text>{formatTruncatedDuration(market.params.withdrawalDelay)}</Text>
         </Flex>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>
-          <Text variant="secondary" color="secondaryText">
-            Withdrawal Fee
-          </Text>
-          <Text variant="secondary">{formatPercentage(fromBigNumber(market.params.withdrawalFee), true)}</Text>
+          <Text color="secondaryText">Withdrawal Fee</Text>
+          <Text>{formatPercentage(fromBigNumber(market.params.withdrawalFee), true)}</Text>
         </Flex>
         {utilization > 0.9 ? (
           <Alert
@@ -94,13 +85,7 @@ const VaultsDepositForm = ({ vault, onClose }: Props) => {
               <>
                 Vault utilization is high, leading to withdrawal delays longer than{' '}
                 {formatTruncatedDuration(market.params.withdrawalDelay)}.{' '}
-                <Link
-                  color="warningText"
-                  textVariant="secondary"
-                  href={WITHDRAW_WARNING_DOC_URL}
-                  target="_blank"
-                  showRightIcon
-                >
+                <Link color="warningText" href={WITHDRAW_WARNING_DOC_URL} target="_blank" showRightIcon>
                   Learn more
                 </Link>
               </>

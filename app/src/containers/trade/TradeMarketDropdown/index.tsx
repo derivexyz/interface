@@ -35,11 +35,11 @@ const TradeMarketDropdown = ({
       isOpen={isOpen}
       onClose={onClose}
       onClick={() => setIsOpen(true)}
-      textVariant="title"
-      ml={-3} // Hack to offset button border radius
+      textVariant="heading"
       isTransparent
       label={getMarketDisplayName(selectedMarket)}
       leftIcon={<MarketImage market={selectedMarket} />}
+      mobileTitle="Select Market"
     >
       {markets.map(market => (
         <DropdownButtonListItem

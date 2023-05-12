@@ -15,6 +15,7 @@ export type DropdownIconButtonProps = {
   onClose: () => void
   children?: DropdownButtonListItemElement | (DropdownButtonListItemElement | null)[] | null
   placement?: Placement
+  mobileTitle?: string
 } & Omit<IconButtonProps, 'children'>
 
 export type DropdownIconButtonElement = React.ReactElement<DropdownIconButtonProps>
@@ -24,6 +25,7 @@ export default function DropdownIconButton({
   onClose,
   children,
   placement,
+  mobileTitle,
   ...buttonProps
 }: DropdownIconButtonProps): DropdownIconButtonElement {
   const [ref, setRef] = useState<HTMLElement | null>(null)
@@ -49,7 +51,7 @@ export default function DropdownIconButton({
           </Card>
         </Popover>
       ) : (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal title={mobileTitle} isOpen={isOpen} onClose={onClose}>
           <List>{children}</List>
         </Modal>
       )}

@@ -1,17 +1,21 @@
 import Box from '@lyra/ui/components/Box'
+import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
+import DropdownIconButton from '@lyra/ui/components/Button/DropdownIconButton'
+import Flex from '@lyra/ui/components/Flex'
+import { IconType } from '@lyra/ui/components/Icon'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
 import { MarginProps } from '@lyra/ui/types'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
-import formatTruncatedNumber from '@lyra/ui/utils/formatTruncatedNumber'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Position } from '@lyrafinance/lyra-js'
-import React, { useMemo } from 'react'
+import { Option, Position } from '@lyrafinance/lyra-js'
+import React, { useMemo, useState } from 'react'
 
 import { UNIT, ZERO_BN } from '@/app/constants/bn'
+import TradeCollateralFormModal from '@/app/containers/trade/TradeCollateralFormModal'
+import TradeFormModal from '@/app/containers/trade/TradeFormModal'
 import filterNulls from '@/app/utils/filterNulls'
-import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import PositionItem from '../PositionItem'
@@ -24,6 +28,7 @@ type Props = {
 
 export type PositionTableData = TableData<{
   position: Position
+  option: Option
   lastUpdatedTimestamp: number
   expiryTimestamp: number
   equity: number
@@ -36,7 +41,18 @@ export type PositionTableData = TableData<{
 const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) => {
   const rows: PositionTableData[] = useMemo(
     () =>
-      positions.map(position => {
+      (
+        positions
+          .map(position => {
+            try {
+              const option = position.liveOption()
+              return { position, option }
+            } catch (err) {
+              return null
+            }
+          })
+          .filter(o => o != null) as { position: Position; option: Option }[]
+      ).map(({ position, option }) => {
         const {
           realizedPnl,
           realizedPnlPercentage,
@@ -58,6 +74,7 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
 
         return {
           position,
+          option,
           lastUpdatedTimestamp,
           expiryTimestamp: position.expiryTimestamp,
           equity: fromBigNumber(
@@ -75,12 +92,16 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
     [positions, onClick]
   )
 
+  const [closeParams, setCloseParams] = useState<{ position: Position; option: Option } | null>(null)
+  const [addParams, setAddParams] = useState<{ position: Position; option: Option } | null>(null)
+  const [adjustParams, setAdjustParams] = useState<{ position: Position; option: Option } | null>(null)
+
   const columns = useMemo<TableColumn<PositionTableData>[]>(() => {
     return filterNulls([
       {
         accessor: 'expiryTimestamp',
         Header: 'Position',
-        width: 220,
+        minWidth: 220,
         Cell: (props: TableCellProps<PositionTableData>) => {
           const { position } = props.row.original
           return <PositionItem position={position} />
@@ -92,19 +113,13 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
         Cell: (props: TableCellProps<PositionTableData>) => {
           const equity = props.cell.value
           const { position } = props.row.original
-          const { liquidationPrice, isBase } = position.collateral ?? {}
+          const { liquidationPrice } = position.collateral ?? {}
           return (
             <Box>
-              <Text variant="secondary">{equity === 0 ? '-' : formatTruncatedUSD(equity)}</Text>
-              {isBase || liquidationPrice ? (
+              <Text>{formatUSD(equity)}</Text>
+              {liquidationPrice ? (
                 <Text variant="small" color="secondaryText">
-                  {liquidationPrice ? `Liq ${formatTruncatedUSD(liquidationPrice)}` : null}
-                  {liquidationPrice && isBase ? ' · ' : ''}
-                  {isBase
-                    ? `${formatTruncatedNumber(position.collateral?.amount ?? ZERO_BN)} ${formatTokenName(
-                        position.market().baseToken
-                      )}`
-                    : ''}
+                  Liq {formatTruncatedUSD(liquidationPrice)}
                 </Text>
               ) : null}
             </Box>
@@ -115,33 +130,81 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
         accessor: 'averageCostPerOption',
         Header: 'Average Cost',
         Cell: (props: TableCellProps<PositionTableData>) => {
-          return <Text variant="secondary">{props.cell.value === 0 ? '-' : formatUSD(props.cell.value)}</Text>
+          return <Text>{formatUSD(props.cell.value)}</Text>
         },
       },
       {
         accessor: 'pricePerOption',
         Header: 'Current Price',
         Cell: (props: TableCellProps<PositionTableData>) => {
-          return <Text variant="secondary">{props.cell.value === 0 ? '-' : formatUSD(props.cell.value)}</Text>
+          return <Text>{formatUSD(props.cell.value)}</Text>
         },
       },
       {
         accessor: 'pnl',
         Header: 'Profit / Loss',
+        maxWidth: 120,
         Cell: (props: TableCellProps<PositionTableData>) => {
-          const { equity, pnlPercentage } = props.row.original
-          if (equity === 0) {
-            return <Text variant="secondary">-</Text>
-          }
+          const { pnlPercentage } = props.row.original
           return (
             <Box>
-              <Text variant="secondary" color={pnlPercentage > 0 ? 'primaryText' : 'errorText'}>
+              <Text color={pnlPercentage > 0 ? 'primaryText' : 'errorText'}>
                 {formatUSD(props.cell.value, { showSign: true })}
               </Text>
               <Text variant="small" color="secondaryText">
-                {formatPercentage(pnlPercentage, true)}
+                {formatPercentage(pnlPercentage)}
               </Text>
             </Box>
+          )
+        },
+      },
+      {
+        accessor: 'id',
+        Header: '',
+        width: 40,
+        Cell: (props: TableCellProps<PositionTableData>) => {
+          const { position, option } = props.row.original
+          const [isOpen, setIsOpen] = useState(false)
+          return (
+            <Flex justifyContent="flex-end" width="100%">
+              <DropdownIconButton
+                onClick={e => {
+                  e.stopPropagation()
+                  setIsOpen(true)
+                }}
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+                icon={IconType.MoreHorizontal}
+                mobileTitle="Edit Position"
+              >
+                <DropdownButtonListItem
+                  label="Close Position"
+                  onClick={e => {
+                    e.stopPropagation()
+                    setCloseParams({ position, option })
+                    setIsOpen(false)
+                  }}
+                />
+                <DropdownButtonListItem
+                  label="Add Size"
+                  onClick={e => {
+                    e.stopPropagation()
+                    setAddParams({ position, option })
+                    setIsOpen(false)
+                  }}
+                />
+                {!position.isLong ? (
+                  <DropdownButtonListItem
+                    label="Adjust Collateral"
+                    onClick={e => {
+                      e.stopPropagation()
+                      setAdjustParams({ position, option })
+                      setIsOpen(false)
+                    }}
+                  />
+                ) : null}
+              </DropdownIconButton>
+            </Flex>
           )
         },
       },
@@ -152,7 +215,37 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
     return null
   }
 
-  return <Table data={rows} columns={columns} pageSize={pageSize} {...styleProps} />
+  return (
+    <>
+      <Table data={rows} columns={columns} pageSize={pageSize} {...styleProps} />
+      {closeParams ? (
+        <TradeFormModal
+          isOpen={true}
+          onClose={() => setCloseParams(null)}
+          onTrade={() => setCloseParams(null)}
+          isBuy={!closeParams.position.isLong}
+          {...closeParams}
+        />
+      ) : null}
+      {addParams ? (
+        <TradeFormModal
+          isOpen={true}
+          onClose={() => setAddParams(null)}
+          onTrade={() => setAddParams(null)}
+          isBuy={addParams.position.isLong}
+          {...addParams}
+        />
+      ) : null}
+      {adjustParams ? (
+        <TradeCollateralFormModal
+          isOpen={true}
+          onClose={() => setAdjustParams(null)}
+          onTrade={() => setAdjustParams(null)}
+          {...adjustParams}
+        />
+      ) : null}
+    </>
+  )
 }
 
 export default PositionsTable

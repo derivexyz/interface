@@ -29,7 +29,7 @@ const VoteCreateProposalTransferFields = ({
 }: Props) => {
   return (
     <CardSection noSpacing {...styleProps}>
-      <Text variant="heading" color="text" mb={4}>
+      <Text variant="cardHeading" color="text" mb={4}>
         Target address, token address and amount to transfer
       </Text>
       <Grid sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr'], gridColumnGap: [3, 6], gridRowGap: [3, 6] }}>

@@ -56,26 +56,11 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
 
   return (
     <Card
-      mb={4}
-      onClick={() =>
-        navigate(
-          getPagePath({
-            page: PageId.RewardsVaults,
-            network: market.lyra.network,
-            marketAddressOrName: market.name,
-          })
-        )
-      }
-      sx={{
-        ':hover': {
-          bg: 'cardNestedHover',
-          cursor: 'pointer',
-        },
-        ':active': {
-          bg: 'active',
-          cursor: 'pointer',
-        },
-      }}
+      href={getPagePath({
+        page: PageId.RewardsVaults,
+        network: market.lyra.network,
+        marketAddressOrName: market.name,
+      })}
     >
       <CardBody>
         <Grid
@@ -89,42 +74,40 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
         >
           <Flex alignItems="center">
             <MarketImage market={market} />
-            <Text ml={2} variant="bodyLarge">
+            <Text ml={2}>
               {formatTokenName(market.baseToken)} Vault · {getNetworkDisplayName(market.lyra.network)}
             </Text>
           </Flex>
           {!isMobile ? (
             <>
               <Flex>
-                <Text mr={2} color="secondaryText" variant="bodyLarge">
+                <Text mr={2} color="secondaryText">
                   Balance
                 </Text>
-                <Text variant="bodyLarge">{formatUSD(liquidityTokenBalanceValue, { minDps: 0 })}</Text>
+                <Text>{formatUSD(liquidityTokenBalanceValue, { minDps: 0 })}</Text>
               </Flex>
               <Flex>
-                <Text mr={2} color="secondaryText" variant="bodyLarge">
+                <Text mr={2} color="secondaryText">
                   APY
                 </Text>
                 {!liquidityTokenBalanceValue ? (
-                  <Text variant="bodyLarge">{formatAPYRange(vault.minApy, vault.maxApy, { showSymbol: false })}</Text>
+                  <Text>{formatAPYRange(vault.minApy, vault.maxApy, { showSymbol: false })}</Text>
                 ) : (
-                  <Text variant="bodyLarge">{formatAPY(vault.apy, { showSymbol: false })}</Text>
+                  <Text>{formatAPY(vault.apy, { showSymbol: false })}</Text>
                 )}
               </Flex>
               <Flex ml="auto">
-                <Text mr={2} color="secondaryText" variant="bodyLarge">
+                <Text mr={2} color="secondaryText">
                   Rewards
                 </Text>
                 <RewardTokenAmounts
                   color={vaultRewards.amount > 0.001 ? 'primaryText' : 'text'}
-                  variant="bodyLarge"
                   tokenAmounts={[vaultRewards]}
                   hideTokenImages={true}
                 />
               </Flex>
             </>
           ) : null}
-
           <Flex justifySelf="end">
             <IconButton
               icon={IconType.ArrowRight}

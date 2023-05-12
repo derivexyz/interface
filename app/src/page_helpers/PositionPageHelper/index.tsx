@@ -1,6 +1,6 @@
 import Text from '@lyra/ui/components/Text'
-import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import formatDate from '@lyra/ui/utils/formatDate'
+import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Option, Position } from '@lyrafinance/lyra-js'
 import React from 'react'
 
@@ -9,7 +9,6 @@ import PositionHistoryCard from '@/app/components/position/PositionHistoryCard'
 import PositionStatsCard from '@/app/components/position/PositionStatsCard'
 import PositionChartCard from '@/app/containers/position/PositionChartCard'
 import formatTokenName from '@/app/utils/formatTokenName'
-import fromBigNumber from '@/app/utils/fromBigNumber'
 
 import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
@@ -24,29 +23,15 @@ const PositionPageHelper = ({ position, option }: Props): JSX.Element => {
   const expiryTimestamp = position.expiryTimestamp
   const isCall = position.isCall
   const baseName = formatTokenName(position.market().baseToken)
-  const isMobile = useIsMobile()
-  const titleText = (
-    <Text variant="title">
-      {baseName} ${fromBigNumber(strikePrice)} {isCall ? 'Call' : 'Put'}
-      <Text as="span" color="secondaryText">
-        {isMobile ? <br /> : ' · '}
-        {formatDate(expiryTimestamp, true)} Exp
-      </Text>
-    </Text>
-  )
-  const collapsedTitleText = (
-    <Text variant="secondary">
-      {baseName} ${fromBigNumber(strikePrice)} {isCall ? 'Call' : 'Put'}
-      <Text as="span" color="secondaryText">
-        {' · '}
-        {formatDate(expiryTimestamp, true)} Exp
-      </Text>
-    </Text>
-  )
-
   return (
-    <Page mobileCollapsedHeader={collapsedTitleText} header={titleText}>
+    <Page showBackButton>
       <PageGrid>
+        <Text mx={[3, 0]} variant="heading">
+          {baseName} {formatUSD(strikePrice)} {isCall ? 'Call' : 'Put'}
+          <Text as="span" color="secondaryText">
+            &nbsp;·&nbsp;{formatDate(expiryTimestamp, true)} Exp
+          </Text>
+        </Text>
         <PositionChartCard option={option} />
         <PositionCard position={position} option={option} />
         {position.isOpen ? <PositionStatsCard option={option} /> : null}

@@ -37,6 +37,7 @@ const VaultSelector = ({
       label={`${selectedVault?.name} Vault APY` ?? ''}
       size={size}
       textVariant={textVariant}
+      mobileTitle="Select Vault"
     >
       {vaults.map(market => {
         return (

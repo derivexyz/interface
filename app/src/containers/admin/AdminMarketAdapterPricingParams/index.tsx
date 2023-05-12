@@ -41,7 +41,7 @@ const AdminMarketAdapterPricingParams = ({ market, isExpanded, onClickExpand }: 
     <>
       <Collapsible
         onClickHeader={onClickExpand}
-        header={<Text variant="heading2">Adapter Market Pricing Parameters</Text>}
+        header={<Text variant="cardHeading">Adapter Market Pricing Parameters</Text>}
         isExpanded={isExpanded}
       >
         <Box p={4}>

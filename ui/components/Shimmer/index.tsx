@@ -4,9 +4,9 @@ import { Box } from 'rebass'
 import styled from 'styled-components'
 import { LayoutProps, MarginProps } from 'styled-system'
 
-export type Props = { borderRadius?: ResponsiveValue; nested?: boolean } & LayoutProps & MarginProps
+export type Props = { borderRadius?: ResponsiveValue } & LayoutProps & MarginProps
 
-function ShimmerRaw({ width = '100%', height = '100%', borderRadius = 'text', nested = false, ...styleProps }: Props) {
+function ShimmerRaw({ width = '100%', height = '100%', borderRadius = 'text', ...styleProps }: Props) {
   return (
     <Box
       width={width}
@@ -15,7 +15,7 @@ function ShimmerRaw({ width = '100%', height = '100%', borderRadius = 'text', ne
         borderRadius,
         position: 'relative',
         overflow: 'hidden',
-        bg: nested ? 'shimmerBgNested' : 'shimmerBg',
+        bg: 'shimmerBg',
         animation: 'shimmer 2s infinite',
       }}
       {...styleProps}

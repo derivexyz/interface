@@ -12,6 +12,7 @@ export default function AlertDemoCard({ ...marginProps }: MarginProps): CardElem
         <Alert title="hello" my={2} />
         <Alert title="hello" variant="primary" my={2} />
         <Alert title="hello" variant="error" my={2} />
+        <Alert description="This is an error" variant="error" my={2} />
         <Alert
           title="Hello world"
           icon={IconType.Activity}

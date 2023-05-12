@@ -23,13 +23,13 @@ export default function PositionItem({ position, customSize, hideSize }: Props):
     <Flex alignItems="center">
       <MarketImage market={position.market()} />
       <Box ml={2}>
-        <Text variant="secondary">
+        <Text>
           {formatTokenName(position.market().baseToken)}&nbsp;${fromBigNumber(position.strikePrice)}&nbsp;
           {position.isCall ? 'Call' : 'Put'}
         </Text>
         <Text variant="small" color="secondaryText">
-          <Text variant="small" as="span" color={position.isLong ? 'primaryText' : 'errorText'}>
-            {position.isLong ? 'LONG' : 'SHORT'}
+          <Text as="span" color={position.isLong ? 'primaryText' : 'errorText'}>
+            {position.isLong ? 'Long' : 'Short'}
             {!hideSize ? ` ${formatNumber(customSize ?? position.size)}` : ''}
           </Text>
           {' · '}

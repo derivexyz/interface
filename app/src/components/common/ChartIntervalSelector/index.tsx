@@ -35,7 +35,6 @@ const ChartIntervalSelector = ({
           label={formatInterval(interval)}
           isSelected={interval === selectedInterval}
           onSelect={onChangeInterval}
-          textVariant="secondaryMedium"
         />
       ))}
     </ToggleButton>

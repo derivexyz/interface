@@ -36,7 +36,7 @@ const PositionHistoryCard = withSuspense(
     return (
       <Card>
         <CardBody noPadding>
-          <Text variant="heading" mx={6} my={4}>
+          <Text variant="cardHeading" mx={6} my={4}>
             History
           </Text>
           <TradeEventsTable

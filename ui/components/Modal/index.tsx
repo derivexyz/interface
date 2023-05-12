@@ -10,22 +10,21 @@ export type Props = {
   onClose?: () => void
   title?: string | Exclude<React.ReactNode, string> | null
   children?: React.ReactNode
+  desktopWidth?: ResponsiveValue
   isMobileFullscreen?: boolean
-  noPadding?: boolean
-  width?: ResponsiveValue
 }
 
-export default function Modal({ isOpen, isMobileFullscreen, onClose, title, children, width }: Props) {
+export default function Modal({ isOpen, onClose, title, children, isMobileFullscreen, desktopWidth }: Props) {
   const isMobile = useIsMobile()
   if (isMobile) {
     return (
-      <ModalMobile isFullscreen={isMobileFullscreen} isOpen={isOpen} onClose={onClose} title={title}>
+      <ModalMobile isOpen={isOpen} onClose={onClose} title={title} isFullscreen={isMobileFullscreen}>
         {children}
       </ModalMobile>
     )
   } else {
     return (
-      <ModalDesktop isOpen={isOpen} onClose={onClose} title={title} width={width}>
+      <ModalDesktop isOpen={isOpen} onClose={onClose} title={title} width={desktopWidth}>
         {children}
       </ModalDesktop>
     )

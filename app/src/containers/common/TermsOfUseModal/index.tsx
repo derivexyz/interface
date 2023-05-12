@@ -30,7 +30,7 @@ export default function TermsOfUseModal({ isOpen, onClose, onConfirm }: Props) {
     return null
   }
   return (
-    <Modal title="Disclaimer" isOpen={isOpen} onClose={onClose} width={600}>
+    <Modal title="Disclaimer" isOpen={isOpen} onClose={onClose}>
       <CardBody>
         <Text color="secondaryText" mb={6}>
           Check the boxes below to confirm your agreement to the&nbsp;

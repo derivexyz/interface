@@ -21,8 +21,6 @@ export default function ToggleButtonItem<ToggleButtonItemID extends string | num
   label,
   isSelected,
   onSelect,
-  size = 'medium',
-  textVariant = 'bodyMedium',
   ...styleProps
 }: ToggleButtonItemProps<ToggleButtonItemID>) {
   function handleOnChange(id: ToggleButtonItemID) {
@@ -33,10 +31,8 @@ export default function ToggleButtonItem<ToggleButtonItemID extends string | num
       {...styleProps}
       isTransparent={!isSelected}
       variant={isSelected ? 'default' : 'light'}
-      size={size}
       onClick={() => handleOnChange(id)}
       label={label}
-      textVariant={textVariant}
     />
   )
 }

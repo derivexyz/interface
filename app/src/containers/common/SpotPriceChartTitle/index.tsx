@@ -1,6 +1,5 @@
 import Box from '@lyra/ui/components/Box'
 import { OhlcData } from '@lyra/ui/components/CandleChart'
-import Flex from '@lyra/ui/components/Flex'
 import TextShimmer from '@lyra/ui/components/Shimmer/TextShimmer'
 import Text, { TextVariant } from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
@@ -18,13 +17,14 @@ import fromBigNumber from '@/app/utils/fromBigNumber'
 const getOhlcWidthForToken = (token: string) => {
   switch (token.toLowerCase()) {
     case 'btc':
+    case 'wbtc':
     case 'sbtc':
-      return 100
-    case 'sol':
-    case 'ssol':
-      return 75
+      return 124
+    case 'eth':
+    case 'weth':
+    case 'seth':
     default:
-      return 90
+      return 112
   }
 }
 
@@ -40,7 +40,7 @@ type Props = {
 const SpotPriceChartTitle = withSuspense(
   ({
     market,
-    textVariant = 'title',
+    textVariant = 'cardHeading',
     hoverSpotPrice,
     interval,
     hoverCandle,
@@ -61,57 +61,48 @@ const SpotPriceChartTitle = withSuspense(
         <Text variant={textVariant}>{formatUSD(spotPrice)}</Text>
         {isCandleChart ? (
           <Box
-            display={isMobile ? 'grid' : 'flex'}
+            display="grid"
             sx={{
-              gridTemplateColumns: isMobile ? `repeat(2, ${ohlcLabelWidth}px)` : `repeat(4, ${ohlcLabelWidth}px)`,
-              columnGap: isMobile ? 0 : 1,
+              gridTemplateColumns: [`repeat(2, ${ohlcLabelWidth}px)`, `repeat(4, ${ohlcLabelWidth}px)`],
             }}
           >
-            <Flex width={ohlcLabelWidth}>
-              <Text variant="small" color="secondaryText">
-                {isMobile ? 'O:' : 'Open:'}
-              </Text>
-              <Text ml={1} variant="smallMedium" color={isCandleUp ? 'primaryText' : 'errorText'}>
+            <Text variant="small" color="secondaryText">
+              {isMobile ? 'O: ' : 'Open: '}
+              <Text as="span" color={isCandleUp ? 'primaryText' : 'errorText'}>
                 {formatUSD(candle?.open ?? 0)}
               </Text>
-            </Flex>
-            <Flex ml={[0, 2]} width={ohlcLabelWidth}>
-              <Text variant="small" color="secondaryText">
-                {isMobile ? 'H:' : 'High:'}
-              </Text>
-              <Text ml={1} variant="smallMedium" color={isCandleUp ? 'primaryText' : 'errorText'}>
+            </Text>
+            <Text variant="small" color="secondaryText">
+              {isMobile ? 'H: ' : 'High: '}
+              <Text as="span" color={isCandleUp ? 'primaryText' : 'errorText'}>
                 {formatUSD(candle?.high ?? 0)}
               </Text>
-            </Flex>
-            <Flex ml={[0, 2]} width={ohlcLabelWidth}>
-              <Text variant="small" color="secondaryText">
-                {isMobile ? 'L:' : 'Low:'}
-              </Text>
-              <Text ml={1} variant="smallMedium" color={isCandleUp ? 'primaryText' : 'errorText'}>
+            </Text>
+            <Text variant="small" color="secondaryText">
+              {isMobile ? 'L: ' : 'Low: '}
+              <Text as="span" color={isCandleUp ? 'primaryText' : 'errorText'}>
                 {formatUSD(candle?.low ?? 0)}
               </Text>
-            </Flex>
-            <Flex ml={[0, 1]} width={ohlcLabelWidth}>
-              <Text variant="small" color="secondaryText">
-                {isMobile ? 'C:' : 'Close:'}
-              </Text>
-              <Text ml={1} variant="smallMedium" color={isCandleUp ? 'primaryText' : 'errorText'}>
+            </Text>
+            <Text variant="small" color="secondaryText">
+              {isMobile ? 'C: ' : 'Close: '}
+              <Text as="span" color={isCandleUp ? 'primaryText' : 'errorText'}>
                 {formatUSD(candle?.close ?? 0)}
               </Text>
-            </Flex>
+            </Text>
           </Box>
         ) : (
-          <Text variant="smallMedium" color={pctChange < 0 ? 'errorText' : 'primaryText'}>
+          <Text variant="small" color={pctChange < 0 ? 'errorText' : 'primaryText'}>
             {formatPercentage(pctChange)}
           </Text>
         )}
       </Box>
     )
   },
-  ({ textVariant = 'title', market, hoverSpotPrice, interval, hoverCandle, ...styleProps }: Props) => (
+  ({ textVariant = 'cardHeading', market, hoverSpotPrice, interval, hoverCandle, ...styleProps }: Props) => (
     <Box {...styleProps}>
-      <TextShimmer variant={textVariant} width={200} />
-      <TextShimmer variant="smallMedium" width={50} />
+      <TextShimmer variant={textVariant} width={100} />
+      <TextShimmer variant="small" width={80} />
     </Box>
   )
 )

@@ -1,88 +1,67 @@
 import Box from '@lyra/ui/components/Box'
-import Button from '@lyra/ui/components/Button'
+import IconButton from '@lyra/ui/components/Button/IconButton'
 import Flex from '@lyra/ui/components/Flex'
 import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import {
-  DESKTOP_HEADER_NAV_HEIGHT,
-  DESKTOP_LAYOUT_LARGE_WIDTH,
-  DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH,
-  DESKTOP_LAYOUT_WIDTH,
-} from '@/app/constants/layout'
+import { DESKTOP_HEADER_NAV_HEIGHT, HEADER_CARD_HEIGHT, PAGE_FULL_WIDTH, PAGE_WIDTH } from '@/app/constants/layout'
 
-type Props = {
-  children?: React.ReactNode
-  rightColumn?: React.ReactNode
-  header?: React.ReactNode
-  showBackButton?: boolean
-  backHref?: string
-  noHeaderPadding?: boolean
-}
+import { PageProps } from '.'
 
 export default function PageDesktop({
   children,
-  rightColumn,
-  header,
+  title,
+  subtitle,
+  isFullWidth,
+  headerCard,
   showBackButton,
   backHref,
-  noHeaderPadding = false,
-}: Props): JSX.Element {
+}: PageProps): JSX.Element {
   const navigate = useNavigate()
-
-  const headerComponent = (
-    <Box px={noHeaderPadding ? 0 : 6} pb={4}>
-      {showBackButton ? (
-        <Flex>
-          <Button
-            mb={4}
-            label="Back"
-            variant="light"
-            leftIcon={IconType.ArrowLeft}
-            onClick={!backHref ? () => navigate(-1) : undefined}
-            href={backHref}
-          />
-        </Flex>
-      ) : null}
-      {typeof header === 'string' ? (
-        <Text variant="title" mb={2}>
-          {header}
-        </Text>
-      ) : (
-        header
-      )}
-    </Box>
-  )
 
   return (
     <Flex pt={DESKTOP_HEADER_NAV_HEIGHT} minHeight="100%" width="100%" justifyContent="center">
       <Flex
-        pt={6}
         px={6}
         minHeight="100%"
-        width="100%"
-        maxWidth={rightColumn ? DESKTOP_LAYOUT_LARGE_WIDTH : DESKTOP_LAYOUT_WIDTH}
+        width={isFullWidth ? PAGE_FULL_WIDTH : PAGE_WIDTH}
+        maxWidth="100vw"
         flexDirection="column"
       >
-        {headerComponent}
-        <Flex flexGrow={1} width="100%">
-          <Flex flexGrow={1} pr={rightColumn ? 6 : 0} flexDirection="column">
-            {children}
-          </Flex>
-          {rightColumn ? (
-            <Box minWidth={DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH}>
-              <Box
-                minWidth={DESKTOP_LAYOUT_RIGHT_COLUMN_MIN_WIDTH}
-                sx={{ position: 'sticky', top: DESKTOP_HEADER_NAV_HEIGHT + 8 }}
-                pb={12}
-              >
-                {rightColumn}
+        {title ? (
+          <Box mt={7}>
+            <Flex height={HEADER_CARD_HEIGHT} alignItems="center">
+              <Box>
+                <Text variant="title" mb={subtitle ? 2 : 0}>
+                  {title}
+                </Text>
+                {subtitle ? (
+                  <Text variant="subtitle" color="secondaryText">
+                    {subtitle}
+                  </Text>
+                ) : null}
               </Box>
-            </Box>
-          ) : null}
-        </Flex>
+              {headerCard ? (
+                <Box ml="auto" height="100%" width={412}>
+                  {headerCard}
+                </Box>
+              ) : null}
+            </Flex>
+          </Box>
+        ) : null}
+        {showBackButton ? (
+          <Flex mt={!title ? 7 : 0}>
+            <IconButton
+              variant="light"
+              icon={IconType.ArrowLeft}
+              onClick={!backHref ? () => navigate(-1) : undefined}
+              href={backHref}
+            />
+          </Flex>
+        ) : null}
+        {children}
       </Flex>
     </Flex>
   )

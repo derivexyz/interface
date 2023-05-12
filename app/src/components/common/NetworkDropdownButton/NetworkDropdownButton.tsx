@@ -27,6 +27,7 @@ export default function NetworkDropdownButton({ selectedNetwork, onSelectNetwork
 
   return (
     <DropdownButton
+      mobileTitle="Select Network"
       isOpen={isOpen}
       onClick={() => setIsOpen(!isOpen)}
       onClose={handleClose}

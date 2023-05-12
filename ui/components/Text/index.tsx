@@ -4,21 +4,15 @@ import { Text as RebassText } from 'rebass'
 import { FlexGrowProps } from 'styled-system'
 
 export type TextVariant =
-  | 'heroTitle'
-  | 'heroHeading'
-  | 'xlTitle'
-  | 'largeTitle'
   | 'title'
+  | 'subtitle'
   | 'heading'
-  | 'heading2'
-  | 'bodyLarge'
-  | 'bodyLargeMedium'
+  | 'cardHeading'
+  | 'bodyMedium'
   | 'body'
   | 'bodyMedium'
-  | 'secondary'
-  | 'secondaryMedium'
   | 'small'
-  | 'smallMedium'
+  | 'xs'
 
 export type TextColor =
   | 'white'
@@ -28,7 +22,6 @@ export type TextColor =
   | 'errorText'
   | 'warningText'
   | 'disabledText'
-  | 'invertedText'
   | 'inherit'
 
 export type TextBaseProps = {
@@ -49,14 +42,12 @@ export type TextElement = React.ReactElement<TextProps>
 
 const getDefaultAs = (variant?: TextVariant) => {
   switch (variant) {
-    case 'largeTitle':
-      return 'h1'
     case 'title':
-      return 'h2'
+      return 'h1'
     case 'heading':
+      return 'h2'
+    case 'cardHeading':
       return 'h3'
-    case 'heading2':
-      return 'h4'
     default:
       return 'p'
   }

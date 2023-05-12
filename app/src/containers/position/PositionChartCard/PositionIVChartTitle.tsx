@@ -25,8 +25,8 @@ const PositionIVChartTitle = withSuspense(
     const pctChange = prevIv ? (iv - prevIv) / prevIv : 0
     return (
       <Box {...styleProps}>
-        <Text variant="heading">{formatPercentage(iv, true)}</Text>
-        <Text variant="smallMedium" color={pctChange < 0 ? 'errorText' : 'primaryText'}>
+        <Text variant="cardHeading">{formatPercentage(iv, true)}</Text>
+        <Text variant="small" color={pctChange < 0 ? 'errorText' : 'primaryText'}>
           {formatPercentage(pctChange, true)}
         </Text>
       </Box>
@@ -34,8 +34,8 @@ const PositionIVChartTitle = withSuspense(
   },
   () => (
     <Box>
-      <TextShimmer variant="heading" />
-      <TextShimmer variant="smallMedium" />
+      <TextShimmer variant="cardHeading" />
+      <TextShimmer variant="small" />
     </Box>
   )
 )

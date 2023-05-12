@@ -20,8 +20,6 @@ import { getChainIdForNetwork } from '@/app/utils/getChainIdForNetwork'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import logEvent from '@/app/utils/logEvent'
 
-import { ONBOARDING_MODAL_WIDTH } from '../../../constants/layout'
-
 const SOCKET_NATIVE_TOKEN_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
 export type ToToken = { address: string; balance: BigNumber; symbol: string; network: Network }
@@ -52,8 +50,8 @@ const OnboardingModalBody = withSuspense(
     const { chainId } = useWallet()
     const toChainId = getChainIdForNetwork(toToken.network)
     return (
-      <ModalBody height={654}>
-        <Text mb={6} variant="secondary" color="secondaryText">
+      <ModalBody height={660}>
+        <Text variant="small" mb={6} color="secondaryText">
           {isGetETHStep
             ? `You need ETH to transact on ${getNetworkDisplayName(
                 toToken.network
@@ -79,7 +77,7 @@ const OnboardingModalBody = withSuspense(
             />
           )}
         </Box>
-        <Flex>
+        <Flex mt="auto">
           <Button
             width="100%"
             size="lg"
@@ -117,7 +115,7 @@ const OnboardingModalBody = withSuspense(
     )
   },
   () => (
-    <ModalBody height={654}>
+    <ModalBody height={660}>
       <Center height="100%" width="100%">
         <Spinner />
       </Center>
@@ -135,16 +133,14 @@ export default function OnboardingModal(props: Props): JSX.Element {
       onClose={onClose}
       title={
         <Box>
-          <Text variant="secondary" color="secondaryText">
+          <Text variant="small" color="secondaryText">
             Step {isGetETHStep ? '1' : '2'} of 2
           </Text>
-          <Text variant="heading">
+          <Text variant="cardHeading">
             {isGetETHStep ? `Bridge ETH to ${getNetworkDisplayName(network)}` : `Swap to ${toToken.symbol}`}
           </Text>
         </Box>
       }
-      width={ONBOARDING_MODAL_WIDTH}
-      isMobileFullscreen
     >
       <OnboardingModalBody isGetETHStep={isGetETHStep} onChangeStep={setIsGetETHStep} {...props} />
     </Modal>

@@ -13,6 +13,7 @@ export default function CardSeparator({ isVertical = false, isHorizontal = true 
       variant="cardSeparator"
       width={isVertical || !isHorizontal ? '3px' : '100%'}
       height={isVertical || !isHorizontal ? '100%' : '3px'}
+      my={[2, 0]}
     />
   )
 }

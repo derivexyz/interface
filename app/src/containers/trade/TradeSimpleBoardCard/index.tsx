@@ -2,11 +2,12 @@ import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
 import ToggleButtonItem from '@lyra/ui/components/Button/ToggleButtonItem'
-import Card from '@lyra/ui/components/Card'
 import CardSection from '@lyra/ui/components/Card/CardSection'
 import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
-import Center from '@lyra/ui/components/Center'
+import Flex from '@lyra/ui/components/Flex'
+import { IconType } from '@lyra/ui/components/Icon'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
+import formatDate from '@lyra/ui/utils/formatDate'
 import formatDateTime from '@lyra/ui/utils/formatDateTime'
 import { Board, Market, Option } from '@lyrafinance/lyra-js'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -44,10 +45,10 @@ const TradeSimpleBoardCard = ({
   const [isOpen, setIsOpen] = useState(false)
   const onClose = useCallback(() => setIsOpen(false), [])
   return (
-    <Card>
-      <CardSection flexDirection={isMobile ? 'column' : 'row'}>
-        <Center my={[2, 0]}>
-          <ToggleButton mr={4}>
+    <>
+      <CardSection>
+        <Flex>
+          <ToggleButton mr={[2, 4]}>
             <ToggleButtonItem
               id={1}
               label="Buy"
@@ -81,7 +82,7 @@ const TradeSimpleBoardCard = ({
               }}
             />
           </ToggleButton>
-          <ToggleButton>
+          <ToggleButton mr={[2, 4]}>
             <ToggleButtonItem
               id={1}
               label="Call"
@@ -115,43 +116,48 @@ const TradeSimpleBoardCard = ({
               }}
             />
           </ToggleButton>
-        </Center>
-        <DropdownButton
-          my={[2, 0]}
-          ml={[0, 'auto']}
-          minWidth={isMobile ? undefined : 350}
-          label={
-            boards.length === 0
-              ? 'No Expiries'
-              : selectedBoard
-              ? `Expires ${formatDateTime(selectedBoard.expiryTimestamp, { hideYear: true })}`
-              : 'Expiry does not exist'
-          }
-          isOpen={isOpen}
-          onClose={onClose}
-          onClick={() => setIsOpen(true)}
-          isDisabled={!boards.length}
-        >
-          {boards.map(board => (
-            <DropdownButtonListItem
-              key={board.id}
-              isSelected={board.id === selectedBoard?.id}
-              onClick={() => {
-                onSelectBoard(board)
-                logEvent(LogEvent.BoardExpirySelect, {
-                  marketName: market.name,
-                  marketAddress: market.address,
-                  boardId: board.id,
-                  expiryTimestamp: board.expiryTimestamp,
-                  isBuy,
-                  isCall,
-                })
-                onClose()
-              }}
-              label={formatDateTime(board.expiryTimestamp, { hideYear: true })}
-            />
-          ))}
-        </DropdownButton>
+          <DropdownButton
+            ml="auto"
+            minWidth={isMobile ? 150 : 350}
+            label={
+              boards.length === 0
+                ? 'No Expiries'
+                : selectedBoard
+                ? `Expires ${
+                    isMobile
+                      ? formatDate(selectedBoard.expiryTimestamp, true)
+                      : formatDateTime(selectedBoard.expiryTimestamp, { hideYear: true })
+                  }`
+                : 'Expiry does not exist'
+            }
+            mobileTitle="Select Expiry"
+            isOpen={isOpen}
+            onClose={onClose}
+            onClick={() => setIsOpen(true)}
+            isDisabled={!boards.length}
+          >
+            {boards.map(board => (
+              <DropdownButtonListItem
+                key={board.id}
+                isSelected={board.id === selectedBoard?.id}
+                onClick={() => {
+                  onSelectBoard(board)
+                  logEvent(LogEvent.BoardExpirySelect, {
+                    marketName: market.name,
+                    marketAddress: market.address,
+                    boardId: board.id,
+                    expiryTimestamp: board.expiryTimestamp,
+                    isBuy,
+                    isCall,
+                  })
+                  onClose()
+                }}
+                label={formatDateTime(board.expiryTimestamp, { hideYear: true })}
+                rightContent={board.id === selectedBoard?.id ? IconType.Check : null}
+              />
+            ))}
+          </DropdownButton>
+        </Flex>
       </CardSection>
       {isMobile ? <CardSeparator /> : null}
       {selectedBoard ? (
@@ -163,7 +169,7 @@ const TradeSimpleBoardCard = ({
           selectedOption={selectedOption}
         />
       ) : null}
-    </Card>
+    </>
   )
 }
 

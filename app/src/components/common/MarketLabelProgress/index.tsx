@@ -22,7 +22,7 @@ export default function MarketLabelProgress({ market, progress, color, size, ...
     <Flex {...marginProps} alignItems="center">
       <MarketImageProgress market={market} progress={progress} color={color} size={size} />
       <Box ml={2}>
-        <Text variant="secondaryMedium">{formatTokenName(market.baseToken)}</Text>
+        <Text>{formatTokenName(market.baseToken)}</Text>
         <Text variant="small" color="secondaryText">
           {getNetworkDisplayName(market.lyra.network)}
         </Text>

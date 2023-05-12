@@ -42,7 +42,7 @@ const AdminMarketPricingParams = ({ market, isExpanded, onClickExpand }: Props) 
   return (
     <>
       <Collapsible
-        header={<Text variant="heading2">Pricing Parameters</Text>}
+        header={<Text variant="cardHeading">Pricing Parameters</Text>}
         onClickHeader={onClickExpand}
         isExpanded={isExpanded}
       >

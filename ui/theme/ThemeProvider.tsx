@@ -5,7 +5,6 @@ import { injectStyle } from 'react-toastify/dist/inject-style'
 import { ThemeProvider as InternalThemeProvider } from 'theme-ui'
 
 import { darkTheme, getThemePreset, lightTheme } from '.'
-import ModalProvider from './ModalProvider'
 
 type Props = {
   children: React.ReactNode
@@ -22,10 +21,8 @@ export default function ThemeProvider({ children, isDarkMode = false, isLightMod
 
   return (
     <InternalThemeProvider theme={theme}>
-      <ModalProvider>
-        {children}
-        <ToastContainer closeButton={false} />
-      </ModalProvider>
+      {children}
+      <ToastContainer closeButton={false} />
     </InternalThemeProvider>
   )
 }

@@ -38,7 +38,7 @@ const AdminMarketMinCollateralParams = ({ market, isExpanded, onClickExpand }: P
     <>
       <Box>
         <Collapsible
-          header={<Text variant="heading2">Min Collateral Parameters</Text>}
+          header={<Text variant="cardHeading">Min Collateral Parameters</Text>}
           onClickHeader={onClickExpand}
           isExpanded={isExpanded}
         >

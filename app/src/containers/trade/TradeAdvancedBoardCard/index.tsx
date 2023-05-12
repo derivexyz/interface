@@ -1,6 +1,5 @@
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
-import Card from '@lyra/ui/components/Card'
 import CardSection from '@lyra/ui/components/Card/CardSection'
 import Flex from '@lyra/ui/components/Flex'
 import Icon, { IconType } from '@lyra/ui/components/Icon'
@@ -11,9 +10,13 @@ import { Market, Option, Quote, Strike } from '@lyrafinance/lyra-js'
 import React, { useMemo, useState } from 'react'
 
 import TradeChainTable from '@/app/components/trade/TradeChainTable'
+import {
+  TRADE_CHAIN_PRICE_COL_WIDTH,
+  TRADE_CHAIN_STAT_COL_WIDTH,
+  TRADE_CHAIN_STRIKE_COL_WIDTH,
+} from '@/app/constants/layout'
 import { LogEvent } from '@/app/constants/logEvents'
 import useTraderSettings, { CustomColumnOption } from '@/app/hooks/local_storage/useTraderSettings'
-import getPriceColumnWidth from '@/app/utils/getPriceColumnWidth'
 import logEvent from '@/app/utils/logEvent'
 
 type Props = {
@@ -80,7 +83,7 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
           isSelected={option === customCol1}
           label={getCustomColumnLabel(option)}
           onClick={() => {
-            setTradeSettings('customCol1', option)
+            setTradeSettings({ customCol1: option })
             setIsCustomCol1LeftOpen(false)
             setIsCustomCol1RightOpen(false)
           }}
@@ -97,7 +100,7 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
           isSelected={option === customCol2}
           label={getCustomColumnLabel(option)}
           onClick={() => {
-            setTradeSettings('customCol2', option)
+            setTradeSettings({ customCol2: option })
             setIsCustomCol2LeftOpen(false)
             setIsCustomCol2RightOpen(false)
           }}
@@ -110,11 +113,11 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
       {
         accessor: 'strike',
         id: `custom-col-1-selector-left`,
-        width: 88,
+        width: TRADE_CHAIN_STAT_COL_WIDTH,
         Header: (
           <DropdownButton
             variant="light"
-            textVariant="secondary"
+            textVariant="small"
             size="small"
             textAlign="left"
             isTransparent
@@ -134,12 +137,12 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
       {
         accessor: 'strike',
         id: `custom-col-2-selector-left`,
-        width: 88,
+        width: TRADE_CHAIN_STAT_COL_WIDTH,
         Header: (
           <DropdownButton
             variant="light"
             textAlign="left"
-            textVariant="secondary"
+            textVariant="small"
             size="small"
             isTransparent
             label={getCustomColumnLabel(customCol2)}
@@ -159,33 +162,35 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
         accessor: 'callBid',
         Header: 'Bid',
         disableSortBy: true,
-        width: getPriceColumnWidth(market),
+        width: TRADE_CHAIN_PRICE_COL_WIDTH,
       },
       {
         accessor: 'callAsk',
         Header: 'Ask',
         disableSortBy: true,
-        width: getPriceColumnWidth(market),
+        width: TRADE_CHAIN_PRICE_COL_WIDTH,
         Cell: (props: TableCellProps<OptionChainTableData>) => {
           const { isExpanded } = props.row.original
           return isExpanded ? (
             <Flex width="100%">
-              <Text ml="auto" variant="secondary">
-                Calls
-              </Text>
+              <Text ml="auto">Calls</Text>
             </Flex>
           ) : null
         },
       },
       {
         accessor: 'expiry',
-        Header: 'Expiry / Strike',
+        Header: (
+          <Text variant="small" color="secondaryText">
+            Expiry / Strike
+          </Text>
+        ),
         headerAlign: 'center',
         disableSortBy: true,
-        width: 140,
+        width: TRADE_CHAIN_STRIKE_COL_WIDTH,
         Cell: (props: TableCellProps<OptionChainTableData>) => (
           <Flex width="100%" justifyContent="center">
-            <Text variant="secondaryMedium">{props.cell.value > 0 ? formatDate(props.cell.value, true) : '-'}</Text>
+            <Text textAlign="center">{props.cell.value > 0 ? formatDate(props.cell.value, true) : '-'}</Text>
           </Flex>
         ),
       },
@@ -193,28 +198,28 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
         accessor: 'putBid',
         Header: 'Bid',
         disableSortBy: true,
-        width: getPriceColumnWidth(market),
+        width: TRADE_CHAIN_PRICE_COL_WIDTH,
         Cell: (props: TableCellProps<OptionChainTableData>) => {
           const { isExpanded } = props.row.original
-          return isExpanded ? <Text variant="secondary">Puts</Text> : null
+          return isExpanded ? <Text>Puts</Text> : null
         },
       },
       {
         accessor: 'putAsk',
         Header: 'Ask',
         disableSortBy: true,
-        width: getPriceColumnWidth(market),
+        width: TRADE_CHAIN_PRICE_COL_WIDTH,
         Cell: () => null,
       },
       {
         accessor: 'strike',
         id: `custom-col-2-selector-right`,
-        width: 88,
+        width: TRADE_CHAIN_STAT_COL_WIDTH,
         Header: (
           <DropdownButton
             variant="light"
             textAlign="left"
-            textVariant="secondary"
+            textVariant="small"
             size="small"
             isTransparent
             label={getCustomColumnLabel(customCol2)}
@@ -231,12 +236,12 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
       {
         accessor: 'strike',
         id: `custom-col-1-selector-right`,
-        width: 88,
+        width: TRADE_CHAIN_STAT_COL_WIDTH,
         Header: (
           <DropdownButton
             variant="light"
             textAlign="left"
-            textVariant="secondary"
+            textVariant="small"
             size="small"
             isTransparent
             label={getCustomColumnLabel(customCol1)}
@@ -267,7 +272,6 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
       customCol2,
       isCustomCol2LeftOpen,
       col2DropdownButtonListItems,
-      market,
       isCustomCol2RightOpen,
       isCustomCol1RightOpen,
     ]
@@ -313,11 +317,9 @@ const TradeAdvancedBoardCard = ({ market, selectedOption, onSelectOption, isBuy 
   )
 
   return (
-    <Card>
-      <CardSection noPadding={rows.length > 0}>
-        {rows.length > 0 ? <Table columns={columns} data={rows} /> : <Text color="secondaryText">No expiries</Text>}
-      </CardSection>
-    </Card>
+    <CardSection noPadding={rows.length > 0}>
+      {rows.length > 0 ? <Table columns={columns} data={rows} /> : <Text color="secondaryText">No expiries</Text>}
+    </CardSection>
   )
 }
 

@@ -6,7 +6,6 @@ import Grid from '@lyra/ui/components/Grid'
 import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { MarginProps } from '@lyra/ui/types'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
 import { NewTradingRewardsReferredTraders } from '@lyrafinance/lyra-js/src/utils/fetchAccountRewardEpochData'
@@ -23,9 +22,9 @@ import getTokenInfo from '@/app/utils/getTokenInfo'
 
 type Props = {
   referredTraders: NewTradingRewardsReferredTraders
-} & MarginProps
+}
 
-const RewardsReferralsCard = ({ referredTraders, ...marginProps }: Props) => {
+const RewardsReferralsCard = ({ referredTraders }: Props) => {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const lyraToken = getTokenInfo('lyra', Network.Arbitrum)
@@ -53,25 +52,10 @@ const RewardsReferralsCard = ({ referredTraders, ...marginProps }: Props) => {
   }, [lyraToken?.address, lyraToken?.decimals, lyraToken?.symbol, referredTraders])
   return (
     <Card
-      mb={4}
-      onClick={() =>
-        navigate(
-          getPagePath({
-            page: PageId.RewardsReferrals,
-            network: Network.Arbitrum,
-          })
-        )
-      }
-      sx={{
-        ':hover': {
-          bg: 'cardNestedHover',
-          cursor: 'pointer',
-        },
-        ':active': {
-          bg: 'active',
-          cursor: 'pointer',
-        },
-      }}
+      href={getPagePath({
+        page: PageId.RewardsReferrals,
+        network: Network.Arbitrum,
+      })}
     >
       <CardBody>
         <Grid
@@ -85,29 +69,27 @@ const RewardsReferralsCard = ({ referredTraders, ...marginProps }: Props) => {
         >
           <Flex alignItems="center">
             <NetworkImage network={Network.Arbitrum} />
-            <Text ml={2} variant="bodyLarge">
-              Referrals · {getNetworkDisplayName(Network.Arbitrum)}
-            </Text>
+            <Text ml={2}>Referrals · {getNetworkDisplayName(Network.Arbitrum)}</Text>
           </Flex>
           {!isMobile ? (
             <>
               <Flex>
-                <Text mr={2} color="secondaryText" variant="bodyLarge">
+                <Text mr={2} color="secondaryText">
                   Volume
                 </Text>
-                <Text variant="bodyLarge">{formatUSD(volume)}</Text>
+                <Text>{formatUSD(volume)}</Text>
               </Flex>
               <Flex>
-                <Text mr={2} color="secondaryText" variant="bodyLarge">
+                <Text mr={2} color="secondaryText">
                   Traders
                 </Text>
-                <Text variant="bodyLarge">{numTraders}</Text>
+                <Text>{numTraders}</Text>
               </Flex>
               <Flex ml="auto">
-                <Text mr={2} color="secondaryText" variant="bodyLarge">
+                <Text mr={2} color="secondaryText">
                   Rewards
                 </Text>
-                <RewardTokenAmounts color={'text'} variant="bodyLarge" tokenAmounts={token} hideTokenImages={true} />
+                <RewardTokenAmounts color={'text'} tokenAmounts={token} hideTokenImages={true} />
               </Flex>
             </>
           ) : null}

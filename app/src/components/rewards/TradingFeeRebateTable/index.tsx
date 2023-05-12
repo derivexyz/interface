@@ -19,16 +19,8 @@ export function TradingFeeRebateTable({ effectiveRebate, feeRebateTiers, ...styl
     <Flex flexDirection="column">
       <RowItem
         mb={2}
-        label={
-          <Text variant="secondary" color="secondaryText">
-            Staked LYRA
-          </Text>
-        }
-        value={
-          <Text variant="secondary" color="secondaryText">
-            Rebate
-          </Text>
-        }
+        label={<Text color="secondaryText">Staked LYRA</Text>}
+        value={<Text color="secondaryText">Rebate</Text>}
       />
       <Flex flexDirection="column" {...styleProps}>
         {feeRebateTiers.map(feeRebateTier => (
@@ -37,12 +29,12 @@ export function TradingFeeRebateTable({ effectiveRebate, feeRebateTiers, ...styl
             width="100%"
             key={feeRebateTier.stakedLyraCutoff}
             label={
-              <Text variant="secondary" color={effectiveRebate === feeRebateTier.feeRebate ? 'primaryText' : 'text'}>
+              <Text color={effectiveRebate === feeRebateTier.feeRebate ? 'primaryText' : 'text'}>
                 {formatNumber(feeRebateTier.stakedLyraCutoff)}
               </Text>
             }
             value={
-              <Text variant="secondary" color={effectiveRebate === feeRebateTier.feeRebate ? 'primaryText' : 'text'}>
+              <Text color={effectiveRebate === feeRebateTier.feeRebate ? 'primaryText' : 'text'}>
                 {formatPercentage(feeRebateTier.feeRebate, true)}
               </Text>
             }

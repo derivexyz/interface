@@ -98,7 +98,7 @@ export default function Input({
       >
         {icon != null && (
           <Flex alignItems="center" px={3}>
-            {typeof icon === 'string' ? <Text variant="secondary">{icon}</Text> : icon}
+            {typeof icon === 'string' ? <Text>{icon}</Text> : icon}
           </Flex>
         )}
         <RebassInput
@@ -121,7 +121,7 @@ export default function Input({
         />
         {rightContent != null && (
           <Flex ml={1} alignItems="center" mr={3}>
-            {typeof rightContent === 'string' ? <Text variant="secondary">{rightContent}</Text> : rightContent}
+            {typeof rightContent === 'string' ? <Text>{rightContent}</Text> : rightContent}
           </Flex>
         )}
       </Flex>

@@ -27,7 +27,6 @@ const VoteCreateProposalChainDropdown = ({
       isOpen={isOpen}
       onClose={onClose}
       onClick={() => setIsOpen(true)}
-      textVariant="body"
       label={getNetworkDisplayName(selectedProposalNetwork)}
     >
       {proposalNetworks.map((proposalNetwork, idx) => (

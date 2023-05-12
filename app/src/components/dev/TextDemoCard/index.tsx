@@ -11,7 +11,7 @@ export default function TextDemoCard({ ...marginProps }: MarginProps): CardEleme
   return (
     <Card {...marginProps}>
       <CardSection>
-        <Text variant="largeTitle">Large Title</Text>
+        <Text variant="title">Large Title</Text>
         <Text mt={4} variant="title">
           Dark Title
         </Text>
@@ -20,8 +20,8 @@ export default function TextDemoCard({ ...marginProps }: MarginProps): CardEleme
         </Text>
       </CardSection>
       <CardSection>
-        <Text variant="heading">Dark Heading</Text>
-        <Text variant="heading" color="secondaryText">
+        <Text variant="cardHeading">Dark Heading</Text>
+        <Text variant="cardHeading" color="secondaryText">
           Light Heading
         </Text>
       </CardSection>
@@ -33,10 +33,10 @@ export default function TextDemoCard({ ...marginProps }: MarginProps): CardEleme
           Some light and medium body text
         </Text>
         <Text>Some body text</Text>
-        <Text variant="secondary">Secondary text</Text>
+        <Text>Secondary text</Text>
       </CardSection>
       <CardSection>
-        <Text variant="heading">Tokens</Text>
+        <Text variant="cardHeading">Tokens</Text>
         <Flex my={4}>
           <Token label="Default" mr={2} />
           <Token label="Primary" mr={2} variant="primary" />
@@ -45,12 +45,24 @@ export default function TextDemoCard({ ...marginProps }: MarginProps): CardEleme
         </Flex>
       </CardSection>
       <CardSection>
-        <Text variant="heading">Text Link</Text>
-        <Link href="/" showRightIcon>
-          Internal Link
+        <Text variant="cardHeading">Text Link</Text>
+        <Link href="#" showRightIcon>
+          Link
         </Link>
         <Link href="https://www.lyra.finance" showRightIcon>
           External link
+        </Link>
+        <Link color="text" href="#">
+          Default Link
+        </Link>
+        <Link color="primaryText" href="#">
+          Primary Link
+        </Link>
+        <Link color="errorText" href="#">
+          Error Link
+        </Link>
+        <Link color="warningText" href="#">
+          Warning Link
         </Link>
       </CardSection>
     </Card>

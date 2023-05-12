@@ -70,7 +70,7 @@ export default function LeaderboardBoostModal({
     return Math.max(boost, amountBoost)
   }, [account, amount, leaderboard, lyraBalances.totalStkLyra.amount])
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={<Text variant="heading">Boost</Text>}>
+    <Modal isOpen={isOpen} onClose={onClose} title={<Text variant="cardHeading">Boost</Text>}>
       <ModalBody>
         <Text color="secondaryText" mb={10}>
           Get boosts on your daily trading rewards by staking LYRA, being an active trader, or being referred by another

@@ -50,11 +50,7 @@ const ReferralsTable = ({ referredTraders, onClick, pageSize, ...styleProps }: P
         Header: 'Trader',
         width: 100,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          return (
-            <Text variant="bodyMedium" color="text">
-              {formatTruncatedAddress(props.cell.value)}
-            </Text>
-          )
+          return <Text color="text">{formatTruncatedAddress(props.cell.value)}</Text>
         },
       },
       {
@@ -62,11 +58,7 @@ const ReferralsTable = ({ referredTraders, onClick, pageSize, ...styleProps }: P
         Header: 'Trades',
         width: 220,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          return (
-            <Text variant="bodyMedium" color="text">
-              {props.cell.value}
-            </Text>
-          )
+          return <Text color="text">{props.cell.value}</Text>
         },
       },
       {
@@ -74,11 +66,7 @@ const ReferralsTable = ({ referredTraders, onClick, pageSize, ...styleProps }: P
         Header: 'Volume',
         width: 220,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          return (
-            <Text variant="bodyMedium" color="text">
-              {formatTruncatedUSD(props.cell.value)}
-            </Text>
-          )
+          return <Text color="text">{formatTruncatedUSD(props.cell.value)}</Text>
         },
       },
       {
@@ -86,11 +74,7 @@ const ReferralsTable = ({ referredTraders, onClick, pageSize, ...styleProps }: P
         Header: 'Referral Rewards',
         width: 150,
         Cell: (props: TableCellProps<LeaderboardTableData>) => {
-          return (
-            <Text variant="bodyMedium" color="text">
-              {formatNumber(props.cell.value)} LYRA
-            </Text>
-          )
+          return <Text color="text">{formatNumber(props.cell.value)} LYRA</Text>
         },
       },
     ])
@@ -110,7 +94,7 @@ const ReferralsTable = ({ referredTraders, onClick, pageSize, ...styleProps }: P
         sx: {
           height: REFERRALS_TABLE_ROW_HEIGHT,
           ':hover': {
-            bg: 'cardNestedHover',
+            bg: 'cardHoverBg',
             cursor: 'pointer',
           },
           ':active': {

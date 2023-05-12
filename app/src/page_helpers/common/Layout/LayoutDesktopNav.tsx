@@ -8,15 +8,14 @@ import useIsDarkMode from '@lyra/ui/hooks/useIsDarkMode'
 import React, { useCallback, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { DESKTOP_HEADER_NAV_HEIGHT, DESKTOP_LAYOUT_LARGE_WIDTH } from '@/app/constants/layout'
+import { DESKTOP_HEADER_NAV_HEIGHT } from '@/app/constants/layout'
 import { LogEvent } from '@/app/constants/logEvents'
 import { PageId } from '@/app/constants/pages'
+import TABS from '@/app/constants/tabs'
 import AccountButton from '@/app/containers/common/AccountButton'
-import useNetwork from '@/app/hooks/account/useNetwork'
 import getAssetSrc from '@/app/utils/getAssetSrc'
 import { getNavPageFromPath } from '@/app/utils/getNavPageFromPath'
 import getPagePath from '@/app/utils/getPagePath'
-import getTabs from '@/app/utils/getTabs'
 import logEvent from '@/app/utils/logEvent'
 
 import LayoutMoreDropdownListItems from './LayoutMoreDropdownListItems'
@@ -28,7 +27,6 @@ export default function LayoutDesktopNav(): JSX.Element {
   const [isDarkMode] = useIsDarkMode()
   const { pathname } = useLocation()
   const rootPage = getNavPageFromPath(pathname)
-  const network = useNetwork()
 
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
@@ -53,20 +51,19 @@ export default function LayoutDesktopNav(): JSX.Element {
         }}
         justifyContent="center"
       >
-        <Flex width="100%" px={12} maxWidth={DESKTOP_LAYOUT_LARGE_WIDTH}>
+        <Flex width="100%" px={6}>
           <Flex alignItems="center" width={SIDE_WIDTH}>
-            <BaseLink display="flex" alignItems="center" href={getPagePath({ page: PageId.Portfolio })}>
-              <Image src={getAssetSrc('/images/logo.png')} height={24} width={24} />
+            <BaseLink display="flex" alignItems="center" href={getPagePath({ page: PageId.TradeIndex })}>
+              <Image src={getAssetSrc('/images/logo.png')} height={32} width={32} />
             </BaseLink>
           </Flex>
           <Flex flexGrow={1} alignItems={'center'} justifyContent={'center'}>
-            {getTabs(network).map(tab => (
+            {TABS.map(tab => (
               <Link
                 key={tab.path}
                 mr={6}
                 href={tab.path}
-                textVariant="bodyMedium"
-                variant="secondary"
+                variant="bodyMedium"
                 color={rootPage !== tab.rootPageId ? 'secondaryText' : 'text'}
                 onClick={() => logEvent(LogEvent.NavPortfolioTabClick)}
               >

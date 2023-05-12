@@ -1,3 +1,4 @@
+import Center from '@lyra/ui/components/Center'
 import Flex from '@lyra/ui/components/Flex'
 import Table, { TableCellProps, TableColumn } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
@@ -9,13 +10,18 @@ import { Board, Option, Strike } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import { UNIT } from '@/app/constants/bn'
+import {
+  TRADE_CHAIN_PRICE_COL_WIDTH,
+  TRADE_CHAIN_STAT_COL_WIDTH,
+  TRADE_CHAIN_STRIKE_COL_WIDTH,
+} from '@/app/constants/layout'
 import { OptionChainTableData } from '@/app/containers/trade/TradeAdvancedBoardCard'
 import { CustomColumnOption } from '@/app/hooks/local_storage/useTraderSettings'
 import useBoardQuotesSync from '@/app/hooks/market/useBoardQuotesSync'
 import filterNulls from '@/app/utils/filterNulls'
+import formatTokenName from '@/app/utils/formatTokenName'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import getDefaultQuoteSize from '@/app/utils/getDefaultQuoteSize'
-import getPriceColumnWidth from '@/app/utils/getPriceColumnWidth'
 
 import TradeBoardNoticeSection from '../TradeBoardNoticeSection'
 import TradeChainPriceButton from './TradeChainPriceButton'
@@ -63,26 +69,26 @@ const TradeChainTable = ({ board, selectedOption, onSelectOption, isBuy, customC
       {
         accessor: 'strike',
         id: `custom-col-1-left`,
-        width: 88,
+        width: TRADE_CHAIN_STAT_COL_WIDTH,
         Cell: (props: TableCellProps<OptionData>) => {
           const { strike } = props.row.original
-          return <Text variant="secondary">{renderCustomColumn(strike, customCol1, true)}</Text>
+          return <Text>{renderCustomColumn(strike, customCol1, true)}</Text>
         },
       },
       {
         accessor: 'strike',
         id: `custom-col-2-left`,
-        width: 88,
+        width: TRADE_CHAIN_STAT_COL_WIDTH,
         Cell: (props: TableCellProps<OptionData>) => {
           const { strike } = props.row.original
-          return <Text variant="secondary">{renderCustomColumn(strike, customCol2, true)}</Text>
+          return <Text>{renderCustomColumn(strike, customCol2, true)}</Text>
         },
       },
       {
         accessor: 'callBid',
         Header: 'Bid',
         disableSortBy: true,
-        width: getPriceColumnWidth(market),
+        width: TRADE_CHAIN_PRICE_COL_WIDTH,
         Cell: (props: TableCellProps<OptionData>) => {
           const { callBid } = props.row.original
           const isSelected = selectedOption?.strike().id === callBid?.strikeId && isCall && !isBuy
@@ -103,7 +109,7 @@ const TradeChainTable = ({ board, selectedOption, onSelectOption, isBuy, customC
         accessor: 'callAsk',
         Header: 'Ask',
         disableSortBy: true,
-        width: getPriceColumnWidth(market),
+        width: TRADE_CHAIN_PRICE_COL_WIDTH,
         Cell: (props: TableCellProps<OptionData>) => {
           const { callAsk } = props.row.original
           const isSelected = selectedOption?.strike().id === callAsk?.strikeId && isCall && isBuy
@@ -124,14 +130,11 @@ const TradeChainTable = ({ board, selectedOption, onSelectOption, isBuy, customC
         accessor: 'strikePrice',
         Header: 'Expiry / Strike',
         headerAlign: 'center',
-        width: 140,
+        width: TRADE_CHAIN_STRIKE_COL_WIDTH,
         disableSortBy: true,
-        style: { borderRight: '1px solid' },
         Cell: (props: TableCellProps<OptionData>) => (
           <Flex width="100%" justifyContent="center">
-            <Text variant="secondaryMedium">
-              {props.cell.value > 0 ? formatUSD(props.cell.value, { dps: 2 }) : '-'}
-            </Text>
+            <Text>{props.cell.value > 0 ? formatUSD(props.cell.value, { dps: 2 }) : '-'}</Text>
           </Flex>
         ),
       },
@@ -139,7 +142,7 @@ const TradeChainTable = ({ board, selectedOption, onSelectOption, isBuy, customC
         accessor: 'putBid',
         Header: 'Bid',
         disableSortBy: true,
-        width: getPriceColumnWidth(market),
+        width: TRADE_CHAIN_PRICE_COL_WIDTH,
         Cell: (props: TableCellProps<OptionData>) => {
           const { putBid } = props.row.original
           const isSelected = selectedOption?.strike().id === putBid?.strikeId && !isCall && !isBuy
@@ -160,7 +163,7 @@ const TradeChainTable = ({ board, selectedOption, onSelectOption, isBuy, customC
         accessor: 'putAsk',
         Header: 'Ask',
         disableSortBy: true,
-        width: getPriceColumnWidth(market),
+        width: TRADE_CHAIN_PRICE_COL_WIDTH,
         Cell: (props: TableCellProps<OptionData>) => {
           const { putAsk } = props.row.original
           const isSelected = selectedOption?.strike().id === putAsk?.strikeId && !isCall && isBuy
@@ -180,23 +183,23 @@ const TradeChainTable = ({ board, selectedOption, onSelectOption, isBuy, customC
       {
         accessor: 'strike',
         id: 'custom-col-2-right',
-        width: 88,
+        width: TRADE_CHAIN_STAT_COL_WIDTH,
         Cell: (props: TableCellProps<OptionData>) => {
           const { strike } = props.row.original
-          return <Text variant="secondary">{renderCustomColumn(strike, customCol2, false)}</Text>
+          return <Text>{renderCustomColumn(strike, customCol2, false)}</Text>
         },
       },
       {
         accessor: 'strike',
         id: `custom-col-1-right`,
-        width: 88,
+        width: TRADE_CHAIN_STAT_COL_WIDTH,
         Cell: (props: TableCellProps<OptionData>) => {
           const { strike } = props.row.original
-          return <Text variant="secondary">{renderCustomColumn(strike, customCol1, false)}</Text>
+          return <Text>{renderCustomColumn(strike, customCol1, false)}</Text>
         },
       },
     ],
-    [market, customCol1, customCol2, selectedOption, isCall, isBuy, onSelectOption]
+    [customCol1, customCol2, selectedOption, isCall, isBuy, onSelectOption]
   )
 
   const quotes = useBoardQuotesSync(board, size)
@@ -229,8 +232,20 @@ const TradeChainTable = ({ board, selectedOption, onSelectOption, isBuy, customC
       (markerIdx, row) => (row.strikePrice && spotPrice < row.strikePrice ? markerIdx : markerIdx + 1),
       0
     )
-    return { rowIdx: spotPriceRowIdx, content: formatUSD(spotPrice) }
-  }, [rows, spotPrice])
+    return {
+      rowIdx: spotPriceRowIdx,
+      content: (
+        <Center width="100%">
+          <Text variant="small" textAlign="center">
+            {formatTokenName(board.market().baseToken)} Price:{' '}
+            <Text as="span" color="primaryText">
+              {formatUSD(spotPrice)}
+            </Text>
+          </Text>
+        </Center>
+      ),
+    }
+  }, [board, rows, spotPrice])
 
   return (
     <>

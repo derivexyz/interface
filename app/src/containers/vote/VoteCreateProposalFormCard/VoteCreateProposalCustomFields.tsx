@@ -12,7 +12,7 @@ type Props = {
 const VoteCreateProposalCustomFields = ({ calldata, onChangeCalldata, ...styleProps }: Props) => {
   return (
     <CardSection noSpacing {...styleProps}>
-      <Text variant="heading" color="text" mb={4}>
+      <Text variant="cardHeading" color="text" mb={4}>
         Custom calldata
       </Text>
       <Input

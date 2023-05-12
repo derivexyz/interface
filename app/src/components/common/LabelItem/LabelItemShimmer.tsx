@@ -25,7 +25,7 @@ export default function LabelItemShimmer({
 }: Props) {
   return (
     <LabelItem
-      label={label ?? <TextShimmer width={labelWidth} variant="secondary" />}
+      label={label ?? <TextShimmer width={labelWidth} />}
       value={value ?? <TextShimmer width={valueWidth} variant={valueTextVariant} />}
       noPadding={noPadding}
       {...styleProps}

@@ -22,9 +22,9 @@ export default function CardSection({
   return (
     <Flex
       flexDirection="column"
-      px={!noPadding ? 6 : 0}
-      pt={!noPadding ? 6 : 0}
-      pb={!noPadding && !noSpacing ? 6 : 0}
+      px={!noPadding ? [3, 6] : 0}
+      pt={!noPadding ? [3, 6] : 0}
+      pb={!noPadding && !noSpacing ? [3, 6] : 0}
       {...styleProps}
     >
       {children}

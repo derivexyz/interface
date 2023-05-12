@@ -45,7 +45,7 @@ const AdminMarketGreekCacheParams = ({ market, isExpanded, onClickExpand }: Prop
     <>
       <Collapsible
         onClickHeader={onClickExpand}
-        header={<Text variant="heading2">Greek Cache Parameters</Text>}
+        header={<Text variant="cardHeading">Greek Cache Parameters</Text>}
         isExpanded={isExpanded}
       >
         <Box p={4}>

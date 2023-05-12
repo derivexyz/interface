@@ -80,11 +80,7 @@ const VaultEventsTable = ({ events, onClick, pageSize, ...styleProps }: Props) =
         Cell: (props: TableCellProps<VaultEventTableData>) => {
           const currentTimestamp = props.row.original.event.__market.block.timestamp
           const delta = currentTimestamp - props.cell.value
-          return (
-            <Text variant="secondary" color="secondaryText">
-              {formatTruncatedDuration(delta)}
-            </Text>
-          )
+          return <Text color="secondaryText">{formatTruncatedDuration(delta)}</Text>
         },
       },
       {
@@ -96,7 +92,7 @@ const VaultEventsTable = ({ events, onClick, pageSize, ...styleProps }: Props) =
             <Flex alignItems="center">
               <MarketImage market={props.row.original.market} />
               <Box ml={2}>
-                <Text variant="secondaryMedium">{getMarketDisplayName(props.cell.value)}</Text>
+                <Text>{getMarketDisplayName(props.cell.value)}</Text>
                 <Text variant="small" color="secondaryText">
                   {props.row.original.marketBaseSymbol}-{props.row.original.marketQuoteSymbol}
                 </Text>

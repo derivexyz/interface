@@ -52,7 +52,7 @@ const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
   return (
     <>
       <CardSection>
-        <Text variant="secondary" color="secondaryText" width="100%" mb={6}>
+        <Text color="secondaryText" width="100%" mb={6}>
           Stake LYRA to boost your {market.baseToken.symbol} Vault rewards. Staking boosts apply to all vaults.
         </Text>
         <RowItem
@@ -76,7 +76,6 @@ const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
               prevAmount={lyraBalance}
               newAmount={lyraBalance > amountNum ? lyraBalance - amountNum : ZERO_BN}
               symbol="LYRA"
-              variant="secondary"
             />
           }
         />
@@ -100,7 +99,7 @@ const VaultsBoostFormBody = ({ vault, onClose }: Props) => {
 
 export default function VaultsBoostFormModal({ isOpen, onClose, vault }: Props) {
   return (
-    <Modal isMobileFullscreen title="Boost APY" isOpen={isOpen} onClose={onClose}>
+    <Modal title="Boost APY" isOpen={isOpen} onClose={onClose}>
       <VaultsBoostFormBody vault={vault} isOpen={isOpen} onClose={onClose} />
     </Modal>
   )

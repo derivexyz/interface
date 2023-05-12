@@ -76,23 +76,17 @@ const AdminMarketAddBoard = ({ market }: Props) => {
       {
         accessor: 'strike',
         Header: 'Strike',
-        Cell: (props: TableCellProps<ListingWithIv>) => (
-          <Text variant="secondary">{fromBigNumber(props.cell.value)}</Text>
-        ),
+        Cell: (props: TableCellProps<ListingWithIv>) => <Text>{fromBigNumber(props.cell.value)}</Text>,
       },
       {
         accessor: 'skew',
         Header: 'Skew',
-        Cell: (props: TableCellProps<ListingWithIv>) => (
-          <Text variant="secondary">{fromBigNumber(props.cell.value)}</Text>
-        ),
+        Cell: (props: TableCellProps<ListingWithIv>) => <Text>{fromBigNumber(props.cell.value)}</Text>,
       },
       {
         accessor: 'iv',
         Header: 'IV',
-        Cell: (props: TableCellProps<ListingWithIv>) => (
-          <Text variant="secondary">{fromBigNumber(props.cell.value)}</Text>
-        ),
+        Cell: (props: TableCellProps<ListingWithIv>) => <Text>{fromBigNumber(props.cell.value)}</Text>,
       },
     ],
     []
@@ -101,7 +95,7 @@ const AdminMarketAddBoard = ({ market }: Props) => {
   return (
     <Card>
       <CardSection>
-        <Text mb={6} variant="heading">
+        <Text mb={6} variant="cardHeading">
           Add Board
         </Text>
         <Input
@@ -124,7 +118,7 @@ const AdminMarketAddBoard = ({ market }: Props) => {
           }
         />
         <BigNumberInput mb={6} label="Base IV" value={baseIv} onChange={setBaseIv} placeholder={'1'} />
-        <Text mb={6} variant="heading2">
+        <Text mb={6} variant="cardHeading">
           Strikes
         </Text>
         {Array.from(listings).map((_listing, idx) => {

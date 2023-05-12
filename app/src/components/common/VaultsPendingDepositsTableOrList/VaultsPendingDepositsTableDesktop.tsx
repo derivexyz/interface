@@ -71,7 +71,7 @@ const VaultsDepositsTableDesktop = ({ deposits, onClick, ...styleProps }: Vaults
           const { market } = props.row.original
           return (
             <Box>
-              <Text variant={'secondary'}>{formatUSD(props.cell.value)}</Text>
+              <Text>{formatUSD(props.cell.value)}</Text>
               <Text variant="small" color="secondaryText">
                 {market.quoteToken.symbol}
               </Text>
@@ -84,9 +84,7 @@ const VaultsDepositsTableDesktop = ({ deposits, onClick, ...styleProps }: Vaults
         Header: 'Requested',
         Cell: (props: TableCellProps<VaultsPendingDepositsTableData>) => {
           return (
-            <Text variant="secondary">
-              {formatDateTime(props.cell.value, { hideYear: true, hideMins: false, includeTimezone: true })}
-            </Text>
+            <Text>{formatDateTime(props.cell.value, { hideYear: true, hideMins: false, includeTimezone: true })}</Text>
           )
         },
       },
@@ -96,7 +94,7 @@ const VaultsDepositsTableDesktop = ({ deposits, onClick, ...styleProps }: Vaults
         Cell: (props: TableCellProps<VaultsPendingDepositsTableData>) => {
           const delayReason = props.row.original.delayReason
           return !delayReason ? (
-            <Text variant="secondary">{formatDuration(props.cell.value)}</Text>
+            <Text>{formatDuration(props.cell.value)}</Text>
           ) : (
             <VaultsCircuitBreakerToken delayReason={delayReason} />
           )

@@ -38,7 +38,7 @@ const OptionStatsGrid = ({ option, bid, ask }: Props) => {
         label="Ask IV"
         value={ask && ask.iv.gt(0) && ask.iv.lt(MAX_IV) ? formatPercentage(fromBigNumber(ask.iv), true) : '-'}
       />
-      <LabelItem label="Open Interest" value={openInterest.gt(0) ? formatTruncatedUSD(openInterest) : '-'} />
+      <LabelItem label="Open Interest" value={formatTruncatedUSD(openInterest)} />
       <LabelItem label="Delta" value={formatNumber(option.delta, { dps: 3 })} />
       <LabelItem label="Vega" value={formatNumber(option.strike().vega, { dps: 3 })} />
       <LabelItem label="Gamma" value={formatNumber(option.strike().gamma, { dps: 3 })} />

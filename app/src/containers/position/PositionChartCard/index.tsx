@@ -65,7 +65,7 @@ const PositionChartCard = ({ option }: Props): CardElement => {
       />
     ) : chart === PositionChart.SpotPrice ? (
       <SpotPriceChartTitle
-        textVariant="heading"
+        textVariant="cardHeading"
         market={option.market()}
         interval={interval}
         hoverSpotPrice={hoverSpotPrice}
@@ -105,7 +105,14 @@ const PositionChartCard = ({ option }: Props): CardElement => {
         <Flex>
           {chartTitleComponent}
           <Flex ml="auto" alignItems="flex-start">
-            <DropdownButton mr={2} label={chartName} isOpen={isOpen} onClose={onClose} onClick={() => setIsOpen(true)}>
+            <DropdownButton
+              mobileTitle="Select Chart"
+              mr={2}
+              label={chartName}
+              isOpen={isOpen}
+              onClose={onClose}
+              onClick={() => setIsOpen(true)}
+            >
               {CHARTS.map(({ id, label }) => (
                 <DropdownButtonListItem
                   key={id}

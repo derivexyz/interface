@@ -61,25 +61,17 @@ export default function Alert({
     <Box {...styleProps} variant={getVariant(variant)}>
       <Flex alignItems="center">
         {icon ? <Box mr={2}>{typeof icon === 'string' ? <IconOrImage size={14} src={icon} /> : icon}</Box> : null}
-        <Text variant="secondaryMedium" color="inherit">
+        <Text variant="bodyMedium" color="inherit">
           {title}
         </Text>
       </Flex>
       {description ? (
-        <Text mt={title ? '5px' : 0} color="inherit" variant="small">
+        <Text mt={title ? 1 : 0} color="inherit" variant="small">
           {description}
         </Text>
       ) : null}
       {linkHref ? (
-        <Link
-          mt={1}
-          href={linkHref}
-          target="_blank"
-          variant="secondary"
-          textVariant="small"
-          color={getLinkTextColor(variant)}
-          showRightIcon
-        >
+        <Link mt={1} href={linkHref} target="_blank" variant="small" color={getLinkTextColor(variant)} showRightIcon>
           {linkText}
         </Link>
       ) : null}

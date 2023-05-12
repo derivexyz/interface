@@ -52,7 +52,7 @@ const PositionHistory = withSuspense(
         pageSize={10}
       />
     ) : (
-      <Text mx={6} mb={6} variant="secondary" color="secondaryText">
+      <Text mx={6} mb={6} color="secondaryText">
         You have no position history
       </Text>
     )
@@ -104,8 +104,8 @@ const TradeHistory = withSuspense(
         }}
       />
     ) : (
-      <Text mx={6} mb={6} variant="secondary" color="secondaryText">
-        You have no trade history
+      <Text mx={6} mb={6} color="secondaryText">
+        You have no trade history.
       </Text>
     )
   },
@@ -116,17 +116,11 @@ const TradeHistory = withSuspense(
   )
 )
 
-export default function PortfolioHistoryPageHelper(): JSX.Element {
+export default function TradeHistoryPageHelper(): JSX.Element {
   const [tableRaw, setTable] = useQueryParam('tab')
   const table = coerce(HistoryTab, tableRaw) ?? HistoryTab.Position
   return (
-    <Page
-      mobileHeader="History"
-      desktopHeader="History"
-      showBackButton
-      backHref={getPagePath({ page: PageId.Portfolio })}
-      mobileCollapsedHeader="History"
-    >
+    <Page title="History" subtitle="Trade History" showBackButton>
       <PageGrid>
         <Card overflow="hidden">
           <CardBody noPadding>

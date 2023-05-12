@@ -78,7 +78,7 @@ const AdminTransactionListItem = withSuspense(
               if (typeof val === 'object' && !BigNumber.isBigNumber(val)) {
                 return (
                   <Box key={key} overflow="auto">
-                    <Text variant="secondary" color="secondaryText">
+                    <Text color="secondaryText">
                       {key}: {'{'}
                     </Text>
                     {Object.entries(val)
@@ -86,10 +86,8 @@ const AdminTransactionListItem = withSuspense(
                       .map(([key, val]) => {
                         return (
                           <Flex ml={4} key={transaction.contractId + key} flexWrap="wrap">
-                            <Text variant="secondary" color="secondaryText">
-                              {key}:
-                            </Text>
-                            <Text ml={1} variant="secondary" color="secondaryText">
+                            <Text color="secondaryText">{key}:</Text>
+                            <Text ml={1} color="secondaryText">
                               {val.toString()}{' '}
                               {val._isBigNumber &&
                               (val.gt(BN_CONVERSION_THRESHOLD) || val.lt(-1 * BN_CONVERSION_THRESHOLD))
@@ -99,18 +97,14 @@ const AdminTransactionListItem = withSuspense(
                           </Flex>
                         )
                       })}
-                    <Text variant="secondary" color="secondaryText">
-                      {'}'}
-                    </Text>
+                    <Text color="secondaryText">{'}'}</Text>
                   </Box>
                 )
               }
               return (
                 <Flex key={transaction.contractId + key} flexWrap="wrap">
-                  <Text variant="secondary" color="secondaryText">
-                    {key}:
-                  </Text>
-                  <Text ml={1} variant="secondary" color="secondaryText">
+                  <Text color="secondaryText">{key}:</Text>
+                  <Text ml={1} color="secondaryText">
                     {val.toString()}{' '}
                     {BigNumber.isBigNumber(val) &&
                     (val.gt(BN_CONVERSION_THRESHOLD) || val.lt(-1 * BN_CONVERSION_THRESHOLD))
@@ -123,9 +117,7 @@ const AdminTransactionListItem = withSuspense(
         </Box>
       ) : (
         <Box overflow="scroll">
-          <Text variant="secondary" color="secondaryText">
-            {transaction.data}
-          </Text>
+          <Text color="secondaryText">{transaction.data}</Text>
         </Box>
       )
     }

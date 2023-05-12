@@ -3,13 +3,14 @@ export enum PageId {
   Admin = 'Admin',
   AdminBoard = 'AdminBoard',
   Trade = 'Trade',
+  TradeIndex = 'TradeIndex',
+  TradeHistory = 'TradeHistory',
   Position = 'Position',
-  Portfolio = 'Portfolio',
-  History = 'History',
   Vaults = 'Vaults',
   VaultsIndex = 'VaultsIndex',
   VaultsHistory = 'VaultsHistory',
   Leaderboard = 'Leaderboard',
+  LeaderboardIndex = 'LeaderboardIndex',
   LeaderboardHistory = 'LeaderboardHistory',
   RewardsIndex = 'RewardsIndex',
   RewardsTrading = 'RewardsTrading',
@@ -39,16 +40,17 @@ export type PageArgsMap = {
     network: string
     marketAddressOrName: string
   }
+  [PageId.TradeIndex]: undefined
+  [PageId.TradeHistory]: undefined
   [PageId.Position]: {
     marketAddressOrName: string
     network: string
     positionId: number
   }
-  [PageId.Portfolio]: undefined
-  [PageId.History]: undefined
   [PageId.Leaderboard]: {
     network: string
   }
+  [PageId.LeaderboardIndex]: undefined
   [PageId.LeaderboardHistory]: undefined
   [PageId.VaultsIndex]: undefined
   [PageId.VaultsHistory]: undefined

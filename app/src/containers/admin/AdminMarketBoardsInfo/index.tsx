@@ -18,7 +18,7 @@ const AdminMarketBoardsInfo = ({ market }: Props) => {
   return (
     <Card>
       <CardBody noPadding>
-        <Text m={6} variant="heading">
+        <Text m={6} variant="cardHeading">
           Boards
         </Text>
         <List>
@@ -34,9 +34,7 @@ const AdminMarketBoardsInfo = ({ market }: Props) => {
               label={
                 <Box ml={3}>
                   <Text>Board #{board.id}</Text>
-                  <Text variant="secondary" color="secondaryText">
-                    Expires {formatDateTime(board.expiryTimestamp)}
-                  </Text>
+                  <Text color="secondaryText">Expires {formatDateTime(board.expiryTimestamp)}</Text>
                 </Box>
               }
             />

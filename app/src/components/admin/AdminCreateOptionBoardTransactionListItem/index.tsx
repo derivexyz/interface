@@ -20,50 +20,40 @@ const AdminCreateOptionBoardTransactionListItem = ({ expiry, baseIV, strikePrice
   return (
     <Box>
       <Flex>
-        <Text variant="secondary" color="secondaryText">
-          Expiry:
-        </Text>
-        <Text ml={1} variant="secondary" color="secondaryText">
+        <Text color="secondaryText">Expiry:</Text>
+        <Text ml={1} color="secondaryText">
           {expiry.toNumber()}
         </Text>
       </Flex>
       <Flex>
-        <Text variant="secondary" color="secondaryText">
-          BaseIV:
-        </Text>
-        <Text variant="secondary" ml={1} color="secondaryText">
+        <Text color="secondaryText">BaseIV:</Text>
+        <Text ml={1} color="secondaryText">
           {formatNumber(fromBigNumber(baseIV))}
         </Text>
       </Flex>
       <Flex>
         <Box>
-          <Text variant="secondary" color="secondaryText">
-            Strike
-          </Text>
+          <Text color="secondaryText">Strike</Text>
           {strikePrices.map((strikePrice, idx) => (
-            <Text variant="secondary" color="secondaryText" key={idx + '-' + fromBigNumber(strikePrice)}>
+            <Text color="secondaryText" key={idx + '-' + fromBigNumber(strikePrice)}>
               {fromBigNumber(strikePrice)}
             </Text>
           ))}
         </Box>
         <Box ml={4}>
-          <Text variant="secondary" color="secondaryText">
-            Skew
-          </Text>
+          <Text color="secondaryText">Skew</Text>
           {skews.map((skew, idx) => (
-            <Text variant="secondary" color="secondaryText" key={idx + '-' + fromBigNumber(skew)}>
+            <Text color="secondaryText" key={idx + '-' + fromBigNumber(skew)}>
               {fromBigNumber(skew)}
             </Text>
           ))}
         </Box>
         <Box ml={4}>
-          <Text variant="secondary" color="secondaryText">
-            Vol
-          </Text>
+          <Text color="secondaryText">Vol</Text>
           {skews.map((skew, idx) => {
             const vol = fromBigNumber(skew.mul(baseIV).div(UNIT))
             return (
-              <Text variant="secondary" color="secondaryText" key={idx + '-' + vol}>
+              <Text color="secondaryText" key={idx + '-' + vol}>
                 {vol}
               </Text>
             )
@@ -71,10 +61,8 @@ const AdminCreateOptionBoardTransactionListItem = ({ expiry, baseIV, strikePrice
         </Box>
       </Flex>
       <Flex>
-        <Text variant="secondary" color="secondaryText">
-          Frozen:
-        </Text>
-        <Text variant="secondary" color="secondaryText" ml={1}>
+        <Text color="secondaryText">Frozen:</Text>
+        <Text color="secondaryText" ml={1}>
           {frozen.toString()}
         </Text>
       </Flex>

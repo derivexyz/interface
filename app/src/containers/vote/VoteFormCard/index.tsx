@@ -54,28 +54,22 @@ const VoteFormCard = ({ data, ...marginProps }: Props) => {
   return (
     <Card {...marginProps}>
       <CardBody>
-        <Text variant="heading2" mb={4}>
+        <Text variant="cardHeading" mb={4}>
           Your voting info
         </Text>
         <Flex flexDirection="row" justifyContent="space-between" my={2}>
           <Flex flexDirection="column">
-            <Text variant="secondary" color="secondaryText">
-              Voting Power
-            </Text>
-            <Text variant="smallMedium" color="secondaryText">
+            <Text color="secondaryText">Voting Power</Text>
+            <Text variant="small" color="secondaryText">
               stkLYRA
             </Text>
           </Flex>
-          <Text variant="secondary" color="text">
-            {formatNumber(votingPower)} stkLYRA
-          </Text>
+          <Text color="text">{formatNumber(votingPower)} stkLYRA</Text>
         </Flex>
         {support && voteAmount > 0 ? (
           <Flex flexDirection="row" justifyContent="space-between" my={2}>
-            <Text variant="secondary" color="secondaryText">
-              Your vote
-            </Text>
-            <Text variant="secondary" color={support === Vote.For ? 'primaryText' : 'errorText'}>
+            <Text color="secondaryText">Your vote</Text>
+            <Text color={support === Vote.For ? 'primaryText' : 'errorText'}>
               {support.toUpperCase()} {formatNumber(voteAmount)}
             </Text>
           </Flex>

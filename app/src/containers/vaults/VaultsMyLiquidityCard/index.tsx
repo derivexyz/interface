@@ -52,8 +52,8 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
     <Card>
       <CardSection>
         <Box mb={[3, 6]}>
-          <Text variant="heading">Your Liquidity</Text>
-          <Text variant="heading">{formatUSD(vault.liquidityTokenBalanceValue)}</Text>
+          <Text variant="cardHeading">Your Liquidity</Text>
+          <Text variant="cardHeading">{formatUSD(vault.liquidityTokenBalanceValue)}</Text>
         </Box>
         <Grid mb={[3, 6]} sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr'], gridColumnGap: 6, gridRowGap: 6 }}>
           <LabelItem label="LP Balance" value={formatBalance(vault.liquidityToken)} />
@@ -73,7 +73,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
           {isNew && globalRewardEpoch.startEarningTimestamp && isStartEarningInFuture ? (
             <LabelItem
               label="Start Earning"
-              value={<Countdown variant="secondary" timestamp={globalRewardEpoch.startEarningTimestamp} showSeconds />}
+              value={<Countdown timestamp={globalRewardEpoch.startEarningTimestamp} showSeconds />}
             />
           ) : null}
         </Grid>
@@ -115,7 +115,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
         <>
           <CardSeparator />
           <CardSection noPadding>
-            <Text variant="heading" mx={6} mt={6}>
+            <Text variant="cardHeading" mx={6} mt={6}>
               Depositing
             </Text>
             <VaultsPendingDepositsTableOrList deposits={vault.pendingDeposits} />
@@ -126,7 +126,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
         <>
           <CardSeparator />
           <CardSection noPadding>
-            <Text variant="heading" mx={6} mt={6}>
+            <Text variant="cardHeading" mx={6} mt={6}>
               Withdrawing
             </Text>
             <VaultsPendingWithdrawalsTableOrList withdrawals={vault.pendingWithdrawals} />

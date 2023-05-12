@@ -1,52 +1,21 @@
-import { TextElement } from '@lyra/ui/components/Text'
+import { CardElement } from '@lyra/ui/components/Card'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React from 'react'
 
 import PageDesktop from './PageDesktop'
 import PageMobile from './PageMobile'
 
-type Props = {
-  children?: React.ReactNode
+export type PageProps = {
+  title?: string
+  subtitle?: string
+  isFullWidth?: boolean
+  headerCard?: CardElement
   showBackButton?: boolean
   backHref?: string
-  desktopRightColumn?: React.ReactNode
-  header?: React.ReactNode
-  desktopHeader?: React.ReactNode
-  mobileHeader?: React.ReactNode
-  mobileCollapsedHeader?: string | TextElement | (TextElement | null)[] | null
-  noHeaderPadding?: boolean
+  children?: React.ReactNode
 }
 
-export default function Page({
-  children,
-  showBackButton,
-  backHref,
-  header,
-  desktopRightColumn,
-  desktopHeader,
-  mobileHeader,
-  mobileCollapsedHeader,
-  noHeaderPadding = false,
-}: Props): JSX.Element {
+export default function Page({ children, ...props }: PageProps): JSX.Element {
   const isMobile = useIsMobile()
-  return isMobile ? (
-    <PageMobile
-      backHref={backHref}
-      showBackButton={showBackButton}
-      header={mobileHeader ?? header}
-      collapsedHeader={mobileCollapsedHeader}
-    >
-      {children}
-    </PageMobile>
-  ) : (
-    <PageDesktop
-      backHref={backHref}
-      showBackButton={showBackButton}
-      header={desktopHeader ?? header}
-      rightColumn={desktopRightColumn}
-      noHeaderPadding={noHeaderPadding}
-    >
-      {children}
-    </PageDesktop>
-  )
+  return isMobile ? <PageMobile {...props}>{children}</PageMobile> : <PageDesktop {...props}>{children}</PageDesktop>
 }
