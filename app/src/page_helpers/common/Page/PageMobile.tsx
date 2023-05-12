@@ -46,7 +46,7 @@ export default function PageMobile({
             ) : null}
           </Box>
           {headerCard ? (
-            <Box mb={8} height={HEADER_CARD_HEIGHT} width="100%">
+            <Box mb={showBackButton ? 8 : 0} height={HEADER_CARD_HEIGHT} width="100%">
               {headerCard}
             </Box>
           ) : null}

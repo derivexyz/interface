@@ -2,14 +2,13 @@ import IconButton from '@lyra/ui/components/Button/IconButton'
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
 import ToggleButtonItem from '@lyra/ui/components/Button/ToggleButtonItem'
 import Card from '@lyra/ui/components/Card'
-import CardBody from '@lyra/ui/components/Card/CardBody'
+import CardSection from '@lyra/ui/components/Card/CardSection'
 import Center from '@lyra/ui/components/Center'
 import Flex from '@lyra/ui/components/Flex'
 import { IconType } from '@lyra/ui/components/Icon'
 import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
-import coerce from '@lyra/ui/utils/coerce'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { useNavigate } from 'react-router-dom'
 
@@ -20,7 +19,6 @@ import withSuspense from '@/app/hooks/data/withSuspense'
 import usePositionHistory from '@/app/hooks/position/usePositionHistory'
 import useTradeHistory from '@/app/hooks/position/useTradeHistory'
 import useAccountRewardEpochs from '@/app/hooks/rewards/useAccountRewardEpochs'
-import useQueryParam from '@/app/hooks/url/useQueryParam'
 import getPagePath from '@/app/utils/getPagePath'
 import { getTradeHistoryCSV } from '@/app/utils/getTradeHistoryCSV'
 
@@ -37,24 +35,28 @@ const PositionHistory = withSuspense(
     const positions = usePositionHistory()
     const navigate = useNavigate()
     return positions.length > 0 ? (
-      <PositionHistoryTable
-        positions={positions}
-        onClick={position =>
-          navigate(
-            getPagePath({
-              page: PageId.Position,
-              network: position.lyra.network,
-              marketAddressOrName: position.marketName,
-              positionId: position.id,
-            })
-          )
-        }
-        pageSize={10}
-      />
+      <CardSection noPadding>
+        <PositionHistoryTable
+          positions={positions}
+          onClick={position =>
+            navigate(
+              getPagePath({
+                page: PageId.Position,
+                network: position.lyra.network,
+                marketAddressOrName: position.marketName,
+                positionId: position.id,
+              })
+            )
+          }
+          pageSize={10}
+        />
+      </CardSection>
     ) : (
-      <Text mx={6} mb={6} color="secondaryText">
-        You have no position history
-      </Text>
+      <CardSection>
+        <Text variant="small" color="secondaryText">
+          You have no closed positions.
+        </Text>
+      </CardSection>
     )
   },
   () => (
@@ -88,25 +90,29 @@ const TradeHistory = withSuspense(
     const navigate = useNavigate()
     const accountRewardEpochs = useAccountRewardEpochs()
     return events.length > 0 ? (
-      <TradeEventsTable
-        events={events}
-        accountRewardEpochs={accountRewardEpochs}
-        onClick={event => {
-          const positionId = event.positionId
-          return navigate(
-            getPagePath({
-              page: PageId.Position,
-              network: event.lyra.network,
-              marketAddressOrName: event.marketName,
-              positionId: positionId,
-            })
-          )
-        }}
-      />
+      <CardSection noPadding>
+        <TradeEventsTable
+          events={events}
+          accountRewardEpochs={accountRewardEpochs}
+          onClick={event => {
+            const positionId = event.positionId
+            return navigate(
+              getPagePath({
+                page: PageId.Position,
+                network: event.lyra.network,
+                marketAddressOrName: event.marketName,
+                positionId: positionId,
+              })
+            )
+          }}
+        />
+      </CardSection>
     ) : (
-      <Text mx={6} mb={6} color="secondaryText">
-        You have no trade history.
-      </Text>
+      <CardSection>
+        <Text variant="small" color="secondaryText">
+          You have no trades.
+        </Text>
+      </CardSection>
     )
   },
   () => (
@@ -117,14 +123,13 @@ const TradeHistory = withSuspense(
 )
 
 export default function TradeHistoryPageHelper(): JSX.Element {
-  const [tableRaw, setTable] = useQueryParam('tab')
-  const table = coerce(HistoryTab, tableRaw) ?? HistoryTab.Position
+  const [table, setTable] = useState(HistoryTab.Position)
   return (
-    <Page title="History" subtitle="Trade History" showBackButton>
+    <Page title="History" subtitle="Trade History" showBackButton backHref={getPagePath({ page: PageId.TradeIndex })}>
       <PageGrid>
         <Card overflow="hidden">
-          <CardBody noPadding>
-            <Flex p={6}>
+          <CardSection noSpacing>
+            <Flex>
               <ToggleButton>
                 {[
                   { label: 'Positions', id: HistoryTab.Position },
@@ -141,9 +146,9 @@ export default function TradeHistoryPageHelper(): JSX.Element {
               </ToggleButton>
               <DownloadTradeHistory />
             </Flex>
-            {table === HistoryTab.Trade ? <TradeHistory /> : null}
-            {table === HistoryTab.Position ? <PositionHistory /> : null}
-          </CardBody>
+          </CardSection>
+          {table === HistoryTab.Trade ? <TradeHistory /> : null}
+          {table === HistoryTab.Position ? <PositionHistory /> : null}
         </Card>
       </PageGrid>
     </Page>
