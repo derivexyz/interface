@@ -85,7 +85,6 @@ const TradeBoardTableDesktop = ({
         }
       })
     )
-
     return rows
   }, [quotes, isBuy, expandedStrikes])
 

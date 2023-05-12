@@ -197,31 +197,9 @@ export default function Table<T extends TableRecordType>({
             const expandedContent = row.original.expanded
             const isClickable = !!row.original.onClick || !!expandedContent
             const isExpandedContentClickable = !!row.original.isExpandedContentClickable
-
-            if (
+            const showTableMarker =
               tableMarker &&
               (rowIdx === tableMarker.rowIdx || (tableMarker.rowIdx > rows.length - 1 && rowIdx === rows.length - 1))
-            ) {
-              return (
-                <Flex
-                  key="marker"
-                  alignItems="center"
-                  py={2}
-                  px={[3, 6]}
-                  as="tr"
-                  bg="hover"
-                  sx={{
-                    ':hover': {
-                      bg: 'active',
-                    },
-                    boxShadow: '10px 10px 10px elevatedShadowBg',
-                  }}
-                  mt={tableMarker.rowIdx === 0 ? 6 : 0}
-                >
-                  {React.isValidElement(tableMarker.content) ? tableMarker.content : <Text>{tableMarker.content}</Text>}
-                </Flex>
-              )
-            }
 
             return (
               <Box
@@ -242,6 +220,29 @@ export default function Table<T extends TableRecordType>({
                   borderColor: 'background',
                 }}
               >
+                {showTableMarker ? (
+                  <Flex
+                    key="marker"
+                    alignItems="center"
+                    py={2}
+                    px={[3, 6]}
+                    as="tr"
+                    bg="hover"
+                    sx={{
+                      ':hover': {
+                        bg: 'active',
+                      },
+                      boxShadow: '10px 10px 10px elevatedShadowBg',
+                    }}
+                    mt={tableMarker.rowIdx === 0 ? 6 : 0}
+                  >
+                    {React.isValidElement(tableMarker.content) ? (
+                      tableMarker.content
+                    ) : (
+                      <Text>{tableMarker.content}</Text>
+                    )}
+                  </Flex>
+                ) : null}
                 <Box
                   as="tr"
                   px={DEFAULT_EDGE_CELL_PX}
