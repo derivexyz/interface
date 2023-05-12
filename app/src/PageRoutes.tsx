@@ -33,6 +33,8 @@ export default function PageRoutes() {
   return (
     <Routes>
       <Route index element={<Navigate to="/trade" />} />
+      <Route path="/portfolio" element={<Navigate to="/trade" />} />
+      <Route path="/portfolio/history" element={<Navigate to="/trade/history" />} />
       <Route path="/trade" element={<Navigate to={`/trade/${network}/${getDefaultMarket(network)}`} />} />
       <Route path="/trade/:network/:marketAddressOrName" element={<TradePage />} />
       <Route path="/trade/history" element={<TradeHistoryPage />} />

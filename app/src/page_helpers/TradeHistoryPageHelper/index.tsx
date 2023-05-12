@@ -125,7 +125,7 @@ const TradeHistory = withSuspense(
 export default function TradeHistoryPageHelper(): JSX.Element {
   const [table, setTable] = useState(HistoryTab.Position)
   return (
-    <Page title="History" subtitle="Trade History" showBackButton backHref={getPagePath({ page: PageId.TradeIndex })}>
+    <Page showBackButton backHref={getPagePath({ page: PageId.TradeIndex })}>
       <PageGrid>
         <Card overflow="hidden">
           <CardSection noSpacing>
