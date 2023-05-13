@@ -17,6 +17,7 @@ export type Props = {
 }
 
 export default function ModalMobile({ children, isFullscreen, isOpen, onClose = emptyFunction, title }: Props) {
+  const modalBg = useThemeColor('modalBg')
   const modalOverlayBg = useThemeColor('modalOverlayBg')
   return (
     <Sheet
@@ -25,14 +26,16 @@ export default function ModalMobile({ children, isFullscreen, isOpen, onClose = 
       isOpen={isOpen}
       onClose={onClose}
     >
-      <Sheet.Container style={{ backgroundColor: 'transparent' }}>
+      <Sheet.Container
+        style={{
+          backgroundColor: modalBg,
+          borderTopRightRadius: '21px',
+          borderTopLeftRadius: '21px',
+          overflow: 'hidden',
+        }}
+      >
         <Sheet.Header>
-          <Flex
-            sx={{ borderTopRightRadius: '21px', borderTopLeftRadius: '21px' }}
-            bg="modalBg"
-            alignItems="center"
-            p={3}
-          >
+          <Flex bg="modalBg" alignItems="center" p={3}>
             {typeof title === 'string' ? <Text variant="cardHeading">{title}</Text> : title}
             <IconButton ml="auto" icon={<Icon icon={IconType.X} size={24} />} isTransparent onClick={onClose} />
           </Flex>
@@ -43,7 +46,7 @@ export default function ModalMobile({ children, isFullscreen, isOpen, onClose = 
           </Flex>
         </Sheet.Content>
       </Sheet.Container>
-      <Sheet.Backdrop style={{ background: modalOverlayBg }} onTap={onClose} />
+      <Sheet.Backdrop style={{ backgroundColor: modalOverlayBg }} onTap={onClose} />
     </Sheet>
   )
 }
