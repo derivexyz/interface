@@ -19,7 +19,12 @@ export type Props = {
 export default function ModalMobile({ children, isFullscreen, isOpen, onClose = emptyFunction, title }: Props) {
   const modalOverlayBg = useThemeColor('modalOverlayBg')
   return (
-    <Sheet detent={isFullscreen ? 'full-height' : 'content-height'} isOpen={isOpen} onClose={onClose}>
+    <Sheet
+      detent={isFullscreen ? 'full-height' : 'content-height'}
+      disableDrag={isFullscreen}
+      isOpen={isOpen}
+      onClose={onClose}
+    >
       <Sheet.Container style={{ backgroundColor: 'transparent' }}>
         <Sheet.Header>
           <Flex

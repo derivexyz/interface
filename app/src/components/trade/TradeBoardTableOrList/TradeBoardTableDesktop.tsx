@@ -1,4 +1,5 @@
 import Box from '@lyra/ui/components/Box'
+import Flex from '@lyra/ui/components/Flex'
 import Table, { TableCellProps, TableColumn, TableData } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
 import filterNulls from '@lyra/ui/utils/filterNulls'
@@ -141,14 +142,26 @@ const TradeBoardTableDesktop = ({
       0
     )
     return {
-      rowIdx: spotPriceRowIdx,
+      rowIdx: rows.length,
       content: (
-        <Text variant="small">
-          {formatTokenName(board.market().baseToken)} Price:{' '}
-          <Text as="span" color="primaryText">
-            {formatUSD(spotPrice)}
-          </Text>
-        </Text>
+        <Flex sx={{ position: 'relative' }} alignItems="center" width="100%">
+          <Box sx={{ position: 'absolute', right: 0, left: 0, top: '18px', height: '4px', bg: 'cardHoverBg' }} />
+          <Flex
+            mx={[2, 3]}
+            px={[1, 3]}
+            my={1}
+            py={1}
+            bg="cardHoverBg"
+            sx={{ borderRadius: 'list', position: 'relative', zIndex: 1 }}
+          >
+            <Text variant="small">
+              {formatTokenName(board.market().baseToken)} Price:{' '}
+              <Text as="span" color="primaryText">
+                {formatUSD(spotPrice)}
+              </Text>
+            </Text>
+          </Flex>
+        </Flex>
       ),
     }
   }, [board, rows, spotPrice])

@@ -8,7 +8,7 @@ const lightColors = {
   active: '#E8E8E8CC', // 80%
   cardBg: '#FEFEFE73', // 45%
   cardElevatedBg: '#FEFEFE',
-  cardHoverBg: '#CFCECE80',
+  cardHoverBg: '#eeeeee',
   cardOutline: '#C4CED7',
 
   // default button

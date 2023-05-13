@@ -1,4 +1,4 @@
-import Center from '@lyra/ui/components/Center'
+import Box from '@lyra/ui/components/Box'
 import Flex from '@lyra/ui/components/Flex'
 import Table, { TableCellProps, TableColumn } from '@lyra/ui/components/Table'
 import Text from '@lyra/ui/components/Text'
@@ -235,14 +235,24 @@ const TradeChainTable = ({ board, selectedOption, onSelectOption, isBuy, customC
     return {
       rowIdx: spotPriceRowIdx,
       content: (
-        <Center width="100%">
-          <Text variant="small" textAlign="center">
-            {formatTokenName(board.market().baseToken)} Price:{' '}
-            <Text as="span" color="primaryText">
-              {formatUSD(spotPrice)}
+        <Flex sx={{ position: 'relative' }} alignItems="center" justifyContent="center" width="100%">
+          <Box sx={{ position: 'absolute', right: 0, left: 0, top: '18px', height: '4px', bg: 'cardHoverBg' }} />
+          <Flex
+            mx={[2, 3]}
+            px={[1, 3]}
+            my={1}
+            py={1}
+            bg="cardHoverBg"
+            sx={{ borderRadius: 'list', position: 'relative', zIndex: 1 }}
+          >
+            <Text variant="small">
+              {formatTokenName(board.market().baseToken)} Price:{' '}
+              <Text as="span" color="primaryText">
+                {formatUSD(spotPrice)}
+              </Text>
             </Text>
-          </Text>
-        </Center>
+          </Flex>
+        </Flex>
       ),
     }
   }, [board, rows, spotPrice])

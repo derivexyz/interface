@@ -201,117 +201,116 @@ export default function Table<T extends TableRecordType>({
               tableMarker &&
               (rowIdx === tableMarker.rowIdx || (tableMarker.rowIdx > rows.length - 1 && rowIdx === rows.length - 1))
 
+            const tableMarkerEl = showTableMarker ? (
+              <Flex key="marker" alignItems="center" as="tr" mt={tableMarker.rowIdx === 0 ? 6 : 0}>
+                <Flex as="td" width="100%">
+                  {React.isValidElement(tableMarker.content) ? tableMarker.content : <Text>{tableMarker.content}</Text>}
+                </Flex>
+              </Flex>
+            ) : null
+
             return (
-              <Box
-                as="tbody"
-                key={row.id}
-                sx={{
-                  cursor: isClickable && isExpandedContentClickable ? 'pointer' : null,
-                  bg:
-                    isClickable && isExpandedContentClickable ? (!isExpanded ? 'transparent' : 'hover') : 'transparent',
-                  '&:hover': {
-                    bg: isClickable && isExpandedContentClickable ? (isExpanded ? 'active' : 'hover') : 'transparent',
-                  },
-                  '&:active': {
-                    bg: isClickable && isExpandedContentClickable ? 'active' : 'transparent',
-                  },
-                  borderTop: tableMarker && tableMarker.rowIdx === rowIdx - 1 && isExpanded ? '2px solid' : undefined,
-                  borderBottom: isOutline && rowIdx < pagedRows.length - 1 ? '1px solid' : undefined,
-                  borderColor: 'background',
-                }}
-              >
-                {showTableMarker ? (
-                  <Flex
-                    key="marker"
-                    alignItems="center"
-                    py={2}
-                    px={[3, 6]}
-                    as="tr"
-                    bg="hover"
-                    sx={{
-                      ':hover': {
-                        bg: 'active',
-                      },
-                      boxShadow: '10px 10px 10px elevatedShadowBg',
-                    }}
-                    mt={tableMarker.rowIdx === 0 ? 6 : 0}
-                  >
-                    {React.isValidElement(tableMarker.content) ? (
-                      tableMarker.content
-                    ) : (
-                      <Text>{tableMarker.content}</Text>
-                    )}
-                  </Flex>
-                ) : null}
+              <>
+                {tableMarkerEl}
                 <Box
-                  as="tr"
-                  px={DEFAULT_EDGE_CELL_PX}
+                  as="tbody"
+                  key={row.id}
                   sx={{
-                    cursor: !isClickable && !isExpandedContentClickable ? 'inherit' : 'pointer',
-                    bg: isClickable && !isExpandedContentClickable && isExpanded ? 'hover' : 'transparent',
+                    cursor: isClickable && isExpandedContentClickable ? 'pointer' : null,
+                    bg:
+                      isClickable && isExpandedContentClickable
+                        ? !isExpanded
+                          ? 'transparent'
+                          : 'hover'
+                        : 'transparent',
                     '&:hover': {
-                      bg:
-                        isClickable && !isExpandedContentClickable ? (isExpanded ? 'active' : 'hover') : 'transparent',
+                      bg: isClickable && isExpandedContentClickable ? (isExpanded ? 'active' : 'hover') : 'transparent',
                     },
                     '&:active': {
-                      bg: isClickable && !isExpandedContentClickable ? 'active' : 'transparent',
+                      bg: isClickable && isExpandedContentClickable ? 'active' : 'transparent',
                     },
-                    border: isOutlineFirstRow && rowIdx === 0 && page === 0 && !isSorted ? '1px solid #69D8BD' : 'none',
-                    ...rowStyleProps?.sx,
+                    borderTop: tableMarker && tableMarker.rowIdx === rowIdx - 1 && isExpanded ? '2px solid' : undefined,
+                    borderBottom: isOutline && rowIdx < pagedRows.length - 1 ? '1px solid' : undefined,
+                    borderColor: 'background',
                   }}
-                  {...(prepareRowProps(row) as any)}
                 >
-                  {row.cells.map((cell: any, cellIdx) => {
-                    return (
-                      <Flex
-                        onClick={() => {
+                  <Box
+                    as="tr"
+                    px={DEFAULT_EDGE_CELL_PX}
+                    sx={{
+                      cursor: !isClickable && !isExpandedContentClickable ? 'inherit' : 'pointer',
+                      bg: isClickable && !isExpandedContentClickable && isExpanded ? 'hover' : 'transparent',
+                      '&:hover': {
+                        bg:
+                          isClickable && !isExpandedContentClickable
+                            ? isExpanded
+                              ? 'active'
+                              : 'hover'
+                            : 'transparent',
+                      },
+                      '&:active': {
+                        bg: isClickable && !isExpandedContentClickable ? 'active' : 'transparent',
+                      },
+                      ...rowStyleProps?.sx,
+                    }}
+                    {...(prepareRowProps(row) as any)}
+                  >
+                    {row.cells.map((cell: any, cellIdx) => {
+                      return (
+                        <Flex
+                          onClick={() => {
+                            if (row.original.onToggleExpand) {
+                              row.original.onToggleExpand(!isExpanded)
+                            }
+                            if (row.original.onClick) {
+                              row.original.onClick()
+                            }
+                          }}
+                          as="td"
+                          key={cellIdx}
+                          alignItems="center"
+                          px={DEFAULT_CELL_PX}
+                          py={DEFAULT_CELL_PY}
+                          {...(prepareCellProps(cell) as any)}
+                        >
+                          {cell.render('Cell')}
+                        </Flex>
+                      )
+                    })}
+                  </Box>
+                  {expandedContent ? (
+                    <Box
+                      onClick={() => {
+                        if (row.original.isExpandedContentClickable) {
                           if (row.original.onToggleExpand) {
                             row.original.onToggleExpand(!isExpanded)
                           }
                           if (row.original.onClick) {
                             row.original.onClick()
                           }
-                        }}
-                        as="td"
-                        key={cellIdx}
-                        alignItems="center"
-                        px={DEFAULT_CELL_PX}
-                        py={DEFAULT_CELL_PY}
-                        {...(prepareCellProps(cell) as any)}
-                      >
-                        {cell.render('Cell')}
-                      </Flex>
-                    )
-                  })}
-                </Box>
-                {expandedContent ? (
-                  <Box
-                    onClick={() => {
-                      if (row.original.isExpandedContentClickable) {
-                        if (row.original.onToggleExpand) {
-                          row.original.onToggleExpand(!isExpanded)
                         }
-                        if (row.original.onClick) {
-                          row.original.onClick()
-                        }
-                      }
-                    }}
-                    as="tr"
-                    sx={{
-                      borderBottom: !isOutline && isExpanded && rowIdx < pagedRows.length - 1 ? '2px solid' : undefined,
-                      borderColor: 'background',
-                    }}
-                  >
-                    <Box as="td">
-                      <Collapsible noPadding isExpanded={isExpanded}>
-                        <Box px={noExpandedPadding ? 0 : DEFAULT_CELL_PX} py={noExpandedPadding ? 0 : DEFAULT_CELL_PY}>
-                          {expandedContent}
-                        </Box>
-                      </Collapsible>
+                      }}
+                      as="tr"
+                      sx={{
+                        borderBottom:
+                          !isOutline && isExpanded && rowIdx < pagedRows.length - 1 ? '2px solid' : undefined,
+                        borderColor: 'background',
+                      }}
+                    >
+                      <Box as="td">
+                        <Collapsible noPadding isExpanded={isExpanded}>
+                          <Box
+                            px={noExpandedPadding ? 0 : DEFAULT_CELL_PX}
+                            py={noExpandedPadding ? 0 : DEFAULT_CELL_PY}
+                          >
+                            {expandedContent}
+                          </Box>
+                        </Collapsible>
+                      </Box>
                     </Box>
-                  </Box>
-                ) : null}
-              </Box>
+                  ) : null}
+                </Box>
+              </>
             )
           })}
         </Box>

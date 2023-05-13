@@ -39,27 +39,26 @@ const TradeBoardListMobile = ({
         const quote = isBuy ? ask : bid
         const strike = option.strike()
         const market = option.market()
-        if (idx === spotPriceRowIdx) {
-          const spotPrice = market.spotPrice
-          return (
-            <React.Fragment key="spot">
-              <CardSection>
-                <Text>
-                  {formatTokenName(market.baseToken)} Price:{' '}
-                  <Text as="span" color="primaryText">
-                    {formatUSD(spotPrice)}
-                  </Text>
-                </Text>
-              </CardSection>
-              {idx < quotes.length - 1 ? <CardSeparator /> : null}
-            </React.Fragment>
-          )
-        }
+
         if (!quote) {
           return null
         }
+
         return (
           <React.Fragment key={strike.id}>
+            {idx === spotPriceRowIdx ? (
+              <>
+                <CardSection>
+                  <Text>
+                    {formatTokenName(market.baseToken)} Price:{' '}
+                    <Text as="span" color="primaryText">
+                      {formatUSD(market.spotPrice)}
+                    </Text>
+                  </Text>
+                </CardSection>
+                <CardSeparator />
+              </>
+            ) : null}
             <CardSection
               onClick={() => {
                 setExpandedQuote({ option, bid, ask })

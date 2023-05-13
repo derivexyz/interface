@@ -35,7 +35,7 @@ const LeaderboardKeyMetricsCard = ({ data, ...marginProps }: Props) => {
           `${isMobile ? '/images/leaderboard_key_metrics_square.png' : '/images/leaderboard_key_metrics.png'}`
         )})`,
         backgroundSize: 'cover',
-        borderRadius: isMobile ? 25 : 0,
+        borderRadius: 25,
       }}
     >
       <CardBody>
