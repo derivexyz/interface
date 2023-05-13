@@ -11,7 +11,7 @@ export const VAULTS_CHART_HEIGHT = [120, 250]
 export const VAULTS_INDEX_CHART_HEIGHT = [120, 250]
 
 export const TRADE_CARD_MIN_WIDTH = 360
-export const TRADE_CARD_MIN_HEIGHT = 400
+export const TRADE_CARD_MIN_HEIGHT = 380
 
 export const TRADE_CHAIN_STAT_COL_WIDTH = 90
 export const TRADE_CHAIN_PRICE_COL_WIDTH = 110

@@ -15,12 +15,14 @@ export type TraderSettings = {
   customCol1: CustomColumnOption
   customCol2: CustomColumnOption
   isAdvancedMode: boolean
+  advancedHideChart: boolean
 }
 
 export const DEFAULT_TRADER_SETTINGS: TraderSettings = {
   customCol1: CustomColumnOption.Delta,
   customCol2: CustomColumnOption.OI,
   isAdvancedMode: false,
+  advancedHideChart: true,
 }
 
 export default function useTraderSettings(): [TraderSettings, (partialSettings: Partial<TraderSettings>) => void] {

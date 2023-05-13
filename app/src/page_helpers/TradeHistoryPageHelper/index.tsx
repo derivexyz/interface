@@ -127,13 +127,14 @@ export default function TradeHistoryPageHelper(): JSX.Element {
   return (
     <Page showBackButton backHref={getPagePath({ page: PageId.TradeIndex })}>
       <PageGrid>
+        <Text variant="heading">History</Text>
         <Card overflow="hidden">
           <CardSection noSpacing>
             <Flex>
               <ToggleButton>
                 {[
-                  { label: 'Positions', id: HistoryTab.Position },
-                  { label: 'Trade', id: HistoryTab.Trade },
+                  { label: 'Closed', id: HistoryTab.Position },
+                  { label: 'Trades', id: HistoryTab.Trade },
                 ].map(item => (
                   <ToggleButtonItem
                     key={item.id}

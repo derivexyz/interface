@@ -172,6 +172,7 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
                   e.stopPropagation()
                   setIsOpen(true)
                 }}
+                variant="light"
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
                 icon={IconType.MoreHorizontal}

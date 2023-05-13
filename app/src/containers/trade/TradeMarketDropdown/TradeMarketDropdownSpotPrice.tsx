@@ -24,7 +24,7 @@ const TradeMarketDropdownSpotPrice = withSuspense(
     const color = change >= 0 ? 'primaryText' : 'errorText'
     return (
       <Flex width={80} flexDirection="column" alignItems="flex-end">
-        <Text>{formatUSD(latestPrice)}</Text>
+        <Text color="text">{formatUSD(latestPrice)}</Text>
         <Text color={color} variant="small">
           {formatPercentage(change)}
         </Text>

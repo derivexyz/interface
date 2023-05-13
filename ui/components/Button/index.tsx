@@ -60,7 +60,6 @@ export const getButtonSizeSx = (size: ButtonSize): Record<string, ResponsiveValu
         fontSize: '14px',
         lineHeight: '14px',
         minHeight: '22px',
-        minWidth: '22px',
         borderRadius: 'text',
         p: 0,
       }
@@ -72,7 +71,6 @@ export const getButtonSizeSx = (size: ButtonSize): Record<string, ResponsiveValu
         fontSize: '14px',
         lineHeight: '14px',
         minHeight: ['42px', '36px'],
-        minWidth: ['42px', '36px'],
         borderRadius: ['21px', '18px'],
         p: 0,
       }
@@ -84,7 +82,6 @@ export const getButtonSizeSx = (size: ButtonSize): Record<string, ResponsiveValu
         fontSize: '16px',
         lineHeight: '16px',
         minHeight: ['62px', '56px'],
-        minWidth: ['62px', '56px'],
         borderRadius: ['31px', '28px'],
         p: 0,
       }

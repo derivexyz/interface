@@ -74,7 +74,7 @@ export default function ListItem({
           ) : null}
           <Flex flexGrow={1} flexDirection="column">
             {typeof label === 'string' || typeof label === 'number' ? (
-              <Text variant="small" color="inherit" sx={{ transition: 'all 0.05s ease-out' }}>
+              <Text variant="small" color="inherit">
                 {label}
               </Text>
             ) : (

@@ -7,8 +7,10 @@ import React from 'react'
 import PositionCard from '@/app/components/position/PositionCard'
 import PositionHistoryCard from '@/app/components/position/PositionHistoryCard'
 import PositionStatsCard from '@/app/components/position/PositionStatsCard'
+import { PageId } from '@/app/constants/pages'
 import PositionChartCard from '@/app/containers/position/PositionChartCard'
 import formatTokenName from '@/app/utils/formatTokenName'
+import getPagePath from '@/app/utils/getPagePath'
 
 import Page from '../common/Page'
 import PageGrid from '../common/Page/PageGrid'
@@ -24,7 +26,14 @@ const PositionPageHelper = ({ position, option }: Props): JSX.Element => {
   const isCall = position.isCall
   const baseName = formatTokenName(position.market().baseToken)
   return (
-    <Page showBackButton>
+    <Page
+      showBackButton
+      backHref={getPagePath({
+        page: PageId.Trade,
+        marketAddressOrName: position.market().name,
+        network: position.lyra.network,
+      })}
+    >
       <PageGrid>
         <Text mx={[3, 0]} variant="heading">
           {baseName} {formatUSD(strikePrice)} {isCall ? 'Call' : 'Put'}

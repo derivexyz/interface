@@ -27,24 +27,26 @@ export default function PageMobile({
   return (
     <Box px={3} pt={3} flexGrow={1} pb={MOBILE_FOOTER_HEIGHT + 9 * 4}>
       <Image
-        mb={!title && !showBackButton ? 0 : !title && showBackButton ? 8 : 12}
+        mb={!(title || headerCard) && !showBackButton ? 0 : !(title || headerCard) && showBackButton ? 8 : 12}
         href={getPagePath({ page: PageId.TradeIndex })}
         src={getAssetSrc('/images/logo.png')}
         height={36}
         width={36}
       />
-      {title ? (
+      {title || headerCard ? (
         <>
-          <Box mb={8}>
-            <Text variant="title" mb={subtitle ? 2 : 0}>
-              {title}
-            </Text>
-            {subtitle ? (
-              <Text variant="subtitle" color="secondaryText">
-                {subtitle}
+          {title ? (
+            <Box mb={8}>
+              <Text variant="title" mb={subtitle ? 2 : 0}>
+                {title}
               </Text>
-            ) : null}
-          </Box>
+              {subtitle ? (
+                <Text variant="subtitle" color="secondaryText">
+                  {subtitle}
+                </Text>
+              ) : null}
+            </Box>
+          ) : null}
           {headerCard ? (
             <Box mb={showBackButton ? 8 : 0} height={HEADER_CARD_HEIGHT} width="100%">
               {headerCard}

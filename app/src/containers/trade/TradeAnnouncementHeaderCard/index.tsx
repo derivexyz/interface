@@ -69,15 +69,15 @@ export default function TradeAnnouncementHeaderCard({ blockTimestamp }: Props) {
   }
 
   return displayedAnnouncement ? (
-    <Card variant="outline" height="100%" width="100%">
+    <Card variant="outline" height={['100%', 230]} width="100%">
       <CardBody height="100%">
-        <Flex justifyContent="flex-start">
+        <Flex mb={4} justifyContent="flex-start">
           {displayedAnnouncement.graphic ? (
             <Box
-              minWidth={84}
-              minHeight={84}
-              width={84}
-              height={84}
+              minWidth={[84, 76]}
+              minHeight={[84, 76]}
+              width={[84, 76]}
+              height={[84, 76]}
               mr={4}
               sx={{ borderRadius: '10px', overflow: 'hidden' }}
             >
@@ -85,10 +85,10 @@ export default function TradeAnnouncementHeaderCard({ blockTimestamp }: Props) {
             </Box>
           ) : null}
           <Box>
-            <Flex>
+            <Flex mb={1}>
               <Text variant="cardHeading">{displayedAnnouncement.title}</Text>
               <Box ml="auto">
-                <IconButton mb={1} onClick={handleDismissAnnouncement} icon={IconType.X} />
+                <IconButton onClick={handleDismissAnnouncement} icon={IconType.X} />
               </Box>
             </Flex>
             <Text variant="small" color="secondaryText">

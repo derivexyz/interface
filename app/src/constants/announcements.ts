@@ -17,7 +17,7 @@ export type Announcement = {
 
 const ANNOUNCEMENTS: Announcement[] = [
   {
-    id: 'arb-airdrop-5',
+    id: 'arbitrum-airdrop',
     title: '400k $ARB Airdrop',
     description: 'The Lyra DAO is airdropping 400k $ARB to traders and LPs over 8 weeks.',
     cta: {

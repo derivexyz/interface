@@ -18,7 +18,7 @@ export default function MarketLabel({ market, ...marginProps }: Props) {
     <Flex {...marginProps} alignItems="center">
       <MarketImage market={market} />
       <Box ml={2}>
-        <Text>{getMarketDisplayName(market)}</Text>
+        <Text color="text">{getMarketDisplayName(market)}</Text>
         <Text variant="small" color="secondaryText">
           {market.name}
         </Text>
