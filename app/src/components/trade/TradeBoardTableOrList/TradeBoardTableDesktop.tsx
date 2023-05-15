@@ -142,7 +142,7 @@ const TradeBoardTableDesktop = ({
       0
     )
     return {
-      rowIdx: rows.length,
+      rowIdx: spotPriceRowIdx,
       content: (
         <Flex sx={{ position: 'relative' }} alignItems="center" width="100%">
           <Box sx={{ position: 'absolute', right: 0, left: 0, top: '18px', height: '4px', bg: 'cardHoverBg' }} />
