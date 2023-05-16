@@ -25,8 +25,12 @@ const RewardsStakingCard = ({ latestRewardEpochs, lyraBalances, lyraStaking }: P
         lyraStaking={lyraStaking}
         lyraBalances={lyraBalances}
       />
-      <CardSeparator isVertical={!isMobile} />
-      <RewardsNotStakedCardSection lyraBalances={lyraBalances} />
+      {isMobile ? null : (
+        <>
+          <CardSeparator isVertical={!isMobile} />
+          <RewardsNotStakedCardSection lyraBalances={lyraBalances} />
+        </>
+      )}
     </Card>
   )
 }

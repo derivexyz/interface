@@ -1,5 +1,6 @@
 import Box from '@lyra/ui/components/Box'
 import Text from '@lyra/ui/components/Text'
+import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import { NewTradingRewardsReferredTraders } from '@lyrafinance/lyra-js/src/utils/fetchAccountRewardEpochData'
 import React from 'react'
 
@@ -26,8 +27,13 @@ type Props = {
 }
 
 const EarnIndexPageHelper = ({ latestRewardEpochs, vaults, lyraBalances, lyraStaking, referredTraders }: Props) => {
+  const isMobile = useIsMobile()
   return (
-    <Page title="Earn" subtitle="Stake, deposit and refer" headerCard={<TotalSupplyHeaderCard />}>
+    <Page
+      title="Earn"
+      subtitle="Stake, deposit and refer"
+      headerCard={isMobile ? undefined : <TotalSupplyHeaderCard />}
+    >
       <PageGrid>
         <RewardsLastUpdatedAlert latestRewardEpochs={latestRewardEpochs} />
         <Box>
