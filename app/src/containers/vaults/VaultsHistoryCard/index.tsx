@@ -78,19 +78,21 @@ const VaultsHistoryCard = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs
         <Text mb={6} variant="cardHeading">
           History
         </Text>
-        <ToggleButton mt={4} mb={8}>
-          {VAULT_HISTORY_TABS.map(item => (
-            <ToggleButtonItem
-              key={item.id}
-              id={item.id}
-              label={item.label}
-              isSelected={selectedItem === item.id}
-              onSelect={id => setSelectedItem(id)}
-              width="100%"
-              textVariant="body"
-            />
-          ))}
-        </ToggleButton>
+        <Flex>
+          <ToggleButton mt={4} mb={8}>
+            {VAULT_HISTORY_TABS.map(item => (
+              <ToggleButtonItem
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                isSelected={selectedItem === item.id}
+                onSelect={id => setSelectedItem(id)}
+                width="100%"
+                textVariant="body"
+              />
+            ))}
+          </ToggleButton>
+        </Flex>
         {showRewards ? (
           account && accountEpochsSorted.length > 0 ? (
             <Box overflowX="scroll">
