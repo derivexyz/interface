@@ -18,8 +18,8 @@ import { getLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNe
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import toBigNumber from '@/app/utils/toBigNumber'
 
-import RewardsStakeFormAmountInput from '../../rewards_index/RewardsStakeModal/RewardsStakeFormAmountInput'
-import StakeFormButton from '../../rewards_index/RewardsStakeModal/RewardsStakeFormButton'
+import RewardsStakeFormAmountInput from '../../earn_index/RewardsStakeModal/RewardsStakeFormAmountInput'
+import StakeFormButton from '../../earn_index/RewardsStakeModal/RewardsStakeFormButton'
 
 type Props = {
   latestGlobalRewardEpoch: GlobalRewardEpoch

@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom'
 
 import TokenImageStack from '@/app/components/common/TokenImageStack'
 import { ZERO_BN } from '@/app/constants/bn'
-import { REWARDS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
+import { EARN_REFERRALS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { AppNetwork } from '@/app/constants/networks'
 import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
@@ -58,11 +58,11 @@ export default function RewardsArrakisCard() {
   const isMobile = useIsMobile()
 
   return (
-    <Card onClick={() => navigate(getPagePath({ page: PageId.RewardsArrakis }))}>
+    <Card onClick={() => navigate(getPagePath({ page: PageId.EarnArrakis }))}>
       <CardBody>
         <Grid
           sx={{
-            gridTemplateColumns: REWARDS_CARD_GRID_COLUMN_TEMPLATE,
+            gridTemplateColumns: EARN_REFERRALS_CARD_GRID_COLUMN_TEMPLATE,
             gridColumnGap: 4,
             alignItems: 'center',
           }}
@@ -85,7 +85,7 @@ export default function RewardsArrakisCard() {
                 </Text>
                 <RewardsArrakisStakingLiquidityText />
               </Flex>
-              <Flex ml="auto">
+              <Flex>
                 <Text mr={2} color="secondaryText">
                   APY
                 </Text>
@@ -94,7 +94,7 @@ export default function RewardsArrakisCard() {
             </>
           ) : null}
           <Flex ml="auto">
-            <IconButton href={getPagePath({ page: PageId.RewardsArrakis })} icon={IconType.ArrowRight} />
+            <IconButton href={getPagePath({ page: PageId.EarnArrakis })} icon={IconType.ArrowRight} />
           </Flex>
         </Grid>
       </CardBody>

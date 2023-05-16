@@ -10,11 +10,10 @@ import formatUSD from '@lyra/ui/utils/formatUSD'
 import { Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
 import { NewTradingRewardsReferredTraders } from '@lyrafinance/lyra-js/src/utils/fetchAccountRewardEpochData'
 import React, { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import NetworkImage from '@/app/components/common/NetworkImage'
 import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
-import { REWARDS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
+import { EARN_REFERRALS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
@@ -25,7 +24,6 @@ type Props = {
 }
 
 const RewardsReferralsCard = ({ referredTraders }: Props) => {
-  const navigate = useNavigate()
   const isMobile = useIsMobile()
   const lyraToken = getTokenInfo('lyra', Network.Arbitrum)
   const { numTraders, volume, token } = useMemo(() => {
@@ -53,7 +51,7 @@ const RewardsReferralsCard = ({ referredTraders }: Props) => {
   return (
     <Card
       href={getPagePath({
-        page: PageId.RewardsReferrals,
+        page: PageId.EarnReferrals,
         network: Network.Arbitrum,
       })}
     >
@@ -61,7 +59,7 @@ const RewardsReferralsCard = ({ referredTraders }: Props) => {
         <Grid
           width="100%"
           sx={{
-            gridTemplateColumns: REWARDS_CARD_GRID_COLUMN_TEMPLATE,
+            gridTemplateColumns: EARN_REFERRALS_CARD_GRID_COLUMN_TEMPLATE,
             gridColumnGap: 4,
             gridRowGap: 6,
             alignItems: 'center',
@@ -85,7 +83,7 @@ const RewardsReferralsCard = ({ referredTraders }: Props) => {
                 </Text>
                 <Text>{numTraders}</Text>
               </Flex>
-              <Flex ml="auto">
+              <Flex>
                 <Text mr={2} color="secondaryText">
                   Rewards
                 </Text>
@@ -98,7 +96,7 @@ const RewardsReferralsCard = ({ referredTraders }: Props) => {
             <IconButton
               icon={IconType.ArrowRight}
               href={getPagePath({
-                page: PageId.RewardsReferrals,
+                page: PageId.EarnReferrals,
                 network: Network.Arbitrum,
               })}
             />

@@ -17,7 +17,7 @@ import fromBigNumber from '@/app/utils/fromBigNumber'
 import toBigNumber from '@/app/utils/toBigNumber'
 
 import RowItem from '../../../components/common/RowItem'
-import StakeFormButton from '../../rewards_index/RewardsStakeModal/RewardsStakeFormButton'
+import StakeFormButton from '../../earn_index/RewardsStakeModal/RewardsStakeFormButton'
 
 type Props = {
   isOpen: boolean

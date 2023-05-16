@@ -1,6 +1,6 @@
 import React from 'react'
 
-import RewardsIndexPageHelper from '@/app/page_helpers/RewardsIndexPageHelper'
+import EarnIndexPageHelper from '@/app/page_helpers/EarnIndexPageHelper'
 
 import withSuspense from '../hooks/data/withSuspense'
 import useRewardsPageData from '../hooks/rewards/useRewardsPageData'
@@ -9,7 +9,7 @@ import PageLoading from '../page_helpers/common/Page/PageLoading'
 import filterNulls from '../utils/filterNulls'
 
 // /rewards
-const RewardsIndexPage = withSuspense(
+const EarnIndexPage = withSuspense(
   (): JSX.Element => {
     const data = useRewardsPageData()
     if (!data) {
@@ -18,7 +18,7 @@ const RewardsIndexPage = withSuspense(
     const latestRewardEpochs = filterNulls(Object.values(data.epochs).map(epoch => epoch.latestRewardEpoch))
     const { vaults, lyraBalances, lyraStaking, referredTraders } = data
     return (
-      <RewardsIndexPageHelper
+      <EarnIndexPageHelper
         latestRewardEpochs={latestRewardEpochs}
         vaults={vaults}
         lyraBalances={lyraBalances}
@@ -30,4 +30,4 @@ const RewardsIndexPage = withSuspense(
   () => <PageLoading />
 )
 
-export default RewardsIndexPage
+export default EarnIndexPage

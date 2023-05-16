@@ -8,8 +8,8 @@ import React, { useMemo, useState } from 'react'
 import LabelItem from '@/app/components/common/LabelItem'
 import { ReferralsPageData } from '@/app/hooks/referrals/useReferralsPageData'
 
-import RewardsClaimModal from '../../rewards/RewardsClaimModal'
-import RewardsClaimModalButton from '../../rewards/RewardsClaimModalButton'
+import RewardsClaimModal from '../../earn/RewardsClaimModal'
+import RewardsClaimModalButton from '../../earn/RewardsClaimModalButton'
 
 type Props = {
   data: ReferralsPageData

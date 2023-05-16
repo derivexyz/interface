@@ -13,7 +13,7 @@ import { useMemo } from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
 import { AppNetwork } from '@/app/constants/networks'
-import RewardsUnstakeModal from '@/app/containers/rewards_index/RewardsUnstakeModal'
+import RewardsUnstakeModal from '@/app/containers/earn_index/RewardsUnstakeModal'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
 import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import { getStkLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'

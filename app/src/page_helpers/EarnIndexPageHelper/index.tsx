@@ -5,11 +5,11 @@ import React from 'react'
 
 import { Vault } from '@/app/constants/vault'
 import TotalSupplyHeaderCard from '@/app/containers/common/TotalSupplyHeaderCard'
-import RewardsLastUpdatedAlert from '@/app/containers/rewards_index/RewardsLastUpdatedAlert'
-import RewardsReferralsSection from '@/app/containers/rewards_index/RewardsReferralsSection'
-import RewardsStakingCard from '@/app/containers/rewards_index/RewardsStakingCard'
-import RewardsVaultsSection from '@/app/containers/rewards_index/RewardsVaultsSection'
-import RewardsWethLyraLPSection from '@/app/containers/rewards_index/RewardsWethLyraLPSection'
+import RewardsLastUpdatedAlert from '@/app/containers/earn_index/RewardsLastUpdatedAlert'
+import RewardsReferralsSection from '@/app/containers/earn_index/RewardsReferralsSection'
+import RewardsStakingCard from '@/app/containers/earn_index/RewardsStakingCard'
+import RewardsVaultsSection from '@/app/containers/earn_index/RewardsVaultsSection'
+import RewardsWethLyraLPSection from '@/app/containers/earn_index/RewardsWethLyraLPSection'
 import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
 import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
@@ -25,9 +25,9 @@ type Props = {
   referredTraders: NewTradingRewardsReferredTraders
 }
 
-const RewardsIndexPageHelper = ({ latestRewardEpochs, vaults, lyraBalances, lyraStaking, referredTraders }: Props) => {
+const EarnIndexPageHelper = ({ latestRewardEpochs, vaults, lyraBalances, lyraStaking, referredTraders }: Props) => {
   return (
-    <Page title="Rewards" subtitle="Stake, deposit and refer" headerCard={<TotalSupplyHeaderCard />}>
+    <Page title="Earn" subtitle="Stake, deposit and refer" headerCard={<TotalSupplyHeaderCard />}>
       <PageGrid>
         <RewardsLastUpdatedAlert latestRewardEpochs={latestRewardEpochs} />
         <Box>
@@ -69,4 +69,4 @@ const RewardsIndexPageHelper = ({ latestRewardEpochs, vaults, lyraBalances, lyra
   )
 }
 
-export default RewardsIndexPageHelper
+export default EarnIndexPageHelper

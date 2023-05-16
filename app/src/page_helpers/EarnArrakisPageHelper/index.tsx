@@ -20,10 +20,10 @@ import { ARRAKIS_LIQUIDITY_URL } from '@/app/constants/links'
 import { AppNetwork } from '@/app/constants/networks'
 import ConnectWalletButton from '@/app/containers/common/ConnectWalletButton'
 import TotalSupplyHeaderCard from '@/app/containers/common/TotalSupplyHeaderCard'
-import RewardsArrakisClaimModal from '@/app/containers/rewards/RewardsArrakisClaimModal'
-import RewardsArrakisOpUnstakeModal from '@/app/containers/rewards/RewardsArrakisOpUnstakeModal'
-import RewardsArrakisStakeModal from '@/app/containers/rewards/RewardsArrakisStakeModal'
-import RewardsArrakisUnstakeModal from '@/app/containers/rewards/RewardsArrakisUnstakeModal'
+import RewardsArrakisClaimModal from '@/app/containers/earn/RewardsArrakisClaimModal'
+import RewardsArrakisOpUnstakeModal from '@/app/containers/earn/RewardsArrakisOpUnstakeModal'
+import RewardsArrakisStakeModal from '@/app/containers/earn/RewardsArrakisStakeModal'
+import RewardsArrakisUnstakeModal from '@/app/containers/earn/RewardsArrakisUnstakeModal'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import fromBigNumber from '@/app/utils/fromBigNumber'
 import { ArrakisOpStaking } from '@/app/utils/rewards/fetchArrakisOptimismAccount'
@@ -39,7 +39,7 @@ type Props = {
   arrakisOpStakingAccount: ArrakisOpStaking | null
 }
 
-const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: Props) => {
+const EarnArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: Props) => {
   const isMobile = useIsMobile()
   const account = useWalletAccount()
   const [isOpen, setIsOpen] = useState(false)
@@ -50,7 +50,7 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
   const poolLyraBalance = stakedLPTokenBalance * arrakisStaking.lyraPerToken
   const poolWethBalance = stakedLPTokenBalance * arrakisStaking.wethPerToken
   return (
-    <Page title="Rewards" subtitle="Stake, deposit and refer" headerCard={<TotalSupplyHeaderCard />}>
+    <Page title="Earn" subtitle="Stake, deposit and refer" headerCard={<TotalSupplyHeaderCard />}>
       <PageGrid>
         <Text variant="heading">
           LYRA-ETH LP Rewards
@@ -176,4 +176,4 @@ const RewardsArrakisPageHelper = ({ arrakisStaking, arrakisOpStakingAccount }: P
   )
 }
 
-export default RewardsArrakisPageHelper
+export default EarnArrakisPageHelper

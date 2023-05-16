@@ -13,24 +13,20 @@ const getTradePath = (args: PageArgsMap[PageId.Trade]): string => {
   return `/trade/${args.network}/${args.marketAddressOrName}`.toLowerCase()
 }
 
-const getVaultPath = (args: PageArgsMap[PageId.Vaults]): string => {
-  return `/vaults/${args.network}/${args.marketAddressOrName}`.toLowerCase()
-}
-
 const getPositionPath = (args: PageArgsMap[PageId.Position]): string => {
   return `/position/${args.network}/${args.marketAddressOrName}/${args.positionId}`.toLowerCase()
 }
 
-const getRewardsTradingPath = (args: PageArgsMap[PageId.RewardsTrading]): string => {
-  return `/rewards/trading/${args.network}`.toLowerCase()
+const getRewardsTradingPath = (args: PageArgsMap[PageId.EarnTrading]): string => {
+  return `/earn/trading/${args.network}`.toLowerCase()
 }
 
-const getRewardsReferralsPath = (args: PageArgsMap[PageId.RewardsTrading]): string => {
-  return `/rewards/referrals/${args.network}`.toLowerCase()
+const getRewardsReferralsPath = (args: PageArgsMap[PageId.EarnTrading]): string => {
+  return `/earn/referrals/${args.network}`.toLowerCase()
 }
 
-const getRewardsVaultsPath = (args: PageArgsMap[PageId.RewardsVaults]): string => {
-  return `/rewards/vaults/${args.network}/${args.marketAddressOrName}`.toLowerCase()
+const getRewardsVaultsPath = (args: PageArgsMap[PageId.EarnVaults]): string => {
+  return `/earn/vaults/${args.network}/${args.marketAddressOrName}`.toLowerCase()
 }
 
 const getVoteProposalDetailsPath = (args: PageArgsMap[PageId.VoteProposalDetails]): string => {
@@ -67,30 +63,24 @@ export const getRelativePagePath = <T extends keyof PageArgsMap>(args: PagePathA
       return '/leaderboard'
     case PageId.LeaderboardHistory:
       return '/leaderboard/history'
-    case PageId.VaultsIndex:
-      return '/vaults'
-    case PageId.VaultsHistory:
-      return '/vaults/history'
-    case PageId.Vaults:
-      return getVaultPath(args as PageArgsMap[PageId.Vaults])
-    case PageId.RewardsIndex:
-      return '/rewards'
-    case PageId.RewardsTrading:
-      return getRewardsTradingPath(args as PageArgsMap[PageId.RewardsTrading])
-    case PageId.RewardsVaults:
-      return getRewardsVaultsPath(args as PageArgsMap[PageId.RewardsVaults])
-    case PageId.RewardsEthLyraLp:
-      return '/rewards/eth-lyra'
+    case PageId.EarnIndex:
+      return '/earn'
+    case PageId.EarnTrading:
+      return getRewardsTradingPath(args as PageArgsMap[PageId.EarnTrading])
+    case PageId.EarnVaults:
+      return getRewardsVaultsPath(args as PageArgsMap[PageId.EarnVaults])
+    case PageId.EarnEthLyraLp:
+      return '/earn/eth-lyra'
     case PageId.VoteIndex:
       return '/vote'
     case PageId.VoteProposalCreate:
       return '/vote/proposal/create'
     case PageId.VoteProposalDetails:
       return getVoteProposalDetailsPath(args as PageArgsMap[PageId.VoteProposalDetails])
-    case PageId.RewardsArrakis:
-      return '/rewards/arrakis'
-    case PageId.RewardsReferrals:
-      return getRewardsReferralsPath(args as PageArgsMap[PageId.RewardsReferrals])
+    case PageId.EarnArrakis:
+      return '/earn/arrakis'
+    case PageId.EarnReferrals:
+      return getRewardsReferralsPath(args as PageArgsMap[PageId.EarnReferrals])
     case PageId.NotFound:
       return '/404'
   }

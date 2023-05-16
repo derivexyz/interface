@@ -7,11 +7,11 @@ import useRewardsPageData from '../hooks/rewards/useRewardsPageData'
 import useFindVault from '../hooks/vaults/useFindVault'
 import PageError from '../page_helpers/common/Page/PageError'
 import PageLoading from '../page_helpers/common/Page/PageLoading'
-import RewardsVaultsPageHelper from '../page_helpers/RewardsVaultsPageHelper'
+import EarnVaultsPageHelper from '../page_helpers/EarnVaultsPageHelper'
 import coerce from '../utils/coerce'
 
 // /rewards
-const RewardsVaultsPage = withSuspense(
+const EarnVaultsPage = withSuspense(
   (): JSX.Element => {
     const { network: networkStr, marketAddressOrName = null } = useParams()
     const network = coerce(Network, networkStr) ?? null
@@ -21,12 +21,13 @@ const RewardsVaultsPage = withSuspense(
 
     if (!epochData) {
       return <PageError error="Error finding page data" />
-    } else if (!vault || !network) {
+    } else if (!vault || !network || !data?.vaults) {
       return <PageError error="Vault does not exist" />
     }
 
     return (
-      <RewardsVaultsPageHelper
+      <EarnVaultsPageHelper
+        vaults={data.vaults}
         vault={vault}
         latestGlobalRewardEpoch={epochData.latestRewardEpoch.global}
         accountRewardEpochs={epochData.accountRewardEpochs}
@@ -36,4 +37,4 @@ const RewardsVaultsPage = withSuspense(
   () => <PageLoading />
 )
 
-export default RewardsVaultsPage
+export default EarnVaultsPage

@@ -6,21 +6,18 @@ export enum PageId {
   TradeIndex = 'TradeIndex',
   TradeHistory = 'TradeHistory',
   Position = 'Position',
-  Vaults = 'Vaults',
-  VaultsIndex = 'VaultsIndex',
-  VaultsHistory = 'VaultsHistory',
   Leaderboard = 'Leaderboard',
   LeaderboardIndex = 'LeaderboardIndex',
   LeaderboardHistory = 'LeaderboardHistory',
-  RewardsIndex = 'RewardsIndex',
-  RewardsTrading = 'RewardsTrading',
-  RewardsVaults = 'RewardsVaults',
-  RewardsEthLyraLp = 'RewardsEthLyraLp',
+  EarnIndex = 'EarnIndex',
+  EarnTrading = 'EarnTrading',
+  EarnVaults = 'EarnVaults',
+  EarnEthLyraLp = 'EarnEthLyraLp',
   VoteIndex = 'VoteIndex',
   VoteProposalCreate = 'VoteProposalCreate',
   VoteProposalDetails = 'VoteProposalDetails',
-  RewardsArrakis = 'RewardsArrakis',
-  RewardsReferrals = 'RewardsReferrals',
+  EarnArrakis = 'EarnArrakis',
+  EarnReferrals = 'EarnReferrals',
   Storybook = 'Storybook',
   Faucet = 'Faucet',
 }
@@ -52,28 +49,22 @@ export type PageArgsMap = {
   }
   [PageId.LeaderboardIndex]: undefined
   [PageId.LeaderboardHistory]: undefined
-  [PageId.VaultsIndex]: undefined
-  [PageId.VaultsHistory]: undefined
-  [PageId.Vaults]: {
+  [PageId.EarnIndex]: undefined
+  [PageId.EarnTrading]: {
+    network: string
+  }
+  [PageId.EarnVaults]: {
     network: string
     marketAddressOrName: string
   }
-  [PageId.RewardsIndex]: undefined
-  [PageId.RewardsTrading]: {
-    network: string
-  }
-  [PageId.RewardsVaults]: {
-    network: string
-    marketAddressOrName: string
-  }
-  [PageId.RewardsEthLyraLp]: undefined
+  [PageId.EarnEthLyraLp]: undefined
   [PageId.VoteIndex]: undefined
   [PageId.VoteProposalCreate]: undefined
   [PageId.VoteProposalDetails]: {
     proposalId: number
   }
-  [PageId.RewardsArrakis]: undefined
-  [PageId.RewardsReferrals]: {
+  [PageId.EarnArrakis]: undefined
+  [PageId.EarnReferrals]: {
     network: string
   }
   [PageId.Storybook]: undefined

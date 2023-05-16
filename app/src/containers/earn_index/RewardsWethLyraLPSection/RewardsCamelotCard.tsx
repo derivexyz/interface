@@ -14,29 +14,29 @@ import { useMemo } from 'react'
 
 import TokenImageStack from '@/app/components/common/TokenImageStack'
 import { ZERO_BN } from '@/app/constants/bn'
-import { REWARDS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
-import { VELODROME_ADD_LIQUIDITY_URL } from '@/app/constants/links'
+import { EARN_REFERRALS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
+import { CAMELOT_ADD_LIQUIDITY_URL } from '@/app/constants/links'
 import { AppNetwork } from '@/app/constants/networks'
 import withSuspense from '@/app/hooks/data/withSuspense'
-import useVelodromeStaking from '@/app/hooks/rewards/useVelodromeStaking'
+import useCamelotStaking from '@/app/hooks/rewards/useCamelotStaking'
 
-const RewardsVelodromeStakingTVLText = withSuspense(
+const RewardsCamelotStakingTVLText = withSuspense(
   () => {
-    const velodromeStaking = useVelodromeStaking()
-    return <Text>{formatTruncatedUSD(velodromeStaking?.tvl ?? ZERO_BN)}</Text>
+    const camelotStaking = useCamelotStaking()
+    return <Text>{formatTruncatedUSD(camelotStaking?.tvl ?? ZERO_BN)}</Text>
   },
   () => <TextShimmer width={40} />
 )
 
-const RewardsVelodromeStakingLiquidityText = withSuspense(
+const RewardsCamelotStakingLiquidityText = withSuspense(
   () => {
-    const velodromeStaking = useVelodromeStaking()
+    const camelotStaking = useCamelotStaking()
     const balance = useMemo(
-      () => (velodromeStaking ? velodromeStaking.lpTokenBalance * velodromeStaking.valuePerLPToken : 0),
-      [velodromeStaking]
+      () => (camelotStaking ? camelotStaking.lpTokenBalance * camelotStaking.valuePerLPToken : 0),
+      [camelotStaking]
     )
     return (
-      <Text color={velodromeStaking && velodromeStaking.lpTokenBalance > 0 ? 'primaryText' : 'text'}>
+      <Text color={camelotStaking && camelotStaking.lpTokenBalance > 0 ? 'primaryText' : 'text'}>
         {formatTruncatedUSD(balance)}
       </Text>
     )
@@ -44,30 +44,30 @@ const RewardsVelodromeStakingLiquidityText = withSuspense(
   () => <TextShimmer width={80} />
 )
 
-const RewardsVelodromeStakingAPYText = withSuspense(
+const RewardsCamelotStakingAPYText = withSuspense(
   () => {
-    const velodromeStaking = useVelodromeStaking()
-    return <Text>{formatPercentage(velodromeStaking?.apy ?? 0, true)}</Text>
+    const camelotStaking = useCamelotStaking()
+    return <Text>{formatPercentage(camelotStaking?.apy ?? 0, true)}</Text>
   },
   () => <TextShimmer width={40} />
 )
 
-export default function RewardsVelodromeCard() {
+export default function RewardsCamelotCard() {
   const isMobile = useIsMobile()
 
   return (
-    <Card href={VELODROME_ADD_LIQUIDITY_URL} target="_blank">
+    <Card href={CAMELOT_ADD_LIQUIDITY_URL} target="_blank">
       <CardBody>
         <Grid
           sx={{
-            gridTemplateColumns: REWARDS_CARD_GRID_COLUMN_TEMPLATE,
+            gridTemplateColumns: EARN_REFERRALS_CARD_GRID_COLUMN_TEMPLATE,
             gridColumnGap: 4,
             alignItems: 'center',
           }}
         >
           <Flex alignItems="center">
-            <TokenImageStack tokenNameOrAddresses={['usdc', 'lyra']} size={32} network={AppNetwork.Optimism} />
-            <Text ml={2}>Velodrome · Optimism</Text>
+            <TokenImageStack tokenNameOrAddresses={['eth', 'lyra']} size={32} network={AppNetwork.Arbitrum} />
+            <Text ml={2}>Camelot · Arbitrum</Text>
           </Flex>
           {!isMobile ? (
             <>
@@ -75,19 +75,19 @@ export default function RewardsVelodromeCard() {
                 <Text mr={2} color="secondaryText">
                   TVL
                 </Text>
-                <RewardsVelodromeStakingTVLText />
+                <RewardsCamelotStakingTVLText />
               </Flex>
               <Flex>
                 <Text mr={2} color="secondaryText">
                   Your Liquidity
                 </Text>
-                <RewardsVelodromeStakingLiquidityText />
+                <RewardsCamelotStakingLiquidityText />
               </Flex>
-              <Flex ml="auto">
+              <Flex>
                 <Text mr={2} color="secondaryText">
                   APY
                 </Text>
-                <RewardsVelodromeStakingAPYText />
+                <RewardsCamelotStakingAPYText />
               </Flex>
             </>
           ) : null}

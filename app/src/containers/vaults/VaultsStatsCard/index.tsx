@@ -1,7 +1,9 @@
+import Button from '@lyra/ui/components/Button'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Center from '@lyra/ui/components/Center'
 import Grid from '@lyra/ui/components/Grid'
+import { IconType } from '@lyra/ui/components/Icon'
 import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
@@ -12,6 +14,7 @@ import { Market } from '@lyrafinance/lyra-js'
 import React from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
+import { STATS_URL } from '@/app/constants/links'
 import { SECONDS_IN_MONTH } from '@/app/constants/time'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useVaultStats from '@/app/hooks/vaults/useVaultStats'
@@ -74,6 +77,20 @@ const VaultsStatsCard = withSuspense(
               />
             ) : null}
           </Grid>
+          <Grid
+            my={2}
+            sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 6, gridRowGap: [3, 6] }}
+          >
+            <Button
+              mt={4}
+              label="More Stats"
+              variant="default"
+              rightIcon={IconType.ArrowUpRight}
+              size="lg"
+              href={STATS_URL}
+              target="_blank"
+            />
+          </Grid>
         </CardBody>
       </Card>
     )
@@ -81,7 +98,7 @@ const VaultsStatsCard = withSuspense(
   () => (
     <Card>
       <CardBody>
-        <Text mb={6} variant="cardHeading">
+        <Text mb={6} variant="heading">
           Stats
         </Text>
         <Center height={[272, 124]}>

@@ -42,7 +42,11 @@ const VaultsMarketDropdown = ({ vaults, selectedVault, ...styleProps }: Props): 
               {getNetworkDisplayName(market.lyra.network)}
             </Text>
           }
-          href={getPagePath({ page: PageId.Vaults, network: market.lyra.network, marketAddressOrName: market.name })}
+          href={getPagePath({
+            page: PageId.EarnVaults,
+            network: market.lyra.network,
+            marketAddressOrName: market.name,
+          })}
           onClick={onClose}
           icon={<MarketImage market={market} />}
         />

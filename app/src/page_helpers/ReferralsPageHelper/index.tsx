@@ -29,7 +29,7 @@ const ReferralsPageHelper = ({ data }: Props): JSX.Element => {
       subtitle="Refer traders to earn rewards"
       headerCard={<ReferralsHeaderCard data={data} />}
       showBackButton
-      backHref={getPagePath({ page: PageId.RewardsIndex })}
+      backHref={getPagePath({ page: PageId.EarnIndex })}
     >
       <PageGrid>
         <Flex flexDirection="column">

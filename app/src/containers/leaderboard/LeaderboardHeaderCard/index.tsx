@@ -12,8 +12,8 @@ import LabelItem from '@/app/components/common/LabelItem'
 import { PageId } from '@/app/constants/pages'
 import getPagePath from '@/app/utils/getPagePath'
 
-import RewardsClaimModal from '../../rewards/RewardsClaimModal'
-import RewardsClaimModalButton from '../../rewards/RewardsClaimModalButton'
+import RewardsClaimModal from '../../earn/RewardsClaimModal'
+import RewardsClaimModalButton from '../../earn/RewardsClaimModalButton'
 
 type Props = {
   latestAccountRewardEpoch?: AccountRewardEpoch

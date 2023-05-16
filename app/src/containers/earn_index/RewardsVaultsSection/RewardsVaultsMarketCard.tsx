@@ -6,6 +6,7 @@ import Grid from '@lyra/ui/components/Grid'
 import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
+import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
 import React from 'react'
 import { useMemo } from 'react'
@@ -13,7 +14,7 @@ import { useNavigate } from 'react-router-dom'
 
 import MarketImage from '@/app/components/common/MarketImage'
 import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
-import { REWARDS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
+import { EARN_VAULTS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
 import { Vault } from '@/app/constants/vault'
 import formatAPY from '@/app/utils/formatAPY'
@@ -57,7 +58,7 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
   return (
     <Card
       href={getPagePath({
-        page: PageId.RewardsVaults,
+        page: PageId.EarnVaults,
         network: market.lyra.network,
         marketAddressOrName: market.name,
       })}
@@ -66,7 +67,7 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
         <Grid
           width="100%"
           sx={{
-            gridTemplateColumns: REWARDS_CARD_GRID_COLUMN_TEMPLATE,
+            gridTemplateColumns: EARN_VAULTS_CARD_GRID_COLUMN_TEMPLATE,
             gridColumnGap: 4,
             gridRowGap: 6,
             alignItems: 'center',
@@ -80,6 +81,12 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
           </Flex>
           {!isMobile ? (
             <>
+              <Flex>
+                <Text mr={2} color="secondaryText" variant="body">
+                  TVL
+                </Text>
+                <Text variant="body">{formatTruncatedUSD(vault.tvl)}</Text>
+              </Flex>
               <Flex>
                 <Text mr={2} color="secondaryText">
                   Balance
@@ -96,7 +103,7 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
                   <Text>{formatAPY(vault.apy, { showSymbol: false })}</Text>
                 )}
               </Flex>
-              <Flex ml="auto">
+              <Flex>
                 <Text mr={2} color="secondaryText">
                   Rewards
                 </Text>
@@ -112,7 +119,7 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
             <IconButton
               icon={IconType.ArrowRight}
               href={getPagePath({
-                page: PageId.RewardsVaults,
+                page: PageId.EarnVaults,
                 network: market.lyra.network,
                 marketAddressOrName: market.name,
               })}

@@ -22,4 +22,5 @@ export const TRADE_SPOT_CANDLE_CHART_HEIGHT = [160, 280]
 export const ADMIN_TRANSACTIONS_CARD_WIDTH = 560
 
 export const VOTE_PROPOSALS_CARD_GRID_COLUMN_TEMPLATE = ['1fr 2fr 1fr', '1fr 5fr 1fr']
-export const REWARDS_CARD_GRID_COLUMN_TEMPLATE = ['1fr 36px', '1.5fr 1fr 1fr 1fr 1fr']
+export const EARN_VAULTS_CARD_GRID_COLUMN_TEMPLATE = ['1fr 36px', '1.5fr 1fr 1fr 1fr 1fr 1fr']
+export const EARN_REFERRALS_CARD_GRID_COLUMN_TEMPLATE = ['1fr 36px', '1.5fr 1fr 1fr 1fr 1fr']

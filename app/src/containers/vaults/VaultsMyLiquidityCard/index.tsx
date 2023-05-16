@@ -59,7 +59,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
           <LabelItem label="LP Balance" value={formatBalance(vault.liquidityToken)} />
           <LabelItem
             label="LP Profit / Loss"
-            value={`${formatUSD(vault.pnl)} (${formatPercentage(vault.pnlPercentage, true)})`}
+            value={`${formatUSD(vault.pnl, { showSign: true })} (${formatPercentage(vault.pnlPercentage)})`}
             valueColor={vault.pnl >= 0 ? 'primaryText' : 'errorText'}
           />
           <LabelItem
@@ -77,18 +77,7 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
             />
           ) : null}
         </Grid>
-        <Grid sx={{ gridTemplateColumns: ['1fr 1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 6, gridRowGap: 6 }}>
-          <Button
-            onClick={() => setDepositModalOpen(true)}
-            label="Deposit"
-            variant="primary"
-            size="lg"
-            isDisabled={
-              !!IGNORE_VAULTS_LIST.find(
-                ({ marketName, chain }) => marketName === market.name && chain === market.lyra.chain
-              )
-            }
-          />
+        <Grid my={2} sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 6, gridRowGap: [3, 6] }}>
           {vault.liquidityToken.balance.gt(0) ? (
             <Button
               onClick={() => setBoostModalOpen(true)}
@@ -103,6 +92,17 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
               }
             />
           ) : null}
+          <Button
+            onClick={() => setDepositModalOpen(true)}
+            label="Deposit"
+            variant={vault.liquidityToken.balance.gt(0) ? 'default' : 'primary'}
+            size="lg"
+            isDisabled={
+              !!IGNORE_VAULTS_LIST.find(
+                ({ marketName, chain }) => marketName === market.name && chain === market.lyra.chain
+              )
+            }
+          />
           {vault.liquidityToken.balance.gt(0) ? (
             <Button onClick={() => setWithdrawModalOpen(true)} label="Withdraw" size="lg" />
           ) : null}
