@@ -44,7 +44,7 @@ const PositionPageHelper = ({ position, option }: Props): JSX.Element => {
         <PositionChartCard option={option} />
         <PositionCard position={position} option={option} />
         {position.isOpen ? <PositionStatsCard option={option} /> : null}
-        {position && position.trades().length > 0 ? <PositionHistoryCard position={position} /> : null}
+        <PositionHistoryCard position={position} />
       </PageGrid>
     </Page>
   )

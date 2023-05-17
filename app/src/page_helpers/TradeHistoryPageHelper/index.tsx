@@ -18,7 +18,6 @@ import { PageId } from '@/app/constants/pages'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import usePositionHistory from '@/app/hooks/position/usePositionHistory'
 import useTradeHistory from '@/app/hooks/position/useTradeHistory'
-import useAccountRewardEpochs from '@/app/hooks/rewards/useAccountRewardEpochs'
 import getPagePath from '@/app/utils/getPagePath'
 import { getTradeHistoryCSV } from '@/app/utils/getTradeHistoryCSV'
 
@@ -88,12 +87,10 @@ const TradeHistory = withSuspense(
   () => {
     const events = useTradeHistory()
     const navigate = useNavigate()
-    const accountRewardEpochs = useAccountRewardEpochs()
     return events.length > 0 ? (
       <CardSection noPadding>
         <TradeEventsTable
           events={events}
-          accountRewardEpochs={accountRewardEpochs}
           onClick={event => {
             const positionId = event.positionId
             return navigate(

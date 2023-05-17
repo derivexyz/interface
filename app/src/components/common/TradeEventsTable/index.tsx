@@ -6,7 +6,7 @@ import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatTruncatedDuration from '@lyra/ui/utils/formatTruncatedDuration'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { AccountRewardEpoch, CollateralUpdateEvent, Position, SettleEvent, TradeEvent } from '@lyrafinance/lyra-js'
+import { CollateralUpdateEvent, Position, SettleEvent, TradeEvent } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import filterNulls from '@/app/utils/filterNulls'
@@ -19,7 +19,6 @@ type Props = {
   events: { event: TradeEvent | CollateralUpdateEvent | SettleEvent; position: Position }[]
   onClick?: (event: TradeEvent | CollateralUpdateEvent | SettleEvent) => void
   pageSize?: number
-  accountRewardEpochs?: AccountRewardEpoch[]
 } & MarginProps
 
 export type TradeEventTableData = TableData<{
@@ -39,16 +38,13 @@ export type TradeEventTableData = TableData<{
   isBaseCollateral: boolean
 }>
 
-const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 }: Props) => {
+const TradeEventsTable = ({ events, onClick, pageSize = 10 }: Props) => {
   const rows: TradeEventTableData[] = useMemo(() => {
     return events.map(({ event, position }) => {
       const marketName = event.marketName
       const strikePrice = fromBigNumber(event.strikePrice)
       const isCall = event.isCall
       const expiryTimestamp = event.expiryTimestamp
-      const accountRewardEpoch = accountRewardEpochs?.find(
-        epoch => epoch.globalEpoch.startTimestamp < event.timestamp && epoch.globalEpoch.endTimestamp >= event.timestamp
-      )
 
       let collateralValue = 0
       let collateralAmount = 0
@@ -95,7 +91,7 @@ const TradeEventsTable = ({ events, accountRewardEpochs, onClick, pageSize = 10 
         onClick: onClick ? () => onClick(event) : undefined,
       }
     })
-  }, [events, accountRewardEpochs, onClick])
+  }, [events, onClick])
 
   const columns = useMemo<TableColumn<TradeEventTableData>[]>(() => {
     return filterNulls([

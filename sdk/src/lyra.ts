@@ -18,14 +18,13 @@ import { LiquidityDeposit } from './liquidity_deposit'
 import { LiquidityWithdrawal } from './liquidity_withdrawal'
 import { Market, MarketContractAddresses, MarketQuotes, MarketTradeOptions } from './market'
 import { Option, OptionQuotes } from './option'
-import { Position, PositionFilter, PositionLeaderboard, PositionLeaderboardFilter } from './position'
+import { Position } from './position'
 import { Quote, QuoteOptions } from './quote'
 import { SettleEvent } from './settle_event'
 import { Strike, StrikeQuotes } from './strike'
 import { Trade } from './trade'
 import { TradeEvent, TradeEventListener, TradeEventListenerCallback, TradeEventListenerOptions } from './trade_event'
 import { TransferEvent } from './transfer_event'
-import fetchLeaderboard from './utils/fetchLeaderboard'
 import fetchMarketAddresses from './utils/fetchMarketAddresses'
 import fetchPositionEventDataByHash from './utils/fetchPositionEventDataByHash'
 import getLyraChainForChainId from './utils/getLyraChainForChainId'
@@ -218,10 +217,6 @@ export default class Lyra {
     return await Position.getByOwner(this, owner)
   }
 
-  async allPositions(options?: PositionFilter): Promise<Position[]> {
-    return await Position.getAll(this, options)
-  }
-
   async position(marketAddressOrName: string, positionId: number): Promise<Position> {
     return await Position.get(this, marketAddressOrName, positionId)
   }
@@ -233,10 +228,6 @@ export default class Lyra {
     settles: SettleEvent[]
   }> {
     return await fetchPositionEventDataByHash(this, transactionHashOrReceipt)
-  }
-
-  async leaderboard(options?: PositionLeaderboardFilter): Promise<PositionLeaderboard[]> {
-    return await fetchLeaderboard(this, options)
   }
 
   // Account

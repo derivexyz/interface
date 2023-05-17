@@ -10,7 +10,7 @@ export const getNavPageFromPath = (path: string): PageId | null => {
   const rootPath = parts[0]
 
   // TODO: Replace logic with TabId
-  if (rootPath === 'trade') {
+  if (rootPath === 'trade' || rootPath === 'position') {
     return PageId.Trade
   } else if (rootPath === 'airdrop') {
     return PageId.Leaderboard

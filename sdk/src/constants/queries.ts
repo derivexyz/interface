@@ -114,6 +114,7 @@ export const TRANSFER_QUERY_FRAGMENT = `
   transactionHash
   blockNumber
   position {
+    id
     positionId
   }
 `
@@ -438,6 +439,7 @@ export type TransferQueryResult = {
   transactionHash: string
   blockNumber: number
   position: {
+    id: string
     positionId: number
   }
 }

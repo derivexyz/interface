@@ -130,7 +130,7 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
         accessor: 'averageCostPerOption',
         Header: 'Average Cost',
         Cell: (props: TableCellProps<PositionTableData>) => {
-          return <Text>{formatUSD(props.cell.value)}</Text>
+          return <Text>{props.cell.value ? formatUSD(props.cell.value) : '-'}</Text>
         },
       },
       {
@@ -148,12 +148,14 @@ const PositionsTable = ({ positions, onClick, pageSize, ...styleProps }: Props) 
           const { pnlPercentage } = props.row.original
           return (
             <Box>
-              <Text color={pnlPercentage > 0 ? 'primaryText' : 'errorText'}>
+              <Text color={pnlPercentage === 0 ? 'text' : pnlPercentage > 0 ? 'primaryText' : 'errorText'}>
                 {formatUSD(props.cell.value, { showSign: true })}
               </Text>
-              <Text variant="small" color="secondaryText">
-                {formatPercentage(pnlPercentage)}
-              </Text>
+              {pnlPercentage ? (
+                <Text variant="small" color="secondaryText">
+                  {formatPercentage(pnlPercentage)}
+                </Text>
+              ) : null}
             </Box>
           )
         },

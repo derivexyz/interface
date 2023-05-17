@@ -36,23 +36,22 @@ type PositionVariables = {
   owner: string
 }
 
-export default async function fetchAllPositionDataByOwner(
-  lyra: Lyra,
-  owner: string,
-  markets: Market[]
-): Promise<PositionData[]> {
-  const { data } = await subgraphRequest<
-    {
-      optionTransfers: { position: PositionQueryResult }[]
-      trades: { position: PositionQueryResult }[]
-    },
-    PositionVariables
-  >(lyra.subgraphClient, {
-    query: positionsQuery,
-    variables: {
-      owner: owner.toLowerCase(),
-    },
-  })
+export default async function fetchAllPositionDataByOwner(lyra: Lyra, owner: string): Promise<PositionData[]> {
+  const [{ data }, markets] = await Promise.all([
+    subgraphRequest<
+      {
+        optionTransfers: { position: PositionQueryResult }[]
+        trades: { position: PositionQueryResult }[]
+      },
+      PositionVariables
+    >(lyra.subgraphClient, {
+      query: positionsQuery,
+      variables: {
+        owner: owner.toLowerCase(),
+      },
+    }),
+    lyra.markets(),
+  ])
 
   const transferPositions = data?.optionTransfers.map(t => t.position) ?? []
   const tradedPositions = data?.trades.map(t => t.position) ?? []

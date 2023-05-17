@@ -8,7 +8,6 @@ import useNetwork from '../account/useNetwork'
 import useWallet from '../account/useWallet'
 import useWalletAccount from '../account/useWalletAccount'
 import useFetch, { useMutate } from '../data/useFetch'
-import { fetchAccountRewardEpochs } from '../rewards/useAccountRewardEpochs'
 
 export type LeaderboardHistoryPageData = {
   latestGlobalRewardEpoch: GlobalRewardEpoch
@@ -23,7 +22,7 @@ export const fetchLeaderboardHistoryPageData = async (
 ): Promise<LeaderboardHistoryPageData> => {
   const [globalRewardEpochs, accountRewardEpochs] = await Promise.all([
     getLyraSDK(network).globalRewardEpochs(),
-    walletAddress ? fetchAccountRewardEpochs(walletAddress, network) : [],
+    walletAddress ? getLyraSDK(network).accountRewardEpochs(walletAddress) : [],
   ])
 
   let latestGlobalRewardEpoch: GlobalRewardEpoch
