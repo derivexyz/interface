@@ -28,6 +28,7 @@ const LeaderboardPageHelper = ({ data, network }: Props): JSX.Element => {
         <LeaderboardHeaderCard
           latestAccountRewardEpoch={latestAccountRewardEpoch}
           latestGlobalRewardEpoch={latestGlobalRewardEpoch}
+          showHistoryButton
         />
       }
     >

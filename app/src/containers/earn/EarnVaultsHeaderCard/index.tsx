@@ -3,7 +3,7 @@ import CardBody from '@lyra/ui/components/Card/CardBody'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import { AccountRewardEpoch, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
 
@@ -16,22 +16,27 @@ type Props = {
 }
 
 const EarnVaultsHeaderCard = ({ latestAccountRewardEpoch, totalClaimableRewards, onClickClaim }: Props) => {
-  const claimableAmount = totalClaimableRewards[0].amount
-  const claimableSymbol = totalClaimableRewards[0].symbol
+  const claimableAmounts = useMemo(() => {
+    const amounts = totalClaimableRewards.map(reward => `${formatNumber(reward.amount)} ${reward.symbol.toUpperCase()}`)
+    return amounts
+  }, [totalClaimableRewards])
+
+  const hasClaimableAmounts = useMemo(
+    () => totalClaimableRewards.some(reward => reward.amount > 0),
+    [totalClaimableRewards]
+  )
+
   return (
     <Card variant="outline" width="100%" height="100%">
       <CardBody height="100%">
         <Text variant="cardHeading" mb={4}>
           Vault Rewards
         </Text>
-        <LabelItem
-          mt="auto"
-          label="Claimable"
-          value={`${formatNumber(claimableAmount)} ${claimableSymbol.toUpperCase()}`}
-        />
+        <LabelItem mt="auto" label="Claimable" value={claimableAmounts.join(', ')} />
         <RewardsClaimModalButton
           mt="auto"
           accountRewardEpoch={latestAccountRewardEpoch}
+          isDisabled={!hasClaimableAmounts}
           onClick={onClickClaim}
           width={100}
           size="md"

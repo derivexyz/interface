@@ -18,9 +18,14 @@ import RewardsClaimModalButton from '../../earn/RewardsClaimModalButton'
 type Props = {
   latestAccountRewardEpoch?: AccountRewardEpoch
   latestGlobalRewardEpoch: GlobalRewardEpoch
+  showHistoryButton?: boolean
 }
 
-const LeaderboardHeaderCard = ({ latestGlobalRewardEpoch, latestAccountRewardEpoch }: Props) => {
+const LeaderboardHeaderCard = ({
+  latestGlobalRewardEpoch,
+  latestAccountRewardEpoch,
+  showHistoryButton = false,
+}: Props) => {
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
   const claimableRewards = latestAccountRewardEpoch?.totalClaimableTradingRewards.length
     ? latestAccountRewardEpoch.totalClaimableTradingRewards
@@ -51,13 +56,15 @@ const LeaderboardHeaderCard = ({ latestGlobalRewardEpoch, latestAccountRewardEpo
             isDisabled={claimableAmount === 0}
             size="md"
           />
-          <Button
-            label="History"
-            href={getPagePath({ page: PageId.LeaderboardHistory })}
-            size="md"
-            px={4}
-            rightIcon={IconType.ArrowRight}
-          />
+          {showHistoryButton ? (
+            <Button
+              label="History"
+              href={getPagePath({ page: PageId.LeaderboardHistory })}
+              size="md"
+              px={4}
+              rightIcon={IconType.ArrowRight}
+            />
+          ) : null}
         </Flex>
         {latestAccountRewardEpoch ? (
           <RewardsClaimModal
