@@ -37,26 +37,24 @@ export default function TradeChainPriceButton({
   onSelected = emptyFunction,
   ...styleProps
 }: Props): ButtonElement {
-  return quote ? (
+  return quote && (!quote.disabledReason || (quote.disabledReason && !getIsQuoteHidden(quote.disabledReason))) ? (
     <Button
       width={getPriceColumnWidth(quote.market())}
       variant={quote?.isBuy ? 'primary' : 'error'}
       size="small"
       isOutline={!isSelected}
-      isDisabled={!quote ? true : quote.disabledReason ? getIsQuoteHidden(quote.disabledReason) : false}
+      isDisabled={quote.disabledReason ? getIsQuoteHidden(quote.disabledReason) : false}
       label={
-        quote && !quote?.disabledReason ? (
-          <Box p="1px">
-            <Text variant="body" textAlign="left">
-              {formatUSD(quote.premium)}
-            </Text>
-            <Text textAlign="left" variant="small" color={!quote || isSelected ? 'inherit' : 'secondaryText'}>
-              {formatPercentage(fromBigNumber(quote.iv), true)}
-            </Text>
-          </Box>
-        ) : null
+        <Box p="1px">
+          <Text variant="body" textAlign="left">
+            {formatUSD(quote.premium)}
+          </Text>
+          <Text textAlign="left" variant="small" color={!quote || isSelected ? 'inherit' : 'secondaryText'}>
+            {formatPercentage(fromBigNumber(quote.iv), true)}
+          </Text>
+        </Box>
       }
-      rightIcon={quote && !quote.disabledReason ? (!isSelected ? IconType.Plus : IconType.Check) : null}
+      rightIcon={!isSelected ? IconType.Plus : IconType.Check}
       rightIconSpacing={1}
       showRightIconSeparator
       onClick={() => onSelected(!isSelected)}
