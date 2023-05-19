@@ -12,7 +12,11 @@ export default function getTotalClaimableVaultRewards(
   const vaultRewardsMap: Record<string, RewardEpochTokenAmount> = claimAddedEvents
     .filter(event => {
       const tags = event.tag.split('-')
-      return tags.includes(CLAIM_ADDED_VAULTS_TAG) && tags.includes(market.baseToken.symbol.toUpperCase())
+      const allUpperCaseTags = tags.map(tag => tag.toUpperCase())
+      return (
+        allUpperCaseTags.includes(CLAIM_ADDED_VAULTS_TAG) &&
+        allUpperCaseTags.includes(market.baseToken.symbol.toUpperCase())
+      )
     })
     .reduce((vaultRewardsMap, event) => {
       const isClaimed = claimEvents.some(

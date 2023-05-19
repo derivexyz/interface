@@ -11,9 +11,10 @@ export default function getDistributedVaultRewards(
   const vaultRewardsMap: Record<string, RewardEpochTokenAmount> = claimAddedEvents
     .filter(event => {
       const tags = event.tag.split('-')
+      const allUpperCaseTags = tags.map(tag => tag.toUpperCase())
       return (
-        tags.includes(CLAIM_ADDED_VAULTS_TAG) &&
-        tags.includes(market.baseToken.symbol.toUpperCase()) &&
+        allUpperCaseTags.includes(CLAIM_ADDED_VAULTS_TAG) &&
+        allUpperCaseTags.includes(market.baseToken.symbol.toUpperCase()) &&
         event.epochTimestamp === globalRewardEpoch.startTimestamp
       )
     })
