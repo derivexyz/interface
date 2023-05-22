@@ -15,6 +15,7 @@ export default function getTotalClaimableVaultRewards(
       const allUpperCaseTags = tags.map(tag => tag.toUpperCase())
       return (
         allUpperCaseTags.includes(CLAIM_ADDED_VAULTS_TAG) &&
+        market.baseToken.symbol.toUpperCase() !== 'OP' &&
         allUpperCaseTags.includes(market.baseToken.symbol.toUpperCase())
       )
     })

@@ -15,6 +15,7 @@ export default function getDistributedVaultRewards(
       return (
         allUpperCaseTags.includes(CLAIM_ADDED_VAULTS_TAG) &&
         allUpperCaseTags.includes(market.baseToken.symbol.toUpperCase()) &&
+        market.baseToken.symbol.toUpperCase() !== 'OP' &&
         event.epochTimestamp === globalRewardEpoch.startTimestamp
       )
     })
