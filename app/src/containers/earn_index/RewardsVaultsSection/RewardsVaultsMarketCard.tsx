@@ -59,7 +59,7 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
       href={getPagePath({
         page: PageId.EarnVaults,
         network: market.lyra.network,
-        marketAddressOrName: market.name,
+        marketAddressOrName: market.name === 'ARB-USDC' ? 'LyARB-USDC' : market.name,
       })}
     >
       <CardBody>
