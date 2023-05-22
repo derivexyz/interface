@@ -13,6 +13,11 @@ export default function getMarketDisplayName(market: Market): string {
     case 'sol':
     case 'ssol':
       return 'Solana'
+    case 'op':
+      return 'Optimism'
+    case 'arb':
+    case 'lyarb':
+      return 'Arbitrum'
     default:
       return ''
   }

@@ -53,7 +53,7 @@ const AdminMarketPoolHedgerParams = withSuspense(
               const isZeroDecimals = zeroDecimalKeys.includes(typedKey)
               const val = params[typedKey] ?? ZERO_BN
               return (
-                <Flex flexDirection="column" key={key}>
+                <Flex flexDirection="column" mb={4} key={key}>
                   <BigNumberInput
                     decimals={isZeroDecimals ? 0 : 18}
                     label={key}

@@ -86,5 +86,5 @@ export default async function fetchGlobalRewardEpochData(lyra: Lyra): Promise<Gl
   if (lyra.deployment !== Deployment.Mainnet) {
     return EMPTY
   }
-  return fetchWithCache(`${lyra.apiUri}/rewards/global?network=${lyra.network}`)
+  return fetchWithCache(`${lyra.apiUri}/rewards/global?network=${lyra.network}&version=${lyra.version}`)
 }

@@ -17,6 +17,9 @@ type Props = {
 const TradeMarketDropdownSpotPrice = withSuspense(
   ({ market }: Props) => {
     const history = useSpotPriceHistory(market, ChartInterval.OneDay, SnapshotPeriod.EightHours)
+    if (!history || history.length == 0) {
+      return null
+    }
     const latestSnapshot = history[history.length - 1]
     const latestPrice = latestSnapshot.close
     const startPrice = history[0].close

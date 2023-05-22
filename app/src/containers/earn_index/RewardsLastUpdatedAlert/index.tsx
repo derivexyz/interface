@@ -6,7 +6,7 @@ import React from 'react'
 
 import { SECONDS_IN_HOUR } from '@/app/constants/time'
 import useNetwork from '@/app/hooks/account/useNetwork'
-import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
+import { LatestRewardEpoch } from '@/app/hooks/rewards/useEarnPageData'
 
 type Props = {
   latestRewardEpochs: LatestRewardEpoch[]

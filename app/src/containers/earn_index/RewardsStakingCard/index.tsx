@@ -3,7 +3,7 @@ import CardSeparator from '@lyra/ui/components/Card/CardSeparator'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import React from 'react'
 
-import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
+import { LatestRewardEpoch } from '@/app/hooks/rewards/useEarnPageData'
 import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
 

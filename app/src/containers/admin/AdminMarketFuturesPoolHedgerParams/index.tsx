@@ -88,7 +88,7 @@ const AdminMarketFuturesPoolHedgerParams = withSuspense(
               }
 
               return (
-                <Flex flexDirection="column" key={key}>
+                <Flex flexDirection="column" mb={4} key={key}>
                   <BigNumberInput
                     decimals={isZeroDecimals ? 0 : 18}
                     label={key}

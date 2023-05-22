@@ -13,6 +13,8 @@ import {
   AvalonTestFaucet,
 } from '../contracts/avalon/typechain'
 import { Multicall3, MultiDistributor } from '../contracts/common/typechain'
+import { NewportOptionMarket as NewportArbitrumOptionMarket } from '../contracts/newport/arbitrum/typechain'
+import { NewportOptionMarket as NewportOptimismOptionMarket } from '../contracts/newport/optimism/typechain'
 import {
   NewportGMXAdapter,
   NewportGMXFuturesPoolHedger,
@@ -20,11 +22,11 @@ import {
   NewportLiquidityToken,
   NewportLyraRegistry,
   NewportOptionGreekCache,
-  NewportOptionMarket,
   NewportOptionMarketPricer,
   NewportOptionMarketViewer,
   NewportOptionToken,
   NewportShortCollateral,
+  NewportSNXPerpV2Adapter,
   NewportTestFaucet,
 } from '../contracts/newport/typechain'
 import { Version } from '../lyra'
@@ -33,7 +35,7 @@ import { LyraContractId, LyraGlobalContractId, LyraMarketContractId } from './co
 export type LyraNewportContractMap = {
   [LyraContractId.OptionMarketViewer]: NewportOptionMarketViewer
   [LyraContractId.TestFaucet]: NewportTestFaucet
-  [LyraContractId.ExchangeAdapter]: NewportGMXAdapter
+  [LyraContractId.ExchangeAdapter]: NewportGMXAdapter | NewportSNXPerpV2Adapter
   [LyraContractId.LyraRegistry]: NewportLyraRegistry
 }
 
@@ -62,7 +64,7 @@ export type LyraMarketAvalonContractMap = {
 }
 
 export type LyraMarketNewportContractMap = {
-  [LyraMarketContractId.OptionMarket]: NewportOptionMarket
+  [LyraMarketContractId.OptionMarket]: NewportArbitrumOptionMarket | NewportOptimismOptionMarket
   [LyraMarketContractId.OptionMarketPricer]: NewportOptionMarketPricer
   [LyraMarketContractId.OptionToken]: NewportOptionToken
   [LyraMarketContractId.ShortCollateral]: NewportShortCollateral

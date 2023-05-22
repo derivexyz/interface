@@ -9,6 +9,7 @@ import Modal from '@lyra/ui/components/Modal'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import { AdminAdapterMarketPricingParams, Market } from '@lyrafinance/lyra-js'
+import { GMXAdapter } from '@lyrafinance/lyra-js/src/contracts/newport/typechain/NewportGMXAdapter'
 import React, { useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
@@ -45,7 +46,9 @@ const AdminMarketAdapterPricingParams = ({ market, isExpanded, onClickExpand }: 
         isExpanded={isExpanded}
       >
         <Box p={4}>
-          {Object.entries(market.params.adapterView.marketPricingParams).map(([key, value]) => {
+          {Object.entries(
+            (market.params.adapterView as GMXAdapter.GMXAdapterStateStructOutput)?.marketPricingParams
+          ).map(([key, value]) => {
             if (parseInt(key) || parseInt(key) === 0) {
               return
             }

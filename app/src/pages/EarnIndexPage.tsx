@@ -3,7 +3,7 @@ import React from 'react'
 import EarnIndexPageHelper from '@/app/page_helpers/EarnIndexPageHelper'
 
 import withSuspense from '../hooks/data/withSuspense'
-import useRewardsPageData from '../hooks/rewards/useRewardsPageData'
+import useEarnPageData from '../hooks/rewards/useEarnPageData'
 import PageError from '../page_helpers/common/Page/PageError'
 import PageLoading from '../page_helpers/common/Page/PageLoading'
 import filterNulls from '../utils/filterNulls'
@@ -11,7 +11,7 @@ import filterNulls from '../utils/filterNulls'
 // /rewards
 const EarnIndexPage = withSuspense(
   (): JSX.Element => {
-    const data = useRewardsPageData()
+    const data = useEarnPageData()
     if (!data) {
       return <PageError error="Failed to load page" />
     }

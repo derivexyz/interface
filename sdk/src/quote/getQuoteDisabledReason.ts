@@ -1,6 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { ONE_BN, UNIT } from '../constants/bn'
+import { Network } from '../constants/network'
+import { GMXAdapter } from '../contracts/newport/typechain/NewportGMXAdapter'
 import { Option } from '../option'
 import { getDelta } from '../utils/blackScholes'
 import canHedge from '../utils/canHedge'
@@ -23,7 +25,8 @@ export default function getQuoteDisabledReason(
   isBuy: boolean,
   isForceClose: boolean,
   priceType: PriceType,
-  isOpen: boolean
+  isOpen: boolean,
+  network: Network
 ): QuoteDisabledReason | null {
   const market = option.market()
   const board = option.board()
@@ -116,7 +119,8 @@ export default function getQuoteDisabledReason(
       size,
       increasesPoolDelta,
       hedgerView,
-      poolHedgerParams
+      poolHedgerParams,
+      network
     )
   ) {
     return QuoteDisabledReason.UnableToHedgeDelta
@@ -124,11 +128,12 @@ export default function getQuoteDisabledReason(
 
   // Disable quote for opening and closing in the case where the feeds differ by a great amount, but allow force closes.
   const { adapterView } = option.market().params
-  if (adapterView && !isForceClose && (priceType === PriceType.MAX_PRICE || priceType === PriceType.MIN_PRICE)) {
-    const { gmxMaxPrice: forceMaxSpotPrice, gmxMinPrice: forceMinSpotPrice } = adapterView
+  const gmxAdapterView = adapterView as GMXAdapter.GMXAdapterStateStructOutput
+  if (gmxAdapterView && !isForceClose && (priceType === PriceType.MAX_PRICE || priceType === PriceType.MIN_PRICE)) {
+    const { gmxMaxPrice: forceMaxSpotPrice, gmxMinPrice: forceMinSpotPrice } = gmxAdapterView
     const minPriceVariance = getPriceVariance(forceMinSpotPrice, market.params.referenceSpotPrice)
     const maxPriceVariance = getPriceVariance(forceMaxSpotPrice, market.params.referenceSpotPrice)
-    const varianceThreshold = adapterView.marketPricingParams.priceVarianceCBPercent
+    const varianceThreshold = gmxAdapterView.marketPricingParams.priceVarianceCBPercent
     if (minPriceVariance.gt(varianceThreshold) || maxPriceVariance.gt(varianceThreshold)) {
       return QuoteDisabledReason.PriceVarianceTooHigh
     }

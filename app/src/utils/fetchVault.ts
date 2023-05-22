@@ -1,6 +1,7 @@
 import { AccountRewardEpoch, Market, Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
 
 import { ONE_BN, UNIT, ZERO_ADDRESS, ZERO_BN } from '../constants/bn'
+import { DEPRECATED_VAULTS_LIST } from '../constants/deprecated'
 import { Vault } from '../constants/vault'
 import getAverageCostPerLPToken from '../hooks/vaults/getAverageCostPerLPToken'
 import fetchLyraBalances from './common/fetchLyraBalances'
@@ -11,7 +12,7 @@ import getLyraSDK from './getLyraSDK'
 const EMPTY_APY: RewardEpochTokenAmount[] = []
 
 const fetchVault = async (network: Network, market: Market, walletAddress?: string): Promise<Vault> => {
-  const lyra = getLyraSDK(network)
+  const lyra = getLyraSDK(network, market.lyra.version)
   const account = lyra.account(walletAddress ?? ZERO_ADDRESS)
 
   const [marketLiquidity, globalRewardEpoch, balances, lyraBalances, deposits, withdrawals] = await Promise.all([
@@ -22,6 +23,10 @@ const fetchVault = async (network: Network, market: Market, walletAddress?: stri
     lyra.deposits(market.address, account.address),
     lyra.withdrawals(market.address, account.address),
   ])
+
+  const isDeprecated = DEPRECATED_VAULTS_LIST.some(
+    ({ version, chain }) => version === lyra.version && chain === market.lyra.chain
+  )
 
   const marketBalances =
     balances.find(balance => balance.market.isEqual(market.address)) ?? getEmptyMarketBalances(ZERO_ADDRESS, market)
@@ -72,6 +77,7 @@ const fetchVault = async (network: Network, market: Market, walletAddress?: stri
     allWithdrawals: withdrawals,
     pnl,
     pnlPercentage: fromBigNumber(pnlPercent),
+    isDeprecated,
   }
 }
 

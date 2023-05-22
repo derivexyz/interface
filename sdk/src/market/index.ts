@@ -8,12 +8,15 @@ import { Board, BoardQuotes } from '../board'
 import { ZERO_BN } from '../constants/bn'
 import { DataSource, LyraMarketContractId } from '../constants/contracts'
 import { LyraMarketContractMap } from '../constants/mappings'
+import { Network } from '../constants/network'
 import { SnapshotOptions } from '../constants/snapshots'
 import { BoardViewStructOutput, MarketViewWithBoardsStructOutput } from '../constants/views'
 import { OptionMarketViewer as AvalonOptionMarketViewer } from '../contracts/avalon/typechain/AvalonOptionMarketViewer'
 import { GMXAdapter } from '../contracts/newport/typechain/NewportGMXAdapter'
 import { GMXFuturesPoolHedger } from '../contracts/newport/typechain/NewportGMXFuturesPoolHedger'
 import { OptionMarketViewer as NewportOptionMarketViewer } from '../contracts/newport/typechain/NewportOptionMarketViewer'
+import { SNXPerpsV2PoolHedger } from '../contracts/newport/typechain/NewportSNXPerpsV2PoolHedger'
+import { SNXPerpV2Adapter } from '../contracts/newport/typechain/NewportSNXPerpV2Adapter'
 import { LiquidityDeposit } from '../liquidity_deposit'
 import { LiquidityWithdrawal } from '../liquidity_withdrawal'
 import Lyra, { Version } from '../lyra'
@@ -29,6 +32,7 @@ import fetchMarketAddresses from '../utils/fetchMarketAddresses'
 import fetchMarketOwner from '../utils/fetchMarketOwner'
 import fetchNetGreeksHistory from '../utils/fetchNetGreeksHistory'
 import fetchNewportMarketViews from '../utils/fetchNewportMarketViews'
+import fetchNewportOptimismMarketViews from '../utils/fetchNewportOptimismMarketViews'
 import fetchSpotPriceHistory from '../utils/fetchSpotPriceHistory'
 import fetchTradingVolumeHistory from '../utils/fetchTradingVolumeHistory'
 import findMarket from '../utils/findMarket'
@@ -112,8 +116,12 @@ export type MarketSpotCandle = {
   endTimestamp: number
 }
 
-export type PoolHedgerView = GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput
-export type ExchangeAdapterView = GMXAdapter.GMXAdapterStateStructOutput
+export type PoolHedgerView =
+  | GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput
+  | SNXPerpsV2PoolHedger.HedgerStateStructOutput
+export type ExchangeAdapterView =
+  | GMXAdapter.GMXAdapterStateStructOutput
+  | SNXPerpV2Adapter.MarketAdapterStateStructOutput
 
 export type MarketQuotes = {
   boards: BoardQuotes[]
@@ -217,6 +225,7 @@ export class Market {
     this.__data = marketView
     const fields = Market.getFields(
       lyra.version,
+      lyra.network,
       marketView,
       isGlobalPaused,
       owner,
@@ -262,6 +271,7 @@ export class Market {
   // TODO: @dappbeast Remove getFields
   private static getFields(
     version: Version,
+    network: Network,
     marketView: MarketViewWithBoardsStructOutput,
     isGlobalPaused: boolean,
     owner: string,
@@ -281,6 +291,7 @@ export class Market {
     const forceCloseParams = marketView.marketParameters.forceCloseParams
     const varianceFeeParams = marketView.marketParameters.varianceFeeParams
     const lpParams = marketView.marketParameters.lpParams
+    // cosnt marketAdapterConfigParams = marketView.marketParameters
     const sharedParams = {
       optionPriceFee1xPoint: pricingParams.optionPriceFee1xPoint.toNumber(),
       optionPriceFee2xPoint: pricingParams.optionPriceFee2xPoint.toNumber(),
@@ -355,19 +366,39 @@ export class Market {
         ...sharedParams,
       }
     } else {
-      if (!adapterView || !hedgerView) {
-        throw new Error('Adapter or hedger view does not exist')
-      }
-      const newportMarketView = marketView as NewportOptionMarketViewer.MarketViewStructOutput
-      spotPrice = adapterView.gmxMaxPrice
-      quoteSymbol = newportMarketView.quoteSymbol
-      quoteDecimals = newportMarketView.quoteDecimals.toNumber()
-      baseSymbol = newportMarketView.baseSymbol
-      baseDecimals = newportMarketView.baseDecimals.toNumber()
-      params = {
-        rateAndCarry: adapterView.rateAndCarry,
-        referenceSpotPrice: newportMarketView.spotPrice,
-        ...sharedParams,
+      let newportMarketView: NewportOptionMarketViewer.MarketViewStructOutput
+      switch (network) {
+        case Network.Arbitrum:
+          if (!adapterView || !hedgerView) {
+            throw new Error('Adapter or hedger view does not exist')
+          }
+          newportMarketView = marketView as NewportOptionMarketViewer.MarketViewStructOutput
+          spotPrice = (adapterView as GMXAdapter.GMXAdapterStateStructOutput).gmxMaxPrice
+          quoteSymbol = newportMarketView.quoteSymbol
+          quoteDecimals = newportMarketView.quoteDecimals.toNumber()
+          baseSymbol = newportMarketView.baseSymbol
+          baseDecimals = newportMarketView.baseDecimals.toNumber()
+          params = {
+            rateAndCarry: (adapterView as GMXAdapter.GMXAdapterStateStructOutput).rateAndCarry,
+            referenceSpotPrice: newportMarketView.spotPrice,
+            ...sharedParams,
+          }
+          break
+        case Network.Optimism:
+          if (!adapterView) {
+            throw new Error('Adapter or hedger view does not exist')
+          }
+          newportMarketView = marketView as NewportOptionMarketViewer.MarketViewStructOutput
+          spotPrice = newportMarketView.spotPrice
+          quoteSymbol = newportMarketView.quoteSymbol
+          quoteDecimals = newportMarketView.quoteDecimals.toNumber()
+          baseSymbol = newportMarketView.baseSymbol
+          baseDecimals = newportMarketView.baseDecimals.toNumber()
+          params = {
+            rateAndCarry: (adapterView as SNXPerpV2Adapter.MarketAdapterStateStructOutput).riskFreeRate,
+            referenceSpotPrice: spotPrice,
+            ...sharedParams,
+          }
       }
     }
     const quoteAddress = marketView.marketAddresses.quoteAsset
@@ -445,7 +476,7 @@ export class Market {
       )
     } else {
       const [{ marketViews, isGlobalPaused, owner }, block] = await Promise.all([
-        fetchNewportMarketViews(lyra),
+        lyra.network === Network.Arbitrum ? fetchNewportMarketViews(lyra) : fetchNewportOptimismMarketViews(lyra),
         lyra.provider.getBlock('latest'),
       ])
       const markets = marketViews.map(

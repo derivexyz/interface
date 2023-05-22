@@ -27,18 +27,19 @@ import { TradeEvent, TradeEventListener, TradeEventListenerCallback, TradeEventL
 import { TransferEvent } from './transfer_event'
 import fetchMarketAddresses from './utils/fetchMarketAddresses'
 import fetchPositionEventDataByHash from './utils/fetchPositionEventDataByHash'
+import getDefaultVersionForChain from './utils/getDefaultVersionForChain'
 import getLyraChainForChainId from './utils/getLyraChainForChainId'
 import getLyraChainIdForChain from './utils/getLyraChainIdForChain'
 import getLyraDeploymentForChain from './utils/getLyraDeploymentForChain'
 import getLyraDeploymentProvider from './utils/getLyraDeploymentProvider'
 import getLyraDeploymentSubgraphURI from './utils/getLyraDeploymentSubgraphURI'
 import getNetworkForChain from './utils/getLyraNetworkForChain'
-import getVersionForChain from './utils/getVersionForChain'
 
 export type LyraConfig = {
   provider: JsonRpcProvider
   subgraphUri?: string
   apiUri?: string
+  version?: Version
 }
 
 export enum Version {
@@ -66,27 +67,28 @@ export default class Lyra {
       this.chain = getLyraChainForChainId(this.provider.network.chainId)
       this.subgraphUri = configObj?.subgraphUri ?? getLyraDeploymentSubgraphURI(this.chain)
       this.apiUri = configObj.apiUri ?? LYRA_API_URL
+      this.version = config.version ?? getDefaultVersionForChain(this.chain)
     } else if (typeof config === 'number') {
       // Chain ID
       this.chain = getLyraChainForChainId(config)
       this.provider = getLyraDeploymentProvider(this.chain)
       this.subgraphUri = getLyraDeploymentSubgraphURI(this.chain)
+      this.version = getDefaultVersionForChain(this.chain)
     } else {
       // String
       this.chain = config
       this.provider = getLyraDeploymentProvider(this.chain)
       this.subgraphUri = getLyraDeploymentSubgraphURI(this.chain)
+      this.version = getDefaultVersionForChain(this.chain)
     }
-
     this.subgraphClient = new ApolloClient({
       link: new HttpLink({ uri: this.subgraphUri, fetch }),
       cache: new InMemoryCache(),
     })
+    this.network = getNetworkForChain(this.chain)
     this.apiUri = LYRA_API_URL
     this.chainId = getLyraChainIdForChain(this.chain)
     this.deployment = getLyraDeploymentForChain(this.chain)
-    this.network = getNetworkForChain(this.chain)
-    this.version = getVersionForChain(this.network)
   }
 
   // Quote

@@ -27,7 +27,6 @@ export default function TradeAnnouncementHeaderCard({ blockTimestamp }: Props) {
 
   const handleNextAnnouncement = useCallback(() => {
     if (displayedId && isNextAnnouncement) {
-      console.log(displayedId, announcements[displayedIdx + 1].id, isNextAnnouncement)
       setDisplayedId(announcements[displayedIdx + 1].id)
     }
   }, [announcements, displayedId, displayedIdx, isNextAnnouncement])

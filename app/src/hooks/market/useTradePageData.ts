@@ -1,4 +1,4 @@
-import { Market, Network, Position } from '@lyrafinance/lyra-js'
+import { Market, Network, Position, Version } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -7,6 +7,7 @@ import coerce from '@/app/utils/coerce'
 import fetchMarkets from '@/app/utils/fetchMarkets'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import getPageHeartbeat from '@/app/utils/getPageHeartbeat'
+import { lyraAvalon } from '@/app/utils/lyra'
 
 import useWalletAccount from '../account/useWalletAccount'
 import useFetch, { useMutate } from '../data/useFetch'
@@ -17,10 +18,12 @@ type TradeRoot = {
 }
 
 const fetchTradePageData = async (network: Network, owner: string | null): Promise<TradeRoot> => {
-  const maybeFetchPositions = async (): Promise<Position[]> => (owner ? getLyraSDK(network).openPositions(owner) : [])
+  const lyra = network === Network.Optimism ? lyraAvalon : getLyraSDK(network)
+  const maybeFetchPositions = async (): Promise<Position[]> => (owner ? lyra.openPositions(owner) : [])
   const [markets, openPositions] = await Promise.all([fetchMarkets([network]), maybeFetchPositions()])
   return {
-    markets: markets,
+    // TODO @michaelxuwu update filtering when trading goes live
+    markets: markets.filter(m => m.lyra.network !== Network.Optimism || m.lyra.version === Version.Avalon),
     openPositions: openPositions.sort((a, b) => a.expiryTimestamp - b.expiryTimestamp),
   }
 }

@@ -47,7 +47,10 @@ const VaultsHistoryCard = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs
   const accountEpochsSorted = useMemo(
     () =>
       [...accountRewardEpochs]
-        .filter(epoch => !!epoch.vaultRewards(market.address).find(t => t.amount > 0))
+        .filter(
+          epoch =>
+            epoch.lyra.version === market.lyra.version && !!epoch.vaultRewards(market.address).find(t => t.amount > 0)
+        )
         .sort((a, b) => b.globalEpoch.distributionTimestamp - a.globalEpoch.distributionTimestamp),
     [market, accountRewardEpochs]
   )

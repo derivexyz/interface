@@ -2,6 +2,7 @@ import { AdminMarketGlobalCache, Market, Network } from '@lyrafinance/lyra-js'
 
 import { FetchId } from '@/app/constants/fetch'
 import getLyraSDK from '@/app/utils/getLyraSDK'
+import { lyraAvalon } from '@/app/utils/lyra'
 
 import useFetch, { useMutate } from '../data/useFetch'
 
@@ -13,7 +14,10 @@ type AdminRoot = {
 }
 
 const fetcher = async (): Promise<AdminRoot> => {
-  const markets = (await Promise.all(Object.values(Network).map(network => getLyraSDK(network).markets()))).flat()
+  const avalonMarkets = await lyraAvalon.markets()
+  const markets = (await Promise.all(Object.values(Network).map(network => getLyraSDK(network).markets())))
+    .flat()
+    .concat(avalonMarkets)
 
   const marketsWithGlobalCaches = (
     await Promise.all(markets.map(m => m.lyra.admin().getMarketGlobalCache(m.address)))

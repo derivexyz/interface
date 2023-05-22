@@ -8,9 +8,9 @@ import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import formatTruncatedUSD from '@lyra/ui/utils/formatTruncatedUSD'
 import formatUSD from '@lyra/ui/utils/formatUSD'
+import { Network, Version } from '@lyrafinance/lyra-js'
 import React from 'react'
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import MarketImage from '@/app/components/common/MarketImage'
 import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
@@ -29,7 +29,6 @@ type Props = {
 }
 
 const RewardsVaultsMarketCard = ({ vault }: Props) => {
-  const navigate = useNavigate()
   const isMobile = useIsMobile()
 
   const accountRewardEpoch = vault.accountRewardEpoch
@@ -75,9 +74,21 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
         >
           <Flex alignItems="center">
             <MarketImage market={market} />
-            <Text ml={2}>
-              {formatTokenName(market.baseToken)} Vault · {getNetworkDisplayName(market.lyra.network)}
-            </Text>
+            <Flex flexDirection="column">
+              <Text ml={2}>
+                {formatTokenName(market.baseToken)} Vault · {getNetworkDisplayName(market.lyra.network)}
+              </Text>
+              {vault.isDeprecated ? (
+                <Text variant="small" ml={2}>
+                  [Deprecated]
+                </Text>
+              ) : null}
+              {vault.market.lyra.version === Version.Newport && vault.market.lyra.network === Network.Optimism ? (
+                <Text ml={2} variant="small" color="primaryText">
+                  New
+                </Text>
+              ) : null}
+            </Flex>
           </Flex>
           {!isMobile ? (
             <>
@@ -97,10 +108,20 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
                 <Text mr={2} color="secondaryText">
                   APY
                 </Text>
-                {!liquidityTokenBalanceValue ? (
-                  <Text>{formatAPYRange(vault.minApy, vault.maxApy, { showSymbol: false })}</Text>
+                {!vault.isDeprecated ? (
+                  !liquidityTokenBalanceValue ? (
+                    <Text>
+                      {formatAPYRange(vault.minApy, vault.maxApy, {
+                        showSymbol: false,
+                        showEmptyDash: true,
+                        truncated: true,
+                      })}
+                    </Text>
+                  ) : (
+                    <Text>{formatAPY(vault.apy, { showSymbol: false })}</Text>
+                  )
                 ) : (
-                  <Text>{formatAPY(vault.apy, { showSymbol: false })}</Text>
+                  <Text>-</Text>
                 )}
               </Flex>
               <Flex>

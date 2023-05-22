@@ -13,9 +13,11 @@ type Props = {
 const RewardsVaultsSection = ({ vaults }: Props): CardElement => {
   return (
     <Grid sx={{ gridTemplateColumns: '1fr', gridRowGap: 4 }}>
-      {vaults.map(vault => (
-        <RewardsVaultsMarketCard key={vault.market.address} vault={vault} />
-      ))}
+      {vaults
+        .filter(vault => !vault.isDeprecated || vault.liquidityToken.balance.gt(0))
+        .map(vault => (
+          <RewardsVaultsMarketCard key={vault.market.address} vault={vault} />
+        ))}
     </Grid>
   )
 }

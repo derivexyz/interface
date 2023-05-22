@@ -6,6 +6,7 @@ import { IGNORE_VAULTS_LIST } from '@/app/constants/ignore'
 import { Vault } from '@/app/constants/vault'
 import fetchVault from '@/app/utils/fetchVault'
 import getLyraSDK from '@/app/utils/getLyraSDK'
+import { lyraAvalon } from '@/app/utils/lyra'
 
 import useWallet from '../account/useWallet'
 import useFetch, { useMutate } from '../data/useFetch'
@@ -14,10 +15,14 @@ export const fetchVaults = async (walletAddress?: string): Promise<Vault[]> => {
   const vaults = await Promise.all(
     Object.values(Network).map(async network => {
       const lyra = getLyraSDK(network)
-      const markets = await lyra.markets()
+      let markets = await lyra.markets()
+      if (network === Network.Optimism) {
+        markets = markets.concat(await lyraAvalon.markets())
+      }
       return await Promise.all(markets.map(market => fetchVault(network, market, walletAddress)))
     })
   )
+
   return vaults
     .flat()
     .filter(

@@ -16,7 +16,7 @@ import RowItem from '@/app/components/common/RowItem'
 import { VAULT_REWARDS_DOC_URL } from '@/app/constants/links'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
-import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
+import { useMutateEarnPageData } from '@/app/hooks/rewards/useEarnPageData'
 import formatRewardTokenAmounts from '@/app/utils/formatRewardTokenAmounts'
 import formatTokenName from '@/app/utils/formatTokenName'
 import getLyraSDK from '@/app/utils/getLyraSDK'
@@ -33,7 +33,7 @@ type Props = {
 export default function RewardsClaimModal({ accountRewardEpoch, isOpen, onClose }: Props) {
   const [isVaultExpanded, setIsVaultExpanded] = useState(true)
   const execute = useTransaction(accountRewardEpoch.lyra.network)
-  const mutateRewardsPageData = useMutateRewardsPageData()
+  const mutateRewardsPageData = useMutateEarnPageData()
   const totalTradingRewards = accountRewardEpoch.totalClaimableTradingRewards
 
   const totalRewards = accountRewardEpoch.totalClaimableRewards

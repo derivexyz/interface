@@ -8,7 +8,7 @@ export default function getNetworkLogoURI(network: Network): string {
     case AppNetwork.Arbitrum:
       return getAssetSrc('/images/arbitrum.svg')
     case AppNetwork.Optimism:
-      return getAssetSrc('/images/optimism.png')
+      return getAssetSrc('/images/op-logo.svg')
     case AppNetwork.Ethereum:
       return getAssetSrc('/images/ethereum-logo.png')
   }

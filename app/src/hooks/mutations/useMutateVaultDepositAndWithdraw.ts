@@ -1,10 +1,10 @@
 import { useCallback } from 'react'
 
-import { useMutateVaultsPageData } from '../vaults/useVaultsPageData'
+import { useMutateEarnPageData } from '../rewards/useEarnPageData'
 
 export default function useMutateVaultDepositAndWithdraw() {
-  const mutateVaultsPageData = useMutateVaultsPageData()
+  const mutateEarnPageData = useMutateEarnPageData()
   return useCallback(async () => {
-    await mutateVaultsPageData()
-  }, [mutateVaultsPageData])
+    await mutateEarnPageData()
+  }, [mutateEarnPageData])
 }

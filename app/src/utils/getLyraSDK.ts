@@ -1,13 +1,18 @@
-import { Network } from '@lyrafinance/lyra-js'
+import { Network, Version } from '@lyrafinance/lyra-js'
 
-import { lyraArbitrum, lyraOptimism } from './lyra'
+import { lyraArbitrum, lyraAvalon, lyraOptimism } from './lyra'
 
-const getLyraSDK = (network: Network) => {
+const getLyraSDK = (network: Network, version: Version = Version.Newport) => {
   switch (network) {
     case Network.Arbitrum:
       return lyraArbitrum
     case Network.Optimism:
-      return lyraOptimism
+      switch (version) {
+        case Version.Avalon:
+          return lyraAvalon
+        case Version.Newport:
+          return lyraOptimism
+      }
   }
 }
 

@@ -33,7 +33,7 @@ export type RewardsPageData = {
   referredTraders: NewTradingRewardsReferredTraders
 }
 
-export const fetchRewardsPageData = async (walletAddress: string | null): Promise<RewardsPageData> => {
+export const fetchEarnPageData = async (walletAddress: string | null): Promise<RewardsPageData> => {
   const referredTraders: NewTradingRewardsReferredTraders = {}
 
   const [globalRewardEpochs, accountRewardEpochs, vaults, lyraStaking, lyraBalances] = await Promise.all([
@@ -124,14 +124,14 @@ export const fetchRewardsPageData = async (walletAddress: string | null): Promis
   }
 }
 
-export default function useRewardsPageData(): RewardsPageData | null {
+export default function useEarnPageData(): RewardsPageData | null {
   const account = useWalletAccount()
-  const [rewardsPageData] = useFetch(FetchId.RewardsPageData, [account], fetchRewardsPageData)
+  const [rewardsPageData] = useFetch(FetchId.RewardsPageData, [account], fetchEarnPageData)
   return rewardsPageData
 }
 
-export function useMutateRewardsPageData() {
+export function useMutateEarnPageData() {
   const { account } = useWallet()
-  const mutate = useMutate(FetchId.RewardsPageData, fetchRewardsPageData)
+  const mutate = useMutate(FetchId.RewardsPageData, fetchEarnPageData)
   return useCallback(() => (account ? mutate(account) : null), [mutate, account])
 }

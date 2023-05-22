@@ -1,4 +1,4 @@
-import Lyra, { Chain } from '@lyrafinance/lyra-js'
+import Lyra, { Chain, Version } from '@lyrafinance/lyra-js'
 
 import { LyraNetwork } from '../constants/networks'
 import CachedStaticJsonRpcProvider from './CachedStaticJsonRpcProvider'
@@ -36,6 +36,13 @@ export const lyraOptimism = new Lyra({
   provider: optimismProvider,
   apiUri: process.env.REACT_APP_API_URL,
   subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Optimism : Chain.OptimismGoerli),
+})
+
+export const lyraAvalon = new Lyra({
+  provider: optimismProvider,
+  apiUri: process.env.REACT_APP_API_URL,
+  subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Optimism : Chain.OptimismGoerli),
+  version: Version.Avalon,
 })
 
 export const lyraArbitrum = new Lyra({

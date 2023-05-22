@@ -101,5 +101,7 @@ export default async function fetchAccountRewardEpochData(
   if (lyra.deployment !== Deployment.Mainnet) {
     return []
   }
-  return fetchWithCache(`${lyra.apiUri}/rewards/account?network=${lyra.network}&account=${account}`)
+  return fetchWithCache(
+    `${lyra.apiUri}/rewards/account?network=${lyra.network}&account=${account}&version=${lyra.version}`
+  )
 }

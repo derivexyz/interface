@@ -11,7 +11,7 @@ import RewardsReferralsSection from '@/app/containers/earn_index/RewardsReferral
 import RewardsStakingCard from '@/app/containers/earn_index/RewardsStakingCard'
 import RewardsVaultsSection from '@/app/containers/earn_index/RewardsVaultsSection'
 import RewardsWethLyraLPSection from '@/app/containers/earn_index/RewardsWethLyraLPSection'
-import { LatestRewardEpoch } from '@/app/hooks/rewards/useRewardsPageData'
+import { LatestRewardEpoch } from '@/app/hooks/rewards/useEarnPageData'
 import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
 

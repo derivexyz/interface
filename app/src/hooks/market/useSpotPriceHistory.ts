@@ -1,4 +1,4 @@
-import { Market, Network, SnapshotPeriod } from '@lyrafinance/lyra-js'
+import { Market, Network, SnapshotPeriod, Version } from '@lyrafinance/lyra-js'
 import { useMemo } from 'react'
 
 import { ChartInterval } from '@/app/constants/chart'
@@ -21,11 +21,12 @@ export type SpotPrice = {
 
 export const fetchSpotPriceHistory = async (
   network: Network,
+  version: Version,
   marketAddressOrName: string,
   interval: ChartInterval,
   candleDuration?: SnapshotPeriod
 ): Promise<SpotPrice[]> => {
-  const lyra = getLyraSDK(network)
+  const lyra = getLyraSDK(network, version)
   const market = await lyra.market(marketAddressOrName)
   const startTimestamp = getChartStartTimestamp(market.block.timestamp, interval)
   const candles = await market.spotPriceHistory({ startTimestamp, period: candleDuration })
@@ -49,7 +50,7 @@ export default function useSpotPriceHistory(
 ): SpotPrice[] {
   const [candles] = useFetch(
     FetchId.SpotPriceHistory,
-    [market.lyra.network, market.address, interval, candleDuration],
+    [market.lyra.network, market.lyra.version, market.address, interval, candleDuration],
     fetchSpotPriceHistory
   )
 

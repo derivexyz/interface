@@ -3,7 +3,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 
 import withSuspense from '../hooks/data/withSuspense'
-import useRewardsPageData from '../hooks/rewards/useRewardsPageData'
+import useEarnPageData from '../hooks/rewards/useEarnPageData'
 import useFindVault from '../hooks/vaults/useFindVault'
 import PageError from '../page_helpers/common/Page/PageError'
 import PageLoading from '../page_helpers/common/Page/PageLoading'
@@ -15,7 +15,7 @@ const EarnVaultsPage = withSuspense(
   (): JSX.Element => {
     const { network: networkStr, marketAddressOrName = null } = useParams()
     const network = coerce(Network, networkStr) ?? null
-    const data = useRewardsPageData()
+    const data = useEarnPageData()
     const epochData = network && data ? data.epochs[network] : null
     const vault = useFindVault(data?.vaults ?? null, network, marketAddressOrName)
 

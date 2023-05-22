@@ -5,6 +5,7 @@ import { POSITION_QUERY_FRAGMENT, PositionQueryResult } from '../constants/queri
 import Lyra from '../lyra'
 import { Market } from '../market'
 import { PositionData } from '../position'
+import filterNulls from './filterNulls'
 import getCollateralUpdateDataFromSubgraph from './getCollateralUpdateDataFromSubgraph'
 import getPositionDataFromSubgraph from './getPositionDataFromSubgraph'
 import getSettleDataFromSubgraph from './getSettleDataFromSubgraph'
@@ -62,12 +63,18 @@ export default async function fetchAllPositionDataByOwner(lyra: Lyra, owner: str
     {} as Record<string, Market>
   )
 
-  return positions.map(pos => {
-    const trades = pos.trades.map(getTradeDataFromSubgraph)
-    const collateralUpdates = pos.collateralUpdates.map(getCollateralUpdateDataFromSubgraph)
-    const transfers = pos.transfers.map(getTransferDataFromSubgraph)
-    const market = marketsByAddress[getAddress(pos.market.id)]
-    const settle = pos.settle ? getSettleDataFromSubgraph(pos.settle) : null
-    return getPositionDataFromSubgraph(pos, market, trades, collateralUpdates, transfers, settle)
-  })
+  return filterNulls(
+    positions.map(pos => {
+      const market = marketsByAddress[getAddress(pos.market.id)]
+      if (!market) {
+        // Handle positions from previous versions
+        return null
+      }
+      const trades = pos.trades.map(getTradeDataFromSubgraph)
+      const collateralUpdates = pos.collateralUpdates.map(getCollateralUpdateDataFromSubgraph)
+      const transfers = pos.transfers.map(getTransferDataFromSubgraph)
+      const settle = pos.settle ? getSettleDataFromSubgraph(pos.settle) : null
+      return getPositionDataFromSubgraph(pos, market, trades, collateralUpdates, transfers, settle)
+    })
+  )
 }

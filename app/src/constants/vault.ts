@@ -33,4 +33,5 @@ export type Vault = {
   allWithdrawals: LiquidityWithdrawal[]
   pnl: number
   pnlPercentage: number
+  isDeprecated: boolean
 }

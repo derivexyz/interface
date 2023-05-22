@@ -15,6 +15,11 @@ export default function getMarketLogoURI(market: Market): string {
     case 'sol':
     case 'ssol':
       return getAssetSrc('/images/solana-logo.png')
+    case 'op':
+      return getAssetSrc('/images/op-logo.svg')
+    case 'lyarb':
+    case 'arb':
+      return getAssetSrc('/images/arbitrum-logo.svg')
     default:
       return ''
   }

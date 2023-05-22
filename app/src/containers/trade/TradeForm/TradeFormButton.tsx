@@ -194,7 +194,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
     })
 
     if (onTrade && receipt) {
-      const [positionId] = Trade.getPositionIdsForLogs(receipt.logs)
+      const [positionId] = Trade.getPositionIdsForLogs(receipt.logs, trade.lyra.network)
       if (positionId) {
         onTrade(market, positionId)
       }

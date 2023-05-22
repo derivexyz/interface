@@ -3,12 +3,13 @@ import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
 import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
-import { AdminMarketGlobalCache, Market } from '@lyrafinance/lyra-js'
+import { AdminMarketGlobalCache, Market, Network } from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 import { useCallback } from 'react'
 
 import AdminAddMarket from '@/app/containers/admin/AdminAddMarket'
 import AdminGlobalInfo from '@/app/containers/admin/AdminGlobalInfo'
+import AdminMarketAdapterConfigurationParams from '@/app/containers/admin/AdminMarketAdapterConfigurationParams'
 import AdminMarketAdapterPricingParams from '@/app/containers/admin/AdminMarketAdapterPricingParams'
 import AdminMarketAddBoard from '@/app/containers/admin/AdminMarketAddBoard'
 import AdminMarketBoardsInfo from '@/app/containers/admin/AdminMarketBoardsInfo'
@@ -147,11 +148,19 @@ const AdminPageHelper = ({ markets, selectedMarket, selectedGlobalCache }: Props
               isExpanded={isFuturesPoolHedgerExpanded}
               onClickExpand={() => setIsFuturesPoolHedgerExpanded(!isFuturesPoolHedgerExpanded)}
             />
-            <AdminMarketAdapterPricingParams
-              market={selectedMarket}
-              isExpanded={isAdapterMarketPricingParamsExpanded}
-              onClickExpand={() => setIsAdapterMarketPricingParamsExpanded(!isAdapterMarketPricingParamsExpanded)}
-            />
+            {selectedMarket.lyra.network === Network.Arbitrum ? (
+              <AdminMarketAdapterPricingParams
+                market={selectedMarket}
+                isExpanded={isAdapterMarketPricingParamsExpanded}
+                onClickExpand={() => setIsAdapterMarketPricingParamsExpanded(!isAdapterMarketPricingParamsExpanded)}
+              />
+            ) : (
+              <AdminMarketAdapterConfigurationParams
+                market={selectedMarket}
+                isExpanded={isAdapterMarketPricingParamsExpanded}
+                onClickExpand={() => setIsAdapterMarketPricingParamsExpanded(!isAdapterMarketPricingParamsExpanded)}
+              />
+            )}
             <AdminMarketCircuitBreakerParams
               market={selectedMarket}
               isExpanded={isCircuitBreakerParamsExpanded}

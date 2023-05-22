@@ -5,7 +5,7 @@ import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
-import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
+import { useMutateEarnPageData } from '@/app/hooks/rewards/useEarnPageData'
 import getContract from '@/app/utils/common/getContract'
 import { LyraStaking } from '@/app/utils/rewards/fetchLyraStaking'
 
@@ -19,7 +19,7 @@ type Props = {
 const RewardsStakingClaimButton = ({ lyraStaking, onClaim }: Props) => {
   const account = useWalletAccount()
   const execute = useTransaction(AppNetwork.Ethereum)
-  const mutateRewardsPageData = useMutateRewardsPageData()
+  const mutateRewardsPageData = useMutateEarnPageData()
   const { claimableRewards } = lyraStaking
   const handleStkLyraClaim = async () => {
     if (!account) {

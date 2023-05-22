@@ -9,7 +9,7 @@ import { AppNetwork } from '@/app/constants/networks'
 import { TransactionType } from '@/app/constants/screen'
 import useTransaction from '@/app/hooks/account/useTransaction'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
-import { useMutateRewardsPageData } from '@/app/hooks/rewards/useRewardsPageData'
+import { useMutateEarnPageData } from '@/app/hooks/rewards/useEarnPageData'
 import { LyraBalances } from '@/app/utils/common/fetchLyraBalances'
 import getContract from '@/app/utils/common/getContract'
 import { getStkLyraBalanceForNetwork } from '@/app/utils/common/getLyraBalanceForNetwork'
@@ -29,7 +29,7 @@ type Props = {
 const RewardsUnstakeModalButton = ({ amount, lyraBalances, lyraStaking, onClose, ...styleProps }: Props) => {
   const account = useWalletAccount()
   const execute = useTransaction(AppNetwork.Ethereum)
-  const mutateRewardsPageData = useMutateRewardsPageData()
+  const mutateRewardsPageData = useMutateEarnPageData()
 
   const handleClickRequestUnstake = useCallback(async () => {
     if (!account) {

@@ -1,6 +1,6 @@
 import { Contract, ContractInterface } from '@ethersproject/contracts'
 
-import Lyra, { Chain, Version } from '..'
+import Lyra, { Chain, Network, Version } from '..'
 import { LyraContractId } from '../constants/contracts'
 import { LyraContractMap } from '../constants/mappings'
 import AVALON_LYRA_REGISTRY_ABI from '../contracts/avalon/abis/AvalonLyraRegistry.json'
@@ -12,9 +12,12 @@ import AVALON_TESTNET_ADDRESS_MAP from '../contracts/avalon/addresses/testnet.ad
 import NEWPORT_GMX_ADAPTER_ABI from '../contracts/newport/abis/NewportGMXAdapter.json'
 import NEWPORT_LYRA_REGISTRY_ABI from '../contracts/newport/abis/NewportLyraRegistry.json'
 import NEWPORT_OPTION_MARKET_VIEWER_ABI from '../contracts/newport/abis/NewportOptionMarketViewer.json'
+import NEWPORT_SYNTHETIX_ADAPTER_ABI from '../contracts/newport/abis/NewportSNXPerpV2Adapter.json'
 import NEWPORT_TEST_FAUCET_ABI from '../contracts/newport/abis/NewportTestFaucet.json'
 import NEWPORT_ARBITRUM_MAINNET_ADDRESS_MAP from '../contracts/newport/addresses/arbitrum.addresses.json'
 import NEWPORT_ARBITRUM_TESTNET_ADDRESS_MAP from '../contracts/newport/addresses/arbitrum-goerli.addresses.json'
+import NEWPORT_OPTIMISM_MAINNET_ADDRESS_MAP from '../contracts/newport/addresses/optimism.addresses.json'
+import NEWPORT_OPTIMISM_TESTNET_ADDRESS_MAP from '../contracts/newport/addresses/optimism-goerli.addresses.json'
 
 export const getLyraContractAddress = (chain: Chain, version: Version, contractId: LyraContractId): string => {
   switch (chain) {
@@ -25,7 +28,7 @@ export const getLyraContractAddress = (chain: Chain, version: Version, contractI
         case Version.Newport:
           return NEWPORT_ARBITRUM_MAINNET_ADDRESS_MAP[contractId]
       }
-      break
+    /* eslint-disable-next-line no-fallthrough */
     case Chain.ArbitrumGoerli:
       switch (version) {
         case Version.Avalon:
@@ -33,27 +36,30 @@ export const getLyraContractAddress = (chain: Chain, version: Version, contractI
         case Version.Newport:
           return NEWPORT_ARBITRUM_TESTNET_ADDRESS_MAP[contractId]
       }
-      break
+    /* eslint-disable-next-line no-fallthrough */
     case Chain.Optimism:
       switch (version) {
         case Version.Avalon:
           return AVALON_MAINNET_ADDRESS_MAP[contractId]
         case Version.Newport:
-          throw new Error('Version.Newport not supported on Optimism')
+          return NEWPORT_OPTIMISM_MAINNET_ADDRESS_MAP[contractId]
       }
-      break
+    /* eslint-disable-next-line no-fallthrough */
     case Chain.OptimismGoerli:
       switch (version) {
         case Version.Avalon:
           return AVALON_TESTNET_ADDRESS_MAP[contractId]
         case Version.Newport:
-          throw new Error('Version.Newport not supported on Optimism Goerli')
+          return NEWPORT_OPTIMISM_TESTNET_ADDRESS_MAP[contractId]
       }
-      break
   }
 }
 
-export const getLyraContractABI = (version: Version, contractId: LyraContractId): ContractInterface => {
+export const getLyraContractABI = (
+  version: Version,
+  contractId: LyraContractId,
+  network: Network
+): ContractInterface => {
   switch (contractId) {
     case LyraContractId.OptionMarketViewer:
       switch (version) {
@@ -62,7 +68,7 @@ export const getLyraContractABI = (version: Version, contractId: LyraContractId)
         case Version.Newport:
           return NEWPORT_OPTION_MARKET_VIEWER_ABI
       }
-      break
+    /* eslint-disable-next-line no-fallthrough */
     case LyraContractId.LyraRegistry:
       switch (version) {
         case Version.Avalon:
@@ -70,16 +76,20 @@ export const getLyraContractABI = (version: Version, contractId: LyraContractId)
         case Version.Newport:
           return NEWPORT_LYRA_REGISTRY_ABI
       }
-      break
+    /* eslint-disable-next-line no-fallthrough */
     case LyraContractId.ExchangeAdapter:
       switch (version) {
         case Version.Avalon:
           return AVALON_SYNTHETIX_ADAPTER_ABI
         case Version.Newport:
-          return NEWPORT_GMX_ADAPTER_ABI
+          switch (network) {
+            case Network.Arbitrum:
+              return NEWPORT_GMX_ADAPTER_ABI
+            case Network.Optimism:
+              return NEWPORT_SYNTHETIX_ADAPTER_ABI
+          }
       }
-      break
-
+    /* eslint-disable-next-line no-fallthrough */
     case LyraContractId.TestFaucet:
       switch (version) {
         case Version.Avalon:
@@ -87,7 +97,6 @@ export const getLyraContractABI = (version: Version, contractId: LyraContractId)
         case Version.Newport:
           return NEWPORT_TEST_FAUCET_ABI
       }
-      break
   }
 }
 
@@ -99,6 +108,6 @@ export default function getLyraContract<V extends Version, C extends LyraContrac
 ): LyraContractMap<V, C> {
   const { provider } = lyra
   const address = getLyraContractAddress(lyra.chain, version, contractId)
-  const abi = getLyraContractABI(version, contractId)
+  const abi = getLyraContractABI(version, contractId, lyra.network)
   return new Contract(address, abi, provider) as LyraContractMap<V, C>
 }
