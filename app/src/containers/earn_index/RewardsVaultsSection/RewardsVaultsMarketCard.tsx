@@ -45,7 +45,11 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
     const claimableVaultRewards = accountRewardEpoch?.totalClaimableVaultRewards(market.address) ?? []
     const vaultRewards = sumRewardTokenAmounts([...pendingVaultRewards, ...claimableVaultRewards])
 
-    return (vaultRewards.length ? vaultRewards : globalRewardEpoch.vaultRewardTokens.map(t => ({ ...t, amount: 0 })))[0]
+    return (
+      vaultRewards.length && !globalRewardEpoch.isDepositPeriod
+        ? vaultRewards
+        : globalRewardEpoch.vaultRewardTokens.map(t => ({ ...t, amount: 0 }))
+    )[0]
   }, [accountRewardEpoch, firstRewardToken, globalRewardEpoch, market.address])
 
   const liquidityTokenBalanceValue = vault.liquidityTokenBalanceValue
