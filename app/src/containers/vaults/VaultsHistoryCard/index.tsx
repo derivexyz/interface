@@ -97,7 +97,7 @@ const VaultsHistoryCard = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs
           </ToggleButton>
         </Flex>
         {showRewards ? (
-          account && accountEpochsSorted.length > 0 ? (
+          account && accountEpochsSorted.length > 0 && !latestGlobalRewardEpoch.isDepositPeriod ? (
             <Box overflowX="scroll">
               <Flex py={3}>
                 <Text minWidth={MIN_COL_WIDTH} color="secondaryText">
