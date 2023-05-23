@@ -16,14 +16,13 @@ const EarnIndexPage = withSuspense(
       return <PageError error="Failed to load page" />
     }
     const latestRewardEpochs = filterNulls(Object.values(data.epochs).map(epoch => epoch.latestRewardEpoch))
-    const { vaults, lyraBalances, lyraStaking, referredTraders } = data
+    const { vaults, lyraBalances, lyraStaking } = data
     return (
       <EarnIndexPageHelper
         latestRewardEpochs={latestRewardEpochs}
         vaults={vaults}
         lyraBalances={lyraBalances}
         lyraStaking={lyraStaking}
-        referredTraders={referredTraders}
       />
     )
   },

@@ -4,6 +4,7 @@ import { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { FetchId } from '@/app/constants/fetch'
+import coerce from '@/app/utils/coerce'
 import getLyraSDK from '@/app/utils/getLyraSDK'
 import fetchReferrerCode from '@/app/utils/referrals/fetchReferrerCode'
 
@@ -113,7 +114,7 @@ export const fetchReferralsPageData = async (network: Network, walletAddress?: s
 export default function useReferralsPageData(): ReferralsPageData | null {
   const { account } = useWallet()
   const { network: networkStr } = useParams()
-  const network = networkStr === Network.Arbitrum ? Network.Arbitrum : null
+  const network = coerce(Network, networkStr) ?? null
   const [referralsPageData] = useFetch(
     FetchId.ReferralsPageData,
     network ? [network, account] : null,

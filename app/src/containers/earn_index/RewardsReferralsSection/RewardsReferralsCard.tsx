@@ -7,26 +7,28 @@ import { IconType } from '@lyra/ui/components/Icon'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
-import { NewTradingRewardsReferredTraders } from '@lyrafinance/lyra-js/src/utils/fetchAccountRewardEpochData'
+import { RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
 import React, { useMemo } from 'react'
 
 import NetworkImage from '@/app/components/common/NetworkImage'
 import RewardTokenAmounts from '@/app/components/rewards/RewardTokenAmounts'
 import { EARN_REFERRALS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
+import { LatestRewardEpoch } from '@/app/hooks/rewards/useEarnPageData'
 import getNetworkDisplayName from '@/app/utils/getNetworkDisplayName'
 import getPagePath from '@/app/utils/getPagePath'
 import getTokenInfo from '@/app/utils/getTokenInfo'
 
 type Props = {
-  referredTraders: NewTradingRewardsReferredTraders
+  rewardEpoch: LatestRewardEpoch
 }
 
-const RewardsReferralsCard = ({ referredTraders }: Props) => {
+const RewardsReferralsCard = ({ rewardEpoch }: Props) => {
   const isMobile = useIsMobile()
-  const lyraToken = getTokenInfo('lyra', Network.Arbitrum)
+  const network = rewardEpoch.global.lyra.network
+  const lyraToken = getTokenInfo('lyra', network)
   const { numTraders, volume, token } = useMemo(() => {
+    const referredTraders = rewardEpoch.account?.accountEpoch.tradingRewards.newRewards.referredTraders
     const numTraders = referredTraders ? Object.keys(referredTraders).length : 0
     const volume = referredTraders
       ? Object.values(referredTraders).reduce((total, trader) => total + trader.volume, 0)
@@ -47,12 +49,17 @@ const RewardsReferralsCard = ({ referredTraders }: Props) => {
       volume,
       token,
     }
-  }, [lyraToken?.address, lyraToken?.decimals, lyraToken?.symbol, referredTraders])
+  }, [
+    lyraToken?.address,
+    lyraToken?.decimals,
+    lyraToken?.symbol,
+    rewardEpoch.account?.accountEpoch.tradingRewards.newRewards.referredTraders,
+  ])
   return (
     <Card
       href={getPagePath({
         page: PageId.EarnReferrals,
-        network: Network.Arbitrum,
+        network: network,
       })}
     >
       <CardBody>
@@ -66,8 +73,8 @@ const RewardsReferralsCard = ({ referredTraders }: Props) => {
           }}
         >
           <Flex alignItems="center">
-            <NetworkImage network={Network.Arbitrum} />
-            <Text ml={2}>Referrals · {getNetworkDisplayName(Network.Arbitrum)}</Text>
+            <NetworkImage network={network} />
+            <Text ml={2}>Referrals · {getNetworkDisplayName(network)}</Text>
           </Flex>
           {!isMobile ? (
             <>
@@ -97,7 +104,7 @@ const RewardsReferralsCard = ({ referredTraders }: Props) => {
               icon={IconType.ArrowRight}
               href={getPagePath({
                 page: PageId.EarnReferrals,
-                network: Network.Arbitrum,
+                network: network,
               })}
             />
           </Flex>

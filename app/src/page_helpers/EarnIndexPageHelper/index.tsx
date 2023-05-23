@@ -1,7 +1,6 @@
 import Box from '@lyra/ui/components/Box'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
-import { NewTradingRewardsReferredTraders } from '@lyrafinance/lyra-js/src/utils/fetchAccountRewardEpochData'
 import React from 'react'
 
 import { Vault } from '@/app/constants/vault'
@@ -23,10 +22,9 @@ type Props = {
   vaults: Vault[]
   lyraBalances: LyraBalances
   lyraStaking: LyraStaking
-  referredTraders: NewTradingRewardsReferredTraders
 }
 
-const EarnIndexPageHelper = ({ latestRewardEpochs, vaults, lyraBalances, lyraStaking, referredTraders }: Props) => {
+const EarnIndexPageHelper = ({ latestRewardEpochs, vaults, lyraBalances, lyraStaking }: Props) => {
   const isMobile = useIsMobile()
   return (
     <Page
@@ -62,7 +60,7 @@ const EarnIndexPageHelper = ({ latestRewardEpochs, vaults, lyraBalances, lyraSta
           </Text>
           <Text color="secondaryText">Refer traders to earn a share of their trading fees.</Text>
         </Box>
-        <RewardsReferralsSection referredTraders={referredTraders} />
+        <RewardsReferralsSection latestRewardEpochs={latestRewardEpochs} />
         <Box mt={4}>
           <Text mb={2} variant="heading">
             ETH-LYRA LP
