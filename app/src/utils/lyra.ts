@@ -14,7 +14,7 @@ export const arbitrumProvider = new CachedStaticJsonRpcProvider(
   arbitrumNetworkConfig.chainId
 )
 
-const getLyraSubgraphURI = (chain: Chain): string | undefined => {
+const getLyraSubgraphURI = (chain: Chain, version: Version): string | undefined => {
   const SATSUMA_API_KEY = process.env.REACT_APP_SATSUMA_API_KEY
   if (!SATSUMA_API_KEY) {
     // Use SDK default
@@ -22,7 +22,12 @@ const getLyraSubgraphURI = (chain: Chain): string | undefined => {
   }
   switch (chain) {
     case Chain.Optimism:
-      return `https://subgraph.satsuma-prod.com/${SATSUMA_API_KEY}/lyra/optimism-mainnet/api`
+      switch (version) {
+        case Version.Avalon:
+          return `https://subgraph.satsuma-prod.com/${SATSUMA_API_KEY}/lyra/optimism-mainnet/api`
+        case Version.Newport:
+          return `https://subgraph.satsuma-prod.com/${SATSUMA_API_KEY}/lyra/optimism-mainnet-newport/api`
+      }
     case Chain.OptimismGoerli:
       return `https://subgraph.satsuma-prod.com/${SATSUMA_API_KEY}/lyra/optimism-goerli/api`
     case Chain.Arbitrum:
@@ -35,18 +40,19 @@ const getLyraSubgraphURI = (chain: Chain): string | undefined => {
 export const lyraOptimism = new Lyra({
   provider: optimismProvider,
   apiUri: process.env.REACT_APP_API_URL,
-  subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Optimism : Chain.OptimismGoerli),
+  subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Optimism : Chain.OptimismGoerli, Version.Newport),
+  version: Version.Newport,
 })
 
 export const lyraAvalon = new Lyra({
   provider: optimismProvider,
   apiUri: process.env.REACT_APP_API_URL,
-  subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Optimism : Chain.OptimismGoerli),
+  subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Optimism : Chain.OptimismGoerli, Version.Avalon),
   version: Version.Avalon,
 })
 
 export const lyraArbitrum = new Lyra({
   provider: arbitrumProvider,
   apiUri: process.env.REACT_APP_API_URL,
-  subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Arbitrum : Chain.ArbitrumGoerli),
+  subgraphUri: getLyraSubgraphURI(isMainnet() ? Chain.Arbitrum : Chain.ArbitrumGoerli, Version.Newport),
 })

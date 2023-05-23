@@ -11,6 +11,7 @@ const getLyraSDK = (network: Network, version: Version = Version.Newport) => {
         case Version.Avalon:
           return lyraAvalon
         case Version.Newport:
+        default:
           return lyraOptimism
       }
   }

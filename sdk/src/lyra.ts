@@ -65,21 +65,21 @@ export default class Lyra {
       const configObj = config as LyraConfig
       this.provider = config.provider
       this.chain = getLyraChainForChainId(this.provider.network.chainId)
-      this.subgraphUri = configObj?.subgraphUri ?? getLyraDeploymentSubgraphURI(this.chain)
       this.apiUri = configObj.apiUri ?? LYRA_API_URL
       this.version = config.version ?? getDefaultVersionForChain(this.chain)
+      this.subgraphUri = configObj?.subgraphUri ?? getLyraDeploymentSubgraphURI(this.chain, this.version)
     } else if (typeof config === 'number') {
       // Chain ID
       this.chain = getLyraChainForChainId(config)
       this.provider = getLyraDeploymentProvider(this.chain)
-      this.subgraphUri = getLyraDeploymentSubgraphURI(this.chain)
       this.version = getDefaultVersionForChain(this.chain)
+      this.subgraphUri = getLyraDeploymentSubgraphURI(this.chain, this.version)
     } else {
       // String
       this.chain = config
       this.provider = getLyraDeploymentProvider(this.chain)
-      this.subgraphUri = getLyraDeploymentSubgraphURI(this.chain)
       this.version = getDefaultVersionForChain(this.chain)
+      this.subgraphUri = getLyraDeploymentSubgraphURI(this.chain, this.version)
     }
     this.subgraphClient = new ApolloClient({
       link: new HttpLink({ uri: this.subgraphUri, fetch }),

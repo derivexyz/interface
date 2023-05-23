@@ -1,4 +1,4 @@
-import { Network } from '@lyrafinance/lyra-js'
+import { Network, Version } from '@lyrafinance/lyra-js'
 import { useCallback } from 'react'
 
 import { FetchId } from '@/app/constants/fetch'
@@ -14,7 +14,7 @@ import useFetch, { useMutate } from '../data/useFetch'
 export const fetchVaults = async (walletAddress?: string): Promise<Vault[]> => {
   const vaults = await Promise.all(
     Object.values(Network).map(async network => {
-      const lyra = getLyraSDK(network)
+      const lyra = getLyraSDK(network, Version.Newport)
       let markets = await lyra.markets()
       if (network === Network.Optimism) {
         markets = markets.concat(await lyraAvalon.markets())
@@ -22,7 +22,6 @@ export const fetchVaults = async (walletAddress?: string): Promise<Vault[]> => {
       return await Promise.all(markets.map(market => fetchVault(network, market, walletAddress)))
     })
   )
-
   return vaults
     .flat()
     .filter(

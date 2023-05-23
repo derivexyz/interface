@@ -58,6 +58,8 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
     return null
   }
 
+  const isBoosted = (accountRewardEpoch?.stakedLyraBalance ?? 0) > 0
+
   return (
     <Card
       href={getPagePath({
@@ -122,7 +124,9 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
                       })}
                     </Text>
                   ) : (
-                    <Text>{formatAPY(vault.apy, { showSymbol: false })}</Text>
+                    <Text color={isBoosted ? 'primaryText' : 'text'}>
+                      {formatAPY(vault.apy, { showSymbol: false })}
+                    </Text>
                   )
                 ) : (
                   <Text>-</Text>
