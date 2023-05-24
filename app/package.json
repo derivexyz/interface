@@ -26,7 +26,7 @@
     "@spindl-xyz/attribution-lite": "^0.0.7",
     "copy-to-clipboard": "^3.3.1",
     "nullthrows": "^1.1.1",
-    "posthog-js": "^1.28.0",
+    "posthog-js": "^1.57.2",
     "react": "18.2.0",
     "react-csv": "^2.2.2",
     "react-dom": "^18.2.0",
