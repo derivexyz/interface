@@ -204,15 +204,11 @@ export class GlobalRewardEpoch {
       totalAvgScaledStkLyra,
       mmvConfig.x
     )
-    const totalAvgBoostedVaultTokens = this.totalAverageBoostedVaultTokens(marketAddressOrName)
-    const boostedPortionOfLiquidity =
-      totalAvgBoostedVaultTokens > 0 ? effectiveLpTokensPerLpToken / totalAvgBoostedVaultTokens : 0
-    const basePortionOfLiquidity = totalAvgVaultTokens > 0 ? vaultTokenBalance / totalAvgVaultTokens : 0
 
     // This ratio is for no staking -> staking w/ stkLyraBalance (noStakingMultiplier)
     // Vs UI apy multiplier is from zero staking -> staking w/ stkLyraBalance (vaultApyMultiplier)
-    const apyMultiplier = basePortionOfLiquidity > 0 ? boostedPortionOfLiquidity / basePortionOfLiquidity : 0
-
+    const apyMultiplier = (effectiveLpTokensPerLpToken / vaultTokenBalance) * 2
+    // const apyMultiplier = basePortionOfLiquidity > 0 ? boostedPortionOfLiquidity / basePortionOfLiquidity : 0
     // Calculate total vault token balance, including pending deposits
     const tokenPrice = fromBigNumber(this.marketsLiquidity[marketIdx].tokenPrice)
     const totalQueuedVaultTokens =
@@ -281,7 +277,10 @@ export class GlobalRewardEpoch {
   totalAverageVaultTokens(marketAddressOrName: string): number {
     const market = findMarketX(this.markets, marketAddressOrName)
     const marketKey = market.baseToken.symbol
-    return this.progressDays ? (this.epoch.totalLpTokenDays[marketKey] ?? 0) / this.progressDays : 0
+    return fromBigNumber(market.params.NAV)
+    // const test = await market.liquidity()
+    // test.
+    // return this.progressDays ? (this.epoch.totalLpTokenDays[marketKey] ?? 0) / this.progressDays : 0
   }
 
   totalAverageBoostedVaultTokens(marketAddressOrName: string): number {
