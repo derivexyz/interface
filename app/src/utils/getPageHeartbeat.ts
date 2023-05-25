@@ -3,8 +3,8 @@ import { Network } from '@lyrafinance/lyra-js'
 export default function getPageHeartbeat(network: Network) {
   switch (network) {
     case Network.Arbitrum:
-      return 5 * 1000 // 5 seconds
+      return 10 * 1000 // 10 seconds
     case Network.Optimism:
-      return 15 * 1000 // 15 seconds
+      return 30 * 1000 // 30 seconds
   }
 }

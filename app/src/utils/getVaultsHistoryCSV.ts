@@ -26,7 +26,7 @@ export const getVaultsHistoryCSV = (rows: Vault[]) => {
       const date = new Date(event.depositTimestamp * 1000)
       datetime = date.toISOString()
       timestamp = event.depositTimestamp
-      transactionHash = event.__processed?.transactionHash ?? ''
+      transactionHash = event.transactionHash ?? ''
       action = 'deposit'
     } else if (event instanceof LiquidityWithdrawal) {
       const date = new Date(event.withdrawalTimestamp * 1000)

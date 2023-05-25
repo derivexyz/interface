@@ -11,13 +11,11 @@ import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatNumber from '@lyra/ui/utils/formatNumber'
 import formatPercentage from '@lyra/ui/utils/formatPercentage'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Version } from '@lyrafinance/lyra-js'
 import React, { useCallback, useState } from 'react'
 
 import LabelItem from '@/app/components/common/LabelItem'
 import VaultsPendingDepositsTableOrList from '@/app/components/common/VaultsPendingDepositsTableOrList'
 import VaultsPendingWithdrawalsTableOrList from '@/app/components/common/VaultsPendingWithdrawalsTableOrList'
-import { IGNORE_VAULTS_LIST } from '@/app/constants/ignore'
 import { Vault } from '@/app/constants/vault'
 import VaultsBoostFormModal from '@/app/containers/vaults/VaultsBoostFormModal'
 import formatAPY from '@/app/utils/formatAPY'
@@ -79,31 +77,21 @@ const VaultsMyLiquidityCard = ({ vault }: Props) => {
           ) : null}
         </Grid>
         <Grid my={2} sx={{ gridTemplateColumns: ['1fr', '1fr 1fr 1fr 1fr 1fr'], gridColumnGap: 6, gridRowGap: [3, 6] }}>
-          {vault.liquidityToken.balance.gt(0) ? (
+          {!vault.isDeprecated && vault.liquidityToken.balance.gt(0) ? (
             <Button
               onClick={() => setBoostModalOpen(true)}
               label={isMaxBoost ? 'Boosted' : 'Boost'}
               rightIcon={isMaxBoost ? IconType.Check : null}
               variant="primary"
               size="lg"
-              isDisabled={
-                !!IGNORE_VAULTS_LIST.find(
-                  ({ marketName, chain }) => marketName === market.name && chain === market.lyra.chain
-                ) || isMaxBoost
-              }
             />
           ) : null}
-          {vault.market.lyra.version !== Version.Avalon ? (
+          {!vault.isDeprecated ? (
             <Button
               onClick={() => setDepositModalOpen(true)}
               label="Deposit"
               variant={vault.liquidityToken.balance.gt(0) ? 'default' : 'primary'}
               size="lg"
-              isDisabled={
-                !!IGNORE_VAULTS_LIST.find(
-                  ({ marketName, chain }) => marketName === market.name && chain === market.lyra.chain
-                )
-              }
             />
           ) : null}
           {vault.liquidityToken.balance.gt(0) ? (

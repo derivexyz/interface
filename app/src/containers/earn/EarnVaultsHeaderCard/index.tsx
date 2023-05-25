@@ -28,13 +28,10 @@ const EarnVaultsHeaderCard = ({ latestAccountRewardEpoch, totalClaimableRewards,
 
   return (
     <Card variant="outline" width="100%" height="100%">
-      <CardBody height="100%">
-        <Text variant="cardHeading" mb={4}>
-          Vault Rewards
-        </Text>
-        <LabelItem mt="auto" label="Claimable" value={claimableAmounts.join(', ')} />
+      <CardBody height="100%" justifyContent="space-between">
+        <Text variant="cardHeading">Vault Rewards</Text>
+        <LabelItem valueColor="primaryText" label="Claimable" value={claimableAmounts.join(', ')} />
         <RewardsClaimModalButton
-          mt="auto"
           accountRewardEpoch={latestAccountRewardEpoch}
           isDisabled={!hasClaimableAmounts}
           onClick={onClickClaim}

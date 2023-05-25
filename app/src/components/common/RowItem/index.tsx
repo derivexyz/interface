@@ -7,15 +7,22 @@ type Props = {
   label: string | React.ReactNode
   value: string | React.ReactNode
   valueColor?: TextColor
+  variant?: 'small' | 'body'
 } & MarginProps &
   LayoutProps
 
-export default function RowItem({ label, value, valueColor = 'text', ...styleProps }: Props) {
+export default function RowItem({ label, value, variant, valueColor = 'text', ...styleProps }: Props) {
   return (
     <Flex justifyContent="space-between" alignItems="center" {...styleProps}>
-      {typeof label === 'string' ? <Text color="secondaryText">{label}</Text> : label}
+      {typeof label === 'string' ? (
+        <Text variant={variant} color="secondaryText">
+          {label}
+        </Text>
+      ) : (
+        label
+      )}
       {typeof value === 'string' ? (
-        <Text textAlign="right" color={valueColor}>
+        <Text variant={variant} textAlign="right" color={valueColor}>
           {value}
         </Text>
       ) : (

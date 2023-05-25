@@ -181,7 +181,7 @@ const TradeFormButton = ({ onTrade, trade, ...styleProps }: Props) => {
           const maxCostNum = fromBigNumber(maxCost)
           const minCostNum = fromBigNumber(minCost)
           const totalCostNum = fromBigNumber(totalCost)
-          console.log({
+          console.debug({
             blockTimestamp: market.block.timestamp,
             timeSinceBlock: Date.now() / 1000 - market.block.timestamp,
             maxCostNum,

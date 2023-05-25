@@ -320,7 +320,7 @@ export default function useTransaction(network: Network) {
       updateToast(toastId, {
         variant: 'info',
         icon: <ToastSpinner />,
-        description: `Your transaction is pending`,
+        description: 'Your transaction is pending.',
         href: txHref,
         hrefLabel: 'View on etherscan',
         target: '_blank',
@@ -371,7 +371,7 @@ export default function useTransaction(network: Network) {
 
           updateToast(toastId, {
             variant: 'success',
-            description: `Your transaction was successful`,
+            description: 'Your transaction was successful.',
             href: txHref,
             hrefLabel: 'View on etherscan',
             target: '_blank',
@@ -384,7 +384,7 @@ export default function useTransaction(network: Network) {
         // Transaction timed out
         updateToast(toastId, {
           variant: 'warning',
-          description: 'Your transaction is taking longer than expected',
+          description: 'Your transaction is taking longer than expected.',
           href: txHref,
           hrefLabel: 'View on etherscan',
           target: '_blank',

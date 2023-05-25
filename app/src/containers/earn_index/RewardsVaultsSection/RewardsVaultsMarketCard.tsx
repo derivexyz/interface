@@ -54,11 +54,7 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
 
   const liquidityTokenBalanceValue = vault.liquidityTokenBalanceValue
 
-  if (!firstRewardToken || !vaultRewards) {
-    return null
-  }
-
-  const isBoosted = (accountRewardEpoch?.stakedLyraBalance ?? 0) > 0
+  const isBoosted = vault.apyMultiplier > 1.01
 
   return (
     <Card
@@ -85,11 +81,10 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
                 {formatTokenName(market.baseToken)} Vault · {getNetworkDisplayName(market.lyra.network)}
               </Text>
               {vault.isDeprecated ? (
-                <Text variant="small" ml={2}>
-                  [Deprecated]
+                <Text variant="small" ml={2} color="secondaryText">
+                  Deprecated
                 </Text>
-              ) : null}
-              {vault.market.lyra.version === Version.Newport && vault.market.lyra.network === Network.Optimism ? (
+              ) : vault.market.lyra.version === Version.Newport && vault.market.lyra.network === Network.Optimism ? (
                 <Text ml={2} variant="small" color="primaryText">
                   New
                 </Text>
@@ -136,11 +131,15 @@ const RewardsVaultsMarketCard = ({ vault }: Props) => {
                 <Text mr={2} color="secondaryText">
                   Rewards
                 </Text>
-                <RewardTokenAmounts
-                  color={vaultRewards.amount > 0.001 ? 'primaryText' : 'text'}
-                  tokenAmounts={[vaultRewards]}
-                  hideTokenImages={true}
-                />
+                {vaultRewards ? (
+                  <RewardTokenAmounts
+                    color={vaultRewards.amount > 0.001 ? 'primaryText' : 'text'}
+                    tokenAmounts={[vaultRewards]}
+                    hideTokenImages={true}
+                  />
+                ) : (
+                  <Text color="secondaryText">-</Text>
+                )}
               </Flex>
             </>
           ) : null}

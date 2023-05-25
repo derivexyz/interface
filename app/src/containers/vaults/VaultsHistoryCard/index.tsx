@@ -2,7 +2,7 @@ import Box from '@lyra/ui/components/Box'
 import ToggleButton from '@lyra/ui/components/Button/ToggleButton'
 import ToggleButtonItem from '@lyra/ui/components/Button/ToggleButtonItem'
 import Card from '@lyra/ui/components/Card'
-import CardBody from '@lyra/ui/components/Card/CardBody'
+import CardSection from '@lyra/ui/components/Card/CardSection'
 import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import Countdown from '@lyra/ui/components/Text/CountdownText'
@@ -77,12 +77,12 @@ const VaultsHistoryCard = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs
   const showDeposits = selectedItem === 'deposits'
   return (
     <Card>
-      <CardBody>
-        <Text mb={6} variant="cardHeading">
+      <CardSection noSpacing>
+        <Text variant="cardHeading" mb={6}>
           History
         </Text>
         <Flex>
-          <ToggleButton mt={4} mb={8}>
+          <ToggleButton>
             {VAULT_HISTORY_TABS.map(item => (
               <ToggleButtonItem
                 key={item.id}
@@ -90,21 +90,18 @@ const VaultsHistoryCard = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs
                 label={item.label}
                 isSelected={selectedItem === item.id}
                 onSelect={id => setSelectedItem(id)}
-                width="100%"
-                textVariant="body"
               />
             ))}
           </ToggleButton>
         </Flex>
+      </CardSection>
+      <CardSection>
         {showRewards ? (
           account && accountEpochsSorted.length > 0 && !latestGlobalRewardEpoch.isDepositPeriod ? (
             <Box overflowX="scroll">
               <Flex py={3}>
                 <Text minWidth={MIN_COL_WIDTH} color="secondaryText">
                   Ended
-                </Text>
-                <Text minWidth={MIN_COL_WIDTH} color="secondaryText">
-                  Your Liquidity
                 </Text>
                 <Text minWidth={MIN_COL_WIDTH} ml="auto" color="secondaryText" textAlign={isMobile ? 'left' : 'right'}>
                   Your Rewards
@@ -123,13 +120,6 @@ const VaultsHistoryCard = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs
                 return (
                   <Flex py={3} key={globalEpoch.id}>
                     <Text minWidth={MIN_COL_WIDTH}>{formatDate(globalEpoch.endTimestamp)}</Text>
-                    <Text minWidth={MIN_COL_WIDTH}>
-                      {formatBalance({
-                        balance: accountEpoch?.vaultTokenBalance(market.address) ?? 0,
-                        symbol: market.liquidityToken.symbol,
-                        decimals: market.liquidityToken.decimals,
-                      })}
-                    </Text>
                     <Box minWidth={MIN_COL_WIDTH} ml="auto" textAlign={isMobile ? 'left' : 'right'}>
                       <Text>{vaultRewards.map(t => formatBalance(t)).join(', ')}</Text>
                       {isLateDistribution ? (
@@ -137,7 +127,7 @@ const VaultsHistoryCard = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs
                           Claiming delayed
                         </Text>
                       ) : isPendingDistribution ? (
-                        <Text variant="body" color="secondaryText">
+                        <Text variant="small" color="secondaryText">
                           Claimable in&nbsp;
                           <Countdown as="span" timestamp={globalEpoch.distributionTimestamp} />
                         </Text>
@@ -148,7 +138,9 @@ const VaultsHistoryCard = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs
               })}
             </Box>
           ) : (
-            <Text color="secondaryText">No Rewards History</Text>
+            <Text variant="small" color="secondaryText">
+              No rewards history.
+            </Text>
           )
         ) : null}
         {showDeposits ? (
@@ -178,10 +170,12 @@ const VaultsHistoryCard = ({ vault, latestGlobalRewardEpoch, accountRewardEpochs
               })}
             </Box>
           ) : (
-            <Text color="secondaryText">No Deposit History</Text>
+            <Text variant="small" color="secondaryText">
+              No deposit history.
+            </Text>
           )
         ) : null}
-      </CardBody>
+      </CardSection>
     </Card>
   )
 }

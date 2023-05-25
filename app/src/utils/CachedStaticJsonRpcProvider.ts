@@ -1,14 +1,12 @@
-import { FilterByBlockHash } from '@ethersproject/abstract-provider'
-import { Block, BlockTag, Filter, Log, StaticJsonRpcProvider, TransactionRequest } from '@ethersproject/providers'
+import { Block, BlockTag, StaticJsonRpcProvider, TransactionRequest } from '@ethersproject/providers'
 import { Deferrable } from 'ethers/lib/utils'
 
 // Enables retries, caching
 export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
   callPromiseCache: Record<string, Promise<string>> = {}
-  logsPromiseCache: Record<string, Promise<Log[]>> = {}
   blockPromiseCache: Record<string, Promise<Block>> = {}
-  // Refresh latest block every 1 second
-  latestBlockCacheTimeout = 1 * 1000
+  // Refresh latest block every 5 seconds
+  latestBlockCacheTimeout = 5 * 1000
   latestBlockUpdateTimestamp: number = 0
 
   async call(
@@ -19,19 +17,6 @@ export default class CachedStaticJsonRpcProvider extends StaticJsonRpcProvider {
     const key = [blockNumber, JSON.stringify(transaction)].join()
     this.callPromiseCache[key] = this.callPromiseCache[key] ?? super.call(transaction, blockNumber)
     return this.callPromiseCache[key]
-  }
-
-  async getLogs(filter: Filter | FilterByBlockHash | Promise<Filter | FilterByBlockHash>): Promise<Log[]> {
-    const resolvedFilter = await filter
-    let key: string
-    if ((resolvedFilter as any)?.toBlock === 'latest') {
-      const { number: blockNumber } = await this.getBlock('latest')
-      key = [blockNumber, JSON.stringify(resolvedFilter)].join()
-    } else {
-      key = JSON.stringify(resolvedFilter)
-    }
-    this.logsPromiseCache[key] = this.logsPromiseCache[key] ?? super.getLogs(filter)
-    return this.logsPromiseCache[key]
   }
 
   async getBlock(_blockHashOrBlockTag: BlockTag | Promise<BlockTag>, skipLatestBlockCache?: boolean): Promise<Block> {

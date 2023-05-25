@@ -1,7 +1,7 @@
 import { Chain } from '../constants/chain'
 import { Version } from '../lyra'
 
-const getLyraDeploymentSubgraphURI = (chain: Chain, version: Version = Version.Newport): string => {
+const getLyraDeploymentSubgraphURI = (chain: Chain, version: Version): string => {
   switch (chain) {
     case Chain.Optimism:
       switch (version) {

@@ -31,7 +31,7 @@ export default function PageDesktop({
         flexDirection="column"
       >
         {title || headerCard ? (
-          <Box mt={7}>
+          <Box mt={2}>
             <Flex height={HEADER_CARD_HEIGHT} alignItems="center">
               <Box>
                 <Text variant="title" mb={subtitle ? 2 : 0}>
@@ -52,7 +52,7 @@ export default function PageDesktop({
           </Box>
         ) : null}
         {showBackButton ? (
-          <Flex mt={!(title || headerCard) ? 7 : 0}>
+          <Flex mt={!(title || headerCard) ? 6 : 0}>
             <IconButton
               variant="light"
               icon={IconType.ArrowLeft}

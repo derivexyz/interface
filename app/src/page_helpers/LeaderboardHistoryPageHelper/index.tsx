@@ -65,9 +65,6 @@ const LeaderboardHistoryPageHelper = ({ data }: Props): JSX.Element => {
                   <Text minWidth={MIN_COL_WIDTH} color="secondaryText">
                     Ended
                   </Text>
-                  <Text minWidth={MIN_COL_WIDTH} color="secondaryText">
-                    Your Fees
-                  </Text>
                   <Text
                     minWidth={MIN_COL_WIDTH}
                     ml="auto"
@@ -93,22 +90,12 @@ const LeaderboardHistoryPageHelper = ({ data }: Props): JSX.Element => {
                   return (
                     <Flex py={3} key={globalEpoch.id}>
                       <Text minWidth={MIN_COL_WIDTH}>{formatDate(globalEpoch.endTimestamp)}</Text>
-                      <Text minWidth={MIN_COL_WIDTH}>
-                        {formatBalance(
-                          {
-                            balance: accountEpoch.tradingFees,
-                            symbol: market.quoteToken.symbol,
-                            decimals: market.quoteToken.decimals,
-                          },
-                          { showDollars: true }
-                        )}
-                      </Text>
                       <Box minWidth={MIN_COL_WIDTH} ml="auto" textAlign={isMobile ? 'left' : 'right'}>
                         <Text>{accountEpoch.tradingRewards.map(t => formatBalance(t)).join(', ')}</Text>
                         {isLateDistribution ? (
                           <Text color="secondaryText">Claiming delayed</Text>
                         ) : isPendingDistribution ? (
-                          <Text color="secondaryText">
+                          <Text color="secondaryText" variant="small">
                             Claimable in&nbsp;
                             <Countdown as="span" timestamp={globalEpoch.distributionTimestamp} />
                           </Text>

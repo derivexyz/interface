@@ -11,7 +11,7 @@ type Props = {
 export default function PageGrid({ children, rightColumn }: Props): JSX.Element {
   const isMobile = useIsMobile()
   return (
-    <Flex pt={[8, 12]} flexGrow={1} width="100%">
+    <Flex pt={6} flexGrow={1} width="100%">
       <Flex pb={[0, 12]} flexGrow={1} pr={rightColumn && !isMobile ? 6 : 0} flexDirection="column">
         <Grid
           flexGrow={1}

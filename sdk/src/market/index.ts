@@ -62,7 +62,6 @@ export type MarketContractAddresses = {
 }
 
 export type MarketLiquiditySnapshot = {
-  market: Market
   tvl: BigNumber
   freeLiquidity: BigNumber
   burnableLiquidity: BigNumber
@@ -672,5 +671,13 @@ export class Market {
 
   async owner(): Promise<string> {
     return await fetchMarketOwner(this.lyra, this.contractAddresses)
+  }
+
+  async deposits(owner: string): Promise<LiquidityDeposit[]> {
+    return await LiquidityDeposit.getByOwner(this.lyra, this, owner)
+  }
+
+  async withdrawals(owner: string): Promise<LiquidityWithdrawal[]> {
+    return await LiquidityWithdrawal.getByOwner(this.lyra, this, owner)
   }
 }

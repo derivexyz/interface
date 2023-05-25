@@ -19,16 +19,15 @@ const TotalSupplyHeaderCard = withSuspense(() => {
   const circulatingSupplyPct = supply ? supply.totalCirculatingSupply / supply.totalSupply : 0
   return supply ? (
     <Card variant="outline" width="100%" height="100%">
-      <CardBody>
-        <Text variant="cardHeading" mb={10}>
-          Circulating Supply
-        </Text>
-        <Flex>
+      <CardBody height="100%">
+        <Text variant="cardHeading">Circulating Supply</Text>
+        <Flex mt="auto">
           <Tooltip
             showInfoIcon
             tooltip={
               <Box width={200}>
                 <RowItem
+                  variant="small"
                   label="Mainnet"
                   value={`${formatTruncatedNumber(supply.mainnetCirculatingSupply)} (${formatPercentage(
                     supply.mainnetCirculatingSupply / supply.totalSupply,
@@ -36,6 +35,7 @@ const TotalSupplyHeaderCard = withSuspense(() => {
                   )})`}
                 />
                 <RowItem
+                  variant="small"
                   label="Optimism"
                   value={`${formatTruncatedNumber(supply.optimismCirculatingSupply)} (${formatPercentage(
                     supply.optimismCirculatingSupply / supply.totalSupply,
@@ -43,6 +43,7 @@ const TotalSupplyHeaderCard = withSuspense(() => {
                   )})`}
                 />
                 <RowItem
+                  variant="small"
                   label="Arbitrum"
                   value={`${formatTruncatedNumber(supply.arbitrumCirculatingSupply)} (${formatPercentage(
                     supply.arbitrumCirculatingSupply / supply.totalSupply,
@@ -52,14 +53,14 @@ const TotalSupplyHeaderCard = withSuspense(() => {
               </Box>
             }
           >
-            <Text>{formatNumber(supply.totalCirculatingSupply)}</Text>
+            <Text variant="small">{formatNumber(supply.totalCirculatingSupply)}</Text>
           </Tooltip>
-          <Text color="secondaryText" ml="auto">
+          <Text variant="small" color="secondaryText" ml="auto">
             {formatNumber(supply.totalSupply)}
           </Text>
         </Flex>
         <LinearProgress my={2} color="primaryText" progress={supply.totalCirculatingSupply / supply.totalSupply} />
-        <Text>{formatPercentage(circulatingSupplyPct, true)}</Text>
+        <Text variant="small">{formatPercentage(circulatingSupplyPct, true)}</Text>
       </CardBody>
     </Card>
   ) : null

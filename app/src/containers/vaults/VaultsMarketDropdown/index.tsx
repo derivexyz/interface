@@ -1,7 +1,6 @@
 import DropdownButton from '@lyra/ui/components/Button/DropdownButton'
 import DropdownButtonListItem from '@lyra/ui/components/Button/DropdownButtonListItem'
 import { DropdownIconButtonElement } from '@lyra/ui/components/Button/DropdownIconButton'
-import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import React, { useCallback, useState } from 'react'
 
@@ -39,13 +38,15 @@ const VaultsMarketDropdown = ({ vaults, selectedVault, ...styleProps }: Props): 
           <DropdownButtonListItem
             key={market.address}
             isSelected={market.address === selectedMarket.address}
-            label={`${formatTokenName(market.baseToken)} Vault ${isDeprecated ? '[Deprecated]' : ''}`}
+            label={
+              <Text color="text">
+                {formatTokenName(market.baseToken)} Vault{isDeprecated ? ' · Deprecated' : ''}
+              </Text>
+            }
             sublabel={
-              <Flex flexDirection="column">
-                <Text variant="small" as="span" color="secondaryText">
-                  {getNetworkDisplayName(market.lyra.network)}
-                </Text>
-              </Flex>
+              <Text variant="small" as="span" color="secondaryText">
+                {getNetworkDisplayName(market.lyra.network)}
+              </Text>
             }
             href={getPagePath({
               page: PageId.EarnVaults,

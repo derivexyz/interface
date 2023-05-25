@@ -1,27 +1,41 @@
-import { AccountRewardEpoch, Market, Network, RewardEpochTokenAmount } from '@lyrafinance/lyra-js'
+import {
+  AccountBalances,
+  AccountRewardEpoch,
+  GlobalRewardEpoch,
+  Market,
+  Network,
+  RewardEpochTokenAmount,
+} from '@lyrafinance/lyra-js'
 
 import { ONE_BN, UNIT, ZERO_ADDRESS, ZERO_BN } from '../constants/bn'
 import { DEPRECATED_VAULTS_LIST } from '../constants/deprecated'
+import { AppNetwork } from '../constants/networks'
 import { Vault } from '../constants/vault'
 import getAverageCostPerLPToken from '../hooks/vaults/getAverageCostPerLPToken'
-import fetchLyraBalances from './common/fetchLyraBalances'
+import { LyraBalances } from './common/fetchLyraBalances'
+import { getStkLyraBalanceForNetwork } from './common/getLyraBalanceForNetwork'
 import fromBigNumber from './fromBigNumber'
 import getEmptyMarketBalances from './getEmpyMarketBalances'
 import getLyraSDK from './getLyraSDK'
 
 const EMPTY_APY: RewardEpochTokenAmount[] = []
 
-const fetchVault = async (network: Network, market: Market, walletAddress?: string): Promise<Vault> => {
+const fetchVault = async (
+  network: Network,
+  market: Market,
+  balances: AccountBalances[],
+  lyraBalances: LyraBalances,
+  walletAddress?: string,
+  latestGlobalRewardEpoch?: GlobalRewardEpoch,
+  latestAccountRewardEpoch?: AccountRewardEpoch
+): Promise<Vault> => {
   const lyra = getLyraSDK(network, market.lyra.version)
   const account = lyra.account(walletAddress ?? ZERO_ADDRESS)
 
-  const [marketLiquidity, globalRewardEpoch, balances, lyraBalances, deposits, withdrawals] = await Promise.all([
+  const [marketLiquidity, deposits, withdrawals] = await Promise.all([
     market.liquidity(),
-    lyra.latestGlobalRewardEpoch(),
-    account.balances(),
-    fetchLyraBalances(walletAddress),
-    lyra.deposits(market.address, account.address),
-    lyra.withdrawals(market.address, account.address),
+    market.deposits(account.address),
+    market.withdrawals(account.address),
   ])
 
   const isDeprecated = DEPRECATED_VAULTS_LIST.some(
@@ -34,20 +48,19 @@ const fetchVault = async (network: Network, market: Market, walletAddress?: stri
   const pendingDeposits = deposits.filter(d => d.isPending)
   const pendingWithdrawals = withdrawals.filter(w => w.isPending)
 
-  let accountRewardEpoch: AccountRewardEpoch | null = null
-  if (walletAddress && globalRewardEpoch) {
-    accountRewardEpoch = await globalRewardEpoch.accountRewardEpoch(walletAddress)
-  }
+  const minApy = latestGlobalRewardEpoch?.minVaultApy(market.address) ?? EMPTY_APY
+  const maxApy = latestGlobalRewardEpoch?.maxVaultApy(market.address) ?? EMPTY_APY
 
-  const minApy = globalRewardEpoch?.minVaultApy(market.address) ?? EMPTY_APY
-  const maxApy = globalRewardEpoch?.maxVaultApy(market.address) ?? EMPTY_APY
-  const apy = accountRewardEpoch?.vaultApy(market.address) ?? minApy
-  const apyMultiplier = accountRewardEpoch?.vaultApyMultiplier(market.address) ?? 1
-
+  const stkLyraBalance = getStkLyraBalanceForNetwork(lyraBalances, AppNetwork.Ethereum)
   const liquidityToken = marketBalances.liquidityToken
+  const liquidityTokenBalance = fromBigNumber(liquidityToken.balance)
+
+  const apy = latestGlobalRewardEpoch?.vaultApy(market.address, stkLyraBalance, liquidityTokenBalance) ?? minApy
+  const apyMultiplier =
+    latestGlobalRewardEpoch?.vaultApyMultiplier(market.address, stkLyraBalance, liquidityTokenBalance) ?? 1
 
   const tvl = fromBigNumber(marketLiquidity.tvl)
-  const liquidityTokenBalanceValue = fromBigNumber(marketLiquidity.tokenPrice) * fromBigNumber(liquidityToken.balance)
+  const liquidityTokenBalanceValue = fromBigNumber(marketLiquidity.tokenPrice) * liquidityTokenBalance
 
   const utilization = marketLiquidity.utilization
 
@@ -56,13 +69,14 @@ const fetchVault = async (network: Network, market: Market, walletAddress?: stri
   const pnl = liquidityTokenBalanceValue - fromBigNumber(avgValue)
   const pnlPercent =
     avgCostPerToken.gt(0) && pnl !== 0 ? marketLiquidity.tokenPrice.mul(UNIT).div(avgCostPerToken).sub(ONE_BN) : ZERO_BN
+
   return {
     market,
     marketLiquidity,
     marketBalances,
     lyraBalances,
-    globalRewardEpoch,
-    accountRewardEpoch,
+    globalRewardEpoch: latestGlobalRewardEpoch ?? null,
+    accountRewardEpoch: latestAccountRewardEpoch ?? null,
     tvl,
     liquidityTokenBalanceValue,
     liquidityToken,

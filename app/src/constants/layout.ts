@@ -5,7 +5,7 @@ export const MOBILE_HEADER_HEIGHT = 42
 export const PAGE_WIDTH = 1300
 export const PAGE_FULL_WIDTH = 1800
 
-export const HEADER_CARD_HEIGHT = 206
+export const HEADER_CARD_HEIGHT = 200
 
 export const VAULTS_CHART_HEIGHT = [120, 250]
 export const VAULTS_INDEX_CHART_HEIGHT = [120, 250]

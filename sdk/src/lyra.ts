@@ -33,11 +33,13 @@ import getLyraChainIdForChain from './utils/getLyraChainIdForChain'
 import getLyraDeploymentForChain from './utils/getLyraDeploymentForChain'
 import getLyraDeploymentProvider from './utils/getLyraDeploymentProvider'
 import getLyraDeploymentSubgraphURI from './utils/getLyraDeploymentSubgraphURI'
+import getLyraGovernanceSubgraphURI from './utils/getLyraGovernanceSubgraphURI'
 import getNetworkForChain from './utils/getLyraNetworkForChain'
 
 export type LyraConfig = {
   provider: JsonRpcProvider
   subgraphUri?: string
+  govSubgraphUri?: string
   apiUri?: string
   version?: Version
 }
@@ -55,6 +57,8 @@ export default class Lyra {
   provider: JsonRpcProvider
   subgraphUri: string
   subgraphClient: ApolloClient<NormalizedCacheObject>
+  govSubgraphUri: string
+  govSubgraphClient: ApolloClient<NormalizedCacheObject>
   apiUri: string
   deployment: Deployment
   network: Network
@@ -68,21 +72,30 @@ export default class Lyra {
       this.apiUri = configObj.apiUri ?? LYRA_API_URL
       this.version = config.version ?? getDefaultVersionForChain(this.chain)
       this.subgraphUri = configObj?.subgraphUri ?? getLyraDeploymentSubgraphURI(this.chain, this.version)
+      this.govSubgraphUri = configObj?.govSubgraphUri ?? getLyraGovernanceSubgraphURI(this.chain)
     } else if (typeof config === 'number') {
       // Chain ID
       this.chain = getLyraChainForChainId(config)
       this.provider = getLyraDeploymentProvider(this.chain)
       this.version = getDefaultVersionForChain(this.chain)
       this.subgraphUri = getLyraDeploymentSubgraphURI(this.chain, this.version)
+      this.govSubgraphUri = getLyraGovernanceSubgraphURI(this.chain)
     } else {
       // String
       this.chain = config
       this.provider = getLyraDeploymentProvider(this.chain)
       this.version = getDefaultVersionForChain(this.chain)
       this.subgraphUri = getLyraDeploymentSubgraphURI(this.chain, this.version)
+      this.govSubgraphUri = getLyraGovernanceSubgraphURI(this.chain)
     }
     this.subgraphClient = new ApolloClient({
+      connectToDevTools: true,
       link: new HttpLink({ uri: this.subgraphUri, fetch }),
+      cache: new InMemoryCache(),
+    })
+    this.govSubgraphClient = new ApolloClient({
+      connectToDevTools: true,
+      link: new HttpLink({ uri: this.govSubgraphUri, fetch }),
       cache: new InMemoryCache(),
     })
     this.network = getNetworkForChain(this.chain)
@@ -243,10 +256,11 @@ export default class Lyra {
     return account.drip()
   }
 
-  // Liquidity Deposits
+  // Deposits
 
   async deposits(marketAddressOrName: string, owner: string): Promise<LiquidityDeposit[]> {
-    return await LiquidityDeposit.getByOwner(this, marketAddressOrName, owner)
+    const market = await this.market(marketAddressOrName)
+    return await LiquidityDeposit.getByOwner(this, market, owner)
   }
 
   async approveDeposit(
@@ -267,10 +281,11 @@ export default class Lyra {
     return market.initiateDeposit(beneficiary, amountQuote)
   }
 
-  // Liquidity Withdrawals
+  // Withdrawals
 
   async withdrawals(marketAddressOrName: string, owner: string): Promise<LiquidityWithdrawal[]> {
-    return await LiquidityWithdrawal.getByOwner(this, marketAddressOrName, owner)
+    const market = await this.market(marketAddressOrName)
+    return await LiquidityWithdrawal.getByOwner(this, market, owner)
   }
 
   async initiateWithdraw(
@@ -290,19 +305,15 @@ export default class Lyra {
 
   // Rewards
 
-  async claimRewards(address: string, tokenAddresses: string[]) {
-    return await AccountRewardEpoch.claim(this, address, tokenAddresses)
+  async claimRewards(owner: string, tokenAddresses: string[]) {
+    return await AccountRewardEpoch.claim(this, owner, tokenAddresses)
   }
 
   async globalRewardEpochs(): Promise<GlobalRewardEpoch[]> {
     return await GlobalRewardEpoch.getAll(this)
   }
 
-  async latestGlobalRewardEpoch(): Promise<GlobalRewardEpoch | null> {
-    return await GlobalRewardEpoch.getLatest(this)
-  }
-
-  async accountRewardEpochs(address: string): Promise<AccountRewardEpoch[]> {
-    return await AccountRewardEpoch.getByOwner(this, address)
+  async accountRewardEpochs(owner: string): Promise<AccountRewardEpoch[]> {
+    return await AccountRewardEpoch.getByOwner(this, owner)
   }
 }
