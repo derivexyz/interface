@@ -14,7 +14,7 @@ export const arbitrumProvider = new CachedStaticJsonRpcProvider(
   arbitrumNetworkConfig.chainId
 )
 
-const getLyraSubgraphURI = (chain: Chain, version: Version): string | undefined => {
+const getLyraSubgraphURI = (chain: Chain, version: Version = Version.Newport): string | undefined => {
   const SATSUMA_API_KEY = process.env.REACT_APP_SATSUMA_API_KEY
   if (!SATSUMA_API_KEY) {
     // Use SDK default
@@ -26,6 +26,7 @@ const getLyraSubgraphURI = (chain: Chain, version: Version): string | undefined 
         case Version.Avalon:
           return `https://subgraph.satsuma-prod.com/${SATSUMA_API_KEY}/lyra/optimism-mainnet/api`
         case Version.Newport:
+        default:
           return `https://subgraph.satsuma-prod.com/${SATSUMA_API_KEY}/lyra/optimism-mainnet-newport/api`
       }
     case Chain.OptimismGoerli:

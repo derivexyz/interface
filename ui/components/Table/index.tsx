@@ -210,107 +210,93 @@ export default function Table<T extends TableRecordType>({
             ) : null
 
             return (
-              <>
+              <Box
+                as="tbody"
+                key={row.id}
+                sx={{
+                  cursor: isClickable && isExpandedContentClickable ? 'pointer' : null,
+                  bg:
+                    isClickable && isExpandedContentClickable ? (!isExpanded ? 'transparent' : 'hover') : 'transparent',
+                  '&:hover': {
+                    bg: isClickable && isExpandedContentClickable ? (isExpanded ? 'active' : 'hover') : 'transparent',
+                  },
+                  '&:active': {
+                    bg: isClickable && isExpandedContentClickable ? 'active' : 'transparent',
+                  },
+                  borderTop: tableMarker && tableMarker.rowIdx === rowIdx - 1 && isExpanded ? '2px solid' : undefined,
+                  borderBottom: isOutline && rowIdx < pagedRows.length - 1 ? '1px solid' : undefined,
+                  borderColor: 'background',
+                }}
+              >
                 {tableMarkerEl}
                 <Box
-                  as="tbody"
-                  key={row.id}
+                  as="tr"
+                  px={DEFAULT_EDGE_CELL_PX}
                   sx={{
-                    cursor: isClickable && isExpandedContentClickable ? 'pointer' : null,
-                    bg:
-                      isClickable && isExpandedContentClickable
-                        ? !isExpanded
-                          ? 'transparent'
-                          : 'hover'
-                        : 'transparent',
+                    cursor: !isClickable && !isExpandedContentClickable ? 'inherit' : 'pointer',
+                    bg: isClickable && !isExpandedContentClickable && isExpanded ? 'hover' : 'transparent',
                     '&:hover': {
-                      bg: isClickable && isExpandedContentClickable ? (isExpanded ? 'active' : 'hover') : 'transparent',
+                      bg:
+                        isClickable && !isExpandedContentClickable ? (isExpanded ? 'active' : 'hover') : 'transparent',
                     },
                     '&:active': {
-                      bg: isClickable && isExpandedContentClickable ? 'active' : 'transparent',
+                      bg: isClickable && !isExpandedContentClickable ? 'active' : 'transparent',
                     },
-                    borderTop: tableMarker && tableMarker.rowIdx === rowIdx - 1 && isExpanded ? '2px solid' : undefined,
-                    borderBottom: isOutline && rowIdx < pagedRows.length - 1 ? '1px solid' : undefined,
-                    borderColor: 'background',
+                    ...rowStyleProps?.sx,
                   }}
+                  {...(prepareRowProps(row) as any)}
                 >
-                  <Box
-                    as="tr"
-                    px={DEFAULT_EDGE_CELL_PX}
-                    sx={{
-                      cursor: !isClickable && !isExpandedContentClickable ? 'inherit' : 'pointer',
-                      bg: isClickable && !isExpandedContentClickable && isExpanded ? 'hover' : 'transparent',
-                      '&:hover': {
-                        bg:
-                          isClickable && !isExpandedContentClickable
-                            ? isExpanded
-                              ? 'active'
-                              : 'hover'
-                            : 'transparent',
-                      },
-                      '&:active': {
-                        bg: isClickable && !isExpandedContentClickable ? 'active' : 'transparent',
-                      },
-                      ...rowStyleProps?.sx,
-                    }}
-                    {...(prepareRowProps(row) as any)}
-                  >
-                    {row.cells.map((cell: any, cellIdx) => {
-                      return (
-                        <Flex
-                          onClick={() => {
-                            if (row.original.onToggleExpand) {
-                              row.original.onToggleExpand(!isExpanded)
-                            }
-                            if (row.original.onClick) {
-                              row.original.onClick()
-                            }
-                          }}
-                          as="td"
-                          key={cellIdx}
-                          alignItems="center"
-                          px={DEFAULT_CELL_PX}
-                          py={DEFAULT_CELL_PY}
-                          {...(prepareCellProps(cell) as any)}
-                        >
-                          {cell.render('Cell')}
-                        </Flex>
-                      )
-                    })}
-                  </Box>
-                  {expandedContent ? (
-                    <Box
-                      onClick={() => {
-                        if (row.original.isExpandedContentClickable) {
+                  {row.cells.map((cell: any, cellIdx) => {
+                    return (
+                      <Flex
+                        onClick={() => {
                           if (row.original.onToggleExpand) {
                             row.original.onToggleExpand(!isExpanded)
                           }
                           if (row.original.onClick) {
                             row.original.onClick()
                           }
-                        }
-                      }}
-                      as="tr"
-                      sx={{
-                        borderBottom:
-                          !isOutline && isExpanded && rowIdx < pagedRows.length - 1 ? '2px solid' : undefined,
-                        borderColor: 'background',
-                      }}
-                    >
-                      <Box as="td">
-                        <Collapsible noPadding isExpanded={isExpanded}>
-                          <Box
-                            px={noExpandedPadding ? 0 : DEFAULT_CELL_PX}
-                            py={noExpandedPadding ? 0 : DEFAULT_CELL_PY}
-                          >
-                            {expandedContent}
-                          </Box>
-                        </Collapsible>
-                      </Box>
-                    </Box>
-                  ) : null}
+                        }}
+                        as="td"
+                        key={cellIdx}
+                        alignItems="center"
+                        px={DEFAULT_CELL_PX}
+                        py={DEFAULT_CELL_PY}
+                        {...(prepareCellProps(cell) as any)}
+                      >
+                        {cell.render('Cell')}
+                      </Flex>
+                    )
+                  })}
                 </Box>
-              </>
+                {expandedContent ? (
+                  <Box
+                    onClick={() => {
+                      if (row.original.isExpandedContentClickable) {
+                        if (row.original.onToggleExpand) {
+                          row.original.onToggleExpand(!isExpanded)
+                        }
+                        if (row.original.onClick) {
+                          row.original.onClick()
+                        }
+                      }
+                    }}
+                    as="tr"
+                    sx={{
+                      borderBottom: !isOutline && isExpanded && rowIdx < pagedRows.length - 1 ? '2px solid' : undefined,
+                      borderColor: 'background',
+                    }}
+                  >
+                    <Box as="td">
+                      <Collapsible noPadding isExpanded={isExpanded}>
+                        <Box px={noExpandedPadding ? 0 : DEFAULT_CELL_PX} py={noExpandedPadding ? 0 : DEFAULT_CELL_PY}>
+                          {expandedContent}
+                        </Box>
+                      </Collapsible>
+                    </Box>
+                  </Box>
+                ) : null}
+              </Box>
             )
           })}
         </Box>

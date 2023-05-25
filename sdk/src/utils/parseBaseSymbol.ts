@@ -20,8 +20,6 @@ export default function parseBaseSymbol(lyra: Lyra, marketAddressOrName: string)
     }
   } else {
     switch (rawBaseKey.toLowerCase()) {
-      // TODO @michaelxuwu Update for Op Newport release
-      // case 'seth':
       case 'eth':
       case 'weth':
         return 'WETH'

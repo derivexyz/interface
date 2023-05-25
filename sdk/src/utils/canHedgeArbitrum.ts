@@ -3,7 +3,6 @@ import { BigNumber } from 'ethers'
 import { PoolHedgerParams } from '../admin'
 import { UNIT } from '../constants/bn'
 import { GMXFuturesPoolHedger } from '../contracts/newport/typechain/NewportGMXFuturesPoolHedger'
-import { PoolHedgerView } from '../market'
 import { Option } from '../option'
 import getCappedExpectedHedge from './getCappedExpectedHedge'
 
@@ -13,14 +12,10 @@ export default function canHedgeOnArbitrum(
   option: Option,
   size: BigNumber,
   increasesPoolDelta: boolean,
-  hedgerView: PoolHedgerView,
+  hedgerView: GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput,
   poolHedgerParams: PoolHedgerParams
 ) {
-  const gmxHedgerView = hedgerView as GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput
-  if (!gmxHedgerView) {
-    throw new Error('Invalid PoolHedgerView for canHedgeOnArbitrum')
-  }
-  const { currentHedge, gmxView, futuresPoolHedgerParams } = gmxHedgerView
+  const { currentHedge, gmxView, futuresPoolHedgerParams } = hedgerView
   if (!futuresPoolHedgerParams.vaultLiquidityCheckEnabled) {
     return true
   }

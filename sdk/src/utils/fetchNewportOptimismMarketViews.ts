@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
 
 import { PoolHedgerParams } from '../admin'
-import { ZERO_BN } from '../constants/bn'
+import { MAX_BN, ZERO_BN } from '../constants/bn'
 import { LyraContractId, LyraMarketContractId } from '../constants/contracts'
 import { LyraContractMap, LyraMarketContractMap } from '../constants/mappings'
 import { OptionMarketViewer } from '../contracts/newport/typechain/NewportOptionMarketViewer'
@@ -73,6 +73,9 @@ const TESTNET_HEDGER_VIEW: SNXPerpsV2PoolHedger.HedgerStateStruct = {
     interactionDelay: ZERO_BN,
     hedgeCap: ZERO_BN,
   },
+  longInterest: ZERO_BN,
+  shortInterest: ZERO_BN,
+  maxTotalMarketSize: MAX_BN,
 }
 
 export default async function fetchNewportOptimismMarketViews(lyra: Lyra): Promise<{

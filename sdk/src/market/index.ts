@@ -215,7 +215,6 @@ export class Market {
     owner: string,
     tokenPrice: BigNumber,
     block: Block,
-    // TODO @michaelxuwu remove this when parmas added to viewer
     hedgerView?: PoolHedgerView,
     adapterView?: ExchangeAdapterView,
     poolHedgerParams?: PoolHedgerParams
@@ -291,7 +290,7 @@ export class Market {
     const forceCloseParams = marketView.marketParameters.forceCloseParams
     const varianceFeeParams = marketView.marketParameters.varianceFeeParams
     const lpParams = marketView.marketParameters.lpParams
-    // cosnt marketAdapterConfigParams = marketView.marketParameters
+
     const sharedParams = {
       optionPriceFee1xPoint: pricingParams.optionPriceFee1xPoint.toNumber(),
       optionPriceFee2xPoint: pricingParams.optionPriceFee2xPoint.toNumber(),

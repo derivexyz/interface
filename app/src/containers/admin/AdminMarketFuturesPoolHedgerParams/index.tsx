@@ -11,7 +11,12 @@ import Modal from '@lyra/ui/components/Modal'
 import Shimmer from '@lyra/ui/components/Shimmer'
 import Text from '@lyra/ui/components/Text'
 import formatNumber from '@lyra/ui/utils/formatNumber'
-import { FuturesPoolHedgerParams, Market } from '@lyrafinance/lyra-js'
+import {
+  FuturesPoolHedgerParams,
+  GMXFuturesPoolHedgerParams,
+  Market,
+  SNXFuturesPoolHedgerParams,
+} from '@lyrafinance/lyra-js'
 import React, { useState } from 'react'
 
 import { ZERO_BN } from '@/app/constants/bn'
@@ -29,7 +34,7 @@ type Props = {
   onClickExpand: () => void
 }
 
-const zeroDecimalKeys: (keyof FuturesPoolHedgerParams)[] = ['minCancelDelay']
+const zeroDecimalKeys: (keyof GMXFuturesPoolHedgerParams | keyof SNXFuturesPoolHedgerParams)[] = ['minCancelDelay']
 
 const AdminMarketFuturesPoolHedgerParams = withSuspense(
   ({ market, isExpanded, onClickExpand }: Props) => {

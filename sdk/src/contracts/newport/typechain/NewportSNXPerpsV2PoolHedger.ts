@@ -73,6 +73,9 @@ export declare namespace SNXPerpsV2PoolHedger {
     pendingDeltaLiquidity: PromiseOrValue<BigNumberish>;
     usedDeltaLiquidity: PromiseOrValue<BigNumberish>;
     pendingDelta: PromiseOrValue<BigNumberish>;
+    longInterest: PromiseOrValue<BigNumberish>;
+    shortInterest: PromiseOrValue<BigNumberish>;
+    maxTotalMarketSize: PromiseOrValue<BigNumberish>;
     pendingMargin: PromiseOrValue<BigNumberish>;
     fundingRate: PromiseOrValue<BigNumberish>;
     trackingCode: PromiseOrValue<BytesLike>;
@@ -102,6 +105,9 @@ export declare namespace SNXPerpsV2PoolHedger {
     BigNumber,
     BigNumber,
     BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
     string,
     string,
     string,
@@ -125,6 +131,9 @@ export declare namespace SNXPerpsV2PoolHedger {
     pendingDeltaLiquidity: BigNumber;
     usedDeltaLiquidity: BigNumber;
     pendingDelta: BigNumber;
+    longInterest: BigNumber;
+    shortInterest: BigNumber;
+    maxTotalMarketSize: BigNumber;
     pendingMargin: BigNumber;
     fundingRate: BigNumber;
     trackingCode: string;
@@ -408,48 +417,33 @@ export interface NewportSNXPerpsV2PoolHedgerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "ApprovalsUpdated(bool)": EventFragment;
     "CollateralUpdated(uint256,uint256)": EventFragment;
     "FuturesPoolHedgerParamsSet(tuple)": EventFragment;
-    "LongSetTo(uint256,uint256)": EventFragment;
     "OwnerChanged(address,address)": EventFragment;
     "OwnerNominated(address)": EventFragment;
     "PoolHedgerParametersSet(tuple)": EventFragment;
     "PositionUpdateSubmitted(int256,int256,int256)": EventFragment;
     "QuoteReturnedToLP(uint256)": EventFragment;
-    "ShortSetTo(uint256,uint256,uint256,uint256)": EventFragment;
     "SlippageOutOfBounds(address,address,uint256,uint256)": EventFragment;
+    "TrackingCodeSet(bytes32)": EventFragment;
     "USDCCollateralSwapForMargin(address,address,uint256,uint256)": EventFragment;
     "sUSDCollateralSwap(address,address,uint256,uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "ApprovalsUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CollateralUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FuturesPoolHedgerParamsSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LongSetTo"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnerChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnerNominated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PoolHedgerParametersSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PositionUpdateSubmitted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "QuoteReturnedToLP"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ShortSetTo"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SlippageOutOfBounds"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TrackingCodeSet"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "USDCCollateralSwapForMargin"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "sUSDCollateralSwap"): EventFragment;
 }
-
-export interface ApprovalsUpdatedEventObject {
-  state: boolean;
-}
-export type ApprovalsUpdatedEvent = TypedEvent<
-  [boolean],
-  ApprovalsUpdatedEventObject
->;
-
-export type ApprovalsUpdatedEventFilter =
-  TypedEventFilter<ApprovalsUpdatedEvent>;
 
 export interface CollateralUpdatedEventObject {
   oldCollat: BigNumber;
@@ -473,17 +467,6 @@ export type FuturesPoolHedgerParamsSetEvent = TypedEvent<
 
 export type FuturesPoolHedgerParamsSetEventFilter =
   TypedEventFilter<FuturesPoolHedgerParamsSetEvent>;
-
-export interface LongSetToEventObject {
-  oldAmount: BigNumber;
-  newAmount: BigNumber;
-}
-export type LongSetToEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  LongSetToEventObject
->;
-
-export type LongSetToEventFilter = TypedEventFilter<LongSetToEvent>;
 
 export interface OwnerChangedEventObject {
   oldOwner: string;
@@ -541,19 +524,6 @@ export type QuoteReturnedToLPEvent = TypedEvent<
 export type QuoteReturnedToLPEventFilter =
   TypedEventFilter<QuoteReturnedToLPEvent>;
 
-export interface ShortSetToEventObject {
-  oldShort: BigNumber;
-  newShort: BigNumber;
-  oldCollateral: BigNumber;
-  newCollateral: BigNumber;
-}
-export type ShortSetToEvent = TypedEvent<
-  [BigNumber, BigNumber, BigNumber, BigNumber],
-  ShortSetToEventObject
->;
-
-export type ShortSetToEventFilter = TypedEventFilter<ShortSetToEvent>;
-
 export interface SlippageOutOfBoundsEventObject {
   quoteAsset: string;
   sUSD: string;
@@ -567,6 +537,16 @@ export type SlippageOutOfBoundsEvent = TypedEvent<
 
 export type SlippageOutOfBoundsEventFilter =
   TypedEventFilter<SlippageOutOfBoundsEvent>;
+
+export interface TrackingCodeSetEventObject {
+  trackingCode: string;
+}
+export type TrackingCodeSetEvent = TypedEvent<
+  [string],
+  TrackingCodeSetEventObject
+>;
+
+export type TrackingCodeSetEventFilter = TypedEventFilter<TrackingCodeSetEvent>;
 
 export interface USDCCollateralSwapForMarginEventObject {
   quoteAsset: string;
@@ -982,9 +962,6 @@ export interface NewportSNXPerpsV2PoolHedger extends BaseContract {
   };
 
   filters: {
-    "ApprovalsUpdated(bool)"(state?: null): ApprovalsUpdatedEventFilter;
-    ApprovalsUpdated(state?: null): ApprovalsUpdatedEventFilter;
-
     "CollateralUpdated(uint256,uint256)"(
       oldCollat?: null,
       newCollat?: null
@@ -1000,12 +977,6 @@ export interface NewportSNXPerpsV2PoolHedger extends BaseContract {
     FuturesPoolHedgerParamsSet(
       params?: null
     ): FuturesPoolHedgerParamsSetEventFilter;
-
-    "LongSetTo(uint256,uint256)"(
-      oldAmount?: null,
-      newAmount?: null
-    ): LongSetToEventFilter;
-    LongSetTo(oldAmount?: null, newAmount?: null): LongSetToEventFilter;
 
     "OwnerChanged(address,address)"(
       oldOwner?: null,
@@ -1039,19 +1010,6 @@ export interface NewportSNXPerpsV2PoolHedger extends BaseContract {
     ): QuoteReturnedToLPEventFilter;
     QuoteReturnedToLP(amountQuote?: null): QuoteReturnedToLPEventFilter;
 
-    "ShortSetTo(uint256,uint256,uint256,uint256)"(
-      oldShort?: null,
-      newShort?: null,
-      oldCollateral?: null,
-      newCollateral?: null
-    ): ShortSetToEventFilter;
-    ShortSetTo(
-      oldShort?: null,
-      newShort?: null,
-      oldCollateral?: null,
-      newCollateral?: null
-    ): ShortSetToEventFilter;
-
     "SlippageOutOfBounds(address,address,uint256,uint256)"(
       quoteAsset?: null,
       sUSD?: null,
@@ -1064,6 +1022,9 @@ export interface NewportSNXPerpsV2PoolHedger extends BaseContract {
       curve_rate?: null,
       maxSlippage?: null
     ): SlippageOutOfBoundsEventFilter;
+
+    "TrackingCodeSet(bytes32)"(trackingCode?: null): TrackingCodeSetEventFilter;
+    TrackingCodeSet(trackingCode?: null): TrackingCodeSetEventFilter;
 
     "USDCCollateralSwapForMargin(address,address,uint256,uint256)"(
       quoteAsset?: null,

@@ -126,16 +126,18 @@ export default function getQuoteDisabledReason(
     return QuoteDisabledReason.UnableToHedgeDelta
   }
 
-  // Disable quote for opening and closing in the case where the feeds differ by a great amount, but allow force closes.
-  const { adapterView } = option.market().params
-  const gmxAdapterView = adapterView as GMXAdapter.GMXAdapterStateStructOutput
-  if (gmxAdapterView && !isForceClose && (priceType === PriceType.MAX_PRICE || priceType === PriceType.MIN_PRICE)) {
-    const { gmxMaxPrice: forceMaxSpotPrice, gmxMinPrice: forceMinSpotPrice } = gmxAdapterView
-    const minPriceVariance = getPriceVariance(forceMinSpotPrice, market.params.referenceSpotPrice)
-    const maxPriceVariance = getPriceVariance(forceMaxSpotPrice, market.params.referenceSpotPrice)
-    const varianceThreshold = gmxAdapterView.marketPricingParams.priceVarianceCBPercent
-    if (minPriceVariance.gt(varianceThreshold) || maxPriceVariance.gt(varianceThreshold)) {
-      return QuoteDisabledReason.PriceVarianceTooHigh
+  if (market.lyra.network === Network.Arbitrum) {
+    // Disable quote for opening and closing in the case where the feeds differ by a great amount, but allow force closes.
+    const { adapterView } = option.market().params
+    const gmxAdapterView = adapterView as GMXAdapter.GMXAdapterStateStructOutput
+    if (gmxAdapterView && !isForceClose && (priceType === PriceType.MAX_PRICE || priceType === PriceType.MIN_PRICE)) {
+      const { gmxMaxPrice: forceMaxSpotPrice, gmxMinPrice: forceMinSpotPrice } = gmxAdapterView
+      const minPriceVariance = getPriceVariance(forceMinSpotPrice, market.params.referenceSpotPrice)
+      const maxPriceVariance = getPriceVariance(forceMaxSpotPrice, market.params.referenceSpotPrice)
+      const varianceThreshold = gmxAdapterView.marketPricingParams.priceVarianceCBPercent
+      if (minPriceVariance.gt(varianceThreshold) || maxPriceVariance.gt(varianceThreshold)) {
+        return QuoteDisabledReason.PriceVarianceTooHigh
+      }
     }
   }
 

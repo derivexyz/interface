@@ -1,16 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { PopulatedTransaction } from '@ethersproject/contracts'
 
-import Lyra, { MarketContractAddresses, Version } from '..'
+import Lyra, { MarketContractAddresses, Network, Version } from '..'
 import { LyraContractId, LyraGlobalContractId, LyraMarketContractId } from '../constants/contracts'
 import { LyraContractMap, LyraMarketContractMap } from '../constants/mappings'
 import { GMXAdapter, NewportGMXAdapter } from '../contracts/newport/typechain/NewportGMXAdapter'
-import {
-  GMXFuturesPoolHedger,
-  NewportGMXFuturesPoolHedger,
-} from '../contracts/newport/typechain/NewportGMXFuturesPoolHedger'
+import { NewportGMXFuturesPoolHedger } from '../contracts/newport/typechain/NewportGMXFuturesPoolHedger'
 import { OptionGreekCache } from '../contracts/newport/typechain/NewportOptionGreekCache'
-import { SNXPerpsV2PoolHedger } from '../contracts/newport/typechain/NewportSNXPerpsV2PoolHedger'
+import { NewportSNXPerpsV2PoolHedger } from '../contracts/newport/typechain/NewportSNXPerpsV2PoolHedger'
 import { NewportSNXPerpV2Adapter, SNXPerpV2Adapter } from '../contracts/newport/typechain/NewportSNXPerpV2Adapter'
 import buildTx from '../utils/buildTx'
 import fetchGlobalOwner from '../utils/fetchGlobalOwner'
@@ -211,7 +208,19 @@ export type PoolHedgerParams = {
   hedgeCap: BigNumber
 }
 
-export type FuturesPoolHedgerParams = {
+export type FuturesPoolHedgerParams = GMXFuturesPoolHedgerParams | SNXFuturesPoolHedgerParams
+
+export type SNXFuturesPoolHedgerParams = {
+  targetLeverage: BigNumber
+  maximumFundingRate: BigNumber
+  deltaThreshold: BigNumber
+  marketDepthBuffer: BigNumber
+  priceDeltaBuffer: BigNumber
+  worstStableRate: BigNumber
+  maxOrderCap: BigNumber
+}
+
+export type GMXFuturesPoolHedgerParams = {
   acceptableSpotSlippage: BigNumber
   deltaThreshold: BigNumber
   marketDepthBuffer: BigNumber
@@ -779,7 +788,7 @@ export class Admin {
   ) {
     const market = await this.lyra.market(marketAddressOrName)
     if (!(market.params.adapterView as SNXPerpV2Adapter.MarketAdapterStateStructOutput)) {
-      throw new Error('Adapter market pricing parameters not supported on this market')
+      throw new Error('Adapter market configuration parameters not supported on this market')
     }
     const marketAdapterConfig = (market.params.adapterView as SNXPerpV2Adapter.MarketAdapterStateStructOutput).config
     const fromParamsFlat: AdminAdapterMarketConfigurationParams = {
@@ -837,6 +846,7 @@ export class Admin {
     params: Partial<FuturesPoolHedgerParams>
   ): Promise<AdminSetMarketParamsReturn<FuturesPoolHedgerParams>> {
     const market = await this.lyra.market(marketAddressOrName)
+
     if (market.lyra.version !== Version.Newport || !market.params.hedgerView) {
       throw new Error('Parameters not supported on version')
     }
@@ -847,30 +857,25 @@ export class Admin {
       market.lyra.version,
       LyraMarketContractId.PoolHedger
     )
-
-    const futurePoolHedgerParams:
-      | SNXPerpsV2PoolHedger.SNXPerpsV2PoolHedgerParametersStructOutput
-      | GMXFuturesPoolHedger.FuturesPoolHedgerParametersStructOutput =
-      (market.params.hedgerView as GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput)
-        ?.futuresPoolHedgerParams ??
-      (market.params.hedgerView as SNXPerpsV2PoolHedger.HedgerStateStructOutput)?.futuresPoolHedgerParams
-
     const toParams = {
-      ...futurePoolHedgerParams,
+      ...market.params.hedgerView.futuresPoolHedgerParams,
       ...params,
     }
-
-    const owner = await market.owner()
-
-    const calldata = (futuresPoolHedger as NewportGMXFuturesPoolHedger).interface.encodeFunctionData(
-      'setFuturesPoolHedgerParams',
-      [toParams]
-    )
+    const calldata =
+      market.lyra.network === Network.Optimism
+        ? (futuresPoolHedger as NewportSNXPerpsV2PoolHedger).interface.encodeFunctionData(
+            'setFuturesPoolHedgerParams',
+            [toParams as SNXFuturesPoolHedgerParams]
+          )
+        : (futuresPoolHedger as NewportGMXFuturesPoolHedger).interface.encodeFunctionData(
+            'setFuturesPoolHedgerParams',
+            [toParams as GMXFuturesPoolHedgerParams]
+          )
     const tx = buildTx(
       this.lyra.provider,
       this.lyra.provider.network.chainId,
       futuresPoolHedger.address,
-      owner,
+      market.params.owner,
       calldata
     )
     tx.gasLimit = BigNumber.from(10_000_000)

@@ -2,7 +2,6 @@ import { BigNumber } from 'ethers'
 
 import { PoolHedgerParams } from '../admin'
 import { SNXPerpsV2PoolHedger } from '../contracts/newport/typechain/NewportSNXPerpsV2PoolHedger'
-import { PoolHedgerView } from '../market'
 import { Option } from '../option'
 import getCappedExpectedHedge from './getCappedExpectedHedge'
 
@@ -24,23 +23,28 @@ export default function canHedgeOnOptimism(
   option: Option,
   size: BigNumber,
   increasesPoolDelta: boolean,
-  hedgerView: PoolHedgerView,
+  hedgerView: SNXPerpsV2PoolHedger.HedgerStateStructOutput,
   poolHedgerParams: PoolHedgerParams
 ) {
-  const snxHedgerView = hedgerView as SNXPerpsV2PoolHedger.HedgerStateStructOutput
-  if (!snxHedgerView) {
-    throw new Error('Invalid PoolHedgerView for canHedgeOnOptimism')
-  }
+  const {
+    marketSuspended,
+    hedgedDelta: currentHedge,
+    futuresPoolHedgerParams,
+    fundingRate,
+    shortInterest,
+    longInterest,
+    maxTotalMarketSize,
+  } = hedgerView
 
-  if (snxHedgerView.marketSuspended) {
+  if (marketSuspended) {
     return false
   }
 
   const cappedExpectedHedge = getCappedExpectedHedge(option, size, netDelta, poolHedgerParams, increasesPoolDelta)
   const cappedExpectedHedgeAbs = cappedExpectedHedge.abs()
-  const currentHedge = snxHedgerView.hedgedDelta
+  const currentHedgeAbs = currentHedge.abs()
 
-  if (cappedExpectedHedgeAbs.lte(currentHedge) && cappedExpectedHedge.mul(currentHedge).gte(0)) {
+  if (cappedExpectedHedgeAbs.lte(currentHedgeAbs) && cappedExpectedHedge.mul(currentHedge).gte(0)) {
     // Delta is shrinking (potentially flipping, but still smaller than current hedge), so we skip the check
     return true
   }
@@ -55,27 +59,19 @@ export default function canHedgeOnOptimism(
     return true
   }
   // check that the curve swap rates are acceptable
-  if (!snxHedgerView.curveRateStable) {
+  if (!hedgerView.curveRateStable) {
     return false
   }
 
   if (cappedExpectedHedgeAbs.gt(currentHedge.abs())) {
     // check funding rate is within bounds and so is liquidity
-    const fundingRate = snxHedgerView.fundingRate
-    const maxFundingRate = snxHedgerView.futuresPoolHedgerParams.maximumFundingRate
+    const maxFundingRate = futuresPoolHedgerParams.maximumFundingRate
     if (fundingRate.abs().gt(maxFundingRate)) {
       return false
     }
   }
 
-  // TODO
-  // const shortInterest = snxHedgerView.poolHedgerParams.shortInterest
-  // const longInterest = snxHedgerView.poolHedgerParams.longInterest
-  // const maxTotalMarketSize = snxHedgerView.poolHedgerParams.maxTotalMarketSize
-  const shortInterest = BigNumber.from(0)
-  const longInterest = BigNumber.from(0)
-  const maxTotalMarketSize = BigNumber.from(0)
-  const marketDepthBuffer = snxHedgerView.futuresPoolHedgerParams.marketDepthBuffer
+  const marketDepthBuffer = futuresPoolHedgerParams.marketDepthBuffer
 
   // Check remaining market liquidity
   if (cappedExpectedHedge.mul(currentHedge).gt(0)) {

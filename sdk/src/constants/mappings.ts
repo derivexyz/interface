@@ -26,6 +26,7 @@ import {
   NewportOptionMarketViewer,
   NewportOptionToken,
   NewportShortCollateral,
+  NewportSNXPerpsV2PoolHedger,
   NewportSNXPerpV2Adapter,
   NewportTestFaucet,
 } from '../contracts/newport/typechain'
@@ -71,7 +72,7 @@ export type LyraMarketNewportContractMap = {
   [LyraMarketContractId.OptionGreekCache]: NewportOptionGreekCache
   [LyraMarketContractId.LiquidityToken]: NewportLiquidityToken
   [LyraMarketContractId.LiquidityPool]: NewportLiquidityPool
-  [LyraMarketContractId.PoolHedger]: NewportGMXFuturesPoolHedger
+  [LyraMarketContractId.PoolHedger]: NewportGMXFuturesPoolHedger | NewportSNXPerpsV2PoolHedger
 }
 
 export type LyraMarketContractMap<V extends Version, C extends LyraMarketContractId> = V extends Version.Avalon

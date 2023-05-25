@@ -11,7 +11,6 @@ const getLyraDeploymentSubgraphURI = (chain: Chain, version: Version = Version.N
         default:
           return 'https://subgraph.satsuma-prod.com/d14de8f7fd46/lyra/optimism-mainnet-newport/api'
       }
-    /*eslint-disable-next-line no-fallthrough */
     case Chain.OptimismGoerli:
       return 'https://subgraph.satsuma-prod.com/d14de8f7fd46/lyra/optimism-goerli/api'
     case Chain.Arbitrum:

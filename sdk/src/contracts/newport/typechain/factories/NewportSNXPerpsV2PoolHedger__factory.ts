@@ -34,53 +34,6 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "contract IERC20Decimals",
-        name: "asset",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "approving",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "approvalAmount",
-        type: "uint256",
-      },
-    ],
-    name: "ApprovalFailure",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "thrower",
-        type: "address",
-      },
-      {
-        internalType: "uint8",
-        name: "id",
-        type: "uint8",
-      },
-      {
-        internalType: "address",
-        name: "addr",
-        type: "address",
-      },
-    ],
-    name: "DuplicateEntry",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "thrower",
-        type: "address",
-      },
-      {
         internalType: "uint256",
         name: "lastInteraction",
         type: "uint256",
@@ -151,27 +104,6 @@ const _abi = [
       },
     ],
     name: "InvalidFuturesPoolHedgerParams",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "thrower",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "quoteReceived",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "minCollateral",
-        type: "uint256",
-      },
-    ],
-    name: "NotEnoughQuoteForMinCollateral",
     type: "error",
   },
   {
@@ -262,27 +194,6 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "approvee",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "QuoteApprovalFailure",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "thrower",
-        type: "address",
-      },
-      {
-        internalType: "address",
         name: "from",
         type: "address",
       },
@@ -299,72 +210,6 @@ const _abi = [
     ],
     name: "QuoteTransferFailed",
     type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "thrower",
-        type: "address",
-      },
-      {
-        internalType: "uint8",
-        name: "id",
-        type: "uint8",
-      },
-    ],
-    name: "RemovingInvalidId",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "quoteAsset",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "sUSD",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "curve_rate",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maxSlippageRate",
-        type: "uint256",
-      },
-    ],
-    name: "StableSwapSlippageOutOfBounds",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "asset",
-        type: "address",
-      },
-    ],
-    name: "UnsupportedToken",
-    type: "error",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "state",
-        type: "bool",
-      },
-    ],
-    name: "ApprovalsUpdated",
-    type: "event",
   },
   {
     anonymous: false,
@@ -434,25 +279,6 @@ const _abi = [
       },
     ],
     name: "FuturesPoolHedgerParamsSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "oldAmount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "newAmount",
-        type: "uint256",
-      },
-    ],
-    name: "LongSetTo",
     type: "event",
   },
   {
@@ -555,37 +381,6 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
-        name: "oldShort",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "newShort",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "oldCollateral",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "newCollateral",
-        type: "uint256",
-      },
-    ],
-    name: "ShortSetTo",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
         internalType: "address",
         name: "quoteAsset",
         type: "address",
@@ -610,6 +405,19 @@ const _abi = [
       },
     ],
     name: "SlippageOutOfBounds",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "trackingCode",
+        type: "bytes32",
+      },
+    ],
+    name: "TrackingCodeSet",
     type: "event",
   },
   {
@@ -911,6 +719,21 @@ const _abi = [
             internalType: "int256",
             name: "pendingDelta",
             type: "int256",
+          },
+          {
+            internalType: "uint256",
+            name: "longInterest",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "shortInterest",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "maxTotalMarketSize",
+            type: "uint256",
           },
           {
             internalType: "uint256",

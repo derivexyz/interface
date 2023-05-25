@@ -1,6 +1,8 @@
 import { BigNumber } from 'ethers'
 
 import { Network, PoolHedgerParams } from '..'
+import { GMXFuturesPoolHedger } from '../contracts/newport/typechain/NewportGMXFuturesPoolHedger'
+import { SNXPerpsV2PoolHedger } from '../contracts/newport/typechain/NewportSNXPerpsV2PoolHedger'
 import { PoolHedgerView } from '../market'
 import { Option } from '../option'
 import canHedgeOnArbitrum from './canHedgeArbitrum'
@@ -24,7 +26,7 @@ export default function canHedge(
         option,
         size,
         increasesPoolDelta,
-        hedgerView,
+        hedgerView as GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput,
         poolHedgerParams
       )
     case Network.Optimism:
@@ -34,7 +36,7 @@ export default function canHedge(
         option,
         size,
         increasesPoolDelta,
-        hedgerView,
+        hedgerView as SNXPerpsV2PoolHedger.HedgerStateStructOutput,
         poolHedgerParams
       )
   }

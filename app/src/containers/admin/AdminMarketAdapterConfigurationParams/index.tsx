@@ -65,11 +65,30 @@ const AdminMarketAdapterConfigurationParams = ({ market, isExpanded, onClickExpa
               const val = params[typedKey] ?? ''
               return (
                 <Input
+                  mb={4}
                   key={key}
                   label={key}
                   value={val.toString()}
                   placeholder={value}
                   onChange={evt => setParams({ ...params, [key]: evt.target.value })}
+                />
+              )
+            } else if (typeof value === 'number') {
+              const val = params[typedKey] ?? ''
+              return (
+                <Input
+                  mb={4}
+                  key={key}
+                  label={key}
+                  value={val.toString()}
+                  placeholder={value.toString()}
+                  onChange={evt => {
+                    const toParams = { ...params, [key]: parseFloat(evt.target.value) }
+                    if (evt.target.value === '') {
+                      delete toParams[typedKey]
+                    }
+                    setParams(toParams)
+                  }}
                 />
               )
             }
@@ -82,18 +101,18 @@ const AdminMarketAdapterConfigurationParams = ({ market, isExpanded, onClickExpa
                   min={ZERO_BN}
                   value={val}
                   key={key}
-                  placeholder={isZeroDecimals ? fromBigNumber(val, 0).toString() : val}
+                  placeholder={isZeroDecimals ? fromBigNumber(value, 0).toString() : value}
                   onEmpty={() => {
                     const toParams = { ...params }
                     delete toParams[typedKey]
                     setParams(toParams)
                   }}
                   onChange={val => {
-                    const newGreekCacheParams = {
+                    const newParams = {
                       ...params,
                       [key]: val,
                     }
-                    setParams(newGreekCacheParams)
+                    setParams(newParams)
                   }}
                 />
               </Flex>
@@ -116,7 +135,8 @@ const AdminMarketAdapterConfigurationParams = ({ market, isExpanded, onClickExpa
       <Modal
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
-        title="Confirm New Adapter Market Pricing Params"
+        title="Confirm New Adapter Market Configuration Params"
+        desktopWidth={700}
       >
         <CardBody>
           <Box>
@@ -131,7 +151,7 @@ const AdminMarketAdapterConfigurationParams = ({ market, isExpanded, onClickExpa
                   return (
                     <Flex my={2} key={key} justifyContent="space-between">
                       <Text color="secondaryText">{key}</Text>
-                      {typeof val === 'string' ? (
+                      {typeof val === 'string' || typeof val === 'number' ? (
                         <Text ml={1}>{val}</Text>
                       ) : (
                         <Text ml={1}>
