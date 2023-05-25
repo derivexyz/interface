@@ -4,6 +4,7 @@ import { PoolHedgerParams } from '../admin'
 import { MAX_BN, ZERO_BN } from '../constants/bn'
 import { LyraContractId, LyraMarketContractId } from '../constants/contracts'
 import { LyraContractMap, LyraMarketContractMap } from '../constants/mappings'
+import { NewportOptionMarket } from '../contracts/newport/optimism/typechain'
 import { OptionMarketViewer } from '../contracts/newport/typechain/NewportOptionMarketViewer'
 import { SNXPerpsV2PoolHedger } from '../contracts/newport/typechain/NewportSNXPerpsV2PoolHedger'
 import { SNXPerpV2Adapter } from '../contracts/newport/typechain/NewportSNXPerpV2Adapter'
@@ -31,6 +32,7 @@ type RequestGetTokenPrice = MulticallRequest<
   LyraMarketContractMap<Version.Newport, LyraMarketContractId.LiquidityPool>,
   'getTokenPrice'
 >
+type RequestGetBaseLimit = MulticallRequest<NewportOptionMarket, 'baseLimit'>
 
 const TESTNET_POOL_HEDGER_PARAMS: PoolHedgerParams = {
   interactionDelay: ZERO_BN,
@@ -85,6 +87,7 @@ export default async function fetchNewportOptimismMarketViews(lyra: Lyra): Promi
     adapterView: SNXPerpV2Adapter.MarketAdapterStateStructOutput
     poolHedgerParams: PoolHedgerParams
     tokenPrice: BigNumber
+    baseLimit: BigNumber
   }[]
   isGlobalPaused: boolean
   owner: string
@@ -155,6 +158,21 @@ export default async function fetchNewportOptimismMarketViews(lyra: Lyra): Promi
         }
       })
     : []
+
+  const baseLimitRequests: RequestGetBaseLimit[] = allMarketAddresses.map(marketAddresses => {
+    const optionMarket = getLyraMarketContract(
+      lyra,
+      marketAddresses,
+      Version.Newport,
+      LyraMarketContractId.OptionMarket
+    ) as NewportOptionMarket
+    return {
+      contract: optionMarket,
+      function: 'baseLimit',
+      args: [],
+    }
+  })
+
   const {
     returnData: [owner, marketViewsRes, ...hedgerAndAdapterViews],
     blockNumber,
@@ -176,6 +194,8 @@ export default async function fetchNewportOptimismMarketViews(lyra: Lyra): Promi
     ...hedgerParamsRequests,
     ...tokenPriceRequests,
   ])
+
+  const { returnData: baseLimits } = await multicall<RequestGetBaseLimit[]>(lyra, baseLimitRequests)
 
   const hedgerViews: SNXPerpsV2PoolHedger.HedgerStateStructOutput[] = hedgerAndAdapterViews.slice(
     0,
@@ -204,6 +224,7 @@ export default async function fetchNewportOptimismMarketViews(lyra: Lyra): Promi
       adapterView: adapterViews[i],
       poolHedgerParams: !isTestnet(lyra) ? poolHedgerParams[i] : TESTNET_POOL_HEDGER_PARAMS,
       tokenPrice: tokenPrices[i],
+      baseLimit: baseLimits[i],
     }
   })
 

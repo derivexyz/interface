@@ -56,7 +56,6 @@ const TradeFormCollateralSection = ({
 
   const max = getSoftMaxCollateral(trade, collateral)
   const min = getSoftMinCollateral(collateral)
-
   const liqPrice = collateral.liquidationPrice
   const spotPrice = trade.market().spotPrice
   const liqDistToSpot = liqPrice ? getDistToLiqPrice(spotPrice, liqPrice) : null
@@ -64,7 +63,7 @@ const TradeFormCollateralSection = ({
 
   const sliderDist = max.sub(min)
   const step = fromBigNumber(sliderDist) / NUM_STEPS
-  const isRange = !min.gte(max)
+  const isRange = max.gt(min)
 
   // HACK: When min = max collateral i.e. there is no range, lock collateral to max
   useEffect(() => {
@@ -102,7 +101,7 @@ const TradeFormCollateralSection = ({
 
   return (
     <CardSection {...styleProps}>
-      {isCall && !position ? (
+      {isCall && trade.market().isBaseCollateralEnabled && !position ? (
         <RowItem
           mb={5}
           label="Sell With"

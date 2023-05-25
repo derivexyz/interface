@@ -206,6 +206,7 @@ export class Market {
   spotPrice: BigNumber
   contractAddresses: MarketContractAddresses
   params: MarketParameters
+  isBaseCollateralEnabled: boolean
 
   constructor(
     lyra: Lyra,
@@ -216,7 +217,8 @@ export class Market {
     block: Block,
     hedgerView?: PoolHedgerView,
     adapterView?: ExchangeAdapterView,
-    poolHedgerParams?: PoolHedgerParams
+    poolHedgerParams?: PoolHedgerParams,
+    baseLimit?: BigNumber | null
   ) {
     this.lyra = lyra
     this.block = block
@@ -233,7 +235,7 @@ export class Market {
       poolHedgerParams
     )
     this.address = fields.address
-
+    this.isBaseCollateralEnabled = !baseLimit || baseLimit.gt(0)
     this.isPaused = fields.isPaused
     this.spotPrice = fields.spotPrice
     this.quoteToken = fields.quoteToken
@@ -276,7 +278,8 @@ export class Market {
     tokenPrice: BigNumber,
     hedgerView?: PoolHedgerView,
     adapterView?: ExchangeAdapterView,
-    poolHedgerParams?: PoolHedgerParams
+    poolHedgerParams?: PoolHedgerParams,
+    baseLimit?: BigNumber | null
   ) {
     const address = marketView.marketAddresses.optionMarket
     const isPaused = marketView.isPaused ?? isGlobalPaused
@@ -349,6 +352,7 @@ export class Market {
         (marketView as AvalonOptionMarketViewer.MarketViewWithBoardsStructOutput).marketParameters.poolHedgerParams,
       hedgerView: hedgerView ?? null,
       adapterView: adapterView ?? null,
+      baseLimit,
     }
 
     if (version === Version.Avalon) {
@@ -478,7 +482,7 @@ export class Market {
         lyra.provider.getBlock('latest'),
       ])
       const markets = marketViews.map(
-        ({ marketView, hedgerView, adapterView, poolHedgerParams, tokenPrice }) =>
+        ({ marketView, hedgerView, adapterView, poolHedgerParams, tokenPrice, baseLimit }) =>
           new Market(
             lyra,
             marketView,
@@ -488,7 +492,8 @@ export class Market {
             block,
             hedgerView,
             adapterView,
-            poolHedgerParams
+            poolHedgerParams,
+            baseLimit
           )
       )
       return markets

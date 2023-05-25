@@ -16,7 +16,6 @@ import { SLIPPAGE } from '@/app/constants/contracts'
 import { TRADE_CARD_MIN_HEIGHT } from '@/app/constants/layout'
 import TradeFormSizeInput from '@/app/containers/trade/TradeForm/TradeFormSizeInput'
 import useAccountBalances from '@/app/hooks/account/useAccountBalances'
-import useNetwork from '@/app/hooks/account/useNetwork'
 import useWalletAccount from '@/app/hooks/account/useWalletAccount'
 import withSuspense from '@/app/hooks/data/withSuspense'
 import useTradeSync from '@/app/hooks/market/useTradeSync'
@@ -40,7 +39,6 @@ type Props = {
 const TradeForm = withSuspense(
   ({ isBuy, option, position, onTrade, hideTitle }: Props) => {
     const account = useWalletAccount()
-    const network = useNetwork()
     const market = option.market()
 
     // TODO: @dappbeast parallelize requests
@@ -144,6 +142,7 @@ const TradeForm = withSuspense(
         {!isLong && trade.collateral ? (
           <>
             <TradeFormCollateralSection
+              key={fromBigNumber(collateralAmount)}
               trade={trade}
               collateral={trade.collateral}
               collateralAmount={collateralAmount}
