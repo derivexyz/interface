@@ -35,9 +35,14 @@ const fetchShortExecutorData = async (proposalId?: string): Promise<ShortExecuto
   const lyraGovernanceV2Contract = getContract(ContractId.LyraGovernanceV2, AppNetwork.Ethereum)
   const shortExecutorContract = getContract(ContractId.ShortExecutor, AppNetwork.Ethereum)
   const latestBlockNumber = (await mainnetProvider.getBlock('latest')).number
+  // const [isQuorumValid, isVoteDifferentialValid] = await Promise.all([
+  //   proposalId ? shortExecutorContract.isQuorumValid(lyraGovernanceV2Contract.address, proposalId) : false,
+  //   proposalId ? shortExecutorContract.isVoteDifferentialValid(lyraGovernanceV2Contract.address, proposalId) : false,
+  // ])
+
   const [isQuorumValid, isVoteDifferentialValid] = await Promise.all([
-    proposalId ? shortExecutorContract.isQuorumValid(lyraGovernanceV2Contract.address, proposalId) : false,
-    proposalId ? shortExecutorContract.isVoteDifferentialValid(lyraGovernanceV2Contract.address, proposalId) : false,
+    proposalId ? false : false,
+    proposalId ? false : false,
   ])
 
   const [
