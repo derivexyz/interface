@@ -223,7 +223,7 @@ const theme = {
   space: [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64],
   breakpoints: ['860px', '2000px'],
   radii: {
-    token: '3px',
+    token: '8px',
     text: '8px',
     alert: 18,
     list: 18,
@@ -387,14 +387,13 @@ const theme = {
       color: 'white',
     },
     token: {
-      fontSize: 0,
-      fontWeight: 'semibold',
+      fontSize: '14px',
+      lineHeight: ['42px', '36px'],
+      height: ['42px', '36px'],
+      fontWeight: 'medium',
       borderRadius: 'token',
       textTransform: 'uppercase',
-      letterSpacing: '2%',
-      px: 1,
-      lineHeight: '20px',
-      height: '20px',
+      px: 3,
     },
     tokenDefault: {
       variant: 'variants.token',

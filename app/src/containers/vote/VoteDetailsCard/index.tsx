@@ -1,3 +1,4 @@
+import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
@@ -28,7 +29,6 @@ const VoteDetailsCard = ({ data }: Props) => {
   const currentTimestamp = useRef(() => new Date().getTime() / 1000)
   const { proposal } = data
   const {
-    title,
     proposalState,
     startTimestamp,
     endTimestamp,
@@ -43,46 +43,39 @@ const VoteDetailsCard = ({ data }: Props) => {
     <Card>
       <CardBody>
         <Flex flexDirection="column">
-          <Text variant="cardHeading">{title}</Text>
-          <Flex flexDirection={isMobile ? 'column' : 'row'} justifyContent="space-between" mt={8}>
+          <Flex flexDirection={isMobile ? 'column' : 'row'} justifyContent="space-between">
             <Flex flexDirection="row" alignItems="center">
               <Token
+                minWidth={100}
                 label={proposalState.toUpperCase()}
                 variant={getProposalStateVariant(proposalState)}
-                sx={{
-                  height: 24,
-                  paddingTop: '2px',
-                  fontSize: 12,
-                  fontFamily: 'body',
-                  fontWeight: 'medium',
-                  lineHeight: '21px',
-                  letterSpacing: 'body',
-                }}
                 mr={4}
               />
               {proposalState !== ProposalState.Active ? (
                 <Text color="secondaryText">
                   {proposalState === ProposalState.Pending ? (
                     <Text color="secondaryText">
-                      Voting phase begins in <Countdown timestamp={startTimestamp} />
+                      Voting phase begins in <Countdown as="span" timestamp={startTimestamp} />
                     </Text>
                   ) : (
                     `Voting phase ended ${formatDate(endTimestamp)}`
                   )}
                 </Text>
               ) : (
-                <Flex flexDirection="row">
-                  <Text color="secondaryText" mr={2}>
-                    {currentTimestamp.current() >= endTimestamp ? '' : `Ends in${' '}`}
-                  </Text>
-                  <Countdown timestamp={endTimestamp} fallback="Voting phase has passed" color="secondaryText" />
-                </Flex>
+                <Text color="secondaryText" mr={2}>
+                  {currentTimestamp.current() >= endTimestamp ? '' : `Ends in${' '}`}
+                  <Countdown
+                    as="span"
+                    timestamp={endTimestamp}
+                    fallback="Voting phase has passed"
+                    color="secondaryText"
+                  />
+                </Text>
               )}
             </Flex>
             <Flex mt={[4, 0]}>
               <Button
                 label="IPFS"
-                size="sm"
                 leftIcon={IconType.Link2}
                 target="_blank"
                 href={`${getIPFSHashUrl(ipfsHash)}`}
@@ -90,35 +83,71 @@ const VoteDetailsCard = ({ data }: Props) => {
               />
               <Button
                 label="Share"
-                size="sm"
                 leftIcon={IconType.Twitter}
                 target="_blank"
                 href={`${TWITTER_URL}/share?url=https://app.lyra.finance/vote/proposal/${proposalId}`}
                 mr={2}
               />
-              <Button label="Discuss" size="sm" leftIcon={IconType.PenTool} target="_blank" href={`${FORUMS_URL}`} />
+              <Button label="Discuss" leftIcon={IconType.PenTool} target="_blank" href={`${FORUMS_URL}`} />
             </Flex>
           </Flex>
-          <Text variant="cardHeading" mt={8} mb={4}>
+          <Text variant="cardHeading" mt={6}>
             Summary
           </Text>
-          <Text mb={4}>{summary}</Text>
-          <Text variant="cardHeading" mt={8} mb={4}>
+          <Box>
+            {summary
+              .split('\n')
+              .filter(chunk => chunk.length > 0)
+              .map(chunk => (
+                <Text key={chunk} mt={3}>
+                  {chunk}
+                </Text>
+              ))}
+          </Box>
+          <Text variant="cardHeading" mt={6}>
             Motivation
           </Text>
-          <Text mb={4}>{motivation}</Text>
-          <Text variant="cardHeading" mt={8} mb={4}>
+          <Box>
+            {motivation
+              .split('\n')
+              .filter(chunk => chunk.length > 0)
+              .map(chunk => (
+                <Text key={chunk} mt={3}>
+                  {chunk}
+                </Text>
+              ))}
+          </Box>
+          <Text variant="cardHeading" mt={6}>
             Specification
           </Text>
-          <Text mb={4}>{specification}</Text>
-          <Text variant="cardHeading" mt={8} mb={4}>
+          <Text>
+            {specification
+              .split('\n')
+              .filter(chunk => chunk.length > 0)
+              .map(chunk => (
+                <Text key={chunk} mt={3}>
+                  {chunk}
+                </Text>
+              ))}
+          </Text>
+          <Text variant="cardHeading" mt={6}>
             References
           </Text>
-          <Text mb={4}>{references}</Text>
-          <Text variant="cardHeading" mt={8} mb={4}>
+          <Text>
+            {references
+              .split('\n')
+              .filter(chunk => chunk.length > 0)
+              .map(chunk => (
+                <Text key={chunk} mt={3}>
+                  {chunk}
+                </Text>
+              ))}
+          </Text>
+          <Text variant="cardHeading" mt={6}>
             Copyright
           </Text>
-          <Text mb={4}>
+          {/* TODO: include in proposal IPFS */}
+          <Text mt={3}>
             Copyright and related rights waived via{' '}
             <Link href={CREATIVE_COMMONS_URL} showRightIcon target="_blank">
               CC0

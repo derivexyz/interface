@@ -3,9 +3,10 @@ import { useCallback } from 'react'
 import { ContractId } from '@/app/constants/contracts'
 import { FetchId } from '@/app/constants/fetch'
 import { Proposal } from '@/app/constants/governance'
+import { AppNetwork } from '@/app/constants/networks'
 import { VoteQueryResult } from '@/app/constants/queries'
 import { getContractAddress } from '@/app/utils/common/getContract'
-import fetchMarkets from '@/app/utils/fetchMarkets'
+import getProvider from '@/app/utils/getProvider'
 import isMainnet from '@/app/utils/isMainnet'
 import fetchLongExecutorData, { LongExecutorData } from '@/app/utils/vote/fetchLongExecutorData'
 import fetchLyraGovernanceStrategyData, {
@@ -31,9 +32,10 @@ export const fetchVoteDetailsPageData = async (
   proposalId: string,
   account: string | null
 ): Promise<VoteDetailsPageData | null> => {
-  const markets = await fetchMarkets()
-  const blockTimestamp = markets[0].block.timestamp
-  const allProposals = await fetchProposalCreatedEventsData()
+  const [allProposals, block] = await Promise.all([
+    fetchProposalCreatedEventsData(),
+    getProvider(AppNetwork.Ethereum).getBlock('latest'),
+  ])
   const foundProposal = allProposals.find(proposal => proposal.id === proposalId)
   if (!foundProposal) {
     return null
@@ -53,7 +55,7 @@ export const fetchVoteDetailsPageData = async (
     executor,
     strategy,
     votes,
-    blockTimestamp,
+    blockTimestamp: block.timestamp,
   }
 }
 

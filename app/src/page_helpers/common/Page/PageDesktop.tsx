@@ -21,6 +21,8 @@ export default function PageDesktop({
 }: PageProps): JSX.Element {
   const navigate = useNavigate()
 
+  const showHeader = !!title
+
   return (
     <Flex pt={DESKTOP_HEADER_NAV_HEIGHT} minHeight="100%" width="100%" justifyContent="center">
       <Flex
@@ -30,29 +32,27 @@ export default function PageDesktop({
         maxWidth="100vw"
         flexDirection="column"
       >
-        {title || headerCard ? (
-          <Box mt={2}>
-            <Flex height={HEADER_CARD_HEIGHT} alignItems="center">
-              <Box>
-                <Text variant="title" mb={subtitle ? 2 : 0}>
-                  {title}
+        {showHeader ? (
+          <Flex alignItems="center">
+            <Box py={16}>
+              <Text variant="title" mb={subtitle ? 2 : 0}>
+                {title}
+              </Text>
+              {subtitle ? (
+                <Text variant="subtitle" color="secondaryText">
+                  {subtitle}
                 </Text>
-                {subtitle ? (
-                  <Text variant="subtitle" color="secondaryText">
-                    {subtitle}
-                  </Text>
-                ) : null}
-              </Box>
-              {headerCard ? (
-                <Box ml="auto" height="100%" width={412}>
-                  {headerCard}
-                </Box>
               ) : null}
-            </Flex>
-          </Box>
+            </Box>
+            {headerCard ? (
+              <Box ml="auto" height={HEADER_CARD_HEIGHT} width={412}>
+                {headerCard}
+              </Box>
+            ) : null}
+          </Flex>
         ) : null}
         {showBackButton ? (
-          <Flex mt={!(title || headerCard) ? 6 : 0}>
+          <Flex mb={6}>
             <IconButton
               variant="light"
               icon={IconType.ArrowLeft}

@@ -1,6 +1,6 @@
-import Box from '@lyra/ui/components/Box'
 import Button from '@lyra/ui/components/Button'
 import Flex from '@lyra/ui/components/Flex'
+import Grid from '@lyra/ui/components/Grid'
 import Link from '@lyra/ui/components/Link'
 import Text from '@lyra/ui/components/Text'
 import useIsMobile from '@lyra/ui/hooks/useIsMobile'
@@ -29,8 +29,8 @@ const VoteIndexPageHelper = ({ data }: Props) => {
   return (
     <Page title="Vote" subtitle="View and create proposals" headerCard={<TotalSupplyHeaderCard />}>
       <PageGrid>
-        <Box px={[6, 0]}>
-          <Text variant="heading">Proposals</Text>
+        <Text variant="heading">Proposals</Text>
+        <Grid sx={{ gridTemplateColumns: ['1fr', '4fr 1fr'], gridColumnGap: [3, 6], gridRowGap: [3, 6] }}>
           <Flex flexDirection={isMobile ? 'column' : 'row'} alignItems="center">
             <Text color="secondaryText">
               Staked LYRA tokens represent voting rights in Lyra governance. You can vote on each proposal yourself or
@@ -41,31 +41,23 @@ const VoteIndexPageHelper = ({ data }: Props) => {
                 showRightIcon
                 onClick={() => logEvent(LogEvent.VoteGovernanceClick)}
                 target="_blank"
+                color="secondaryText"
               >
                 Learn more
               </Link>
             </Text>
-            {!isMobile ? (
-              <Button
-                label="Create Proposal"
-                variant="primary"
-                size="lg"
-                width={250}
-                onClick={() => navigate(getPagePath({ page: PageId.VoteProposalCreate }))}
-              />
-            ) : null}
           </Flex>
-          {isMobile ? (
+          {!isMobile ? (
             <Button
               label="Create Proposal"
               variant="primary"
-              size="md"
-              mt={6}
+              size="lg"
+              width="100%"
               onClick={() => navigate(getPagePath({ page: PageId.VoteProposalCreate }))}
             />
           ) : null}
-        </Box>
-        <Flex flexDirection="column" mt={4}>
+        </Grid>
+        <Flex flexDirection="column">
           {data.proposals.map(proposal => {
             return <VoteProposalCard key={proposal.id} proposal={proposal} />
           })}

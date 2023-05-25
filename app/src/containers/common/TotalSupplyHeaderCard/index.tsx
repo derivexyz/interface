@@ -27,7 +27,6 @@ const TotalSupplyHeaderCard = withSuspense(() => {
             tooltip={
               <Box width={200}>
                 <RowItem
-                  variant="small"
                   label="Mainnet"
                   value={`${formatTruncatedNumber(supply.mainnetCirculatingSupply)} (${formatPercentage(
                     supply.mainnetCirculatingSupply / supply.totalSupply,
@@ -35,7 +34,6 @@ const TotalSupplyHeaderCard = withSuspense(() => {
                   )})`}
                 />
                 <RowItem
-                  variant="small"
                   label="Optimism"
                   value={`${formatTruncatedNumber(supply.optimismCirculatingSupply)} (${formatPercentage(
                     supply.optimismCirculatingSupply / supply.totalSupply,
@@ -43,7 +41,6 @@ const TotalSupplyHeaderCard = withSuspense(() => {
                   )})`}
                 />
                 <RowItem
-                  variant="small"
                   label="Arbitrum"
                   value={`${formatTruncatedNumber(supply.arbitrumCirculatingSupply)} (${formatPercentage(
                     supply.arbitrumCirculatingSupply / supply.totalSupply,
@@ -53,14 +50,14 @@ const TotalSupplyHeaderCard = withSuspense(() => {
               </Box>
             }
           >
-            <Text variant="small">{formatNumber(supply.totalCirculatingSupply)}</Text>
+            <Text>{formatNumber(supply.totalCirculatingSupply)}</Text>
           </Tooltip>
-          <Text variant="small" color="secondaryText" ml="auto">
+          <Text color="secondaryText" ml="auto">
             {formatNumber(supply.totalSupply)}
           </Text>
         </Flex>
         <LinearProgress my={2} color="primaryText" progress={supply.totalCirculatingSupply / supply.totalSupply} />
-        <Text variant="small">{formatPercentage(circulatingSupplyPct, true)}</Text>
+        <Text>{formatPercentage(circulatingSupplyPct, true)}</Text>
       </CardBody>
     </Card>
   ) : null

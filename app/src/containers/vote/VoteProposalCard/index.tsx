@@ -1,6 +1,6 @@
 import Card from '@lyra/ui/components/Card'
 import CardBody from '@lyra/ui/components/Card/CardBody'
-import Grid from '@lyra/ui/components/Grid'
+import Flex from '@lyra/ui/components/Flex'
 import Text from '@lyra/ui/components/Text'
 import Token from '@lyra/ui/components/Token'
 import { MarginProps } from '@lyra/ui/types'
@@ -9,7 +9,6 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Proposal } from '@/app/constants/governance'
-import { VOTE_PROPOSALS_CARD_GRID_COLUMN_TEMPLATE } from '@/app/constants/layout'
 import { PageId } from '@/app/constants/pages'
 import getPagePath from '@/app/utils/getPagePath'
 import getProposalStateVariant from '@/app/utils/vote/getProposalStateVariant'
@@ -46,31 +45,20 @@ const VoteProposalCard = ({ proposal }: Props) => {
       }}
     >
       <CardBody>
-        <Grid
-          width="100%"
-          sx={{
-            gridTemplateColumns: VOTE_PROPOSALS_CARD_GRID_COLUMN_TEMPLATE,
-            gridColumnGap: 4,
-            gridRowGap: 6,
-            alignItems: 'center',
-          }}
-        >
-          <Text color="secondaryText">{formatDate(proposedTimestamp, false)}</Text>
-          <Text sx={{ fontWeight: 400 }}>{title}</Text>
+        <Flex alignItems="center">
+          <Flex mr={2} alignItems="center">
+            <Text width={125} color="secondaryText">
+              {formatDate(proposedTimestamp, false)}
+            </Text>
+            <Text>{title}</Text>
+          </Flex>
           <Token
+            minWidth={100}
+            ml="auto"
             label={proposalState.toUpperCase()}
             variant={getProposalStateVariant(proposalState)}
-            sx={{
-              height: '100%',
-              padding: 2,
-              fontSize: 16,
-              fontFamily: 'body',
-              fontWeight: 'medium',
-              lineHeight: 'body',
-              letterSpacing: 'body',
-            }}
           />
-        </Grid>
+        </Flex>
       </CardBody>
     </Card>
   )

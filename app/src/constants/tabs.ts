@@ -36,12 +36,12 @@ const TABS: Tab[] = [
     name: 'Airdrop',
     logEvent: LogEvent.NavLeaderboardTabClick,
   },
-  // {
-  //   path: getPagePath({ page: PageId.VoteIndex }),
-  //   rootPageId: PageId.VoteIndex,
-  //   name: 'Vote',
-  //   logEvent: LogEvent.NavVoteTabClick,
-  // },
+  {
+    path: getPagePath({ page: PageId.VoteIndex }),
+    rootPageId: PageId.VoteIndex,
+    name: 'Vote',
+    logEvent: LogEvent.NavVoteTabClick,
+  },
 ]
 
 export default TABS

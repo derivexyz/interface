@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import { useMemo } from 'react'
 
+import RowItem from '@/app/components/common/RowItem'
 import { ProposalState, Vote } from '@/app/constants/governance'
 import useWallet from '@/app/hooks/account/useWallet'
 import { VoteDetailsPageData } from '@/app/hooks/vote/useVoteDetailsPageData'
@@ -55,17 +56,9 @@ const VoteFormCard = ({ data, ...marginProps }: Props) => {
     <Card {...marginProps}>
       <CardBody>
         <Text variant="cardHeading" mb={4}>
-          Your voting info
+          Your vote
         </Text>
-        <Flex flexDirection="row" justifyContent="space-between" my={2}>
-          <Flex flexDirection="column">
-            <Text color="secondaryText">Voting Power</Text>
-            <Text variant="small" color="secondaryText">
-              stkLYRA
-            </Text>
-          </Flex>
-          <Text color="text">{formatNumber(votingPower)} stkLYRA</Text>
-        </Flex>
+        <RowItem label="Voting Power" value={`${formatNumber(votingPower)} stkLYRA`} />
         {support && voteAmount > 0 ? (
           <Flex flexDirection="row" justifyContent="space-between" my={2}>
             <Text color="secondaryText">Your vote</Text>
