@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers'
 
 import { PoolHedgerParams } from '../admin'
+import { UNIT } from '../constants/bn'
 import { SNXPerpsV2PoolHedger } from '../contracts/newport/typechain/NewportSNXPerpsV2PoolHedger'
 import { Option } from '../option'
 import getCappedExpectedHedge from './getCappedExpectedHedge'
@@ -13,7 +14,7 @@ const hasEnoughMarketDepth = (
   longInterest: BigNumber
 ) => {
   const interest = hedge.lt(0) ? shortInterest : longInterest
-  const marketUsage = interest.add(hedge.abs().mul(marketDepthBuffer))
+  const marketUsage = interest.add(hedge.abs().mul(marketDepthBuffer).div(UNIT))
   return marketUsage.lt(maxTotalMarketSize)
 }
 
@@ -34,6 +35,7 @@ export default function canHedgeOnOptimism(
     shortInterest,
     longInterest,
     maxTotalMarketSize,
+    curveRateStable,
   } = hedgerView
 
   if (marketSuspended) {
@@ -59,7 +61,7 @@ export default function canHedgeOnOptimism(
     return true
   }
   // check that the curve swap rates are acceptable
-  if (!hedgerView.curveRateStable) {
+  if (!curveRateStable) {
     return false
   }
 
