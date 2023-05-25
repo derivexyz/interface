@@ -8,6 +8,7 @@ import { IconType } from '@lyra/ui/components/Icon'
 import Image from '@lyra/ui/components/Image'
 import Text from '@lyra/ui/components/Text'
 import React, { useCallback, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import useAnnouncements from '@/app/hooks/local_storage/useAnnouncements'
 
@@ -24,6 +25,8 @@ export default function TradeAnnouncementHeaderCard({ blockTimestamp }: Props) {
 
   const isNextAnnouncement = displayedIdx < announcements.length - 1
   const isPrevAnnouncement = displayedIdx > 0
+
+  const { pathname } = useLocation()
 
   const handleNextAnnouncement = useCallback(() => {
     if (displayedId && isNextAnnouncement) {
@@ -68,40 +71,43 @@ export default function TradeAnnouncementHeaderCard({ blockTimestamp }: Props) {
   }
 
   return displayedAnnouncement ? (
-    <Card variant="outline" height={['100%', 230]} width="100%">
+    <Card variant="outline" height="100%" width="100%">
       <CardBody height="100%">
-        <Flex mb={4} justifyContent="flex-start">
+        <Flex mb={3} justifyContent="flex-start">
           {displayedAnnouncement.graphic ? (
             <Box
-              minWidth={[84, 76]}
-              minHeight={[84, 76]}
-              width={[84, 76]}
-              height={[84, 76]}
-              mr={4}
+              minWidth={[60, 60]}
+              minHeight={[60, 60]}
+              width={[60, 60]}
+              height={[60, 60]}
+              mr={3}
               sx={{ borderRadius: '10px', overflow: 'hidden' }}
             >
               <Image src={displayedAnnouncement.graphic} width="100%" height="100%" />
             </Box>
           ) : null}
-          <Box>
-            <Flex mb={1}>
-              <Text variant="cardHeading">{displayedAnnouncement.title}</Text>
-              <Box ml="auto">
-                <IconButton onClick={handleDismissAnnouncement} icon={IconType.X} />
-              </Box>
-            </Flex>
-            <Text variant="small" color="secondaryText">
-              {displayedAnnouncement.description}
-            </Text>
+          <Text maxWidth={170} mr={3} variant="cardHeading">
+            {displayedAnnouncement.title}
+          </Text>
+          <Box ml="auto" minWidth={[42, 36]}>
+            <IconButton onClick={handleDismissAnnouncement} icon={IconType.X} />
           </Box>
         </Flex>
+        <Text mb={3} variant="small" color="secondaryText">
+          {displayedAnnouncement.description}
+        </Text>
         <Flex mt="auto">
-          <Button
-            label={displayedAnnouncement.cta.label}
-            href={displayedAnnouncement.cta.href}
-            target={displayedAnnouncement.cta.target}
-            rightIcon={displayedAnnouncement.cta.target === '_blank' ? IconType.ArrowUpRight : IconType.ArrowRight}
-          />
+          {displayedAnnouncement.cta.href !== pathname ? (
+            <Button
+              minWidth={120}
+              label={displayedAnnouncement.cta.label}
+              href={displayedAnnouncement.cta.href}
+              target={displayedAnnouncement.cta.target}
+              rightIcon={displayedAnnouncement.cta.target === '_blank' ? IconType.ArrowUpRight : IconType.ArrowRight}
+            />
+          ) : (
+            <Button minWidth={120} label="Dismiss" onClick={handleDismissAnnouncement} />
+          )}
           <Flex ml="auto">
             <IconButton
               icon={IconType.ChevronLeft}
