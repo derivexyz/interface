@@ -6,7 +6,7 @@ import Spinner from '@lyra/ui/components/Spinner'
 import Text from '@lyra/ui/components/Text'
 import formatBalance from '@lyra/ui/utils/formatBalance'
 import formatUSD from '@lyra/ui/utils/formatUSD'
-import { Market, Network, Option, Position } from '@lyrafinance/lyra-js'
+import { Market, Option, Position } from '@lyrafinance/lyra-js'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import AmountUpdateText from '@/app/components/common/AmountUpdateText'
@@ -101,7 +101,7 @@ const TradeForm = withSuspense(
       isBaseCollateral,
       // TODO: @dappbeast make slippage configurable
       slippage: SLIPPAGE,
-      referrer: network === Network.Arbitrum && !!referrerAddress ? referrerAddress : undefined,
+      referrer: !!referrerAddress ? referrerAddress : undefined,
     })
 
     const pnl = useMemo(() => trade.pnl(), [trade])
