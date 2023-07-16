@@ -34,7 +34,7 @@ const LayoutPrivacyModal = ({ isOpen, onClose }: Props) => {
         <Text variant="small" color="secondaryText">
           The app fetches on-chain data with APIs from node providers including{' '}
           <Link variant="small" href="https://www.alchemy.com/" target="_blank" showRightIcon>
-            Alchmey
+            Alchemy
           </Link>
         </Text>
       </ModalSection>
